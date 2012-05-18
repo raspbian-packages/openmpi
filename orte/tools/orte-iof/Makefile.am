@@ -40,7 +40,7 @@ dist_pkgdata_DATA = help-orte-iof.txt
 endif # OMPI_INSTALL_BINARIES
 
 orte_iof_SOURCES = orte-iof.c
-orte_iof_LDADD = $(top_builddir)/orte/libopen-rte.la
+orte_iof_LDADD = $(top_builddir)/orte/libopen-rte.la $(top_builddir)/opal/libopen-pal.la
 
 endif # !ORTE_DISABLE_FULL_SUPPORT
 

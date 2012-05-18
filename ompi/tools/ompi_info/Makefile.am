@@ -66,7 +66,7 @@ ompi_info_SOURCES = \
         output.cc \
         param.cc \
         version.cc 
-ompi_info_LDADD = $(top_builddir)/ompi/libmpi.la
+ompi_info_LDADD = $(top_builddir)/ompi/libmpi.la $(top_builddir)/orte/libopen-rte.la $(top_builddir)/opal/libopen-pal.la
 
 clean-local:
 	test -z "$(OMPI_CXX_TEMPLATE_REPOSITORY)" || rm -rf $(OMPI_CXX_TEMPLATE_REPOSITORY)

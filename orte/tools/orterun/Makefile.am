@@ -55,7 +55,7 @@ orterun_SOURCES = \
         debuggers.h \
         debuggers.c
  
-orterun_LDADD = $(top_builddir)/orte/libopen-rte.la
+orterun_LDADD = $(top_builddir)/orte/libopen-rte.la $(top_builddir)/opal/libopen-pal.la
 
 endif # !ORTE_DISABLE_FULL_SUPPORT
 
