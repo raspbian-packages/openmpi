@@ -186,8 +186,14 @@ int mca_base_param_recache_files(bool rel_path_search)
     home = (char*)opal_home_directory();
     
     if(NULL == cwd) {
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+        cwd = get_current_dir_name();
+        if( NULL == cwd)
+#else
         cwd = (char *) malloc(sizeof(char) * MAXPATHLEN);
-        if( NULL == (cwd = getcwd(cwd, MAXPATHLEN) )) {
+        if( NULL == (cwd = getcwd(cwd, MAXPATHLEN) ))
+#endif
+        {
             opal_output(0, "Error: Unable to get the current working directory\n");
             cwd = strdup(".");
         }

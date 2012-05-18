@@ -363,6 +363,13 @@ static void show_stackframe (int signo, siginfo_t * info, void * p)
     fflush(stderr);
 }
 
+#ifndef SA_SIGINFO
+static void show_stackframe_handler (int signo)
+{
+    show_stackframe(signo, NULL, NULL);
+}
+
+#endif /* SA_SIGINFO */
 #endif /* OMPI_WANT_PRETTY_PRINT_STACKTRACE && ! defined(__WINDOWS__) */
 
 
@@ -422,8 +429,12 @@ int opal_util_register_stackhandlers (void)
     mca_base_param_lookup_string (param, &string_value);
 
     memset(&act, 0, sizeof(act));
+#ifdef SA_SIGINFO
     act.sa_sigaction = show_stackframe;
     act.sa_flags = SA_SIGINFO;
+#else
+    act.sa_handler = show_stackframe_handler;
+#endif
 #ifdef SA_ONESHOT
     act.sa_flags |= SA_ONESHOT;
 #else

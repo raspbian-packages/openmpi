@@ -23,9 +23,9 @@
 # -----------------------------------------------------------
 AC_DEFUN([MCA_paffinity_darwin_CONFIG],[
     OMPI_VAR_SCOPE_PUSH([paff_darwin_happy])
-    # check to see if we have <mach/mach_host.h>
+    # check to see if we have <mach-o/arch.h>
     # as this is a Darwin-specific thing
-    AC_CHECK_HEADER([mach/mach_host.h], [paff_darwin_happy=yes], [paff_darwin_happy=no])
+    AC_CHECK_HEADER([mach-o/arch.h], [paff_darwin_happy=yes], [paff_darwin_happy=no])
 
     AS_IF([test "$paff_darwin_happy" = "yes"], [$1], [$2])
     OMPI_VAR_SCOPE_POP

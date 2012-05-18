@@ -100,13 +100,18 @@ int ompi_mpi_finalize(void)
         /* Note that if we're already finalized, we cannot raise an
            MPI exception.  The best that we can do is write something
            to stderr. */
-        char hostname[MAXHOSTNAMELEN];
+        char *hostname = NULL;
+        size_t hostname_length = 128;
         pid_t pid = getpid();
-        gethostname(hostname, sizeof(hostname));
+        do {
+            hostname_length *= 2;
+            hostname = realloc(hostname, hostname_length);
+        } while ((gethostname(hostname, hostname_length) == -1) && (errno == ENAMETOOLONG));
 
         orte_show_help("help-mpi-runtime.txt",
                        "mpi_finalize:invoked_multiple_times",
                        true, hostname, pid);
+        free(hostname);
         return MPI_ERR_OTHER;
     }
 

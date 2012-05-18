@@ -53,10 +53,11 @@ ompi_mpi_abort(struct ompi_communicator_t* comm,
                bool kill_remote_of_intercomm)
 {
     int count = 0, i;
-    char *msg, *host, hostname[MAXHOSTNAMELEN];
+    char *msg, *host = NULL;
     pid_t pid = 0;
     orte_process_name_t *abort_procs;
     orte_std_cntr_t nabort_procs;
+    bool free_host = false;
 
     /* Protection for recursive invocation */
     if (have_been_invoked) {
@@ -70,8 +71,12 @@ ompi_mpi_abort(struct ompi_communicator_t* comm,
     if (orte_initialized) {
         host = orte_process_info.nodename;
     } else {
-        gethostname(hostname, sizeof(hostname));
-        host = hostname;
+        size_t host_length = 128;
+        do {
+            host_length *= 2;
+            host = realloc(host, host_length);
+        } while ((gethostname(host, host_length) == -1) && (errno == ENAMETOOLONG));
+        free_host = true;
     }
     pid = getpid();
 
@@ -138,7 +143,15 @@ ompi_mpi_abort(struct ompi_communicator_t* comm,
         fprintf(stderr, "[%s:%d] Abort %s completed successfully; not able to guarantee that all other processes were killed!\n",
                 host, (int) pid, ompi_mpi_finalized ? 
                 "after MPI_FINALIZE" : "before MPI_INIT");
+        if (free_host) {
+            free(host);
+        }
         exit(errcode);
+    }
+
+    if (free_host) {
+        free(host);
+        host = NULL;
     }
 
     /* abort local procs in the communicator.  If the communicator is
