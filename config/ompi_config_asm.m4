@@ -875,6 +875,12 @@ AC_DEFUN([OMPI_CONFIG_ASM],[
             OMPI_GCC_INLINE_ASSIGN='"movl [$]0, %0" : "=&r"(ret)'
             ;;
 
+        arm*)
+            ompi_cv_asm_arch="ARM"
+            OMPI_ASM_SUPPORT_64BIT=1
+            OMPI_GCC_INLINE_ASSIGN='"mov r0, 0" : "=&r"(ret)'
+            ;;
+
         ia64-*)
             ompi_cv_asm_arch="IA64"
             OMPI_ASM_SUPPORT_64BIT=1

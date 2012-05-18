@@ -16,22 +16,8 @@
 # $HEADER$
 #
 
-# This makefile.am does not stand on its own - it is included from opal/Makefile.am
+# This makefile.am does not stand on its own - it is included from opal/include/Makefile.am
 
 headers += \
-	opal/sys/architecture.h \
-	opal/sys/atomic.h \
-	opal/sys/atomic_impl.h \
-	opal/sys/cache.h \
-	opal/sys/timer.h
-
-include opal/sys/alpha/Makefile.am
-include opal/sys/amd64/Makefile.am
-include opal/sys/arm/Makefile.am
-include opal/sys/ia32/Makefile.am
-include opal/sys/ia64/Makefile.am
-include opal/sys/mips/Makefile.am
-include opal/sys/powerpc/Makefile.am
-include opal/sys/sparc/Makefile.am
-include opal/sys/sparcv9/Makefile.am
-include opal/sys/win32/Makefile.am
+		   opal/sys/arm/atomic.h \
+		   opal/sys/arm/timer.h
