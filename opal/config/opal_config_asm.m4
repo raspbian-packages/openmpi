@@ -900,6 +900,12 @@ AC_DEFUN([OMPI_CONFIG_ASM],[
             OMPI_GCC_INLINE_ASSIGN='"bis [$]31,[$]31,%0" : "=&r"(ret)'
             ;;
 
+        aarch64*)
+            ompi_cv_asm_arch="ARM64"
+            OPAL_ASM_SUPPORT_64BIT=1
+            OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
+            ;;
+
         armv7*|arm-*-linux-gnueabihf)
             ompi_cv_asm_arch="ARM"
             OPAL_ASM_SUPPORT_64BIT=1
