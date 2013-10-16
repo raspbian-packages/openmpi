@@ -84,6 +84,8 @@ BEGIN_C_DECLS
 #include "opal/sys/amd64/timer.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_ARM
 #include "opal/sys/arm/timer.h"
+#elif OPAL_ASSEMBLY_ARCH == OPAL_ARM64
+#include "opal/sys/arm64/timer.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_IA32
 #include "opal/sys/ia32/timer.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_IA64
