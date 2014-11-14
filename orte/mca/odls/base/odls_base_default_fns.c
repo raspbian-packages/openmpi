@@ -1370,8 +1370,13 @@ int orte_odls_base_default_launch_local(orte_jobid_t job,
     orte_local_rank_t local_rank;
     orte_node_rank_t node_rank;
     char *pathenv = NULL, *mpiexec_pathenv = NULL;
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    char *basedir=NULL;
+    char *dir=NULL;
+#else
     char basedir[MAXPATHLEN];
     char dir[MAXPATHLEN];
+#endif
     char **argvptr;
     char *full_search;
     char **argvsav=NULL;
@@ -1388,7 +1393,11 @@ int orte_odls_base_default_launch_local(orte_jobid_t job,
      * bouncing around as we execute various apps, but we will always return
      * to this place as our default directory
      */
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    basedir = get_current_dir_name();
+#else
     getcwd(basedir, sizeof(basedir));
+#endif
 
     /* find the jobdat for this job */
     jobdat = NULL;
@@ -1621,7 +1630,11 @@ int orte_odls_base_default_launch_local(orte_jobid_t job,
          * again not match getcwd! This is beyond our control - we are only
          * ensuring they start out matching.
          */
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+        dir = get_current_dir_name();
+#else
         getcwd(dir, sizeof(dir));
+#endif
         opal_setenv("PWD", dir, true, &app->env);
         
         /* Search for the OMPI_exec_path and PATH settings in the environment. */
@@ -2118,6 +2131,10 @@ CLEANUP:
  GETOUT:
     opal_condition_signal(&orte_odls_globals.cond);
     OPAL_THREAD_UNLOCK(&orte_odls_globals.mutex);
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    free(basedir);
+    free(dir);
+#endif
     return rc;
 }
 
