@@ -21,9 +21,6 @@ noinst_LTLIBRARIES = libdebuggers.la libompi_debugger_canary.la
 pkglib_LTLIBRARIES = libompi_dbg_msgq.la
 
 check_PROGRAMS = predefined_gap_test
-if OPAL_HAVE_DLOPEN
-check_PROGRAMS += dlopen_test
-endif
 
 TESTS = $(check_PROGRAMS)
 
