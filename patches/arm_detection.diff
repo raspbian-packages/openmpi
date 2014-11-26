@@ -1,0 +1,115 @@
+Index: openmpi-1.6.5/opal/config/opal_config_asm.m4
+===================================================================
+--- openmpi-1.6.5.orig/opal/config/opal_config_asm.m4	2013-11-28 13:30:11.000000000 +0000
++++ openmpi-1.6.5/opal/config/opal_config_asm.m4	2013-11-28 13:30:11.000000000 +0000
+@@ -909,17 +909,17 @@
+             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
+             ;;
+ 
+-        armv6*)
++        armv6*|arm-*-linux-gnueabihf)
+             ompi_cv_asm_arch="ARM"
+             OPAL_ASM_SUPPORT_64BIT=0
+             OPAL_ASM_ARM_VERSION=6
+-            CCASFLAGS="$CCASFLAGS -march=armv7-a"
++            CCASFLAGS="$CCASFLAGS"
+             AC_DEFINE_UNQUOTED([OPAL_ASM_ARM_VERSION], [$OPAL_ASM_ARM_VERSION],
+                                [What ARM assembly version to use])
+             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
+             ;;
+ 
+-        armv5*linux*|armv4*linux*)
++        armv5*linux*|armv4*linux*|arm-*-linux-gnueabi)
+             # uses Linux kernel helpers for some atomic operations
+             ompi_cv_asm_arch="ARM"
+             OPAL_ASM_SUPPORT_64BIT=0
+Index: openmpi-1.6.5/configure
+===================================================================
+--- openmpi-1.6.5.orig/configure	2013-11-28 13:30:11.000000000 +0000
++++ openmpi-1.6.5/configure	2013-11-28 13:30:11.000000000 +0000
+@@ -27204,11 +27204,11 @@
+             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
+             ;;
+ 
+-        armv6*)
++        armv6*|arm-*-linux-gnueabihf)
+             ompi_cv_asm_arch="ARM"
+             OPAL_ASM_SUPPORT_64BIT=0
+             OPAL_ASM_ARM_VERSION=6
+-            CCASFLAGS="$CCASFLAGS -march=armv7-a"
++            CCASFLAGS="$CCASFLAGS"
+ 
+ cat >>confdefs.h <<_ACEOF
+ #define OPAL_ASM_ARM_VERSION $OPAL_ASM_ARM_VERSION
+@@ -27217,7 +27217,7 @@
+             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
+             ;;
+ 
+-        armv5*linux*|armv4*linux*)
++        armv5*linux*|armv4*linux*|arm-*-linux-gnueabi)
+             # uses Linux kernel helpers for some atomic operations
+             ompi_cv_asm_arch="ARM"
+             OPAL_ASM_SUPPORT_64BIT=0
+Index: openmpi-1.6.5/opal/asm/base/ARM.asm
+===================================================================
+--- openmpi-1.6.5.orig/opal/asm/base/ARM.asm	2013-11-28 13:31:12.000000000 +0000
++++ openmpi-1.6.5/opal/asm/base/ARM.asm	2013-11-28 13:31:29.000000000 +0000
+@@ -3,19 +3,19 @@
+ 
+        ALIGN(4)
+ START_FUNC(opal_atomic_mb)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        bx      lr
+ END_FUNC(opal_atomic_mb)
+ 
+ 
+ START_FUNC(opal_atomic_rmb)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        bx      lr
+ END_FUNC(opal_atomic_rmb)
+ 
+ 
+ START_FUNC(opal_atomic_wmb)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        bx      lr
+ END_FUNC(opal_atomic_wmb)
+ 
+@@ -43,7 +43,7 @@
+        strex   r12, r2, [r0]
+        cmp     r12, #0
+        bne     REFLSYM(3)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        mov     r0, #1
+        LSYM(4)
+        movne   r0, #0
+@@ -56,7 +56,7 @@
+        ldrex   r3, [r0]
+        cmp     r1, r3
+        bne     REFLSYM(6)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        strex   r12, r2, [r0]
+        cmp     r12, #0
+        bne     REFLSYM(4)
+@@ -98,7 +98,7 @@
+        strexd  r1, r6, r7, [r0]
+        cmp     r1, #0
+        bne     REFLSYM(9)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        mov     r0, #1
+        LSYM(10)
+        movne   r0, #0
+@@ -116,7 +116,7 @@
+        it      eq
+        cmpeq   r5, r3
+        bne     REFLSYM(12)
+-       dmb
++       MCR p15, 0, r0, c7, c10, 5
+        strexd  r1, r6, r7, [r0]
+        cmp     r1, #0
+        bne     REFLSYM(11)
