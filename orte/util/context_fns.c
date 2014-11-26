@@ -55,10 +55,12 @@ int orte_util_check_context_cwd(orte_app_context_t *context,
 {
     bool good = true;
     const char *tmp;
+#if 0 /* 'hostname' looks unused... */
     char hostname[MAXHOSTNAMELEN];
     
     /* Use hostname in a few messages below */
     gethostname(hostname, sizeof(hostname));
+#endif
     
     /* If we want to chdir and the chdir fails (for any reason -- such
        as if the dir doesn't exist, it isn't a dir, we don't have

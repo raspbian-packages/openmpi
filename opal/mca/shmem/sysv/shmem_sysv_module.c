@@ -65,6 +65,10 @@
 
 /* for tons of debug output: -mca shmem_base_verbose 70 */
 
+#ifndef MAXHOSTNAMELEN
+# define MAXHOSTNAMELEN 256
+#endif
+
 /* ////////////////////////////////////////////////////////////////////////// */
 /* local functions */
 static int
