@@ -96,9 +96,7 @@ static inline int opal_atomic_cmpset_32( volatile int32_t *addr,
 		       "mov %3, %0              \n\t"
 		       "stl_c %0, %1            \n\t"
 		       "beq %0, 1b              \n\t"
-		       "jmp 3f                  \n"
-		       "2:  mov $31, %0         \n"
-		       "3:                      \n"
+		       "2:                      \n"
 		       : "=&r" (ret), "+m" (*addr)
 		       : "r" (oldval), "r" (newval)
 		       : "memory");
@@ -141,9 +139,7 @@ static inline int opal_atomic_cmpset_64( volatile int64_t *addr,
 			  "mov %3, %0           \n\t"
 			  "stq_c %0, %1         \n\t"
 			  "beq %0, 1b           \n\t"
-			  "jmp 3f               \n"
-			  "2:  mov $31, %0      \n"
-			  "3:                   \n"
+			  "2:                   \n"
 			  : "=&r" (ret), "+m" (*addr)
 			  : "r" (oldval), "r" (newval)
 			  : "memory");
