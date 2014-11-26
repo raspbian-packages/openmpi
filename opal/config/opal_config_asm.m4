@@ -909,17 +909,17 @@ AC_DEFUN([OMPI_CONFIG_ASM],[
             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
-        armv6*)
+        armv6*|arm-*-linux-gnueabihf)
             ompi_cv_asm_arch="ARM"
             OPAL_ASM_SUPPORT_64BIT=0
             OPAL_ASM_ARM_VERSION=6
-            CCASFLAGS="$CCASFLAGS -march=armv7-a"
+            CCASFLAGS="$CCASFLAGS"
             AC_DEFINE_UNQUOTED([OPAL_ASM_ARM_VERSION], [$OPAL_ASM_ARM_VERSION],
                                [What ARM assembly version to use])
             OMPI_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
-        armv5*linux*|armv4*linux*)
+        armv5*linux*|armv4*linux*|arm-*-linux-gnueabi)
             # uses Linux kernel helpers for some atomic operations
             ompi_cv_asm_arch="ARM"
             OPAL_ASM_SUPPORT_64BIT=0
