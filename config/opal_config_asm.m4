@@ -952,6 +952,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
             OPAL_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
+        hppa*)
+            opal_cv_asm_arch="HPPA"
+            OPAL_ASM_SUPPORT_64BIT=0
+            OPAL_GCC_INLINE_ASSIGN='"copy 0,%0" : "=&r"(ret)'
+            ;;
+
         mips-*|mipsel-*)
            opal_cv_asm_arch="MIPS"
 	    OPAL_ASM_SUPPORT_64BIT=0

@@ -30,6 +30,7 @@
 #define OPAL_IA32           0010
 #define OPAL_IA64           0020
 #define OPAL_AMD64          0030
+#define OPAL_HPPA           0110
 #define OPAL_POWERPC32      0050
 #define OPAL_POWERPC64      0051
 #define OPAL_SPARC          0060
