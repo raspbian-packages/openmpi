@@ -946,8 +946,13 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
             OPAL_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
-        mips-*|mips64*)
-            # Should really find some way to make sure that we are on
+        mips-*|mipsel-*)
+           opal_cv_asm_arch="MIPS"
+	    OPAL_ASM_SUPPORT_64BIT=0
+	    OPAL_GCC_INLINE_ASSIGN='"or %0,[$]0,[$]0" : "=&r"(ret)'
+	    ;;
+	    
+        mips64-*|mips64el-*)    
             # a MIPS III machine (r4000 and later)
             opal_cv_asm_arch="MIPS"
             OPAL_ASM_SUPPORT_64BIT=1
