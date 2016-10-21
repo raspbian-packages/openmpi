@@ -189,7 +189,7 @@ int mqs_version_compatibility (void)
 char *mqs_version_string (void)
 {
     return "Open MPI message queue support for parallel"
-           " debuggers compiled on " __DATE__;
+      " debuggers, Debian version ";
 } /* mqs_version_string */
 
 /* So the debugger can tell what interface width the library was compiled with */
