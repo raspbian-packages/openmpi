@@ -146,6 +146,7 @@ static void *intercept_mmap(void *start, size_t length, int prot, int flags, int
 
 #endif
 
+#if defined (SYS_munmap)
 static int (*original_munmap) (void *, size_t);
 
 static int intercept_munmap(void *start, size_t length)
@@ -165,6 +166,7 @@ static int intercept_munmap(void *start, size_t length)
     OPAL_PATCHER_END;
     return result;
 }
+#endif
 
 #if defined (SYS_mremap)
 
@@ -439,10 +441,12 @@ static int patcher_open (void)
     }
 #endif
 
+#if defined(SYS_munmap)
     rc = opal_patcher->patch_symbol ("munmap", (uintptr_t)intercept_munmap, (uintptr_t *) &original_munmap);
     if (OPAL_SUCCESS != rc) {
         return rc;
     }
+#endif
 
 #if defined (SYS_mremap)
     rc = opal_patcher->patch_symbol ("mremap",(uintptr_t)intercept_mremap, (uintptr_t *) &original_mremap);
