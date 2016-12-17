@@ -17,6 +17,11 @@ pkgincludedir=@opalincludedir@
 # dependencies), so only list these in Libs.private.
 #
 Libs: -L${libdir} @OMPI_PKG_CONFIG_LDFLAGS@ -l@OMPI_LIBMPI_NAME@
-Libs.private: @OMPI_WRAPPER_EXTRA_LIBS@
+Libs.private: @OMPI_WRAPPER_EXTRA_LIBS@ -lmpi_f90 -lmpi_f77 -lmpi
 #
 Cflags: -I${includedir} @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@
+#
+# Add variables to be queried in specific cases. Match variables in mpich.pc
+cxxflags= -I -I/@OMPI_WRAPPER_EXTRA_INCLUDES@ @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CXXFLAGS@
+fcflags= -I -I/@OMPI_WRAPPER_EXTRA_INCLUDES@ @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_FCFLAGS@
+fflags= -I -I/@OMPI_WRAPPER_EXTRA_INCLUDES@ @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_FFLAGS@
