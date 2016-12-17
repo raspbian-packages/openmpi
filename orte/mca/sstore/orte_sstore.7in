@@ -11,8 +11,7 @@
 .\"    Name Section
 .\" **************************
 .SH NAME
-.
-Open RTE MCA File Management (SStore) Framework \- Overview of Open RTE's SStore
+Open RTE MCA File Management (SStore) Framework - Overview of Open RTE's SStore
 framework, and selected modules.  #PACKAGE_NAME# #PACKAGE_VERSION#
 .
 .\" **************************
