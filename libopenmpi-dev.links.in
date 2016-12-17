@@ -1,0 +1,27 @@
+## Man pages (link provided by upstream, needs recreation because of renaming):
+usr/share/man/man1/mpic++.openmpi.1     usr/share/man/man1/mpiCC.openmpi.1
+# Missing links
+usr/share/man/man1/opal_wrapper.1	usr/share/man/man1/opalCC.1
+usr/share/man/man1/opal_wrapper.1	usr/share/man/man1/opalc++.1
+usr/share/man/man1/opal_wrapper.1	usr/share/man/man1/orteCC.1
+usr/share/man/man1/opal_wrapper.1	usr/share/man/man1/ortec++.1
+usr/share/man/man1/opal_wrapper.1	usr/share/man/man1/ortecc.1
+## SONAME symlinks
+usr/lib/@TRIPLET@/libmca_common_sm.so.20		usr/lib/@TRIPLET@/libmca_common_sm.so
+usr/lib/@TRIPLET@/libmpi_cxx.so.20			usr/lib/@TRIPLET@/libmpi_cxx.so
+usr/lib/@TRIPLET@/libmpi_mpifh.so.20		usr/lib/@TRIPLET@/libmpi_mpifh.so
+usr/lib/@TRIPLET@/libompitrace.so.20		usr/lib/@TRIPLET@/libompitrace.so
+usr/lib/@TRIPLET@/libopen-pal.so.20		usr/lib/@TRIPLET@/libopen-pal.so
+usr/lib/@TRIPLET@/libopen-rte.so.20		usr/lib/@TRIPLET@/libopen-rte.so
+usr/lib/@TRIPLET@/libmpi_usempif08.so.20		usr/lib/@TRIPLET@/libmpi_usempif08.so
+usr/lib/@TRIPLET@/libmpi_usempi_ignore_tkr.so.20	usr/lib/@TRIPLET@/libmpi_usempi_ignore_tkr.so
+## Convenience link for header files, see bug #493875
+usr/lib/@TRIPLET@/openmpi/include/		usr/include/openmpi
+# pkg-config
+usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/ompi-fort.pc	usr/lib/@TRIPLET@/pkgconfig/ompi-fort.pc
+usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/orte.pc		usr/lib/@TRIPLET@/pkgconfig/orte.pc
+usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/ompi.pc		usr/lib/@TRIPLET@/pkgconfig/ompi.pc
+usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/ompi-c.pc		usr/lib/@TRIPLET@/pkgconfig/ompi-c.pc
+# opal.pc bug #814515: opal.pc conflicts with libopal-dev
+#usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/opal.pc		usr/lib/@TRIPLET@/pkgconfig/opal.pc
+usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/ompi-cxx.pc	usr/lib/@TRIPLET@/pkgconfig/ompi-cxx.pc

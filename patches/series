@@ -1,0 +1,8 @@
+manpage_macros
+reproducible-build.patch
+x32.patch
+powerpc.patch
+build_hurd
+link-libfabric.patch
+pkgconfig-vars.patch
+opal_fifo.patch
