@@ -420,8 +420,12 @@ int pmix_mca_base_var_cache_files(bool rel_path_search)
     home = (char*)pmix_home_directory();
 
     if(NULL == cwd) {
+#if !defined(MAXPATHLEN) && defined (__GLIBC__)
+        if( NULL == (cwd = get_current_dir_name() )) {
+#else
         cwd = (char *) malloc(sizeof(char) * MAXPATHLEN);
         if( NULL == (cwd = getcwd(cwd, MAXPATHLEN) )) {
+#endif            
             pmix_output(0, "Error: Unable to get the current working directory\n");
             cwd = strdup(".");
         }
