@@ -1,0 +1,6 @@
+Author: Alastair McKinstry <mckinstry@debian.org>
+Origin-Bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=752785
+Description: Add variables needed to make  mpi.pc an alias for ompi.pc
+Last-Updated: 2014-10-07
+Forwarded: no
+

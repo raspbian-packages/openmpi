@@ -1,0 +1,14 @@
+## Shared libraries
+usr/lib/*/openmpi/lib/libmca_common_sm.so.20.0.0
+usr/lib/*/openmpi/lib/libmpi_cxx.so.20.0.1
+usr/lib/*/openmpi/lib/libmpi_mpifh.so.20.1.0
+usr/lib/*/openmpi/lib/libmpi.so.20.0.2
+usr/lib/*/openmpi/lib/libmpi_usempif08.so.20.1.0
+usr/lib/*/openmpi/lib/libmpi_usempi_ignore_tkr.so.20.1.0
+usr/lib/*/openmpi/lib/libompitrace.so.20.0.0
+usr/lib/*/openmpi/lib/libopen-pal.so.20.2.0
+usr/lib/*/openmpi/lib/libopen-rte.so.20.1.0
+# usr/lib/*/openmpi/lib/libpmix.so.0.0.0
+## Plugins
+usr/lib/*/openmpi/lib/openmpi/*.so
+#usr/lib/*/openmpi/lib/pmix/*.so
