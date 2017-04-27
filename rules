@@ -1,0 +1,100 @@
+#!/usr/bin/make -f
+
+# export DH_VERBOSE=1
+
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+ifeq (sparc,$(DEB_HOST_GNU_CPU))
+	CFLAGS += -mcpu=v9
+endif
+
+# BLCR checkpointing support
+BLCR_ARCH := "amd64 armel armhf i386 powerpc"
+ifneq (,$(findstring $(DEB_HOST_ARCH),$(BLCR_ARCH)))
+        CHKPT = --enable-ft-thread --with-ft=cr --with-blcr=/usr --with-blcr-libdir=/usr/lib
+endif
+
+# Memory affinity support
+NUMA_ARCH := "amd64 i386 ia64 mips mipsel powerpc"
+ifneq (,$(findstring $(DEB_HOST_ARCH),$(NUMA_ARCH)))
+        NUMA = --with-libnuma=/usr --with-libnuma-libdir=/usr/lib
+endif
+
+TORQUE = --without-tm
+
+# Flags for the static build: see bug #502232
+#STATIC_CONFIG_PARAMS = --enable-static
+
+# Enable MPI thread support (user request, see #602132). Progress threads are known
+# to not work, so we do not enable them until they are supported.
+MPI_THREADS := --with-threads=posix --enable-opal-multi-threads
+
+%:
+	dh $@ --parallel #--with autotools_dev
+
+override_dh_auto_configure:
+	./autogen.sh
+	dh_auto_configure -- \
+		$(CHKPT) $(NUMA) $(TORQUE) \
+		$(MPI_THREADS) \
+		--disable-silent-rules \
+		--with-hwloc=/usr/ \
+		--with-libltdl=external \
+		--with-devel-headers \
+		--with-slurm \
+		--with-sge \
+		--enable-heterogeneous \
+		--disable-vt \
+		--sysconfdir=/etc/openmpi 		\
+		--libdir=\$${prefix}/lib/openmpi/lib	\
+		--includedir=\$${prefix}/lib/openmpi/include
+
+override_dh_install:
+# Strip rpath info from all executables and libraries.
+	find debian/tmp/ -type f -perm -+x -a ! -name '*.la' -a ! -name '*.mod' -exec chrpath -d '{}' \;
+# Rename the compiler and startup wrappers.
+##	for f in mpic++ mpicc mpiCC mpicxx mpiexec mpif77 mpif90 mpirun opalc++ opalcc ortec++ ortecc orteCC ; do \ ##
+	for f in mpic++ mpicc mpiCC mpicxx mpiexec mpif77 mpif90 mpirun ; do \
+		if test -f debian/tmp/usr/bin/$${f}; then \
+			mv debian/tmp/usr/bin/$${f} debian/tmp/usr/bin/$${f}.openmpi ; \
+		fi; \
+	done
+# Rename the compiler wrapper man pages.
+	for f in mpic++ mpicc mpicxx mpiexec mpif77 mpif90 mpirun ; do \
+		if test -f debian/tmp/usr/share/man/man1/$${f}.1; then \
+			mv debian/tmp/usr/share/man/man1/$${f}.1 debian/tmp/usr/share/man/man1/$${f}.openmpi.1 ; \
+		fi; \
+		if test -f debian/tmp/usr/share/man/man1/$${f}.3; then \
+			mv debian/tmp/usr/share/man/man3/$${f}.3 debian/tmp/usr/share/man/man1/$${f}.openmpi.3 ; \
+		fi; \
+	done
+	cd debian/tmp/usr/share/man/man3; \
+	for f in *.3; do \
+		mv $$f $$(echo $$f|sed -e "s|\.3|.openmpi.3|g"); \
+	done; \
+
+# Rename orte-bootproxy.sh to orte-bootproxy
+	if test -f debian/tmp/usr/bin/orte-bootproxy.sh; then \
+		mv debian/tmp/usr/bin/orte-bootproxy.sh debian/tmp/usr/bin/orte-bootproxy; \
+	fi
+# Remove dangling symlink(s)
+	rm -f debian/tmp/usr/share/man/man1/mpiCC.1
+	rm -f debian/tmp/usr/share/man/man1/orteCC.1
+# Remove COPYRIGHT file of ptmalloc2. It's reproduced in debian/copyright.
+	rm -f -r debian/tmp/usr/share/openmpi/doc/
+# Continue as usual
+	dh_install
+
+override_dh_fixperms:
+	chmod 0644 debian/tmp/usr/lib/openmpi/lib/mpi.mod
+	dh_fixperms
+
+override_dh_installdocs:
+	dh_installdocs --all AUTHORS NEWS README
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(CURDIR)/debian/tmp/usr/lib/openmpi/lib -- --ignore-missing-info
+
+override_dh_strip:
+	dh_strip --dbg-package=libopenmpi1.6-dbg
