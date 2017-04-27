@@ -228,7 +228,8 @@ int orte_daemon(int argc, char *argv[])
     int ret = 0;
     int fd;
     opal_cmd_line_t *cmd_line = NULL;
-    char log_file[PATH_MAX];
+    char *log_file = NULL;
+    size_t log_file_len;
     char *jobidstring;
     char *rml_uri;
     int i;
@@ -482,13 +483,16 @@ int orte_daemon(int argc, char *argv[])
         }
 
         /* define a log file name in the session directory */
-        snprintf(log_file, PATH_MAX, "output-orted-%s-%s.log",
+        log_file_len = 13 + strlen(jobidstring) + 1 + strlen(orte_process_info.nodename) + 4 + 1;
+        log_file = malloc(log_file_len);
+        snprintf(log_file, log_file_len, "output-orted-%s-%s.log",
                  jobidstring, orte_process_info.nodename);
         log_path = opal_os_path(false,
                                 orte_process_info.tmpdir_base,
                                 orte_process_info.top_session_dir,
                                 log_file,
                                 NULL);
+        free(log_file);
 
         fd = open(log_path, O_RDWR|O_CREAT|O_TRUNC, 0640);
         if (fd < 0) {

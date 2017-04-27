@@ -208,11 +208,16 @@ int mca_base_component_find(const char *directory, const char *type,
         }
 
         if (opal_list_get_end(found_components) == item) {
-            char h[MAXHOSTNAMELEN];
-            gethostname(h, sizeof(h));
+            char *h = NULL;
+            size_t h_length = 128;
+            do {
+                h_length *= 2;
+                h = realloc(h, h_length);
+            } while ((gethostname(h, h_length) == -1) && (errno == ENAMETOOLONG));
             opal_show_help("help-mca-base.txt", 
                            "find-available:not-valid", true,
                            h, type, requested_component_names[i]);
+            free(h);
             return OPAL_ERR_NOT_FOUND;
         }
     }

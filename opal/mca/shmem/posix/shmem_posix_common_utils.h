@@ -45,6 +45,10 @@ BEGIN_C_DECLS
 OPAL_DECLSPEC extern int shmem_posix_shm_open(char *posix_file_name_buff,
                                               size_t size);
 
+#ifndef MAXHOSTNAMELEN
+# define MAXHOSTNAMELEN 256
+#endif
+
 END_C_DECLS
 
 #endif /* OPAL_SHMEM_POSIX_COMMON_UTILS_H */

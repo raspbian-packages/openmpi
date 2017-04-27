@@ -58,6 +58,10 @@ AC_DEFUN([MCA_memory_linux_CONFIG],[
                  [memory_linux_ptmalloc2_happy=yes
                   memory_linux_ummu_happy=no])])
 
+    AS_IF([echo "$host_os" | grep '^gnu' >/dev/null 2>/dev/null],
+          [memory_linux_ptmalloc2_happy=no
+           memory_linux_ummu_happy=no])
+
     ######################################################################
     # ptmalloc2
     ######################################################################
