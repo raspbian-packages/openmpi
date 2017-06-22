@@ -43,7 +43,7 @@ mca_mtl_ofi_la_SOURCES = $(mtl_ofi_sources)
 mca_mtl_ofi_la_LDFLAGS = \
         $(ompi_mtl_ofi_LDFLAGS) \
         -module -avoid-version
-mca_mtl_ofi_la_LIBADD = $(ompi_mtl_ofi_LIBS) \
+mca_mtl_ofi_la_LIBADD = $(ompi_mtl_ofi_LIBS) $(opal_common_libfabric_LIBS) \
         $(OPAL_TOP_BUILDDIR)/opal/mca/common/libfabric/lib@OPAL_LIB_PREFIX@mca_common_libfabric.la
 
 noinst_LTLIBRARIES = $(component_noinst)
