@@ -579,8 +579,12 @@ int opal_util_register_stackhandlers (void)
 
     /* Setup the signals to catch */
     memset(&act, 0, sizeof(act));
+#ifdef SA_SIGINFO
     act.sa_sigaction = show_stackframe;
     act.sa_flags = SA_SIGINFO;
+#else
+    act.sa_handler = show_stackframe_handler;
+#endif
 #ifdef SA_ONESHOT
     act.sa_flags |= SA_ONESHOT;
 #else
