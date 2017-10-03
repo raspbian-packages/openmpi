@@ -4,8 +4,9 @@ Priority: extra
 Maintainer: Alastair McKinstry <mckinstry@debian.org>
 Uploaders: Debian Open MPI Maintainers <pkg-openmpi-maintainers@lists.alioth.debian.org>,
  Manuel Prinz <manuel@debian.org>, Sylvestre Ledru <sylvestre@debian.org>
-Build-Depends: dpkg-dev (>= 1.16.1~), debhelper (>= 9), 
- automake, autoconf (>= 2.59),  libtool, libltdl-dev, autotools-dev,
+Build-Depends: dpkg-dev (>= 1.16.1~), 
+ debhelper (>= 10), 
+ libltdl-dev,
  gfortran, gcc (>= 4:5.2.1), chrpath, 
  libhwloc-dev,
  pkg-config,
@@ -14,10 +15,10 @@ Build-Depends: dpkg-dev (>= 1.16.1~), debhelper (>= 9),
  libpsm-infinipath1-dev [amd64 i386],
  libcr-dev [amd64 armel armhf i386 powerpc], 
  libnuma-dev [amd64 i386 ia64 mips mipsel mipsn32 mipsn32el mips64 mips64el powerpc ppc64el],
- default-jdk,
+ default-jdk <!stage1>,
  flex
 Build-Conflicts: libmpich-dev, libopenmpi-dev
-Standards-Version: 4.0.0
+Standards-Version: 4.1.0
 Homepage: http://www.open-mpi.org/
 Vcs-Svn: svn://svn.debian.org/svn/pkg-openmpi/openmpi/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-openmpi/openmpi/trunk/
