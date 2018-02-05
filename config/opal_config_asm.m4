@@ -1004,6 +1004,14 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
         OPAL_GCC_INLINE_ASSIGN=""
         OPAL_ASM_SUPPORT_64BIT=0
         case "${host}" in
+	x86_64-*x32)
+	# Note sizeof(long) = 4
+	    opal_cv_asm_arch="X86_64"
+	    OPAL_ASM_SUPPORT_64BIT=1
+            OPAL_GCC_INLINE_ASSIGN='"xaddl %1,%0" : "=m"(ret), "+r"(negone) : "m"(ret)'
+            OPAL_CHECK_CMPXCHG16B
+            ;;
+	
         i?86-*|x86_64*|amd64*)
             if test "$ac_cv_sizeof_long" = "4" ; then
                 opal_cv_asm_arch="IA32"
