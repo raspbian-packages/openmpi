@@ -1,0 +1,22 @@
+Index: openmpi-2.1.1/ompi/mpi/cxx/cxx_glue.h
+===================================================================
+--- openmpi-2.1.1.orig/ompi/mpi/cxx/cxx_glue.h
++++ openmpi-2.1.1/ompi/mpi/cxx/cxx_glue.h
+@@ -15,7 +15,6 @@
+ #define OMPI_CXX_COMM_GLUE_H
+ 
+ #include "ompi_config.h"
+-#include "ompi/errhandler/errhandler.h"
+ #include <stdlib.h>
+ 
+ #include "mpi.h"
+@@ -81,9 +80,6 @@ ompi_cxx_intercept_file_extra_state_t
+ *ompi_cxx_new_intercept_state (void *read_fn_cxx, void *write_fn_cxx, void *extent_fn_cxx,
+                                void *extra_state_cxx);
+ 
+-void ompi_cxx_errhandler_set_cxx_dispatch_fn (struct ompi_errhandler_t *errhandler,
+-                                              ompi_errhandler_cxx_dispatch_fn_t *dispatch_fn);
+-
+ void ompi_cxx_errhandler_set_callbacks (struct ompi_errhandler_t *errhandler, MPI_Comm_errhandler_function *eh_comm_fn,
+                                         ompi_file_errhandler_fn *eh_file_fn, MPI_Win_errhandler_function *eh_win_fn);
+ 
