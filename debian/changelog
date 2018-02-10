@@ -1,4 +1,4 @@
-openmpi (2.1.1-7+rpi1) buster-staging; urgency=medium
+openmpi (2.1.1-8+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
@@ -6,13 +6,20 @@ openmpi (2.1.1-7+rpi1) buster-staging; urgency=medium
   * replace dmb with MCR p15, 0, r0, c7, c10, 5 in opal/asm/base/ARM.asm
     as suggested at http://www.open-mpi.org/community/lists/devel/2012/02/10626.php
 
- -- Raspbian forward porter <root@raspbian.org>  Tue, 03 Oct 2017 11:45:15 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sat, 10 Feb 2018 10:35:25 +0000
+
+openmpi (2.1.1-8) unstable; urgency=medium
+
+  * Remove obsolete dependency on libcr-dev. Closes: #877009
+  * Disable Java on ia64. Closes: 888286
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 05 Feb 2018 09:06:53 +0000
 
 openmpi (2.1.1-7) unstable; urgency=medium
 
-  * Standards-Version: 4.1.0; no changes required
   * Add multistage support to make bootstrappable. Closes: #871243
-  * Typos in package names in rules: openpi -> openmpi. Closes: #876911
+  * Standards-Version: 4.1.0; no changes required
+  * Typos in package names in rules: openpi -> openmpi
   * Move to debhelper level 10; remove dependencies on automake, 
     autoconf, autotools-dev, libtool
 
@@ -145,6 +152,7 @@ openmpi (2.0.2~git.20161225-5) unstable; urgency=medium
 
 openmpi (2.0.2~git.20161225-4) unstable; urgency=medium
 
+  * Multiarch support
   * Fix manpages
 
  -- Alastair McKinstry <mckinstry@debian.org>  Sun, 11 Dec 2016 14:58:34 +0000
@@ -308,6 +316,13 @@ openmpi (2.0.0-1) experimental; urgency=medium
   * Add Apache license for Java/* code
 
  -- Alastair McKinstry <mckinstry@debian.org>  Sun, 17 Jul 2016 08:45:06 +0100
+
+openmpi (1.10.3-3) unstable; urgency=medium
+
+  * Fix libmca_common_verbs 7.0.0 -> 7.0.1
+  * lenny Breaks: add version to libopenmpi1.4
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 21 Jun 2016 13:00:37 +0100
 
 openmpi (1.10.3-2) unstable; urgency=medium
 

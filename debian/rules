@@ -19,7 +19,7 @@ FABRIC_ARCH:= amd64 i386
 PSM_ARCH:= amd64 i386
 BUILTIN_ATOMICS_ARCH:= s390x
 NO_CMA_ARCH:= s390x mipsel hppa alpha armhf armel m68k sparc64
-NO_JAVA_ARCH:= hppa hurd-i386
+NO_JAVA_ARCH:= hppa hurd-i386 ia64
 NO_TEST_ARCH:= hppa hurd-i386
 
 
