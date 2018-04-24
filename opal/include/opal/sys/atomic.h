@@ -165,6 +165,8 @@ enum {
 #include "opal/sys/ia32/atomic.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_IA64
 #include "opal/sys/ia64/atomic.h"
+#elif OPAL_ASSEMBLY_ARCH == OPAL_HPPA
+#include "opal/sys/hppa/atomic.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_MIPS
 #include "opal/sys/mips/atomic.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_POWERPC32
