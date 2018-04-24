@@ -1,0 +1,20 @@
+Author: Alastair McKinstry <mckinstry@debian.org>
+Description: Fix for ARM64 compilation on 2.1.0
+Bug-Origin: https://github.com/open-mpi/ompi/issues/3442
+Forwarded: yes
+Last-Updated: 2017-05-03
+
+Index: openmpi-3.0.1~rc1/opal/include/opal/sys/arm64/atomic.h
+===================================================================
+--- openmpi-3.0.1~rc1.orig/opal/include/opal/sys/arm64/atomic.h
++++ openmpi-3.0.1~rc1/opal/include/opal/sys/arm64/atomic.h
+@@ -25,6 +25,9 @@
+ 
+ #define OPAL_SYS_ARCH_ATOMIC_H 1
+ 
++#undef OPAL_GCC_INLINE_ASSEMBLY
++#define OPAL_GCC_INLINE_ASSEMBLY 1
++
+ #if OPAL_GCC_INLINE_ASSEMBLY
+ 
+ #define OPAL_HAVE_ATOMIC_MEM_BARRIER 1
