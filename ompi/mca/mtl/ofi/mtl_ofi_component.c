@@ -1,8 +1,8 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2013-2016 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved
  *
- * Copyright (c) 2014-2015 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2014-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2015-2016 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * $COPYRIGHT$
@@ -14,6 +14,7 @@
 
 #include "mtl_ofi.h"
 #include "opal/util/argv.h"
+#include "opal/util/show_help.h"
 
 static int ompi_mtl_ofi_component_open(void);
 static int ompi_mtl_ofi_component_query(mca_base_module_t **module, int *priority);
@@ -29,6 +30,7 @@ static char *prov_include;
 static char *prov_exclude;
 static int control_progress;
 static int data_progress;
+static int av_type;
 
 /*
  * Enumerators
@@ -37,18 +39,32 @@ static int data_progress;
 enum {
     MTL_OFI_PROG_AUTO=1,
     MTL_OFI_PROG_MANUAL,
-    MTL_OFI_PROG_UNKNOWN,
+    MTL_OFI_PROG_UNSPEC,
 };
 
 mca_base_var_enum_value_t control_prog_type[] = {
     {MTL_OFI_PROG_AUTO, "auto"},
     {MTL_OFI_PROG_MANUAL, "manual"},
+    {MTL_OFI_PROG_UNSPEC, "unspec"},
     {0, NULL}
 };
 
 mca_base_var_enum_value_t data_prog_type[] = {
     {MTL_OFI_PROG_AUTO, "auto"},
     {MTL_OFI_PROG_MANUAL, "manual"},
+    {MTL_OFI_PROG_UNSPEC, "unspec"},
+    {0, NULL}
+};
+
+enum {
+    MTL_OFI_AV_MAP=1,
+    MTL_OFI_AV_TABLE,
+    MTL_OFI_AV_UNKNOWN,
+};
+
+mca_base_var_enum_value_t av_table_type[] = {
+    {MTL_OFI_AV_MAP, "map"},
+    {MTL_OFI_AV_TABLE, "table"},
     {0, NULL}
 };
 
@@ -82,6 +98,7 @@ ompi_mtl_ofi_component_register(void)
 {
     int ret;
     mca_base_var_enum_t *new_enum = NULL;
+    char *desc;
 
     param_priority = 25;   /* for now give a lower priority than the psm mtl */
     mca_base_component_var_register(&mca_mtl_ofi_component.super.mtl_version,
@@ -109,15 +126,27 @@ ompi_mtl_ofi_component_register(void)
                                     MCA_BASE_VAR_SCOPE_READONLY,
                                     &prov_exclude);
 
+    ompi_mtl_ofi.ofi_progress_event_count = 100;
+    asprintf(&desc, "Max number of events to read each call to OFI progress (default: %d events will be read per OFI progress call)", ompi_mtl_ofi.ofi_progress_event_count);
+    mca_base_component_var_register(&mca_mtl_ofi_component.super.mtl_version,
+                                    "progress_event_cnt",
+                                    desc,
+                                    MCA_BASE_VAR_TYPE_INT, NULL, 0, 0,
+                                    OPAL_INFO_LVL_6,
+                                    MCA_BASE_VAR_SCOPE_READONLY,
+                                    &ompi_mtl_ofi.ofi_progress_event_count);
+
+     free(desc);
+
     ret = mca_base_var_enum_create ("control_prog_type", control_prog_type, &new_enum);
     if (OPAL_SUCCESS != ret) {
         return ret;
     }
 
-    control_progress = MTL_OFI_PROG_MANUAL;
+    control_progress = MTL_OFI_PROG_UNSPEC;
     mca_base_component_var_register (&mca_mtl_ofi_component.super.mtl_version,
                                      "control_progress",
-                                     "Specify control progress model (default: manual). Set to auto for auto progress.",
+                                     "Specify control progress model (default: unspecificed, use provider's default). Set to auto or manual for auto or manual progress respectively.",
                                      MCA_BASE_VAR_TYPE_INT, new_enum, 0, 0,
                                      OPAL_INFO_LVL_3,
                                      MCA_BASE_VAR_SCOPE_READONLY,
@@ -129,14 +158,29 @@ ompi_mtl_ofi_component_register(void)
         return ret;
     }
 
-    data_progress = MTL_OFI_PROG_AUTO;
+    data_progress = MTL_OFI_PROG_UNSPEC;
     mca_base_component_var_register(&mca_mtl_ofi_component.super.mtl_version,
                                     "data_progress",
-                                    "Specify data progress model (default: auto). Set to manual for manual progress.",
+                                    "Specify data progress model (default: unspecified, use provider's default). Set to auto or manual for auto or manual progress respectively.",
                                     MCA_BASE_VAR_TYPE_INT, new_enum, 0, 0,
                                     OPAL_INFO_LVL_3,
                                     MCA_BASE_VAR_SCOPE_READONLY,
                                     &data_progress);
+    OBJ_RELEASE(new_enum);
+
+    ret = mca_base_var_enum_create ("av_type", av_table_type, &new_enum);
+    if (OPAL_SUCCESS != ret) {
+        return ret;
+    }
+
+    av_type = MTL_OFI_AV_MAP;
+    mca_base_component_var_register (&mca_mtl_ofi_component.super.mtl_version,
+                                     "av",
+                                     "Specify AV type to use (default: map). Set to table for FI_AV_TABLE AV type.",
+                                     MCA_BASE_VAR_TYPE_INT, new_enum, 0, 0,
+                                     OPAL_INFO_LVL_3,
+                                     MCA_BASE_VAR_SCOPE_READONLY,
+                                     &av_type);
     OBJ_RELEASE(new_enum);
 
     return OMPI_SUCCESS;
@@ -203,7 +247,7 @@ is_in_list(char **list, char *item)
     }
 
     while (NULL != list[i]) {
-        if (0 == strncmp(item, list[i], strlen(item))) {
+        if (0 == strncmp(item, list[i], strlen(list[i]))) {
             return 1;
         } else {
             i++;
@@ -297,20 +341,35 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
 
     hints->domain_attr->threading        = FI_THREAD_UNSPEC;
 
-    if (MTL_OFI_PROG_AUTO == control_progress) {
-        hints->domain_attr->control_progress = FI_PROGRESS_AUTO;
-    } else {
+    switch (control_progress) {
+    case MTL_OFI_PROG_AUTO:
+	hints->domain_attr->control_progress = FI_PROGRESS_AUTO;
+	break;
+    case MTL_OFI_PROG_MANUAL:
         hints->domain_attr->control_progress = FI_PROGRESS_MANUAL;
+	break;
+    default:
+        hints->domain_attr->control_progress = FI_PROGRESS_UNSPEC;
     }
 
-    if (MTL_OFI_PROG_MANUAL == data_progress) {
+    switch (data_progress) {
+    case MTL_OFI_PROG_AUTO:
+	hints->domain_attr->data_progress = FI_PROGRESS_AUTO;
+	break;
+    case MTL_OFI_PROG_MANUAL:
         hints->domain_attr->data_progress = FI_PROGRESS_MANUAL;
+	break;
+    default:
+        hints->domain_attr->data_progress = FI_PROGRESS_UNSPEC;
+    }
+
+    if (MTL_OFI_AV_TABLE == av_type) {
+        hints->domain_attr->av_type          = FI_AV_TABLE;
     } else {
-        hints->domain_attr->data_progress = FI_PROGRESS_AUTO;
+        hints->domain_attr->av_type          = FI_AV_MAP;
     }
 
     hints->domain_attr->resource_mgmt    = FI_RM_ENABLED;
-    hints->domain_attr->av_type          = FI_AV_MAP;
 
     /**
      * FI_VERSION provides binary backward and forward compatibility support
@@ -328,12 +387,16 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
                      NULL,          /* Optional name or fabric to resolve       */
                      NULL,          /* Optional service name or port to request */
                      0ULL,          /* Optional flag                            */
-                     hints,        /* In: Hints to filter providers            */
+                     hints,         /* In: Hints to filter providers            */
                      &providers);   /* Out: List of matching providers          */
-    if (0 != ret) {
-        opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
-                            "%s:%d: fi_getinfo failed: %s\n",
-                            __FILE__, __LINE__, fi_strerror(-ret));
+    if (FI_ENODATA == -ret) {
+        // It is not an error if no information is returned.
+        goto error;
+    } else if (0 != ret) {
+        opal_show_help("help-mtl-ofi.txt", "OFI call fail", true,
+                       "fi_getinfo",
+                       ompi_process_info.nodename, __FILE__, __LINE__,
+                       fi_strerror(-ret), -ret);
         goto error;
     }
 
@@ -359,9 +422,10 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
                     &ompi_mtl_ofi.fabric, /* Out: Fabric handle                 */
                     NULL);                /* Optional context for fabric events */
     if (0 != ret) {
-        opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
-                            "%s:%d: fi_fabric failed: %s\n",
-                            __FILE__, __LINE__, fi_strerror(-ret));
+        opal_show_help("help-mtl-ofi.txt", "OFI call fail", true,
+                       "fi_fabric",
+                       ompi_process_info.nodename, __FILE__, __LINE__,
+                       fi_strerror(-ret), -ret);
         goto error;
     }
 
@@ -375,9 +439,10 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
                     &ompi_mtl_ofi.domain, /* Out: Domain oject                  */
                     NULL);                /* Optional context for domain events */
     if (0 != ret) {
-        opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
-                            "%s:%d: fi_domain failed: %s\n",
-                            __FILE__, __LINE__, fi_strerror(-ret));
+        opal_show_help("help-mtl-ofi.txt", "OFI call fail", true,
+                       "fi_domain",
+                       ompi_process_info.nodename, __FILE__, __LINE__,
+                       fi_strerror(-ret), -ret);
         goto error;
     }
 
@@ -393,9 +458,10 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
                       &ompi_mtl_ofi.ep,    /* Out: Endpoint object */
                       NULL);               /* Optional context     */
     if (0 != ret) {
-        opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
-                            "%s:%d: fi_endpoint failed: %s\n",
-                            __FILE__, __LINE__, fi_strerror(-ret));
+        opal_show_help("help-mtl-ofi.txt", "OFI call fail", true,
+                       "fi_endpoint",
+                       ompi_process_info.nodename, __FILE__, __LINE__,
+                       fi_strerror(-ret), -ret);
         goto error;
     }
 
@@ -412,6 +478,19 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
      *     - dynamic memory-spanning memory region
      */
     cq_attr.format = FI_CQ_FORMAT_TAGGED;
+
+    /**
+     * If a user has set an ofi_progress_event_count > the default, then
+     * the CQ size hint is set to the user's desired value such that
+     * the CQ created will have enough slots to store up to
+     * ofi_progress_event_count events. If a user has not set the
+     * ofi_progress_event_count, then the provider is trusted to set a
+     * default high CQ size and the CQ size hint is left unspecified.
+     */
+    if (ompi_mtl_ofi.ofi_progress_event_count > 100) {
+        cq_attr.size = ompi_mtl_ofi.ofi_progress_event_count;
+    }
+
     ret = fi_cq_open(ompi_mtl_ofi.domain, &cq_attr, &ompi_mtl_ofi.cq, NULL);
     if (ret) {
         opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
@@ -421,10 +500,21 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
     }
 
     /**
+     * Allocate memory for storing the CQ events read in OFI progress.
+     */
+    ompi_mtl_ofi.progress_entries = calloc(ompi_mtl_ofi.ofi_progress_event_count, sizeof(struct fi_cq_tagged_entry));
+    if (OPAL_UNLIKELY(!ompi_mtl_ofi.progress_entries)) {
+        opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
+                            "%s:%d: alloc of CQ event storage failed: %s\n",
+                            __FILE__, __LINE__, strerror(errno));
+        goto error;
+    }
+
+    /**
      * The remote fi_addr will be stored in the ofi_endpoint struct.
      */
 
-    av_attr.type = FI_AV_MAP;
+    av_attr.type = (MTL_OFI_AV_TABLE == av_type) ? FI_AV_TABLE: FI_AV_MAP;
 
     ret = fi_av_open(ompi_mtl_ofi.domain, &av_attr, &ompi_mtl_ofi.av, NULL);
     if (ret) {
@@ -542,44 +632,52 @@ error:
     if (ompi_mtl_ofi.fabric) {
         (void) fi_close((fid_t)ompi_mtl_ofi.fabric);
     }
+    if (ompi_mtl_ofi.progress_entries) {
+        free(ompi_mtl_ofi.progress_entries);
+    }
+
     return NULL;
 }
 
 int
 ompi_mtl_ofi_finalize(struct mca_mtl_base_module_t *mtl)
 {
+    ssize_t ret;
+
     opal_progress_unregister(ompi_mtl_ofi_progress_no_inline);
 
-    /**
- *      * Close all the OFI objects
- *           */
-    if (fi_close((fid_t)ompi_mtl_ofi.ep)) {
-        opal_output(ompi_mtl_base_framework.framework_output,
-                "fi_close failed: %s", strerror(errno));
-        abort();
-    }
-    if (fi_close((fid_t)ompi_mtl_ofi.cq)) {
-        opal_output(ompi_mtl_base_framework.framework_output,
-                "fi_close failed: %s", strerror(errno));
-        abort();
-    }
-    if (fi_close((fid_t)ompi_mtl_ofi.av)) {
-        opal_output(ompi_mtl_base_framework.framework_output,
-                "fi_close failed: %s", strerror(errno));
-        abort();
-    }
-    if (fi_close((fid_t)ompi_mtl_ofi.domain)) {
-        opal_output(ompi_mtl_base_framework.framework_output,
-                "fi_close failed: %s", strerror(errno));
-        abort();
-    }
-    if (fi_close((fid_t)ompi_mtl_ofi.fabric)) {
-        opal_output(ompi_mtl_base_framework.framework_output,
-                "fi_close failed: %s", strerror(errno));
-        abort();
+    /* Close all the OFI objects */
+    if ((ret = fi_close((fid_t)ompi_mtl_ofi.ep))) {
+        goto finalize_err;
     }
 
+    if ((ret = fi_close((fid_t)ompi_mtl_ofi.cq))) {
+        goto finalize_err;
+    }
+
+    if ((ret = fi_close((fid_t)ompi_mtl_ofi.av))) {
+        goto finalize_err;
+    }
+
+    if ((ret = fi_close((fid_t)ompi_mtl_ofi.domain))) {
+        goto finalize_err;
+    }
+
+    if ((ret = fi_close((fid_t)ompi_mtl_ofi.fabric))) {
+        goto finalize_err;
+    }
+
+    free(ompi_mtl_ofi.progress_entries);
+
     return OMPI_SUCCESS;
+
+finalize_err:
+    opal_show_help("help-mtl-ofi.txt", "OFI call fail", true,
+                   "fi_close",
+                   ompi_process_info.nodename, __FILE__, __LINE__,
+                   fi_strerror(-ret), -ret);
+
+    return OMPI_ERROR;
 }
 
 

@@ -3,7 +3,7 @@
 .\" Copyright (c) 2010-2015 Cisco Systems, Inc.  All rights reserved.
 .\" Copyright 2006-2008 Sun Microsystems, Inc.
 .\" Copyright (c) 1996 Thinking Machines Corporation
-.\" Copyright 2015      Research Organization for Information Science
+.\" Copyright 2015-2016 Research Organization for Information Science
 .\"                     and Technology (RIST). All rights reserved.
 .\" $COPYRIGHT$
 .TH MPI_File_open 3 "#OMPI_DATE#" "#PACKAGE_VERSION#" "#PACKAGE_NAME#"
@@ -13,6 +13,7 @@
 .ft R
 .nf
 .SH C Syntax
+.nf
 #include <mpi.h>
 int MPI_File_open(MPI_Comm \fIcomm\fP, const char \fI*filename\fP,
 	int \fIamode\fP, MPI_Info \fIinfo\fP,
@@ -26,6 +27,18 @@ USE MPI
 MPI_FILE_OPEN(\fICOMM\fP, \fIFILENAME\fP, \fIAMODE\fP, \fIINFO\fP, \fIFH\fP, \fIIERROR\fP)
 	CHARACTER*(*)	\fIFILENAME\fP
 	INTEGER	\fICOMM, AMODE, INFO, FH, IERROR\fP
+
+.fi
+.SH Fortran 2008 Syntax
+.nf
+USE mpi_f08
+MPI_File_open(\fIcomm\fP, \fIfilename\fP, \fIamode\fP, \fIinfo\fP, \fIfh\fP, \fIierror\fP)
+	TYPE(MPI_Comm), INTENT(IN) :: \fIcomm\fP
+	CHARACTER(LEN=*), INTENT(IN) :: \fIfilename\fP
+	INTEGER, INTENT(IN) :: \fIamode\fP
+	TYPE(MPI_Info), INTENT(IN) :: \fIinfo\fP
+	TYPE(MPI_File), INTENT(OUT) :: \fIfh\fP
+	INTEGER, OPTIONAL, INTENT(OUT) :: \fIierror\fP
 
 .fi
 .SH C++ Syntax

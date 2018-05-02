@@ -183,12 +183,42 @@ endpoint_init_qp_xrc(mca_btl_base_endpoint_t *ep, const int qp)
         (mca_btl_openib_component.use_eager_rdma ?
          mca_btl_openib_component.max_eager_rdma : 0);
     mca_btl_openib_endpoint_qp_t *ep_qp = &ep->qps[qp];
+    int32_t wqe, incr = mca_btl_openib_component.qp_infos[qp].u.srq_qp.sd_max;
+    int rc;
+
+    opal_mutex_lock (&ep->ib_addr->addr_lock);
+
     ep_qp->qp = ep->ib_addr->qp;
-    ep_qp->qp->sd_wqe += mca_btl_openib_component.qp_infos[qp].u.srq_qp.sd_max;
-    /* make sure that we don't overrun maximum supported by device */
-    if (ep_qp->qp->sd_wqe > max)
-        ep_qp->qp->sd_wqe =  max;
+    if (ep->ib_addr->max_wqe + incr > max) {
+        /* make sure that we don't overrun maximum supported by device */
+        incr = max - ep->ib_addr->max_wqe;
+    }
+
+    wqe = ep->ib_addr->max_wqe + incr +
+        (mca_btl_openib_component.use_eager_rdma ?
+         mca_btl_openib_component.max_eager_rdma : 0);
+
+    ep->ib_addr->max_wqe += incr;
+
+    if (NULL != ep_qp->qp->lcl_qp) {
+        struct ibv_qp_attr qp_attr;
+
+        /* if this is modified the code in udcm_xrc_send_qp_create may
+         * need to be updated as well */
+        qp_attr.cap.max_recv_wr = 0;
+        qp_attr.cap.max_send_wr = wqe;
+        qp_attr.cap.max_inline_data = ep->endpoint_btl->device->max_inline_data;
+        qp_attr.cap.max_send_sge = 1;
+        qp_attr.cap.max_recv_sge = 1; /* we do not use SG list */
+        rc = ibv_modify_qp (ep_qp->qp->lcl_qp, &qp_attr, IBV_QP_CAP);
+        if (0 == rc) {
+            opal_atomic_add_32 (&ep_qp->qp->sd_wqe, incr);
+        }
+    } else {
+        ep_qp->qp->sd_wqe = ep->ib_addr->max_wqe;
+    }
     ep_qp->qp->users++;
+    opal_mutex_unlock (&ep->ib_addr->addr_lock);
 }
 
 static void endpoint_init_qp(mca_btl_base_endpoint_t *ep, const int qp)
@@ -507,13 +537,11 @@ void mca_btl_openib_endpoint_send_cts(mca_btl_openib_endpoint_t *endpoint)
     ctl_hdr->type = MCA_BTL_OPENIB_CONTROL_CTS;
 
     /* Send the fragment */
-    OPAL_THREAD_LOCK(&endpoint->endpoint_lock);
     if (OPAL_SUCCESS != mca_btl_openib_endpoint_post_send(endpoint, sc_frag)) {
         BTL_ERROR(("Failed to post CTS send"));
         mca_btl_openib_endpoint_invoke_error(endpoint);
     }
     endpoint->endpoint_cts_sent = true;
-    OPAL_THREAD_UNLOCK(&endpoint->endpoint_lock);
 }
 
 /*
@@ -558,6 +586,9 @@ void mca_btl_openib_endpoint_cpc_complete(mca_btl_openib_endpoint_t *endpoint)
                 OPAL_OUTPUT((-1, "cpc_complete to %s -- already got CTS, so marking endpoint as complete",
                              opal_get_proc_hostname(endpoint->endpoint_proc->proc_opal)));
                 mca_btl_openib_endpoint_connected(endpoint);
+            } else {
+                /* the caller hold the lock and expects us to drop it */
+                OPAL_THREAD_UNLOCK(&endpoint->endpoint_lock);
             }
         }
 

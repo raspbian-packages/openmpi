@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
@@ -53,12 +53,14 @@ int MPI_Barrier(MPI_Comm comm)
     }
   }
 
+  OPAL_CR_ENTER_LIBRARY();
+
   /* Intracommunicators: Only invoke the back-end coll module barrier
      function if there's more than one process in the communicator */
 
   if (OMPI_COMM_IS_INTRA(comm)) {
     if (ompi_comm_size(comm) > 1) {
-      err = comm->c_coll.coll_barrier(comm, comm->c_coll.coll_barrier_module);
+      err = comm->c_coll->coll_barrier(comm, comm->c_coll->coll_barrier_module);
     }
   }
 
@@ -66,7 +68,7 @@ int MPI_Barrier(MPI_Comm comm)
      there's always at least 2 processes in an intercommunicator. */
 
   else {
-      err = comm->c_coll.coll_barrier(comm, comm->c_coll.coll_barrier_module);
+      err = comm->c_coll->coll_barrier(comm, comm->c_coll->coll_barrier_module);
   }
 
   /* All done */

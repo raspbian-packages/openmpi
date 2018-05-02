@@ -37,6 +37,7 @@
 #include "opal/runtime/opal_params.h"
 
 #define OPAL_PROGRESS_USE_TIMERS (OPAL_TIMER_CYCLE_SUPPORTED || OPAL_TIMER_USEC_SUPPORTED)
+#define OPAL_PROGRESS_ONLY_USEC_NATIVE (OPAL_TIMER_USEC_NATIVE && !OPAL_TIMER_CYCLE_NATIVE)
 
 #if OPAL_ENABLE_DEBUG
 bool opal_progress_debug = false;
@@ -62,7 +63,6 @@ static size_t callbacks_size = 0;
 static volatile opal_progress_callback_t *callbacks_lp = NULL;
 static size_t callbacks_lp_len = 0;
 static size_t callbacks_lp_size = 0;
-static uint64_t callbacks_lp_mask = 0x7;
 
 /* do we want to call sched_yield() if nothing happened */
 bool opal_progress_yield_when_idle = false;
@@ -112,9 +112,6 @@ opal_progress_init(void)
        debug_output = opal_output_open(NULL);
     }
 #endif
-
-
-    callbacks_lp_mask = opal_progress_lp_call_ratio - 1;
 
     callbacks_size = callbacks_lp_size = 8;
 
@@ -193,11 +190,11 @@ opal_progress(void)
     if( opal_progress_event_flag != 0 ) {
 #if OPAL_HAVE_WORKING_EVENTOPS
 #if OPAL_PROGRESS_USE_TIMERS
-#if OPAL_TIMER_USEC_NATIVE
+#if OPAL_PROGRESS_ONLY_USEC_NATIVE
         opal_timer_t now = opal_timer_base_get_usec();
 #else
         opal_timer_t now = opal_timer_base_get_cycles();
-#endif  /* OPAL_TIMER_USEC_NATIVE */
+#endif  /* OPAL_PROGRESS_ONLY_USEC_NATIVE */
     /* trip the event library if we've reached our tick rate and we are
        enabled */
         if (now - event_progress_last_time > event_progress_delta ) {
@@ -225,7 +222,7 @@ opal_progress(void)
         events += (callbacks[i])();
     }
 
-    if (callbacks_lp_len > 0 && (OPAL_THREAD_ADD32((volatile int32_t *) &num_calls, 1) & callbacks_lp_mask) == 0) {
+    if (callbacks_lp_len > 0 && (OPAL_THREAD_ADD32((volatile int32_t *) &num_calls, 1) & 0x7) == 0) {
         /* run low priority callbacks once every 8 calls to opal_progress() */
         for (i = 0 ; i < callbacks_lp_len ; ++i) {
             events += (callbacks_lp[i])();
@@ -320,7 +317,7 @@ opal_progress_set_event_poll_rate(int polltime)
 
 #if OPAL_PROGRESS_USE_TIMERS
     event_progress_delta = 0;
-#  if OPAL_TIMER_USEC_NATIVE
+#  if OPAL_PROGRESS_ONLY_USEC_NATIVE
     event_progress_last_time = opal_timer_base_get_usec();
 #  else
     event_progress_last_time = opal_timer_base_get_cycles();
@@ -347,7 +344,7 @@ opal_progress_set_event_poll_rate(int polltime)
 #endif
     }
 
-#if OPAL_PROGRESS_USE_TIMERS && !OPAL_TIMER_USEC_NATIVE
+#if OPAL_PROGRESS_USE_TIMERS && !OPAL_PROGRESS_ONLY_USEC_NATIVE
     /*  going to use cycles for counter.  Adjust specified usec into cycles */
     event_progress_delta = event_progress_delta * opal_timer_base_get_freq() / 1000000;
 #endif

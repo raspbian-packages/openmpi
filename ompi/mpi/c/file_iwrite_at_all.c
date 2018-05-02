@@ -16,6 +16,7 @@
  * Copyright (c) 2015      University of Houston.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -71,12 +72,19 @@ int MPI_File_iwrite_at_all(MPI_File fh, MPI_Offset offset, const void *buf,
         OMPI_ERRHANDLER_CHECK(rc, fh, rc, FUNC_NAME);
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /* Call the back-end io component function */
     switch (fh->f_io_version) {
     case MCA_IO_BASE_V_2_0_0:
-        rc = fh->f_io_selected_module.v2_0_0.
-            io_module_file_iwrite_at_all(fh, offset, buf, count, datatype,
-                                         request);
+        if( OPAL_UNLIKELY(NULL == fh->f_io_selected_module.v2_0_0.io_module_file_iwrite_at_all) ) {
+            rc = MPI_ERR_UNSUPPORTED_OPERATION;
+        }
+        else {
+            rc = fh->f_io_selected_module.v2_0_0.
+                io_module_file_iwrite_at_all(fh, offset, buf, count, datatype,
+                                             request);
+        }
         break;
 
     default:

@@ -11,10 +11,8 @@
  *                         All rights reserved.
  * Copyright (c) 2007-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2015      Los Alamos National Security, LLC.
- *                         All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -37,6 +35,7 @@
 #endif
 
 #include MCA_timer_IMPLEMENTATION_HEADER
+#include "opal/include/opal/version.h"
 #include "opal/mca/installdirs/installdirs.h"
 #include "opal/class/opal_value_array.h"
 #include "opal/class/opal_pointer_array.h"
@@ -345,6 +344,7 @@ void orte_info_do_config(bool want_all)
     char *orterun_prefix_by_default;
     char *wtime_support;
     char *symbol_visibility;
+    char *ft_support;
 
     /* setup the strings that don't require allocations*/
     heterogeneous = OPAL_ENABLE_HETEROGENEOUS_SUPPORT ? "yes" : "no";
@@ -361,10 +361,14 @@ void orte_info_do_config(bool want_all)
              "posix",
              OPAL_ENABLE_MULTI_THREADS ? "yes" : "no");
 
+    asprintf(&ft_support, "%s (checkpoint thread: %s)",
+             OPAL_ENABLE_FT ? "yes" : "no", OPAL_ENABLE_FT_THREAD ? "yes" : "no");;
+
     /* output values */
     orte_info_out("Configured by", "config:user", OPAL_CONFIGURE_USER);
     orte_info_out("Configured on", "config:timestamp", OPAL_CONFIGURE_DATE);
     orte_info_out("Configure host", "config:host", OPAL_CONFIGURE_HOST);
+    orte_info_out("Configure command line", "config:cli", OPAL_CONFIGURE_CLI);
 
     orte_info_out("Built by", "build:user", OMPI_BUILD_USER);
     orte_info_out("Built on", "build:timestamp", OMPI_BUILD_DATE);
@@ -425,5 +429,8 @@ void orte_info_do_config(bool want_all)
                   orterun_prefix_by_default);
     orte_info_out("MPI_WTIME support", "options:mpi-wtime", wtime_support);
     orte_info_out("Symbol vis. support", "options:visibility", symbol_visibility);
+
+    orte_info_out("FT Checkpoint support", "options:ft_support", ft_support);
+    free(ft_support);
 
 }

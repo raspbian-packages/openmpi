@@ -2,10 +2,10 @@
 /*
  * Copyright (c) 2007      The Trustees of Indiana University.
  *                         All rights reserved.
- * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2011-2015 Los Alamos National Security, LLC. All
+ * Copyright (c) 2011-2016 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2011-2017 Los Alamos National Security, LLC. All
  *                         rights reserved.
- * Copyright (c) 2013-2015 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -18,7 +18,6 @@
 #include "opal_config.h"
 #include "opal/constants.h"
 #include "opal/types.h"
-
 #include "opal_stdint.h"
 #include "opal/mca/hwloc/base/base.h"
 #include "opal/util/argv.h"
@@ -27,18 +26,15 @@
 #include "opal/util/proc.h"
 #include "opal/util/output.h"
 #include "opal/util/show_help.h"
-
-#include <string.h>
-#include <pmi.h>
-#include <pmi2.h>
-
+#include "opal/util/opal_getcwd.h"
+#include "opal/constants.h"
 #include "opal/mca/pmix/base/base.h"
 #include "opal/mca/pmix/base/pmix_base_hash.h"
 #include "pmix_cray.h"
 
 static char cray_pmi_version[128];
 
-static int cray_init(void);
+static int cray_init(opal_list_t *ilist);
 static int cray_fini(void);
 static int cray_initialized(void);
 static int cray_abort(int flat, const char *msg,
@@ -57,6 +53,7 @@ static int cray_resolve_peers(const char *nodename,
                               opal_list_t *procs);
 static int cray_resolve_nodes(opal_jobid_t jobid, char **nodelist);
 static int cray_put(opal_pmix_scope_t scope, opal_value_t *kv);
+static int cray_fence(opal_list_t *procs, int collect_data);
 static int cray_fencenb(opal_list_t *procs, int collect_data,
                         opal_pmix_op_cbfunc_t cbfunc, void *cbdata);
 static int cray_commit(void);
@@ -91,7 +88,7 @@ const opal_pmix_base_module_t opal_pmix_cray_module = {
     .initialized = cray_initialized,
     .abort = cray_abort,
     .commit = cray_commit,
-    .fence = NULL,
+    .fence = cray_fence,
     .fence_nb = cray_fencenb,
     .put = cray_put,
     .get = cray_get,
@@ -110,8 +107,8 @@ const opal_pmix_base_module_t opal_pmix_cray_module = {
     .resolve_peers = cray_resolve_peers,
     .resolve_nodes = cray_resolve_nodes,
     .get_version = cray_get_version,
-    .register_errhandler = opal_pmix_base_register_handler,
-    .deregister_errhandler = opal_pmix_base_deregister_handler,
+    .register_evhandler = opal_pmix_base_register_handler,
+    .deregister_evhandler = opal_pmix_base_deregister_handler,
     .store_local = cray_store_local,
     .get_nspace = cray_get_nspace,
     .register_jobid = cray_register_jobid
@@ -130,6 +127,11 @@ typedef struct {
 static OBJ_CLASS_INSTANCE(pmi_opcaddy_t,
                           opal_object_t,
                           NULL, NULL);
+
+struct fence_result {
+    volatile int flag;
+    int status;
+};
 
 // PMI constant values:
 static int pmix_kvslen_max = 0;
@@ -158,7 +160,142 @@ static char* pmix_error(int pmix_err);
                     pmix_error(pmi_err));                       \
     } while(0);
 
-static int cray_init(void)
+#define CRAY_WAIT_FOR_COMPLETION(a)               \
+    do {                                          \
+        while ((a)) {                             \
+            usleep(10);                           \
+        }                                         \
+    } while (0)
+
+static void cray_get_more_info(void)
+{
+    int alps_status = 0, i;
+    uint64_t apid;
+    size_t alps_count;
+    int lli_ret = 0, place_ret;
+    alpsAppLayout_t layout;
+    char *npstring;
+    char *firstrankstring;
+    char **nps, **firstranks;
+    int *base_pe_in_app;
+    int *pes_in_app;
+    char pbuf[OPAL_PATH_MAX];
+
+    /*
+     * First get our apid
+     */
+
+    lli_ret = alps_app_lli_lock();
+    if (0 != lli_ret) {
+        OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray: alps_app_lli_lock returned %d",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), lli_ret));
+        goto fn_exit;
+    }
+
+    lli_ret = alps_app_lli_put_request(ALPS_APP_LLI_ALPS_REQ_APID, NULL, 0);
+    if (ALPS_APP_LLI_ALPS_STAT_OK != lli_ret) {
+        OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray: alps_app_lli_put_request - APID returned %d",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), lli_ret));
+        goto fn_exit_w_lock;
+    }
+
+    lli_ret = alps_app_lli_get_response (&alps_status, &alps_count);
+    if (ALPS_APP_LLI_ALPS_STAT_OK != alps_status) {
+        OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray: alps_app_lli_get_response returned %d",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), alps_status));
+        goto fn_exit_w_lock;
+    }
+
+    lli_ret = alps_app_lli_get_response_bytes (&apid, sizeof(apid));
+    if (ALPS_APP_LLI_ALPS_STAT_OK != lli_ret) {
+        OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray: alps_app_lli_get_response_bytes returned %d",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), lli_ret));
+        goto fn_exit_w_lock;
+    }
+
+    /*
+     * get some items from alps placement file
+     */
+
+    place_ret = alps_get_placement_info(apid,
+                                        &layout,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        NULL,
+                                        &base_pe_in_app,
+                                        &pes_in_app,
+                                        NULL,
+                                        NULL);
+    if (1 != place_ret) {
+        OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray: alps_get_placement_info returned %d (%s)",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), place_ret, strerror(errno)));
+        goto fn_exit;
+    }
+
+    OPAL_OUTPUT_VERBOSE((2, opal_pmix_base_framework.framework_output,
+                           "%s pmix:cray: alps_get_placement_info returned %d first pe on node is %d",
+                            OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), place_ret, layout.firstPe));
+
+    nps = NULL;
+    firstranks = NULL;
+    for (i=0; i < layout.numCmds; i++) {
+        snprintf(pbuf, sizeof(pbuf), "%d", pes_in_app[i]);
+        opal_argv_append_nosize(&nps, pbuf);
+        snprintf(pbuf, sizeof(pbuf), "%d", base_pe_in_app[i]);
+        opal_argv_append_nosize(&firstranks, pbuf);
+    }
+
+    npstring = opal_argv_join(nps, ' ');
+    firstrankstring = opal_argv_join(firstranks, ' ');
+    opal_argv_free(nps);
+    opal_argv_free(firstranks);
+
+    /*
+     * stuff values into environment variables
+     */
+
+    /* add these envars to prep MPI-2 info pre-defined key/values */
+    snprintf(pbuf, sizeof(pbuf), "%d", layout.numCmds);
+    opal_setenv("OMPI_NUM_APP_CTX", pbuf, true, &environ);
+    opal_setenv("OMPI_FIRST_RANKS", firstrankstring, true, &environ);
+    opal_setenv("OMPI_APP_CTX_NUM_PROCS", npstring, true, &environ);
+    free(firstrankstring);
+    free(npstring);
+    free(base_pe_in_app);
+    free(pes_in_app);
+
+    /*
+     * ALPS always starts the application in the directory
+     * where the aprun command was run to do the launch.
+     * For SLURM, we have to check the SLURM_WORKING_DIR env.
+     * variable.  If it is set, we can't set wdir since
+     * we can't assume PWD is where we started.
+     */
+    if(getenv("SLURM_WORKING_DIR") == NULL) {
+        opal_getcwd(pbuf, OPAL_PATH_MAX);
+        opal_setenv("OMPI_MCA_initial_wdir", pbuf, true, &environ);
+    }
+
+   fn_exit_w_lock:
+    lli_ret = alps_app_lli_unlock();
+    if (ALPS_APP_LLI_ALPS_STAT_OK != lli_ret) {
+        OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray: alps_app_lli_unlock returned %d",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), lli_ret));
+    }
+
+   fn_exit:
+    return;
+}
+
+static int cray_init(opal_list_t *ilist)
 {
     int i, spawned, size, rank, appnum, my_node;
     int rc, ret = OPAL_ERROR;
@@ -171,6 +308,7 @@ static int cray_init(void)
     opal_process_name_t ldr;
     char nmtmp[64];
     char *str, **localranks = NULL;
+    opal_process_name_t name;
 
     ++pmix_init_count;
 
@@ -274,12 +412,16 @@ static int cray_init(void)
     // setup hash table
     opal_pmix_base_hash_init();
 
+    /* setup a name for retrieving data associated with the job */
+    name.jobid = pmix_jobid;
+    name.vpid = OPAL_VPID_WILDCARD;
+
     /* save the job size */
     OBJ_CONSTRUCT(&kv, opal_value_t);
     kv.key = strdup(OPAL_PMIX_JOB_SIZE);
     kv.type = OPAL_UINT32;
     kv.data.uint32 = pmix_size;
-    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&OPAL_PROC_MY_NAME, &kv))) {
+    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&name, &kv))) {
         OPAL_ERROR_LOG(rc);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
@@ -317,11 +459,23 @@ static int cray_init(void)
     }
     OBJ_DESTRUCT(&kv);
 
+    /* push this into the dstore for subsequent fetches */
+    OBJ_CONSTRUCT(&kv, opal_value_t);
+    kv.key = strdup(OPAL_PMIX_MAX_PROCS);
+    kv.type = OPAL_UINT32;
+    kv.data.uint32 = pmix_usize;
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&name, &kv))) {
+        OPAL_ERROR_LOG(ret);
+        OBJ_DESTRUCT(&kv);
+        goto err_exit;
+    }
+    OBJ_DESTRUCT(&kv);
+
     OBJ_CONSTRUCT(&kv, opal_value_t);
     kv.key = strdup(OPAL_PMIX_JOBID);
     kv.type = OPAL_UINT32;
     kv.data.uint32 = pmix_jobid;
-    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&OPAL_PROC_MY_NAME, &kv))) {
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&name, &kv))) {
         OPAL_ERROR_LOG(ret);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
@@ -333,7 +487,7 @@ static int cray_init(void)
     kv.key = strdup(OPAL_PMIX_LOCAL_SIZE);
     kv.type = OPAL_UINT32;
     kv.data.uint32 = pmix_nlranks;
-    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&OPAL_PROC_MY_NAME, &kv))) {
+    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&name, &kv))) {
         OPAL_ERROR_LOG(rc);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
@@ -361,7 +515,7 @@ static int cray_init(void)
     kv.key = strdup(OPAL_PMIX_LOCAL_PEERS);
     kv.type = OPAL_STRING;
     kv.data.string = str;
-    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&OPAL_PROC_MY_NAME, &kv))) {
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&name, &kv))) {
         OPAL_ERROR_LOG(ret);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
@@ -373,7 +527,7 @@ static int cray_init(void)
     kv.key = strdup(OPAL_PMIX_LOCALLDR);
     kv.type = OPAL_UINT64;
     kv.data.uint64 = *(uint64_t*)&ldr;
-    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&OPAL_PROC_MY_NAME, &kv))) {
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&name, &kv))) {
         OPAL_ERROR_LOG(ret);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
@@ -402,6 +556,8 @@ static int cray_init(void)
     }
     OBJ_DESTRUCT(&kv);
 
+    cray_get_more_info();
+
     return OPAL_SUCCESS;
 err_exit:
     PMI2_Finalize();
@@ -415,17 +571,22 @@ static int cray_fini(void) {
     }
 
     if (0 == --pmix_init_count) {
+
+        opal_output_verbose(10, opal_pmix_base_framework.framework_output,
+                        "%s pmix:cray: calling PMI2_Finalize",
+                        OPAL_NAME_PRINT(pmix_pname));
+
         PMI2_Finalize();
-    }
 
-    if (NULL != pmix_kvs_name) {
-        free(pmix_kvs_name);
-        pmix_kvs_name = NULL;
-    }
+        if (NULL != pmix_kvs_name) {
+            free(pmix_kvs_name);
+            pmix_kvs_name = NULL;
+        }
 
-    if (NULL != pmix_lranks) {
-        free(pmix_lranks);
-        pmix_lranks = NULL;
+        if (NULL != pmix_lranks) {
+            free(pmix_lranks);
+            pmix_lranks = NULL;
+        }
     }
 
     return OPAL_SUCCESS;
@@ -641,18 +802,18 @@ static void fencenb(int sd, short args, void *cbdata)
         }
 
         /* unpack and stuff in to the dstore */
-
         cnt = 1;
         while (OPAL_SUCCESS == (rc = opal_dss.unpack(buf, &kp, &cnt, OPAL_VALUE))) {
-            opal_output_verbose(20, opal_pmix_base_framework.framework_output,
-                        "%s pmix:cray unpacked kp with key %s type(%d) for id  %s",
-                         OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), kp->key, kp->type, OPAL_NAME_PRINT(id));
+            OPAL_OUTPUT_VERBOSE((20, opal_pmix_base_framework.framework_output,
+                                 "%s pmix:cray unpacked kp with key %s type(%d) for id  %s",
+                                 OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), kp->key, kp->type, OPAL_NAME_PRINT(id)));
+
             if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&id, kp))) {
                 OPAL_ERROR_LOG(rc);
                 goto fn_exit;
             }
-             OBJ_RELEASE(kp);
-             cnt = 1;
+            OBJ_RELEASE(kp);
+            cnt = 1;
         }
 
         cptr += r_bytes_and_ranks[i].nbytes;
@@ -688,18 +849,18 @@ static void fencenb(int sd, short args, void *cbdata)
     for (i=0; i < pmix_nlranks; i++) {
         id.vpid = pmix_lranks[i];
         id.jobid = pmix_jobid;
-        opal_output_verbose(2, opal_pmix_base_framework.framework_output,
-                                "%s checking out if %s is local to me",
-                                OPAL_NAME_PRINT(OPAL_PROC_MY_NAME),
-                                OPAL_NAME_PRINT(id));
+        OPAL_OUTPUT_VERBOSE((2, opal_pmix_base_framework.framework_output,
+                             "%s checking out if %s is local to me",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME),
+                             OPAL_NAME_PRINT(id)));
         /* fetch cpuset for this vpid */
         OBJ_CONSTRUCT(&vals, opal_list_t);
         if (OPAL_SUCCESS != (rc = opal_pmix_base_fetch(&id,
                                                     OPAL_PMIX_CPUSET, &vals))) {
-            opal_output_verbose(2, opal_pmix_base_framework.framework_output,
-                                "%s cpuset for local proc %s not found",
-                                OPAL_NAME_PRINT(OPAL_PROC_MY_NAME),
-                                OPAL_NAME_PRINT(id));
+            OPAL_OUTPUT_VERBOSE((2, opal_pmix_base_framework.framework_output,
+                                 "%s cpuset for local proc %s not found",
+                                 OPAL_NAME_PRINT(OPAL_PROC_MY_NAME),
+                                 OPAL_NAME_PRINT(id)));
             OPAL_LIST_DESTRUCT(&vals);
             /* even though the cpuset wasn't found, we at least know it is
              * on the same node with us */
@@ -753,6 +914,23 @@ fn_exit:
     return;
 }
 
+static void fence_release(int status, void *cbdata)
+{
+    struct fence_result *res = (struct fence_result*)cbdata;
+    res->status = status;
+    opal_atomic_wmb();
+    res->flag = 0;
+}
+
+static int cray_fence(opal_list_t *procs, int collect_data)
+{
+    struct fence_result result = { 1, OPAL_SUCCESS };
+    cray_fencenb(procs, collect_data, fence_release, (void*)&result);
+    CRAY_WAIT_FOR_COMPLETION(result.flag);
+    return result.status;
+}
+
+
 static int cray_fencenb(opal_list_t *procs, int collect_data,
                       opal_pmix_op_cbfunc_t cbfunc, void *cbdata)
 {
@@ -774,10 +952,10 @@ static int cray_get(const opal_process_name_t *id, const char *key, opal_list_t 
     int rc;
     opal_list_t vals;
 
-    opal_output_verbose(2, opal_pmix_base_framework.framework_output,
-                        "%s pmix:cray getting value for proc %s key %s",
-                        OPAL_NAME_PRINT(OPAL_PROC_MY_NAME),
-                        OPAL_NAME_PRINT(*id), key);
+    OPAL_OUTPUT_VERBOSE((2, opal_pmix_base_framework.framework_output,
+                         "%s pmix:cray getting value for proc %s key %s",
+                         OPAL_NAME_PRINT(OPAL_PROC_MY_NAME),
+                         OPAL_NAME_PRINT(*id), key));
 
     OBJ_CONSTRUCT(&vals, opal_list_t);
     rc = opal_pmix_base_fetch(id, key, &vals);
@@ -785,9 +963,9 @@ static int cray_get(const opal_process_name_t *id, const char *key, opal_list_t 
         *kv = (opal_value_t*)opal_list_remove_first(&vals);
         return OPAL_SUCCESS;
     } else {
-        opal_output_verbose(2, opal_pmix_base_framework.framework_output,
-                "%s pmix:cray fetch from dstore failed: %d",
-                OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), rc);
+        OPAL_OUTPUT_VERBOSE((2, opal_pmix_base_framework.framework_output,
+                             "%s pmix:cray fetch from dstore failed: %d",
+                             OPAL_NAME_PRINT(OPAL_PROC_MY_NAME), rc));
     }
     OPAL_LIST_DESTRUCT(&vals);
 
@@ -877,7 +1055,7 @@ static char* pmix_error(int pmix_err)
         case PMI_ERR_INVALID_KEYVALP: err_msg = "Invalid keyvalp argument"; break;
         case PMI_ERR_INVALID_SIZE: err_msg = "Invalid size argument"; break;
 #if defined(PMI_ERR_INVALID_KVS)
-	/* pmi.h calls this a valid return code but mpich doesn't define it (slurm does). */
+        /* pmi.h calls this a valid return code but mpich doesn't define it (slurm does). */
         case PMI_ERR_INVALID_KVS: err_msg = "Invalid kvs argument"; break;
 #endif
         case PMI_SUCCESS: err_msg = "Success"; break;

@@ -104,6 +104,8 @@ BEGIN_C_DECLS
 #include "opal/sys/sparcv9/timer.h"
 #elif OPAL_ASSEMBLY_ARCH == OPAL_MIPS
 #include "opal/sys/mips/timer.h"
+#elif OPAL_ASSEMBLY_ARCH == OPAL_HPPA
+#include "opal/sys/hppa/timer.h"
 #endif
 
 #ifndef DOXYGEN

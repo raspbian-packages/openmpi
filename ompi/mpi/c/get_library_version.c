@@ -12,6 +12,7 @@
  * Copyright (c) 2014-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015      Intel, Inc. All rights reserved
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -39,8 +40,9 @@ static const char FUNC_NAME[] = "MPI_Get_library_version";
 int MPI_Get_library_version(char *version, int *resultlen)
 {
     int len_left;
-    MPI_Comm null = MPI_COMM_NULL;
     char *ptr, tmp[MPI_MAX_LIBRARY_VERSION_STRING];
+
+    OPAL_CR_NOOP_PROGRESS();
 
     if (MPI_PARAM_CHECK) {
         /* Per MPI-3, this function can be invoked before
@@ -60,7 +62,10 @@ int MPI_Get_library_version(char *version, int *resultlen)
                 return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_ARG,
                                               FUNC_NAME);
             } else {
-                return OMPI_ERRHANDLER_INVOKE(null, MPI_ERR_ARG,
+                /* We have no MPI object here so call ompi_errhandle_invoke
+                 * directly */
+                return ompi_errhandler_invoke(NULL, NULL, -1,
+                                              ompi_errcode_get_mpi_code(MPI_ERR_ARG),
                                               FUNC_NAME);
             }
         }
@@ -78,35 +83,35 @@ int MPI_Get_library_version(char *version, int *resultlen)
     ptr += strlen(tmp);
     len_left -= strlen(tmp);
 
-    if (NULL != OMPI_GREEK_VERSION && strlen(OMPI_GREEK_VERSION) > 0) {
+    if (strlen(OMPI_GREEK_VERSION) > 0) {
         snprintf(ptr, len_left, "%s", OMPI_GREEK_VERSION);
         ptr = tmp + strlen(tmp);
         len_left = MPI_MAX_LIBRARY_VERSION_STRING - strlen(tmp);
     }
 
     /* Package name */
-    if (NULL != OPAL_PACKAGE_STRING && strlen(OPAL_PACKAGE_STRING) > 0) {
+    if (strlen(OPAL_PACKAGE_STRING) > 0) {
         snprintf(ptr, len_left, ", package: %s", OPAL_PACKAGE_STRING);
         ptr = tmp + strlen(tmp);
         len_left = MPI_MAX_LIBRARY_VERSION_STRING - strlen(tmp);
     }
 
     /* Ident string */
-    if (NULL != OMPI_IDENT_STRING && strlen(OMPI_IDENT_STRING) > 0) {
+    if (strlen(OMPI_IDENT_STRING) > 0) {
         snprintf(ptr, len_left, ", ident: %s", OMPI_IDENT_STRING);
         ptr = tmp + strlen(tmp);
         len_left = MPI_MAX_LIBRARY_VERSION_STRING - strlen(tmp);
     }
 
     /* Repository revision */
-    if (NULL != OMPI_REPO_REV && strlen(OMPI_REPO_REV) > 0) {
+    if (strlen(OMPI_REPO_REV) > 0) {
         snprintf(ptr, len_left, ", repo rev: %s", OMPI_REPO_REV);
         ptr = tmp + strlen(tmp);
         len_left = MPI_MAX_LIBRARY_VERSION_STRING - strlen(tmp);
     }
 
     /* Release date */
-    if (NULL != OMPI_RELEASE_DATE && strlen(OMPI_RELEASE_DATE) > 0) {
+    if (strlen(OMPI_RELEASE_DATE) > 0) {
         snprintf(ptr, len_left, ", %s", OMPI_RELEASE_DATE);
         ptr = tmp + strlen(tmp);
         len_left = MPI_MAX_LIBRARY_VERSION_STRING - strlen(tmp);

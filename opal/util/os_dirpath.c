@@ -55,7 +55,7 @@ int opal_os_dirpath_create(const char *path, const mode_t mode)
     int ret;
 
     if (NULL == path) { /* protect ourselves from errors */
-        return(OPAL_ERROR);
+        return(OPAL_ERR_BAD_PARAM);
     }
 
     if (0 == (ret = stat(path, &buf))) { /* already exists */
@@ -154,9 +154,7 @@ int opal_os_dirpath_destroy(const char *path,
     DIR *dp;
     struct dirent *ep;
     char *filenm;
-#ifndef HAVE_STRUCT_DIRENT_D_TYPE
     struct stat buf;
-#endif
 
     if (NULL == path) {  /* protect against error */
         return OPAL_ERROR;
@@ -165,7 +163,7 @@ int opal_os_dirpath_destroy(const char *path,
     /*
      * Make sure we have access to the the base directory
      */
-    if( OPAL_SUCCESS != (rc = opal_os_dirpath_access(path, 0) ) ) {
+    if (OPAL_SUCCESS != (rc = opal_os_dirpath_access(path, 0))) {
         exit_status = rc;
         goto cleanup;
     }
@@ -176,12 +174,12 @@ int opal_os_dirpath_destroy(const char *path,
         return OPAL_ERROR;
     }
 
-    while (NULL != (ep = readdir(dp)) ) {
+    while (NULL != (ep = readdir(dp))) {
         /* skip:
          *  - . and ..
          */
         if ((0 == strcmp(ep->d_name, ".")) ||
-            (0 == strcmp(ep->d_name, "..")) ) {
+            (0 == strcmp(ep->d_name, ".."))) {
             continue;
         }
 
@@ -193,22 +191,26 @@ int opal_os_dirpath_destroy(const char *path,
          * allocating memory here, so we need to free it later on.
          */
         filenm = opal_os_path(false, path, ep->d_name, NULL);
-#ifdef HAVE_STRUCT_DIRENT_D_TYPE
-        if (DT_DIR == ep->d_type) {
-            is_dir = true;
-        }
-#else /* have dirent.d_type */
+
         rc = stat(filenm, &buf);
-        if (rc < 0 || S_ISDIR(buf.st_mode)) {
+        if (0 > rc) {
+            /* Handle a race condition. filenm might have been deleted by an
+             * other process running on the same node. That typically occurs
+             * when one task is removing the job_session_dir and an other task
+             * is still removing its proc_session_dir.
+             */
+            free(filenm);
+            continue;
+        }
+        if (S_ISDIR(buf.st_mode)) {
             is_dir = true;
         }
-#endif /* have dirent.d_type */
 
         /*
          * If not recursively decending, then if we find a directory then fail
          * since we were not told to remove it.
          */
-        if( is_dir && !recursive) {
+        if (is_dir && !recursive) {
             /* Set the error indicating that we found a directory,
              * but continue removing files
              */
@@ -218,18 +220,18 @@ int opal_os_dirpath_destroy(const char *path,
         }
 
         /* Will the caller allow us to remove this file/directory? */
-        if(NULL != cbfunc) {
+        if (NULL != cbfunc) {
             /*
              * Caller does not wish to remove this file/directory,
              * continue with the rest of the entries
              */
-            if( ! (cbfunc(path, ep->d_name)) ) {
+            if (!(cbfunc(path, ep->d_name))) {
                 free(filenm);
                 continue;
             }
         }
         /* Directories are recursively destroyed */
-        if(is_dir) {
+        if (is_dir) {
             rc = opal_os_dirpath_destroy(filenm, recursive, cbfunc);
             free(filenm);
             if (OPAL_SUCCESS != rc) {
@@ -237,10 +239,9 @@ int opal_os_dirpath_destroy(const char *path,
                 closedir(dp);
                 goto cleanup;
             }
-        }
-        /* Files are removed right here */
-        else {
-            if( 0 != (rc = unlink(filenm) ) ) {
+        } else {
+            /* Files are removed right here */
+            if (0 != (rc = unlink(filenm))) {
                 exit_status = OPAL_ERROR;
             }
             free(filenm);
@@ -292,20 +293,18 @@ int opal_os_dirpath_access(const char *path, const mode_t in_mode ) {
     /*
      * If there was no mode specified, use the default mode
      */
-    if( 0 != in_mode ) {
+    if (0 != in_mode) {
         loc_mode = in_mode;
     }
 
     if (0 == stat(path, &buf)) { /* exists - check access */
         if ((buf.st_mode & loc_mode) == loc_mode) { /* okay, I can work here */
             return(OPAL_SUCCESS);
-        }
-        else {
+        } else {
             /* Don't have access rights to the existing path */
             return(OPAL_ERROR);
         }
-    }
-    else {
+    } else {
         /* We could not find the path */
         return( OPAL_ERR_NOT_FOUND );
     }

@@ -11,8 +11,8 @@
  * Copyright (c) 2004-2006 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2014-2015 Research Organization for Information Science
+ * Copyright (c) 2013      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -49,11 +49,17 @@
  * - the DT_CONTIGUOUS flag for the type OPAL_DATATYPE_END_LOOP is meaningless.
  */
 
-static inline void position_predefined_data( opal_convertor_t* CONVERTOR,
-                                             dt_elem_desc_t* ELEM,
-                                             uint32_t* COUNT,
-                                             unsigned char** POINTER,
-                                             size_t* SPACE )
+/**
+ * Advance the current position in the convertor based using the
+ * current element and a left-over counter. Update the head pointer
+ * and the leftover byte space.
+ */
+static inline void
+position_predefined_data( opal_convertor_t* CONVERTOR,
+                          dt_elem_desc_t* ELEM,
+                          uint32_t* COUNT,
+                          unsigned char** POINTER,
+                          size_t* SPACE )
 {
     uint32_t _copy_count = *(COUNT);
     size_t _copy_blength;
@@ -73,11 +79,17 @@ static inline void position_predefined_data( opal_convertor_t* CONVERTOR,
     *(COUNT)   -= _copy_count;
 }
 
-static inline void position_contiguous_loop( opal_convertor_t* CONVERTOR,
-                                             dt_elem_desc_t* ELEM,
-                                             uint32_t* COUNT,
-                                             unsigned char** POINTER,
-                                             size_t* SPACE )
+/**
+ * Advance the current position in the convertor based using the
+ * current contiguous loop and a left-over counter. Update the head
+ * pointer and the leftover byte space.
+ */
+static inline void
+position_contiguous_loop( opal_convertor_t* CONVERTOR,
+                          dt_elem_desc_t* ELEM,
+                          uint32_t* COUNT,
+                          unsigned char** POINTER,
+                          size_t* SPACE )
 {
     ddt_loop_desc_t *_loop = (ddt_loop_desc_t*)(ELEM);
     ddt_endloop_desc_t* _end_loop = (ddt_endloop_desc_t*)((ELEM) + (ELEM)->loop.items);
@@ -109,7 +121,7 @@ int opal_convertor_generic_simple_position( opal_convertor_t* pConvertor,
     dt_elem_desc_t* pElem;    /* current position */
     unsigned char *base_pointer = pConvertor->pBaseBuf;
     size_t iov_len_local;
-    OPAL_PTRDIFF_TYPE extent = pConvertor->pDesc->ub - pConvertor->pDesc->lb;
+    ptrdiff_t extent = pConvertor->pDesc->ub - pConvertor->pDesc->lb;
 
     DUMP( "opal_convertor_generic_simple_position( %p, &%ld )\n", (void*)pConvertor, (long)*position );
     assert(*position > pConvertor->bConverted);
@@ -195,7 +207,7 @@ int opal_convertor_generic_simple_position( opal_convertor_t* pConvertor,
                                    (unsigned long long)pStack->disp, (unsigned long)iov_len_local ); );
         }
         if( OPAL_DATATYPE_LOOP == pElem->elem.common.type ) {
-            OPAL_PTRDIFF_TYPE local_disp = (OPAL_PTRDIFF_TYPE)base_pointer;
+            ptrdiff_t local_disp = (ptrdiff_t)base_pointer;
             if( pElem->loop.common.flags & OPAL_DATATYPE_FLAG_CONTIGUOUS ) {
                 POSITION_CONTIGUOUS_LOOP( pConvertor, pElem, count_desc,
                                           base_pointer, iov_len_local );
@@ -205,7 +217,7 @@ int opal_convertor_generic_simple_position( opal_convertor_t* pConvertor,
                 }
                 /* Save the stack with the correct last_count value. */
             }
-            local_disp = (OPAL_PTRDIFF_TYPE)base_pointer - local_disp;
+            local_disp = (ptrdiff_t)base_pointer - local_disp;
             PUSH_STACK( pStack, pConvertor->stack_pos, pos_desc, OPAL_DATATYPE_LOOP, count_desc,
                         pStack->disp + local_disp );
             pos_desc++;

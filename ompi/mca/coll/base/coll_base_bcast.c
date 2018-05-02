@@ -43,7 +43,7 @@ ompi_coll_base_bcast_intra_generic( void* buffer,
                                      uint32_t count_by_segment,
                                      ompi_coll_tree_t* tree )
 {
-    int err = 0, line, i, rank, size, segindex, req_index;
+    int err = 0, line, i, rank, segindex, req_index;
     int num_segments; /* Number of segments */
     int sendcount;    /* number of elements sent in this segment */
     size_t realsegsize, type_size;
@@ -52,9 +52,12 @@ ompi_coll_base_bcast_intra_generic( void* buffer,
     ompi_request_t *recv_reqs[2] = {MPI_REQUEST_NULL, MPI_REQUEST_NULL};
     ompi_request_t **send_reqs = NULL;
 
+#if OPAL_ENABLE_DEBUG
+    int size;
     size = ompi_comm_size(comm);
-    rank = ompi_comm_rank(comm);
     assert( size > 1 );
+#endif
+    rank = ompi_comm_rank(comm);
 
     ompi_datatype_get_extent (datatype, &lb, &extent);
     ompi_datatype_type_size( datatype, &type_size );
@@ -212,6 +215,7 @@ ompi_coll_base_bcast_intra_generic( void* buffer,
  error_hndl:
     OPAL_OUTPUT( (ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d",
                   __FILE__, line, err, rank) );
+    (void)line;  // silence compiler warnings
     ompi_coll_base_free_reqs( recv_reqs, 2);
     if( NULL != send_reqs ) {
         ompi_coll_base_free_reqs(send_reqs, tree->tree_nextsize);
@@ -573,6 +577,7 @@ ompi_coll_base_bcast_intra_split_bintree ( void* buffer,
 
  error_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d", __FILE__,line,err,rank));
+    (void)line;  // silence compiler warning
     return (err);
 }
 

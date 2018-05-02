@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2011 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -10,7 +10,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2008-2014 University of Houston. All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -72,7 +72,7 @@ mca_fs_pvfs2_file_open (struct ompi_communicator_t *comm,
     struct ompi_datatype_t *open_status_type;
     struct ompi_datatype_t *types[2] = {&ompi_mpi_int.dt, &ompi_mpi_byte.dt};
     int lens[2] = {1, sizeof(PVFS_object_ref)};
-    OPAL_PTRDIFF_TYPE offsets[2];
+    ptrdiff_t offsets[2];
     char char_stripe[MPI_MAX_INFO_KEY];
     int flag;
     int fs_pvfs2_stripe_size = -1;
@@ -153,12 +153,12 @@ mca_fs_pvfs2_file_open (struct ompi_communicator_t *comm,
     ompi_datatype_create_struct (2, lens, offsets, types, &open_status_type);
     ompi_datatype_commit (&open_status_type);
 
-    fh->f_comm->c_coll.coll_bcast (MPI_BOTTOM,
+    fh->f_comm->c_coll->coll_bcast (MPI_BOTTOM,
                                    1,
                                    open_status_type,
                                    OMPIO_ROOT,
                                    fh->f_comm,
-                                   fh->f_comm->c_coll.coll_bcast_module);
+                                   fh->f_comm->c_coll->coll_bcast_module);
 
     ompi_datatype_destroy (&open_status_type);
 
@@ -180,6 +180,7 @@ mca_fs_pvfs2_file_open (struct ompi_communicator_t *comm,
 
     if (fs_pvfs2_stripe_size > 0 && fs_pvfs2_stripe_width > 0) {
         fh->f_stripe_size = fs_pvfs2_stripe_size;
+        fh->f_stripe_count = fs_pvfs2_stripe_width;
     }
 
     return OMPI_SUCCESS;

@@ -14,8 +14,8 @@
 # Copyright (c) 2011-2014 Los Alamos National Security, LLC. All rights
 #                         reserved.
 # Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
-# Copyright (c) 2014-2016 Research Organization for Information Science
-#                         and Technology (RIST). All rights reserved.
+# Copyright (c) 2014-2018 Research Organization for Information Science
+#                         and Technology (RIST).  All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
 #
@@ -39,18 +39,35 @@ AC_DEFUN([OPAL_CHECK_PMI_LIB],
     opal_check_$3_mycppflags=
 
     # check for the header
-    AC_MSG_CHECKING([for $3.h in $1/include])
-    AS_IF([test -f $1/include/$3.h],
-          [AC_MSG_RESULT([found])
-           opal_check_$3_mycppflags="-I$1/include"],
-          [AC_MSG_RESULT([not found])
-           AC_MSG_CHECKING([for $3.h in $1/include/slurm])
-           AS_IF([test -f $1/include/slurm/$3.h],
+    AS_IF([test -n "$1"],
+          [AC_MSG_CHECKING([for $3.h in $1])
+           AS_IF([test -f $1/$3.h && test -r $1/$3.h],
                  [AC_MSG_RESULT([found])
-                  opal_check_$3_mycppflags="-I$1/include/slurm"
-                  $5],
+                  opal_check_$3_mycppflags="-I$1"],
                  [AC_MSG_RESULT([not found])
-                  opal_check_$3_hdr_happy=no])])
+                  AC_MSG_CHECKING([for $3.h in $1/include])
+                  AS_IF([test -f $1/include/$3.h && test -r $1/include/$3.h],
+                        [AC_MSG_RESULT([found])
+                         opal_check_$3_mycppflags="-I$1/include"],
+                        [AC_MSG_RESULT([not found])
+                         AC_MSG_CHECKING([for $3.h in $1/include/slurm])
+                         AS_IF([test -f $1/include/slurm/$3.h && test -r $1/include/slurm/$3.h],
+                               [AC_MSG_RESULT([found])
+                                opal_check_$3_mycppflags="-I$1/include/slurm"
+                                $5],
+                               [AC_MSG_RESULT([not found])
+                                opal_check_$3_hdr_happy=no])])])],
+          [AC_MSG_CHECKING([for $3.h in /usr/include])
+           AS_IF([test -f /usr/include/$3.h && test -r /usr/include/$3.h],
+                 [AC_MSG_RESULT([found])],
+                 [AC_MSG_RESULT([not found])
+                  AC_MSG_CHECKING([for $3.h in /usr/include/slurm])
+                  AS_IF([test -f /usr/include/slurm/$3.h && test -r /usr/include/slurm/$3.h],
+                        [AC_MSG_RESULT([found])
+                         opal_check_$3_mycppflags="-I/usr/include/slurm"
+                         $5],
+                        [AC_MSG_RESULT([not found])
+                         opal_check_$3_hdr_happy=no])])])
 
     AS_IF([test "$opal_check_$3_hdr_happy" != "no"],
           [CPPFLAGS="$CPPFLAGS $opal_check_$3_mycppflags"
@@ -65,51 +82,47 @@ AC_DEFUN([OPAL_CHECK_PMI_LIB],
 
     # check for the library in the given location in case
     # an exact path was given
-    AC_MSG_CHECKING([for lib$3 in $2])
-    files=`ls $2/lib$3.* 2> /dev/null | wc -l`
-    AS_IF([test "$files" -gt "0"],
-          [AC_MSG_RESULT([found])
-           LDFLAGS="$LDFLAGS -L$2"
-           AC_CHECK_LIB([$3], [$4],
-                        [opal_check_$3_lib_happy=yes
-                         $3_LDFLAGS=-L$2
-                         $3_rpath=$2],
+    AS_IF([test -z "$1" && test -z "$2"],
+          [AC_CHECK_LIB([$3], [$4],
+                        [opal_check_$3_lib_happy=yes],
                         [opal_check_$3_lib_happy=no])],
-          [opal_check_$3_lib_happy=no
-           AC_MSG_RESULT([not found])])
-
-    # check for presence of lib64 directory - if found, see if the
-    # desired library is present and matches our build requirements
-    files=`ls $2/lib64/lib$3.* 2> /dev/null | wc -l`
-    AS_IF([test "$opal_check_$3_lib_happy" != "yes"],
-          [AC_MSG_CHECKING([for lib$3 in $2/lib64])
-           AS_IF([test "$files" -gt "0"],
-                 [AC_MSG_RESULT([found])
-                  LDFLAGS="$LDFLAGS -L$2/lib64"
-                  AC_CHECK_LIB([$3], [$4],
-                               [opal_check_$3_lib_happy=yes
-                                $3_LDFLAGS=-L$2/lib64
-                                $3_rpath=$2/lib64],
-                               [opal_check_$3_lib_happy=no])],
-                 [opal_check_$3_lib_happy=no
-                  AC_MSG_RESULT([not found])])])
-
-
-    # if we didn't find lib64, or the library wasn't present or correct,
-    # then try a lib directory if present
-    files=`ls $2/lib/lib$3.* 2> /dev/null | wc -l`
-    AS_IF([test "$opal_check_$3_lib_happy" != "yes"],
-          [AC_MSG_CHECKING([for lib$3 in $2/lib])
-           AS_IF([test "$files" -gt "0"],
-                 [AC_MSG_RESULT([found])
-                  LDFLAGS="$LDFLAGS -L$2/lib"
-                  AC_CHECK_LIB([$3], [$4],
-                               [opal_check_$3_lib_happy=yes
-                                $3_LDFLAGS=-L$2/lib
-                                $3_rpath=$2/lib],
-                               [opal_check_$3_lib_happy=no])],
-                 [opal_check_$3_lib_happy=no
-                  AC_MSG_RESULT([not found])])])
+          [AS_IF([test -n "$2"],
+                 [AC_MSG_CHECKING([for lib$3 in $2])
+                  files=`ls $2/lib$3.* 2> /dev/null | wc -l`
+                  AS_IF([test "$files" -gt "0"],
+                        [AC_MSG_RESULT([found])
+                         LDFLAGS="$LDFLAGS -L$2"
+                         AC_CHECK_LIB([$3], [$4],
+                                      [opal_check_$3_lib_happy=yes
+                                       $3_LDFLAGS=-L$2
+                                       $3_rpath=$2],
+                                      [opal_check_$3_lib_happy=no])],
+                        [opal_check_$3_lib_happy=no
+                         AC_MSG_RESULT([not found])])],
+                 [AC_MSG_CHECKING([for lib$3 in $1/lib])
+                  files=`ls $1/lib/lib$3.* 2> /dev/null | wc -l`
+                  AS_IF([test "$files" -gt "0"],
+                        [AC_MSG_RESULT([found])
+                         LDFLAGS="$LDFLAGS -L$1/lib"
+                         AC_CHECK_LIB([$3], [$4],
+                                      [opal_check_$3_lib_happy=yes
+                                       $3_LDFLAGS=-L$1/lib
+                                       $3_rpath=$1/lib],
+                                      [opal_check_$3_lib_happy=no])],
+                        [# check for presence of lib64 directory - if found, see if the
+                         # desired library is present and matches our build requirements
+                         AC_MSG_CHECKING([for lib$3 in $1/lib64])
+                         files=`ls $1/lib64/lib$3.* 2> /dev/null | wc -l`
+                         AS_IF([test "$files" -gt "0"],
+                               [AC_MSG_RESULT([found])
+                                LDFLAGS="$LDFLAGS -L$1/lib64"
+                                AC_CHECK_LIB([$3], [$4],
+                                             [opal_check_$3_lib_happy=yes
+                                              $3_LDFLAGS=-L$1/lib64
+                                              $3_rpath=$1/lib64],
+                                             [opal_check_$3_lib_happy=no])],
+                               [opal_check_$3_lib_happy=no
+                                AC_MSG_RESULT([not found])])])])])
 
     # restore flags
     CPPFLAGS=$opal_check_$3_save_CPPFLAGS
@@ -124,7 +137,7 @@ AC_DEFUN([OPAL_CHECK_PMI_LIB],
 # OPAL_CHECK_PMI()
 # --------------------------------------------------------
 AC_DEFUN([OPAL_CHECK_PMI],[
-    OPAL_VAR_SCOPE_PUSH([check_pmi_install_dir check_pmi_lib_dir default_pmi_loc default_pmi_libloc slurm_pmi_found])
+    OPAL_VAR_SCOPE_PUSH([check_pmi_install_dir check_pmi_lib_dir default_pmi_libloc slurm_pmi_found])
 
     AC_ARG_WITH([pmi],
                 [AC_HELP_STRING([--with-pmi(=DIR)],
@@ -132,12 +145,11 @@ AC_DEFUN([OPAL_CHECK_PMI],[
                                 [], with_pmi=no)
 
     AC_ARG_WITH([pmi-libdir],
-                [AC_HELP_STRING([--with-pmi-libdir(=DIR)],
-                                [Look for libpmi or libpmi2 in the given directory, DIR/lib or DIR/lib64])])
+                [AC_HELP_STRING([--with-pmi-libdir=DIR],
+                                [Look for libpmi or libpmi2 in the given directory DIR, DIR/lib or DIR/lib64])])
 
     check_pmi_install_dir=
     check_pmi_lib_dir=
-    default_pmi_loc=
     default_pmi_libloc=
     slurm_pmi_found=
 
@@ -149,23 +161,15 @@ AC_DEFUN([OPAL_CHECK_PMI],[
            # cannot use OPAL_CHECK_PACKAGE as its backend header
            # support appends "include" to the path, which won't
            # work with slurm :-(
-           AS_IF([test ! -z "$with_pmi" && test "$with_pmi" != "yes"],
-                 [check_pmi_install_dir=$with_pmi
-                  default_pmi_loc=no],
-                 [check_pmi_install_dir=/usr
-                  default_pmi_loc=yes])
-           AS_IF([test ! -z "$with_pmi_libdir"],
-                 [check_pmi_lib_dir=$with_pmi_libdir
-		  default_pmi_libloc=no],
-                 [check_pmi_lib_dir=$check_pmi_install_dir
-		  AS_IF([test "$default_pmi_loc" = "no"],
-		        [default_pmi_libloc=no],
-			[default_pmi_libloc=yes])])
+           AS_IF([test -n "$with_pmi" && test "$with_pmi" != "yes"],
+                 [check_pmi_install_dir=$with_pmi])
+           AS_IF([test -n "$with_pmi_libdir"],
+                 [check_pmi_lib_dir=$with_pmi_libdir])
 
            # check for pmi-1 lib */
            slurm_pmi_found=no
            OPAL_CHECK_PMI_LIB([$check_pmi_install_dir],
-	                      [$check_pmi_lib_dir],
+                              [$check_pmi_lib_dir],
                               [pmi], [PMI_Init],
                               [slurm_pmi_found=yes],
                               [opal_enable_pmi1=yes
@@ -174,11 +178,11 @@ AC_DEFUN([OPAL_CHECK_PMI],[
                               [opal_enable_pmi1=no])
 
            AS_IF([test "$opal_enable_pmi1" = "yes"],
-                 [AS_IF([test "$default_pmi_loc" = "no" || test "$slurm_pmi_found" = "yes"],
-		        [opal_pmi1_CPPFLAGS="$pmi_CPPFLAGS"
+                 [AS_IF([test "$slurm_pmi_found" = "yes"],
+                        [opal_pmi1_CPPFLAGS="$pmi_CPPFLAGS"
                          AC_SUBST(opal_pmi1_CPPFLAGS)])
-                  AS_IF([test "$default_pmi_libloc" = "no" || test "$slurm_pmi_found" = "yes"],
-		        [opal_pmi1_LDFLAGS="$pmi_LDFLAGS"
+                  AS_IF([test "$slurm_pmi_found" = "yes"],
+                        [opal_pmi1_LDFLAGS="$pmi_LDFLAGS"
                          AC_SUBST(opal_pmi1_LDFLAGS)
                          opal_pmi1_rpath="$pmi_rpath"
                          AC_SUBST(opal_pmi1_rpath)])])
@@ -195,26 +199,26 @@ AC_DEFUN([OPAL_CHECK_PMI],[
                               [opal_enable_pmi2=no])
 
            AS_IF([test "$opal_enable_pmi2" = "yes"],
-                 [AS_IF([test "$default_pmi_loc" = "no" || test "$slurm_pmi_found" = "yes"],
-		        [opal_pmi2_CPPFLAGS="$pmi2_CPPFLAGS"
+                 [AS_IF([test "$slurm_pmi_found" = "yes"],
+                        [opal_pmi2_CPPFLAGS="$pmi2_CPPFLAGS"
                          AC_SUBST(opal_pmi2_CPPFLAGS)])
-                  AS_IF([test "$default_pmi_libloc" = "no" || test "$slurm_pmi_found" = "yes"],
-		        [opal_pmi2_LDFLAGS="$pmi2_LDFLAGS"
+                  AS_IF([test "$slurm_pmi_found" = "yes"],
+                        [opal_pmi2_LDFLAGS="$pmi2_LDFLAGS"
                          AC_SUBST(opal_pmi2_LDFLAGS)
                          opal_pmi2_rpath="$pmi2_rpath"
                          AC_SUBST(opal_pmi2_rpath)])])
 
            # since support was explicitly requested, then we should error out
            # if we didn't find the required support
-	   AC_MSG_CHECKING([can PMI support be built])
+           AC_MSG_CHECKING([can PMI support be built])
            AS_IF([test "$opal_enable_pmi1" != "yes" && test "$opal_enable_pmi2" != "yes"],
                  [AC_MSG_RESULT([no])
                   AC_MSG_WARN([PMI support requested (via --with-pmi) but neither pmi.h])
-		  AC_MSG_WARN([nor pmi2.h were found under locations:])
+                  AC_MSG_WARN([nor pmi2.h were found under locations:])
                   AC_MSG_WARN([    $check_pmi_install_dir])
                   AC_MSG_WARN([    $check_pmi_install_dir/slurm])
                   AC_MSG_WARN([Specified path: $with_pmi])
-		  AC_MSG_WARN([OR neither libpmi nor libpmi2 were found under:])
+                  AC_MSG_WARN([OR neither libpmi nor libpmi2 were found under:])
                   AC_MSG_WARN([    $check_pmi_lib_dir/lib])
                   AC_MSG_WARN([    $check_pmi_lib_dir/lib64])
                   AC_MSG_WARN([Specified path: $with_pmi_libdir])
@@ -233,6 +237,10 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
                 [AC_HELP_STRING([--with-pmix(=DIR)],
                                 [Build PMIx support.  DIR can take one of three values: "internal", "external", or a valid directory name.  "internal" (or no DIR value) forces Open MPI to use its internal copy of PMIx.  "external" forces Open MPI to use an external installation of PMIx.  Supplying a valid directory name also forces Open MPI to use an external installation of PMIx, and adds DIR/include, DIR/lib, and DIR/lib64 to the search path for headers and libraries. Note that Open MPI does not support --without-pmix.])])
 
+    AC_ARG_WITH([pmix-libdir],
+                [AC_HELP_STRING([--with-pmix-libdir=DIR],
+                                [Look for libpmix the given directory DIR, DIR/lib or DIR/lib64])])
+
     AS_IF([test "$with_pmix" = "no"],
           [AC_MSG_WARN([Open MPI requires PMIx support. It can be built])
            AC_MSG_WARN([with either its own internal copy of PMIx, or with])
@@ -240,6 +248,7 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
            AC_MSG_ERROR([Cannot continue])])
 
     AC_MSG_CHECKING([if user requested external PMIx support($with_pmix)])
+    opal_external_have_pmix1=0
     AS_IF([test -z "$with_pmix" || test "$with_pmix" = "yes" || test "$with_pmix" = "internal"],
           [AC_MSG_RESULT([no])
            opal_external_pmix_happy=no],
@@ -252,7 +261,34 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
 
            # Make sure we have the headers and libs in the correct location
            OPAL_CHECK_WITHDIR([external-pmix], [$pmix_ext_install_dir/include], [pmix.h])
-           OPAL_CHECK_WITHDIR([external-libpmix], [$pmix_ext_install_dir/lib], [libpmix.*])
+
+           AS_IF([test -n "$with_pmix_libdir"],
+                 [AC_MSG_CHECKING([libpmix.* in $with_pmix_libdir])
+                  files=`ls $with_pmix_libdir/libpmix.* 2> /dev/null | wc -l`
+                  AS_IF([test "$files" -gt 0],
+                        [pmix_ext_install_libdir=$with_pmix_libdir],
+                        [AC_MSG_CHECKING([libpmix.* in $with_pmix_libdir/lib64])
+                         files=`ls $with_pmix_libdir/lib64/libpmix.* 2> /dev/null | wc -l`
+                         AS_IF([test "$files" -gt 0],
+                               [pmix_ext_install_libdir=$with_pmix_libdir/lib64],
+                               [AC_MSG_CHECKING([libpmix.* in $with_pmix_libdir/lib])
+                                files=`ls $with_pmix_libdir/lib/libpmix.* 2> /dev/null | wc -l`
+                                AS_IF([test "$files" -gt 0],
+                                      [pmix_ext_install_libdir=$with_pmix_libdir/lib],
+                                      [AC_MSG_RESULT([not found])
+                                       AC_MSG_ERROR([Cannot continue])])])])],
+                 [# check for presence of lib64 directory - if found, see if the
+                  # desired library is present and matches our build requirements
+                  AC_MSG_CHECKING([libpmix.* in $pmix_ext_install_dir/lib64])
+                  files=`ls $pmix_ext_install_dir/lib64/libpmix.* 2> /dev/null | wc -l`
+                  AS_IF([test "$files" -gt 0],
+                        [pmix_ext_install_libdir=$pmix_ext_install_dir/lib64],
+                        [AC_MSG_CHECKING([libpmix.* in $pmix_ext_install_dir/lib])
+                         files=`ls $pmix_ext_install_dir/lib/libpmix.* 2> /dev/null | wc -l`
+                         AS_IF([test "$files" -gt 0],
+                               [pmix_ext_install_libdir=$pmix_ext_install_dir/lib],
+                               [AC_MSG_RESULT([not found])
+                                AC_MSG_ERROR([Cannot continue])])])])
 
            # check the version
            opal_external_pmix_save_CPPFLAGS=$CPPFLAGS
@@ -266,7 +302,8 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
            AS_IF([test "x`ls $pmix_ext_install_dir/include/pmix_version.h 2> /dev/null`" = "x"],
                  [AC_MSG_RESULT([version file not found - assuming v1.1.4])
                   opal_external_pmix_version_found=1
-                  opal_external_pmix_version=114],
+                  opal_external_pmix_version=114
+                  opal_external_have_pmix1=1],
                  [AC_MSG_RESULT([version file found])
                   opal_external_pmix_version_found=0])
 
@@ -281,10 +318,8 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
                                                       #endif
                                                       ], [])],
                                     [AC_MSG_RESULT([found])
-                                     opal_external_pmix_version=3X
-                                     opal_external_pmix_version_found=1
-                                     AC_MSG_WARN([This version of Open MPI does not support PMIx version 2.x and later])
-                                     AC_MSG_ERROR([Cannot continue])],
+                                     opal_external_pmix_version=3x
+                                     opal_external_pmix_version_found=1],
                                     [AC_MSG_RESULT([not found])])])
 
            AS_IF([test "$opal_external_pmix_version_found" = "0"],
@@ -296,10 +331,8 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
                                                       #endif
                                                       ], [])],
                                     [AC_MSG_RESULT([found])
-                                     opal_external_pmix_version=2X
-                                     opal_external_pmix_version_found=1
-                                     AC_MSG_WARN([This version of Open MPI does not support PMIx version 2.x and later])
-                                     AC_MSG_ERROR([Cannot continue])],
+                                     opal_external_pmix_version=2x
+                                     opal_external_pmix_version_found=1],
                                     [AC_MSG_RESULT([not found])])])
 
            AS_IF([test "$opal_external_pmix_version_found" = "0"],
@@ -311,8 +344,9 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
                                                       #endif
                                                       ], [])],
                                     [AC_MSG_RESULT([found])
-                                     opal_external_pmix_version=1X
-                                     opal_external_pmix_version_found=1],
+                                     opal_external_pmix_version=1x
+                                     opal_external_pmix_version_found=1
+                                     opal_external_have_pmix1=1],
                                     [AC_MSG_RESULT([not found])])])
 
            AS_IF([test "x$opal_external_pmix_version" = "x"],
@@ -325,10 +359,13 @@ AC_DEFUN([OPAL_CHECK_PMIX],[
            LDFLAGS=$opal_external_pmix_save_LDFLAGS
            LIBS=$opal_external_pmix_save_LIBS
 
-           opal_external_pmix_CPPFLAGS="-I$pmix_ext_install_dir/include"
-           opal_external_pmix_LDFLAGS=-L$pmix_ext_install_dir/lib
+           AS_IF([test "$pmix_ext_install_dir" != "/usr"],
+                 [opal_external_pmix_CPPFLAGS="-I$pmix_ext_install_dir/include"
+                  opal_external_pmix_LDFLAGS=-L$pmix_ext_install_libdir])
            opal_external_pmix_LIBS=-lpmix
            opal_external_pmix_happy=yes])
 
+    AC_DEFINE_UNQUOTED([OPAL_PMIX_V1],[$opal_external_have_pmix1],
+                       [Whether the external PMIx library is v1])
     OPAL_VAR_SCOPE_POP
 ])

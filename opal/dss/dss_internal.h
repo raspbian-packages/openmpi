@@ -11,9 +11,10 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2012      Los Alamos National Security, Inc.  All rights reserved.
- * Copyright (c) 2014      Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015 Cisco Systems, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -46,12 +47,12 @@ BEGIN_C_DECLS
 /*
  * The default starting chunk size
  */
-#define OPAL_DSS_DEFAULT_INITIAL_SIZE  128
+#define OPAL_DSS_DEFAULT_INITIAL_SIZE  2048
 /*
  * The default threshold size when we switch from doubling the
  * buffer size to addatively increasing it
  */
-#define OPAL_DSS_DEFAULT_THRESHOLD_SIZE 1024
+#define OPAL_DSS_DEFAULT_THRESHOLD_SIZE 4096
 
 /*
  * Internal type corresponding to size_t.  Do not use this in
@@ -73,13 +74,13 @@ BEGIN_C_DECLS
  * Internal type corresponding to bool.  Do not use this in interface
  * calls - use OPAL_BOOL instead.
  */
-#if SIZEOF_BOOL == 1
+#if SIZEOF__BOOL == 1
 #define DSS_TYPE_BOOL OPAL_UINT8
-#elif SIZEOF_BOOL == 2
+#elif SIZEOF__BOOL == 2
 #define DSS_TYPE_BOOL OPAL_UINT16
-#elif SIZEOF_BOOL == 4
+#elif SIZEOF__BOOL == 4
 #define DSS_TYPE_BOOL OPAL_UINT32
-#elif SIZEOF_BOOL == 8
+#elif SIZEOF__BOOL == 8
 #define DSS_TYPE_BOOL OPAL_UINT64
 #else
 #error Unsupported bool size!
@@ -331,6 +332,9 @@ int opal_dss_pack_jobid(opal_buffer_t *buffer, const void *src,
 int opal_dss_pack_vpid(opal_buffer_t *buffer, const void *src,
                       int32_t num_vals, opal_data_type_t type);
 
+int opal_dss_pack_status(opal_buffer_t *buffer, const void *src,
+                         int32_t num_vals, opal_data_type_t type);
+
 /*
  * Internal unpack functions
  */
@@ -400,6 +404,8 @@ int opal_dss_unpack_jobid(opal_buffer_t *buffer, void *dest,
 int opal_dss_unpack_vpid(opal_buffer_t *buffer, void *dest,
                         int32_t *num_vals, opal_data_type_t type);
 
+int opal_dss_unpack_status(opal_buffer_t *buffer, void *dest,
+                           int32_t *num_vals, opal_data_type_t type);
 
 /*
  * Internal copy functions
@@ -496,6 +502,8 @@ int opal_dss_compare_jobid(opal_jobid_t *value1,
                            opal_jobid_t *value2,
                            opal_data_type_t type);
 
+int opal_dss_compare_status(int *value1, int *value2, opal_data_type_t type);
+
 /*
  * Internal print functions
  */
@@ -535,6 +543,7 @@ int opal_dss_print_time(char **output, char *prefix, time_t *src, opal_data_type
 int opal_dss_print_name(char **output, char *prefix, opal_process_name_t *name, opal_data_type_t type);
 int opal_dss_print_jobid(char **output, char *prefix, opal_process_name_t *src, opal_data_type_t type);
 int opal_dss_print_vpid(char **output, char *prefix, opal_process_name_t *src, opal_data_type_t type);
+int opal_dss_print_status(char **output, char *prefix, int *src, opal_data_type_t type);
 
 
 /*

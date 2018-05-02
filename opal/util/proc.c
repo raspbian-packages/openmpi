@@ -4,8 +4,8 @@
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2013      Inria.  All rights reserved.
- * Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
- * Copyright (c) 2014-2016 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
@@ -50,6 +50,7 @@ static void opal_proc_construct(opal_proc_t* proc)
     proc->proc_convertor = NULL;
     proc->proc_flags = 0;
     proc->proc_name = *OPAL_NAME_INVALID;
+    proc->proc_hostname  = NULL;
 }
 
 static void opal_proc_destruct(opal_proc_t* proc)
@@ -200,10 +201,9 @@ char* opal_get_proc_hostname(const opal_proc_t *proc)
     }
 
     /* if we don't already have it, then try to get it */
-    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_HOSTNAME, &proc->proc_name,
-                          (char**)&(proc->proc_hostname), OPAL_STRING);
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_HOSTNAME, &proc->proc_name,
+                                   (char**)&(proc->proc_hostname), OPAL_STRING);
     if (OPAL_SUCCESS != ret) {
-        OPAL_ERROR_LOG(ret);
         return "unknown";  // return something so the caller doesn't segfault
     }
 

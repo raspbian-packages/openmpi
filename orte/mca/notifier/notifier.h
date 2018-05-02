@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2008 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -13,7 +13,7 @@
  * Copyright (c) 2009      Cisco Systems, Inc.  All Rights Reserved.
  * Copyright (c) 2012-2015 Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2014-2015 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -51,6 +51,7 @@
 #include "orte/types.h"
 
 #include "orte/runtime/orte_globals.h"
+#include "orte/util/threads.h"
 
 BEGIN_C_DECLS
 
@@ -63,10 +64,11 @@ ORTE_DECLSPEC extern int orte_notifier_debug_output;
  * The code has NOT been auditied for use of malloc, so this still
  * may fail to get the "OUT_OF_RESOURCE" message out.  Oh Well.
  */
-#define ORTE_NOTIFIER_MAX_BUF	512
+#define ORTE_NOTIFIER_MAX_BUF   512
 
 /* Severities */
 typedef enum {
+#ifdef HAVE_SYSLOG_H
     ORTE_NOTIFIER_EMERG = LOG_EMERG,
     ORTE_NOTIFIER_ALERT = LOG_ALERT,
     ORTE_NOTIFIER_CRIT = LOG_CRIT,
@@ -75,6 +77,16 @@ typedef enum {
     ORTE_NOTIFIER_NOTICE = LOG_NOTICE,
     ORTE_NOTIFIER_INFO = LOG_INFO,
     ORTE_NOTIFIER_DEBUG = LOG_DEBUG
+#else
+    ORTE_NOTIFIER_EMERG,
+    ORTE_NOTIFIER_ALERT,
+    ORTE_NOTIFIER_CRIT,
+    ORTE_NOTIFIER_ERROR,
+    ORTE_NOTIFIER_WARN,
+    ORTE_NOTIFIER_NOTICE,
+    ORTE_NOTIFIER_INFO,
+    ORTE_NOTIFIER_DEBUG
+#endif
 } orte_notifier_severity_t;
 
 typedef struct {
@@ -136,6 +148,7 @@ typedef void (*orte_notifier_base_module_report_fn_t)(orte_notifier_request_t *r
         opal_event_set(orte_notifier_base.ev_base, &(_n)->ev, -1,       \
                        OPAL_EV_WRITE, orte_notifier_base_log, (_n));    \
         opal_event_set_priority(&(_n)->ev, ORTE_ERROR_PRI);             \
+        ORTE_POST_OBJECT(_n);                                           \
         opal_event_active(&(_n)->ev, OPAL_EV_WRITE, 1);                 \
     } while(0);
 
@@ -160,6 +173,7 @@ typedef void (*orte_notifier_base_module_report_fn_t)(orte_notifier_request_t *r
         opal_event_set(orte_notifier_base.ev_base, &(_n)->ev, -1,       \
                        OPAL_EV_WRITE, orte_notifier_base_report, (_n)); \
         opal_event_set_priority(&(_n)->ev, ORTE_ERROR_PRI);             \
+        ORTE_POST_OBJECT(_n);                                           \
         opal_event_active(&(_n)->ev, OPAL_EV_WRITE, 1);                 \
     } while(0);
 
@@ -183,6 +197,7 @@ typedef void (*orte_notifier_base_module_report_fn_t)(orte_notifier_request_t *r
         opal_event_set(orte_notifier_base.ev_base, &(_n)->ev, -1,       \
                        OPAL_EV_WRITE, orte_notifier_base_event, (_n));  \
         opal_event_set_priority(&(_n)->ev, ORTE_ERROR_PRI);             \
+        ORTE_POST_OBJECT(_n);                                           \
         opal_event_active(&(_n)->ev, OPAL_EV_WRITE, 1);                 \
     } while(0);
 

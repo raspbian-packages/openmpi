@@ -157,6 +157,7 @@ int ompi_coll_base_barrier_intra_doublering(struct ompi_communicator_t *comm,
  err_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -235,6 +236,7 @@ int ompi_coll_base_barrier_intra_recursivedoubling(struct ompi_communicator_t *c
  err_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -270,6 +272,7 @@ int ompi_coll_base_barrier_intra_bruck(struct ompi_communicator_t *comm,
  err_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -365,6 +368,7 @@ int ompi_coll_base_barrier_intra_basic_linear(struct ompi_communicator_t *comm,
  err_hndl:
     OPAL_OUTPUT( (ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d",
                   __FILE__, line, err, rank) );
+    (void)line;  // silence compiler warning
     if( NULL != requests )
         ompi_coll_base_free_reqs(requests, size);
     return err;

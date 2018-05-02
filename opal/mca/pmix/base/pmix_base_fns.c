@@ -2,11 +2,12 @@
 /*
  * Copyright (c) 2012-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
- * Copyright (c) 2014-2016 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      Mellanox Technologies, Inc.
  *                         All rights reserved.
+ * Copyright (c) 2016      Cisco Systems, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -33,7 +34,6 @@
 #include "opal/util/output.h"
 #include "opal/util/proc.h"
 #include "opal/util/show_help.h"
-#include "opal/errhandler/opal_errhandler.h"
 
 #include "opal/mca/pmix/base/base.h"
 #include "opal/mca/pmix/base/pmix_base_fns.h"
@@ -49,62 +49,47 @@ void opal_pmix_base_set_evbase(opal_event_base_t *evbase)
 /********     ERRHANDLER SUPPORT FOR COMPONENTS THAT
  ********     DO NOT NATIVELY SUPPORT IT
  ********/
-static opal_pmix_notification_fn_t errhandler = NULL;
+static opal_pmix_notification_fn_t evhandler = NULL;
 
-void opal_pmix_base_register_handler(opal_list_t *info,
+void opal_pmix_base_register_handler(opal_list_t *event_codes,
+                                     opal_list_t *info,
                                      opal_pmix_notification_fn_t err,
-                                     opal_pmix_errhandler_reg_cbfunc_t cbfunc,
+                                     opal_pmix_evhandler_reg_cbfunc_t cbfunc,
                                      void *cbdata)
 {
-    errhandler = err;
+    evhandler = err;
     if (NULL != cbfunc) {
         cbfunc(OPAL_SUCCESS, 0, cbdata);
     }
 }
 
-void opal_pmix_base_errhandler(int status,
-                               opal_list_t *procs,
-                               opal_list_t *info,
-                               opal_pmix_release_cbfunc_t cbfunc, void *cbdata)
+void opal_pmix_base_evhandler(int status,
+                              const opal_process_name_t *source,
+                              opal_list_t *info, opal_list_t *results,
+                              opal_pmix_notification_complete_fn_t cbfunc, void *cbdata)
 {
-    if (NULL != errhandler) {
-        errhandler(status, procs, info, cbfunc, cbdata);
-    } else {
-        opal_invoke_errhandler(OPAL_ERROR, NULL);
+    if (NULL != evhandler) {
+        evhandler(status, source, info, results, cbfunc, cbdata);
     }
 }
 
-void opal_pmix_base_deregister_handler(int errid,
+void opal_pmix_base_deregister_handler(size_t errid,
                                        opal_pmix_op_cbfunc_t cbfunc,
                                        void *cbdata)
 {
-    errhandler = NULL;
+    evhandler = NULL;
     if (NULL != cbfunc) {
         cbfunc(OPAL_SUCCESS, cbdata);
     }
 }
 
-struct lookup_caddy_t {
-    volatile bool active;
-    int status;
-    opal_pmix_pdata_t *pdat;
-};
-
-/********     DATA EXCHANGE     ********/
-static void lookup_cbfunc(int status, opal_list_t *data, void *cbdata)
+int opal_pmix_base_notify_event(int status,
+                                const opal_process_name_t *source,
+                                opal_pmix_data_range_t range,
+                                opal_list_t *info,
+                                opal_pmix_op_cbfunc_t cbfunc, void *cbdata)
 {
-    struct lookup_caddy_t *cd = (struct lookup_caddy_t*)cbdata;
-    cd->status = status;
-    if (OPAL_SUCCESS == status && NULL != data) {
-        opal_pmix_pdata_t *p = (opal_pmix_pdata_t*)opal_list_get_first(data);
-        if (NULL != p) {
-            cd->pdat->proc = p->proc;
-            if (p->value.type == cd->pdat->value.type) {
-                (void)opal_value_xfer(&cd->pdat->value, &p->value);
-            }
-        }
-    }
-    cd->active = false;
+    return OPAL_SUCCESS;
 }
 
 int opal_pmix_base_exchange(opal_value_t *indat,
@@ -115,8 +100,6 @@ int opal_pmix_base_exchange(opal_value_t *indat,
     opal_list_t ilist, mlist;
     opal_value_t *info;
     opal_pmix_pdata_t *pdat;
-    struct lookup_caddy_t caddy;
-    char **keys;
 
     /* protect the incoming value */
     opal_dss.copy((void**)&info, indat, OPAL_VALUE);
@@ -133,19 +116,16 @@ int opal_pmix_base_exchange(opal_value_t *indat,
     rc = opal_pmix.publish(&ilist);
     OPAL_LIST_DESTRUCT(&ilist);
     if (OPAL_SUCCESS != rc) {
-        OPAL_ERROR_LOG(rc);
         return rc;
     }
 
-   /* lookup the other side's info - if a non-blocking form
-    * of lookup isn't available, then we use the blocking
-    * form and trust that the underlying system will WAIT
-    * until the other side publishes its data */
-    OBJ_CONSTRUCT(&ilist, opal_list_t);
+    /* lookup the other side's info - if a non-blocking form
+     * of lookup isn't available, then we use the blocking
+     * form and trust that the underlying system will WAIT
+     * until the other side publishes its data */
     pdat = OBJ_NEW(opal_pmix_pdata_t);
     pdat->value.key = strdup(outdat->value.key);
     pdat->value.type = outdat->value.type;
-    opal_list_append(&ilist, &pdat->super);
     /* setup the constraints */
     OBJ_CONSTRUCT(&mlist, opal_list_t);
     /* tell it to wait for the data to arrive */
@@ -154,52 +134,34 @@ int opal_pmix_base_exchange(opal_value_t *indat,
     info->type = OPAL_BOOL;
     info->data.flag = true;
     opal_list_append(&mlist, &info->super);
-    /* give it a decent timeout as we don't know when
+    /* pass along the given timeout as we don't know when
      * the other side will publish - it doesn't
      * have to be simultaneous */
     info = OBJ_NEW(opal_value_t);
     info->key = strdup(OPAL_PMIX_TIMEOUT);
     info->type = OPAL_INT;
-    info->data.integer = timeout;
+    if (0 < opal_pmix_base.timeout) {
+        /* the user has overridden the default */
+        info->data.integer = opal_pmix_base.timeout;
+    } else {
+        info->data.integer = timeout;
+    }
     opal_list_append(&mlist, &info->super);
 
     /* if a non-blocking version of lookup isn't
      * available, then use the blocking version */
-    if (NULL == opal_pmix.lookup_nb) {
-        rc = opal_pmix.lookup(&ilist, &mlist);
-        OPAL_LIST_DESTRUCT(&mlist);
-        if (OPAL_SUCCESS != rc) {
-            OPAL_ERROR_LOG(rc);
-            OPAL_LIST_DESTRUCT(&ilist);
-            return rc;
-        }
-    } else {
-        caddy.active = true;
-        caddy.pdat = pdat;
-        keys = NULL;
-        opal_argv_append_nosize(&keys, pdat->value.key);
-        rc = opal_pmix.lookup_nb(keys, &mlist, lookup_cbfunc, &caddy);
-        if (OPAL_SUCCESS != rc) {
-            OPAL_ERROR_LOG(rc);
-            OPAL_LIST_DESTRUCT(&ilist);
-            OPAL_LIST_DESTRUCT(&mlist);
-            opal_argv_free(keys);
-            return rc;
-        }
-        while (caddy.active) {
-            usleep(10);
-        }
-        opal_argv_free(keys);
-        OPAL_LIST_DESTRUCT(&mlist);
-        if (OPAL_SUCCESS != caddy.status) {
-            OPAL_ERROR_LOG(caddy.status);
-            OPAL_LIST_DESTRUCT(&ilist);
-            return caddy.status;
-        }
+    OBJ_CONSTRUCT(&ilist, opal_list_t);
+    opal_list_append(&ilist, &pdat->super);
+    rc = opal_pmix.lookup(&ilist, &mlist);
+    OPAL_LIST_DESTRUCT(&mlist);
+    if (OPAL_SUCCESS != rc) {
+        OPAL_LIST_DESTRUCT(&ilist);
+        return rc;
     }
 
     /* pass back the result */
     outdat->proc = pdat->proc;
+    free(outdat->value.key);
     rc = opal_value_xfer(&outdat->value, &pdat->value);
     OPAL_LIST_DESTRUCT(&ilist);
     return rc;
@@ -268,8 +230,8 @@ int opal_pmix_base_store_encoded(const char *key, const void *data,
 
     /* serialize the opal datatype */
     pmi_packed_data_off += sprintf (pmi_packed_data + pmi_packed_data_off,
-            "%s%c%02x%c%04x%c", key, '\0', type, '\0',
-            (int) data_len, '\0');
+                                    "%s%c%02x%c%04x%c", key, '\0', type, '\0',
+                                    (int) data_len, '\0');
     if (NULL != data) {
         memmove (pmi_packed_data + pmi_packed_data_off, data, data_len);
         pmi_packed_data_off += data_len;
@@ -659,7 +621,7 @@ static char* setup_key(const opal_process_name_t* name, const char *key, int pmi
     char *pmi_kvs_key;
 
     if (pmix_keylen_max <= asprintf(&pmi_kvs_key, "%" PRIu32 "-%" PRIu32 "-%s",
-                                        name->jobid, name->vpid, key)) {
+                                    name->jobid, name->vpid, key)) {
         free(pmi_kvs_key);
         return NULL;
     }

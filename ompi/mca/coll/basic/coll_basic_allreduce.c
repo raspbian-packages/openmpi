@@ -2,14 +2,14 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2015 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -51,18 +51,18 @@ mca_coll_basic_allreduce_intra(const void *sbuf, void *rbuf, int count,
 
     if (MPI_IN_PLACE == sbuf) {
         if (0 == ompi_comm_rank(comm)) {
-            err = comm->c_coll.coll_reduce(MPI_IN_PLACE, rbuf, count, dtype, op, 0, comm, comm->c_coll.coll_reduce_module);
+            err = comm->c_coll->coll_reduce(MPI_IN_PLACE, rbuf, count, dtype, op, 0, comm, comm->c_coll->coll_reduce_module);
         } else {
-            err = comm->c_coll.coll_reduce(rbuf, NULL, count, dtype, op, 0, comm, comm->c_coll.coll_reduce_module);
+            err = comm->c_coll->coll_reduce(rbuf, NULL, count, dtype, op, 0, comm, comm->c_coll->coll_reduce_module);
         }
     } else {
-        err = comm->c_coll.coll_reduce(sbuf, rbuf, count, dtype, op, 0, comm, comm->c_coll.coll_reduce_module);
+        err = comm->c_coll->coll_reduce(sbuf, rbuf, count, dtype, op, 0, comm, comm->c_coll->coll_reduce_module);
     }
     if (MPI_SUCCESS != err) {
         return err;
     }
 
-    return comm->c_coll.coll_bcast(rbuf, count, dtype, 0, comm, comm->c_coll.coll_bcast_module);
+    return comm->c_coll->coll_bcast(rbuf, count, dtype, 0, comm, comm->c_coll->coll_bcast_module);
 }
 
 
@@ -191,12 +191,14 @@ mca_coll_basic_allreduce_inter(const void *sbuf, void *rbuf, int count,
         err = MCA_PML_CALL(recv(rbuf, count, dtype, root,
                                 MCA_COLL_BASE_TAG_ALLREDUCE,
                                 comm, MPI_STATUS_IGNORE));
+        if (OMPI_SUCCESS != err) { line = __LINE__; goto exit; }
     }
 
   exit:
     if( MPI_SUCCESS != err ) {
         OPAL_OUTPUT((ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d", __FILE__,
                      line, err, rank));
+        (void)line;  // silence compiler warning
         ompi_coll_base_free_reqs(reqs, rsize - 1);
     }
     if (NULL != tmpbuf) {

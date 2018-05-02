@@ -79,6 +79,8 @@ int MPI_Info_dup(MPI_Info info, MPI_Info *newinfo) {
                                       FUNC_NAME);
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /*
      * Now to actually duplicate all the values
      */

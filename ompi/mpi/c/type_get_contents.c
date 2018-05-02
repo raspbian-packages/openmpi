@@ -65,6 +65,7 @@ int MPI_Type_get_contents(MPI_Datatype mtype,
         }
     }
 
+    OPAL_CR_ENTER_LIBRARY();
 
     rc = ompi_datatype_get_args( mtype, 1, &max_integers, array_of_integers,
                             &max_addresses, array_of_addresses,
@@ -89,5 +90,6 @@ int MPI_Type_get_contents(MPI_Datatype mtype,
         }
     }
 
+    OPAL_CR_EXIT_LIBRARY();
     return MPI_SUCCESS;
 }

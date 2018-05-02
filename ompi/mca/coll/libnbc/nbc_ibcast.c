@@ -5,11 +5,14 @@
  *                         Corporation.  All rights reserved.
  * Copyright (c) 2006      The Technical University of Chemnitz. All
  *                         rights reserved.
- * Copyright (c) 2014-2015 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2016      IBM Corporation.  All rights reserved.
+ * Copyright (c) 2016-2017 IBM Corporation.  All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
  *
  * Author(s): Torsten Hoefler <htor@cs.indiana.edu>
  *
@@ -43,7 +46,7 @@ int NBC_Bcast_args_compare(NBC_Bcast_args *a, NBC_Bcast_args *b, void *param) {
 
 int ompi_coll_libnbc_ibcast(void *buffer, int count, MPI_Datatype datatype, int root,
                             struct ompi_communicator_t *comm, ompi_request_t ** request,
-                            struct mca_coll_base_module_2_1_0_t *module)
+                            struct mca_coll_base_module_2_2_0_t *module)
 {
   int rank, p, res, segsize;
   size_t size;
@@ -52,11 +55,15 @@ int ompi_coll_libnbc_ibcast(void *buffer, int count, MPI_Datatype datatype, int 
   NBC_Bcast_args *args, *found, search;
 #endif
   enum { NBC_BCAST_LINEAR, NBC_BCAST_BINOMIAL, NBC_BCAST_CHAIN } alg;
-  NBC_Handle *handle;
   ompi_coll_libnbc_module_t *libnbc_module = (ompi_coll_libnbc_module_t*) module;
 
   rank = ompi_comm_rank (comm);
   p = ompi_comm_size (comm);
+
+  if (1 == p) {
+    *request = &ompi_request_empty;
+    return OMPI_SUCCESS;
+  }
 
   res = ompi_datatype_type_size(datatype, &size);
   if (MPI_SUCCESS != res) {
@@ -155,19 +162,11 @@ int ompi_coll_libnbc_ibcast(void *buffer, int count, MPI_Datatype datatype, int 
   }
 #endif
 
-  res = NBC_Init_handle (comm, &handle, libnbc_module);
+  res = NBC_Schedule_request(schedule, comm, libnbc_module, request, NULL);
   if (OPAL_UNLIKELY(OMPI_SUCCESS != res)) {
     OBJ_RELEASE(schedule);
     return res;
   }
-
-  res = NBC_Start (handle, schedule);
-  if (OPAL_UNLIKELY(OMPI_SUCCESS != res)) {
-    NBC_Return_handle (handle);
-    return res;
-  }
-
-  *request = (ompi_request_t *) handle;
 
   return OMPI_SUCCESS;
 }
@@ -319,6 +318,58 @@ static inline int bcast_sched_chain(int rank, int p, int root, NBC_Schedule *sch
         }
       }
     }
+  }
+
+  return OMPI_SUCCESS;
+}
+
+int ompi_coll_libnbc_ibcast_inter(void *buffer, int count, MPI_Datatype datatype, int root,
+                                  struct ompi_communicator_t *comm, ompi_request_t ** request,
+                                  struct mca_coll_base_module_2_2_0_t *module) {
+  int res;
+  NBC_Schedule *schedule;
+  ompi_coll_libnbc_module_t *libnbc_module = (ompi_coll_libnbc_module_t*) module;
+
+  schedule = OBJ_NEW(NBC_Schedule);
+  if (OPAL_UNLIKELY(NULL == schedule)) {
+    return OMPI_ERR_OUT_OF_RESOURCE;
+  }
+
+  if (root != MPI_PROC_NULL) {
+    /* send to all others */
+    if (root == MPI_ROOT) {
+      int remsize;
+
+      remsize = ompi_comm_remote_size (comm);
+
+      for (int peer = 0 ; peer < remsize ; ++peer) {
+        /* send msg to peer */
+        res = NBC_Sched_send (buffer, false, count, datatype, peer, schedule, false);
+        if (OPAL_UNLIKELY(OMPI_SUCCESS != res)) {
+          OBJ_RELEASE(schedule);
+          return res;
+        }
+      }
+    } else {
+      /* recv msg from root */
+      res = NBC_Sched_recv (buffer, false, count, datatype, root, schedule, false);
+      if (OPAL_UNLIKELY(OMPI_SUCCESS != res)) {
+        OBJ_RELEASE(schedule);
+        return res;
+      }
+    }
+  }
+
+  res = NBC_Sched_commit (schedule);
+  if (OPAL_UNLIKELY(OMPI_SUCCESS != res)) {
+    OBJ_RELEASE(schedule);
+    return res;
+  }
+
+  res = NBC_Schedule_request(schedule, comm, libnbc_module, request, NULL);
+  if (OPAL_UNLIKELY(OMPI_SUCCESS != res)) {
+    OBJ_RELEASE(schedule);
+    return res;
   }
 
   return OMPI_SUCCESS;

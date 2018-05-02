@@ -30,7 +30,6 @@
 
 #include "opal/util/output.h"
 #include "opal/constants.h"
-#include "opal/mca/base/mca_base_var.h"
 #include "opal/mca/btl/btl.h"
 #include "opal/mca/btl/base/base.h"
 

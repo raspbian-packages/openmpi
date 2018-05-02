@@ -42,12 +42,9 @@ int mca_btl_vader_send (struct mca_btl_base_module_t *btl,
     mca_btl_vader_frag_t *frag = (mca_btl_vader_frag_t *) descriptor;
     const size_t total_size = frag->segments[0].seg_len;
 
-    if (OPAL_LIKELY(frag->fbox)) {
-        mca_btl_vader_fbox_send (frag->fbox, tag);
-        mca_btl_vader_frag_complete (frag);
-
-        return 1;
-    }
+    /* in order to work around a long standing ob1 bug (see #3845) we have to always
+     * make the callback. once this is fixed in ob1 we can restore the code below. */
+    frag->base.des_flags |= MCA_BTL_DES_SEND_ALWAYS_CALLBACK;
 
     /* header (+ optional inline data) */
     frag->hdr->len = total_size;
@@ -69,6 +66,9 @@ int mca_btl_vader_send (struct mca_btl_base_module_t *btl,
         return OPAL_SUCCESS;
     }
 
+    return OPAL_SUCCESS;
+
+#if 0
     if ((frag->hdr->flags & MCA_BTL_VADER_FLAG_SINGLE_COPY) ||
         !(frag->base.des_flags & MCA_BTL_DES_FLAGS_BTL_OWNERSHIP)) {
         frag->base.des_flags |= MCA_BTL_DES_SEND_ALWAYS_CALLBACK;
@@ -79,4 +79,5 @@ int mca_btl_vader_send (struct mca_btl_base_module_t *btl,
     /* data is gone (from the pml's perspective). frag callback/release will
        happen later */
     return 1;
+#endif
 }

@@ -12,10 +12,10 @@
  *                         All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2015      Intel, Inc. All rights reserved.
- *
+ * Copyright (c) 2015-2016 Intel, Inc. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015      Cisco Systems, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -27,6 +27,7 @@
 
 #include "opal/class/opal_list.h"
 #include "opal/mca/pmix/pmix.h"
+#include "opal/util/show_help.h"
 
 #include "ompi/mpi/c/bindings.h"
 #include "ompi/runtime/params.h"
@@ -70,6 +71,18 @@ int MPI_Publish_name(const char *service_name, MPI_Info info,
         }
     }
 
+    if (NULL == opal_pmix.publish) {
+        opal_show_help("help-mpi-api.txt",
+                       "MPI function not supported",
+                       true,
+                       FUNC_NAME,
+                       "Underlying runtime environment does not support name publishing functionality");
+        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD,
+                                      OMPI_ERR_NOT_SUPPORTED,
+                                        FUNC_NAME);
+    }
+
+    OPAL_CR_ENTER_LIBRARY();
     OBJ_CONSTRUCT(&values, opal_list_t);
 
     /* OMPI supports info keys to pass the range and persistence to
@@ -81,17 +94,18 @@ int MPI_Publish_name(const char *service_name, MPI_Info info,
                 rng = OBJ_NEW(opal_value_t);
                 rng->key = strdup(OPAL_PMIX_RANGE);
                 rng->type = OPAL_INT;
-                rng->data.integer = OPAL_PMIX_NAMESPACE;  // share only with procs in same nspace
+                rng->data.integer = OPAL_PMIX_RANGE_NAMESPACE;  // share only with procs in same nspace
                 opal_list_append(&values, &rng->super);
             } else if (0 == strcmp(range, "session")) {
                 rng = OBJ_NEW(opal_value_t);
                 rng->key = strdup(OPAL_PMIX_RANGE);
                 rng->type = OPAL_INT;
-                rng->data.integer = OPAL_PMIX_SESSION; // share only with procs in same session
+                rng->data.integer = OPAL_PMIX_RANGE_SESSION; // share only with procs in same session
                 opal_list_append(&values, &rng->super);
             } else {
                 /* unrecognized scope */
                 OPAL_LIST_DESTRUCT(&values);
+                OPAL_CR_EXIT_LIBRARY();
                 return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_ARG,
                                             FUNC_NAME);
             }
@@ -125,6 +139,7 @@ int MPI_Publish_name(const char *service_name, MPI_Info info,
             } else {
                 /* unrecognized persistence */
                 OPAL_LIST_DESTRUCT(&values);
+                OPAL_CR_EXIT_LIBRARY();
                 return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_ARG,
                                             FUNC_NAME);
             }
@@ -141,18 +156,24 @@ int MPI_Publish_name(const char *service_name, MPI_Info info,
     rc = opal_pmix.publish(&values);
     OPAL_LIST_DESTRUCT(&values);
 
+    OPAL_CR_EXIT_LIBRARY();
     if ( OPAL_SUCCESS != rc ) {
         if (OPAL_EXISTS == rc) {
             /* already exists - can't publish it */
-            return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_FILE_EXISTS,
-                                          FUNC_NAME);
+            rc = MPI_ERR_FILE_EXISTS;
+        } else if (OPAL_ERR_NOT_SUPPORTED == rc) {
+            /* this PMIX environment doesn't support publishing */
+            rc = OMPI_ERR_NOT_SUPPORTED;
+            opal_show_help("help-mpi-api.txt",
+                           "MPI function not supported",
+                           true,
+                           FUNC_NAME,
+                           "Underlying runtime environment does not support name publishing functionality");
+        } else {
+            rc = MPI_ERR_INTERN;
         }
 
-        /* none of the MPI-specific errors occurred - must be some
-         * kind of internal error
-         */
-        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_INTERN,
-                                      FUNC_NAME);
+        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, rc, FUNC_NAME);
     }
 
     return MPI_SUCCESS;

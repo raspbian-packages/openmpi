@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2010 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2012 The University of Tennessee and The University
+ * Copyright (c) 2004-2018 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -42,6 +42,7 @@
 #include "ompi/mca/pml/base/base.h"
 #include "ompi/mca/bml/base/base.h"
 #include "opal/mca/pmix/pmix.h"
+#include "ompi/runtime/ompi_cr.h"
 
 #include "pml_ob1.h"
 #include "pml_ob1_component.h"
@@ -57,7 +58,7 @@ mca_pml_ob1_t mca_pml_ob1 = {
         mca_pml_ob1_add_procs,
         mca_pml_ob1_del_procs,
         mca_pml_ob1_enable,
-        mca_pml_ob1_progress,
+        NULL,  /* mca_pml_ob1_progress, */
         mca_pml_ob1_add_comm,
         mca_pml_ob1_del_comm,
         mca_pml_ob1_irecv_init,
@@ -74,7 +75,7 @@ mca_pml_ob1_t mca_pml_ob1 = {
         mca_pml_ob1_imrecv,
         mca_pml_ob1_mrecv,
         mca_pml_ob1_dump,
-        NULL,
+        mca_pml_ob1_ft_event,
         65535,
         INT_MAX
     }
@@ -222,8 +223,6 @@ int mca_pml_ob1_add_comm(ompi_communicator_t* comm)
         opal_list_remove_item (&mca_pml_ob1.non_existing_communicator_pending,
                                (opal_list_item_t *) frag);
 
-      add_fragment_to_unexpected:
-
         /* We generate the MSG_ARRIVED event as soon as the PML is aware
          * of a matching fragment arrival. Independing if it is received
          * on the correct order or not. This will allow the tools to
@@ -241,7 +240,9 @@ int mca_pml_ob1_add_comm(ompi_communicator_t* comm)
          */
         pml_proc = mca_pml_ob1_peer_lookup(comm, hdr->hdr_src);
 
-        if( ((uint16_t)hdr->hdr_seq) == ((uint16_t)pml_proc->expected_sequence) ) {
+        if (((uint16_t)hdr->hdr_seq) == ((uint16_t)pml_proc->expected_sequence) ) {
+
+        add_fragment_to_unexpected:
             /* We're now expecting the next sequence number. */
             pml_proc->expected_sequence++;
             opal_list_append( &pml_proc->unexpected_frags, (opal_list_item_t*)frag );
@@ -253,19 +254,16 @@ int mca_pml_ob1_add_comm(ompi_communicator_t* comm)
              * situation as the cant_match is only checked when a new fragment is received from
              * the network.
              */
-           for(frag = (mca_pml_ob1_recv_frag_t *)opal_list_get_first(&pml_proc->frags_cant_match);
-               frag != (mca_pml_ob1_recv_frag_t *)opal_list_get_end(&pml_proc->frags_cant_match);
-               frag = (mca_pml_ob1_recv_frag_t *)opal_list_get_next(frag)) {
-               hdr = &frag->hdr.hdr_match;
-               /* If the message has the next expected seq from that proc...  */
-               if(hdr->hdr_seq != pml_proc->expected_sequence)
-                   continue;
-
-               opal_list_remove_item(&pml_proc->frags_cant_match, (opal_list_item_t*)frag);
-               goto add_fragment_to_unexpected;
-           }
+            if( NULL != pml_proc->frags_cant_match ) {
+                frag = check_cantmatch_for_match(pml_proc);
+                if( NULL != frag ) {
+                    hdr = &frag->hdr.hdr_match;
+                    goto add_fragment_to_unexpected;
+                }
+            }
         } else {
-            opal_list_append( &pml_proc->frags_cant_match, (opal_list_item_t*)frag );
+            append_frag_to_ordered_list(&pml_proc->frags_cant_match, frag,
+                                        pml_proc->expected_sequence);
         }
     }
     return OMPI_SUCCESS;
@@ -298,6 +296,21 @@ int mca_pml_ob1_add_procs(ompi_proc_t** procs, size_t nprocs)
     rc = opal_bitmap_init(&reachable, (int)nprocs);
     if(OMPI_SUCCESS != rc)
         return rc;
+
+    /*
+     * JJH: Disable this in FT enabled builds since
+     * we use a wrapper PML. It will cause this check to
+     * return failure as all processes will return the wrapper PML
+     * component in use instead of the wrapped PML component underneath.
+     */
+#if OPAL_ENABLE_FT_CR == 0
+    /* make sure remote procs are using the same PML as us */
+    if (OMPI_SUCCESS != (rc = mca_pml_base_pml_check_selected("ob1",
+                                                              procs,
+                                                              nprocs))) {
+        return rc;
+    }
+#endif
 
     rc = mca_bml.bml_add_procs( nprocs,
                                 procs,
@@ -537,6 +550,23 @@ static void mca_pml_ob1_dump_frag_list(opal_list_t* queue, bool is_req)
     }
 }
 
+void mca_pml_ob1_dump_cant_match(mca_pml_ob1_recv_frag_t* queue)
+{
+    mca_pml_ob1_recv_frag_t* item = queue;
+
+    do {
+        mca_pml_ob1_dump_hdr( &item->hdr );
+        if( NULL != item->range ) {
+            mca_pml_ob1_recv_frag_t* frag = item->range;
+            do {
+                mca_pml_ob1_dump_hdr( &frag->hdr );
+                frag = (mca_pml_ob1_recv_frag_t*)frag->super.super.opal_list_next;
+            } while( frag != item->range );
+        }
+        item = (mca_pml_ob1_recv_frag_t*)item->super.super.opal_list_next;
+    } while( item != queue );
+}
+
 int mca_pml_ob1_dump(struct ompi_communicator_t* comm, int verbose)
 {
     struct mca_pml_comm_t* pml_comm = comm->c_pml_comm;
@@ -572,9 +602,9 @@ int mca_pml_ob1_dump(struct ompi_communicator_t* comm, int verbose)
             opal_output(0, "expected specific receives\n");
             mca_pml_ob1_dump_frag_list(&proc->specific_receives, true);
         }
-        if( opal_list_get_size(&proc->frags_cant_match) ) {
+        if( NULL != proc->frags_cant_match ) {
             opal_output(0, "out of sequence\n");
-            mca_pml_ob1_dump_frag_list(&proc->frags_cant_match, false);
+            mca_pml_ob1_dump_cant_match(proc->frags_cant_match);
         }
         if( opal_list_get_size(&proc->unexpected_frags) ) {
             opal_output(0, "unexpected frag\n");
@@ -751,6 +781,209 @@ void mca_pml_ob1_error_handler(
 #endif /* OPAL_CUDA_SUPPORT */
     ompi_rte_abort(-1, btlinfo);
 }
+
+#if OPAL_ENABLE_FT_CR    == 0
+int mca_pml_ob1_ft_event( int state ) {
+    return OMPI_SUCCESS;
+}
+#else
+int mca_pml_ob1_ft_event( int state )
+{
+    static bool first_continue_pass = false;
+    ompi_proc_t** procs = NULL;
+    size_t num_procs;
+    int ret, p;
+
+    if(OPAL_CRS_CHECKPOINT == state) {
+        if( opal_cr_timing_barrier_enabled ) {
+            OPAL_CR_SET_TIMER(OPAL_CR_TIMER_CRCPBR1);
+            opal_pmix.fence(NULL, 0);
+        }
+
+        OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2P0);
+    }
+    else if(OPAL_CRS_CONTINUE == state) {
+        first_continue_pass = !first_continue_pass;
+
+        if( !first_continue_pass ) {
+            if( opal_cr_timing_barrier_enabled ) {
+                OPAL_CR_SET_TIMER(OPAL_CR_TIMER_COREBR0);
+                opal_pmix.fence(NULL, 0);
+            }
+            OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2P2);
+        }
+
+        if (opal_cr_continue_like_restart && !first_continue_pass) {
+            /*
+             * Get a list of processes
+             */
+            procs = ompi_proc_all(&num_procs);
+            if(NULL == procs) {
+                return OMPI_ERR_OUT_OF_RESOURCE;
+            }
+
+            /*
+             * Refresh the proc structure, and publish our proc info in the modex.
+             * NOTE: Do *not* call ompi_proc_finalize as there are many places in
+             *       the code that point to indv. procs in this strucutre. For our
+             *       needs here we only need to fix up the modex, bml and pml
+             *       references.
+             */
+            if (OMPI_SUCCESS != (ret = ompi_proc_refresh())) {
+                opal_output(0,
+                            "pml:ob1: ft_event(Restart): proc_refresh Failed %d",
+                            ret);
+                for(p = 0; p < (int)num_procs; ++p) {
+                    OBJ_RELEASE(procs[p]);
+                }
+                free (procs);
+                return ret;
+            }
+        }
+    }
+    else if(OPAL_CRS_RESTART_PRE == state ) {
+        /* Nothing here */
+    }
+    else if(OPAL_CRS_RESTART == state ) {
+        /*
+         * Get a list of processes
+         */
+        procs = ompi_proc_all(&num_procs);
+        if(NULL == procs) {
+            return OMPI_ERR_OUT_OF_RESOURCE;
+        }
+
+        /*
+         * Clean out the modex information since it is invalid now.
+         *    ompi_rte_purge_proc_attrs();
+         * This happens at the ORTE level, so doing it again here will cause
+         * some issues with socket caching.
+         */
+
+
+        /*
+         * Refresh the proc structure, and publish our proc info in the modex.
+         * NOTE: Do *not* call ompi_proc_finalize as there are many places in
+         *       the code that point to indv. procs in this strucutre. For our
+         *       needs here we only need to fix up the modex, bml and pml
+         *       references.
+         */
+        if (OMPI_SUCCESS != (ret = ompi_proc_refresh())) {
+            opal_output(0,
+                        "pml:ob1: ft_event(Restart): proc_refresh Failed %d",
+                        ret);
+            for(p = 0; p < (int)num_procs; ++p) {
+                OBJ_RELEASE(procs[p]);
+            }
+            free (procs);
+            return ret;
+        }
+    }
+    else if(OPAL_CRS_TERM == state ) {
+        ;
+    }
+    else {
+        ;
+    }
+
+    /* Call the BML
+     * BML is expected to call ft_event in
+     * - BTL(s)
+     * - MPool(s)
+     */
+    if( OMPI_SUCCESS != (ret = mca_bml.bml_ft_event(state))) {
+        opal_output(0, "pml:base: ft_event: BML ft_event function failed: %d\n",
+                    ret);
+    }
+
+    if(OPAL_CRS_CHECKPOINT == state) {
+        OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2P1);
+
+        if( opal_cr_timing_barrier_enabled ) {
+            OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2PBR0);
+            /* JJH Cannot barrier here due to progress engine -- ompi_rte_barrier();*/
+        }
+    }
+    else if(OPAL_CRS_CONTINUE == state) {
+        if( !first_continue_pass ) {
+            if( opal_cr_timing_barrier_enabled ) {
+                OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2PBR1);
+                opal_pmix.fence(NULL, 0);
+            }
+            OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2P3);
+        }
+
+        if (opal_cr_continue_like_restart && !first_continue_pass) {
+            opal_pmix.fence(NULL, 0);
+
+            /*
+             * Startup the PML stack now that the modex is running again
+             * Add the new procs (BTLs redo modex recv's)
+             */
+            if( OMPI_SUCCESS != (ret = mca_pml_ob1_add_procs(procs, num_procs) ) ) {
+                opal_output(0, "pml:ob1: ft_event(Restart): Failed in add_procs (%d)", ret);
+                return ret;
+            }
+
+            /* Is this barrier necessary ? JJH */
+            opal_pmix.fence(NULL, 0);
+
+            if( NULL != procs ) {
+                for(p = 0; p < (int)num_procs; ++p) {
+                    OBJ_RELEASE(procs[p]);
+                }
+                free(procs);
+                procs = NULL;
+            }
+        }
+        if( !first_continue_pass ) {
+            if( opal_cr_timing_barrier_enabled ) {
+                OPAL_CR_SET_TIMER(OPAL_CR_TIMER_P2PBR2);
+                opal_pmix.fence(NULL, 0);
+            }
+            OPAL_CR_SET_TIMER(OPAL_CR_TIMER_CRCP1);
+        }
+    }
+    else if(OPAL_CRS_RESTART_PRE == state ) {
+        /* Nothing here */
+    }
+    else if(OPAL_CRS_RESTART == state  ) {
+        /*
+         * Exchange the modex information once again.
+         * BTLs will have republished their modex information.
+         */
+        opal_pmix.fence(NULL, 0);
+
+        /*
+         * Startup the PML stack now that the modex is running again
+         * Add the new procs (BTLs redo modex recv's)
+         */
+        if( OMPI_SUCCESS != (ret = mca_pml_ob1_add_procs(procs, num_procs) ) ) {
+            opal_output(0, "pml:ob1: ft_event(Restart): Failed in add_procs (%d)", ret);
+            return ret;
+        }
+
+        /* Is this barrier necessary ? JJH */
+        opal_pmix.fence(NULL, 0);
+
+        if( NULL != procs ) {
+            for(p = 0; p < (int)num_procs; ++p) {
+                OBJ_RELEASE(procs[p]);
+            }
+            free(procs);
+            procs = NULL;
+        }
+    }
+    else if(OPAL_CRS_TERM == state ) {
+        ;
+    }
+    else {
+        ;
+    }
+
+    return OMPI_SUCCESS;
+}
+#endif /* OPAL_ENABLE_FT_CR */
 
 int mca_pml_ob1_com_btl_comp(const void *v1, const void *v2)
 {

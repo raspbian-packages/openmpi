@@ -1,5 +1,5 @@
-/* -*- C -*-
- *
+/* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
+/*
  * Copyright (c) 2004-2010 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
@@ -10,11 +10,11 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006-2014 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2006-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2007-2009 Sun Microsystems, Inc. All rights reserved.
- * Copyright (c) 2007-2013 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2007-2016 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2013-2015 Intel, Inc. All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -65,6 +65,7 @@
 #include "opal/util/opal_getcwd.h"
 #include "opal/util/show_help.h"
 #include "opal/util/fd.h"
+#include "opal/util/daemon_init.h"
 
 #include "opal/version.h"
 #include "opal/runtime/opal.h"
@@ -74,6 +75,8 @@
 #include "opal/class/opal_pointer_array.h"
 
 #include "orte/mca/errmgr/errmgr.h"
+#include "orte/mca/grpcomm/grpcomm.h"
+#include "orte/mca/odls/odls.h"
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/rml/base/rml_contact.h"
 #include "orte/mca/state/state.h"
@@ -81,6 +84,7 @@
 #include "orte/runtime/runtime.h"
 #include "orte/runtime/orte_globals.h"
 #include "orte/util/show_help.h"
+#include "orte/util/threads.h"
 
 #include "orte/orted/orted.h"
 
@@ -98,6 +102,8 @@ static struct {
     char *report_uri;
     char *prefix;
     bool run_as_root;
+    bool set_sid;
+    bool daemonize;
 } myglobals;
 
 static opal_cmd_line_init_t cmd_line_init[] = {
@@ -117,6 +123,14 @@ static opal_cmd_line_init_t cmd_line_init[] = {
       &myglobals.prefix, OPAL_CMD_LINE_TYPE_STRING,
       "Prefix to be used to look for ORTE executables" },
 
+    { "orte_daemonize", '\0', NULL, "daemonize", 0,
+      &myglobals.daemonize, OPAL_CMD_LINE_TYPE_BOOL,
+      "Daemonize the orte-dvm into the background" },
+
+    { NULL, '\0', NULL, "set-sid", 0,
+      &myglobals.set_sid, OPAL_CMD_LINE_TYPE_BOOL,
+      "Direct the orte-dvm to separate from the current session"},
+
     { "orte_debug_daemons", '\0', "debug-daemons", "debug-daemons", 0,
       NULL, OPAL_CMD_LINE_TYPE_BOOL,
       "Debug daemons" },
@@ -128,6 +142,31 @@ static opal_cmd_line_init_t cmd_line_init[] = {
     { NULL, '\0', "allow-run-as-root", "allow-run-as-root", 0,
       &myglobals.run_as_root, OPAL_CMD_LINE_TYPE_BOOL,
       "Allow execution as root (STRONGLY DISCOURAGED)" },
+
+    /* Specify the launch agent to be used */
+    { "orte_launch_agent", '\0', "launch-agent", "launch-agent", 1,
+      NULL, OPAL_CMD_LINE_TYPE_STRING,
+      "Command used to start processes on remote nodes (default: orted)" },
+
+    /* maximum size of VM - typically used to subdivide an allocation */
+    { "orte_max_vm_size", '\0', "max-vm-size", "max-vm-size", 1,
+      NULL, OPAL_CMD_LINE_TYPE_INT,
+      "Maximum size of VM" },
+
+    /* Set a hostfile */
+    { NULL, '\0', "hostfile", "hostfile", 1,
+      NULL, OPAL_CMD_LINE_TYPE_STRING,
+      "Provide a hostfile" },
+    { NULL, '\0', "machinefile", "machinefile", 1,
+      NULL, OPAL_CMD_LINE_TYPE_STRING,
+      "Provide a hostfile" },
+    { "orte_default_hostfile", '\0', "default-hostfile", "default-hostfile", 1,
+      NULL, OPAL_CMD_LINE_TYPE_STRING,
+      "Provide a default hostfile" },
+
+    { NULL, 'H', "host", "host", 1,
+      NULL, OPAL_CMD_LINE_TYPE_STRING,
+      "List of hosts to invoke processes on" },
 
     /* End of list */
     { NULL, '\0', NULL, NULL, 0,
@@ -153,7 +192,7 @@ int main(int argc, char *argv[])
 
     opal_cmd_line_create(&cmd_line, cmd_line_init);
     mca_base_cmd_line_setup(&cmd_line);
-    if (OPAL_SUCCESS != (rc = opal_cmd_line_parse(&cmd_line, true,
+    if (OPAL_SUCCESS != (rc = opal_cmd_line_parse(&cmd_line, true, false,
                                                   argc, argv)) ) {
         if (OPAL_ERR_SILENT != rc) {
             fprintf(stderr, "%s: command line error (%s)\n", argv[0],
@@ -184,18 +223,22 @@ int main(int argc, char *argv[])
      * exit with a giant warning flag
      */
     if (0 == geteuid() && !myglobals.run_as_root) {
+        /* show_help is not yet available, so print an error manually */
         fprintf(stderr, "--------------------------------------------------------------------------\n");
         if (myglobals.help) {
-            fprintf(stderr, "%s cannot provide the help message when run as root\n", orte_basename);
+            fprintf(stderr, "%s cannot provide the help message when run as root.\n\n", orte_basename);
         } else {
-            /* show_help is not yet available, so print an error manually */
-            fprintf(stderr, "%s has detected an attempt to run as root.\n", orte_basename);
+            fprintf(stderr, "%s has detected an attempt to run as root.\n\n", orte_basename);
         }
-        fprintf(stderr, " This is *strongly* discouraged as any mistake (e.g., in defining TMPDIR) or bug can\n");
-        fprintf(stderr, "result in catastrophic damage to the OS file system, leaving\n");
-        fprintf(stderr, "your system in an unusable state.\n\n");
+
+        fprintf(stderr, "Running at root is *strongly* discouraged as any mistake (e.g., in\n");
+        fprintf(stderr, "defining TMPDIR) or bug can result in catastrophic damage to the OS\n");
+        fprintf(stderr, "file system, leaving your system in an unusable state.\n\n");
+
+        fprintf(stderr, "We strongly suggest that you run %s as a non-root user.\n\n", orte_basename);
+
         fprintf(stderr, "You can override this protection by adding the --allow-run-as-root\n");
-        fprintf(stderr, "option to your cmd line. However, we reiterate our strong advice\n");
+        fprintf(stderr, "option to your command line.  However, we reiterate our strong advice\n");
         fprintf(stderr, "against doing so - please do so at your own risk.\n");
         fprintf(stderr, "--------------------------------------------------------------------------\n");
         exit(1);
@@ -251,6 +294,22 @@ int main(int argc, char *argv[])
      * orterun
      */
     orte_launch_environ = opal_argv_copy(environ);
+
+#if defined(HAVE_SETSID)
+    /* see if we were directed to separate from current session */
+    if (myglobals.set_sid) {
+        setsid();
+    }
+#endif
+
+    /* detach from controlling terminal
+     * otherwise, remain attached so output can get to us
+     */
+    if(!orte_debug_flag &&
+       !orte_debug_daemons_flag &&
+       myglobals.daemonize) {
+        opal_daemon_init(NULL);
+    }
 
     /* Intialize our Open RTE environment */
     if (ORTE_SUCCESS != (rc = orte_init(&argc, &argv, ORTE_PROC_MASTER))) {
@@ -432,6 +491,7 @@ int main(int argc, char *argv[])
     while (orte_event_base_active) {
         opal_event_loop(orte_event_base, OPAL_EVLOOP_ONCE);
     }
+    ORTE_ACQUIRE_OBJECT(orte_event_base_active);
 
     /* cleanup and leave */
     orte_finalize();
@@ -451,31 +511,77 @@ static void send_callback(int status, orte_process_name_t *peer,
 
     OBJ_RELEASE(buffer);
     /* cleanup the job object */
-    opal_pointer_array_set_item(orte_job_data, ORTE_LOCAL_JOBID(jdata->jobid), NULL);
+    opal_hash_table_set_value_uint32(orte_job_data, jdata->jobid, NULL);
     OBJ_RELEASE(jdata);
 }
+
 static void notify_requestor(int sd, short args, void *cbdata)
 {
     orte_state_caddy_t *caddy = (orte_state_caddy_t*)cbdata;
     orte_job_t *jdata = caddy->jdata;
     orte_proc_t *pptr;
-    int ret;
+    int ret, id, *idptr;
     opal_buffer_t *reply;
+    orte_daemon_cmd_flag_t command;
+    orte_grpcomm_signature_t *sig;
 
     /* notify the requestor */
     reply = OBJ_NEW(opal_buffer_t);
+
     /* see if there was any problem */
     if (orte_get_attribute(&jdata->attributes, ORTE_JOB_ABORTED_PROC, (void**)&pptr, OPAL_PTR) && NULL != pptr) {
         ret = pptr->exit_code;
+    /* or whether we got cancelled by the user */
+    } else if (orte_get_attribute(&jdata->attributes, ORTE_JOB_CANCELLED, NULL, OPAL_BOOL)) {
+        ret = ORTE_ERR_JOB_CANCELLED;
     } else {
         ret = 0;
     }
+    /* return the completion status */
     opal_dss.pack(reply, &ret, 1, OPAL_INT);
-    orte_rml.send_buffer_nb(&jdata->originator, reply, ORTE_RML_TAG_TOOL, send_callback, jdata);
+
+    /* pack the jobid to be returned */
+    opal_dss.pack(reply, &jdata->jobid, 1, ORTE_JOBID);
+
+    /* return the tracker ID */
+    idptr = &id;
+    if (orte_get_attribute(&jdata->attributes, ORTE_JOB_ROOM_NUM, (void**)&idptr, OPAL_INT)) {
+        /* pack the sender's index to the tracking object */
+        opal_dss.pack(reply, idptr, 1, OPAL_INT);
+    }
+
+    /* if there was a problem, we need to send the requestor more info about what happened */
+    if (0 < ret) {
+        opal_dss.pack(reply, &jdata->state, 1, ORTE_JOB_STATE_T);
+        opal_dss.pack(reply, &pptr, 1, ORTE_PROC);
+        opal_dss.pack(reply, &pptr->node, 1, ORTE_NODE);
+    }
+
+    orte_rml.send_buffer_nb(orte_mgmt_conduit,
+                            &jdata->originator, reply,
+                            ORTE_RML_TAG_NOTIFY_COMPLETE,
+                            send_callback, jdata);
+
+    /* now ensure that _all_ daemons know that this job has terminated so even
+     * those that did not participate in it will know to cleanup the resources
+     * they assigned to the job. This is necessary now that the mapping function
+     * has been moved to the backend daemons - otherwise, non-participating daemons
+     * retain the slot assignments on the participating daemons, and then incorrectly
+     * map subsequent jobs thinking those nodes are still "busy" */
+    reply = OBJ_NEW(opal_buffer_t);
+    command = ORTE_DAEMON_DVM_CLEANUP_JOB_CMD;
+    opal_dss.pack(reply, &command, 1, ORTE_DAEMON_CMD);
+    opal_dss.pack(reply, &jdata->jobid, 1, ORTE_JOBID);
+    sig = OBJ_NEW(orte_grpcomm_signature_t);
+    sig->signature = (orte_process_name_t*)malloc(sizeof(orte_process_name_t));
+    sig->signature[0].jobid = ORTE_PROC_MY_NAME->jobid;
+    sig->signature[0].vpid = ORTE_VPID_WILDCARD;
+    orte_grpcomm.xcast(sig, ORTE_RML_TAG_DAEMON, reply);
+    OBJ_RELEASE(reply);
+    OBJ_RELEASE(sig);
 
     /* we cannot cleanup the job object as we might
      * hit an error during transmission, so clean it
      * up in the send callback */
     OBJ_RELEASE(caddy);
 }
-

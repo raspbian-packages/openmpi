@@ -82,6 +82,8 @@ int MPI_Recv_init(void *buf, int count, MPI_Datatype type, int source,
         return MPI_SUCCESS;
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /*
      * Here, we just initialize the request -- memchecker should set the buffer in MPI_Start.
      */

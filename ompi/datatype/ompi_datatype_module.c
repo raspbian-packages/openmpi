@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2006 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2013 The University of Tennessee and The University
+ * Copyright (c) 2004-2016 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2006 High Performance Computing Center Stuttgart,
@@ -15,7 +15,7 @@
  * Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2015-2016 Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      FUJITSU LIMITED.  All rights reserved.
  * $COPYRIGHT$
@@ -37,9 +37,6 @@
 #include "ompi/datatype/ompi_datatype_internal.h"
 
 #include "mpi.h"
-
-/* by default the debuging is turned off */
-int ompi_datatype_dfd = -1;
 
 /**
  * This is the number of predefined datatypes. It is different than the MAX_PREDEFINED
@@ -112,7 +109,7 @@ ompi_predefined_datatype_t ompi_mpi_cxx_bool =       OMPI_DATATYPE_INIT_PREDEFIN
 /*
  * Complex datatypes for C (base types), C++, and fortran
  */
-ompi_predefined_datatype_t ompi_mpi_c_float_complex =       OMPI_DATATYPE_INIT_PREDEFINED (C_FLOAT_COMPLEX, OMPI_DATATYPE_FLAG_DATA_C | OMPI_DATATYPE_FLAG_DATA_COMPLEX );
+ompi_predefined_datatype_t ompi_mpi_c_float_complex =       OMPI_DATATYPE_INIT_PREDEFINED_BASIC_TYPE (C_FLOAT_COMPLEX, C_COMPLEX, OMPI_DATATYPE_FLAG_DATA_C | OMPI_DATATYPE_FLAG_DATA_COMPLEX );
 ompi_predefined_datatype_t ompi_mpi_c_complex =             OMPI_DATATYPE_INIT_PREDEFINED_BASIC_TYPE (C_FLOAT_COMPLEX, C_COMPLEX, OMPI_DATATYPE_FLAG_DATA_C | OMPI_DATATYPE_FLAG_DATA_COMPLEX );
 ompi_predefined_datatype_t ompi_mpi_c_double_complex =      OMPI_DATATYPE_INIT_PREDEFINED (C_DOUBLE_COMPLEX, OMPI_DATATYPE_FLAG_DATA_C | OMPI_DATATYPE_FLAG_DATA_COMPLEX );
 #if HAVE_LONG_DOUBLE
@@ -387,8 +384,9 @@ opal_pointer_array_t ompi_datatype_f_to_c_table = {{0}};
         (PDST)->super.opt_desc = (PSRC)->super.opt_desc;                             \
         (PDST)->packed_description = (PSRC)->packed_description;                     \
         (PSRC)->packed_description = NULL;                                           \
-        memcpy( (PDST)->super.btypes, (PSRC)->super.btypes,                          \
-                OPAL_DATATYPE_MAX_PREDEFINED * sizeof(uint32_t) );                   \
+        /* transfer the ptypes */                                                    \
+        (PDST)->super.ptypes = (PSRC)->super.ptypes;                                 \
+        (PSRC)->super.ptypes = NULL;                                                 \
     } while(0)
 
 #define DECLARE_MPI2_COMPOSED_STRUCT_DDT( PDATA, MPIDDT, MPIDDTNAME, type1, type2, MPIType1, MPIType2, FLAGS) \
@@ -396,20 +394,20 @@ opal_pointer_array_t ompi_datatype_f_to_c_table = {{0}};
         struct { type1 v1; type2 v2; } s[2];                                         \
         ompi_datatype_t *types[2], *ptype;                                           \
         int bLength[2] = {1, 1};                                                     \
-        OPAL_PTRDIFF_TYPE base, displ[2];                                            \
+        ptrdiff_t base, displ[2];                                                    \
                                                                                      \
         types[0] = (ompi_datatype_t*)ompi_datatype_basicDatatypes[MPIType1];         \
         types[1] = (ompi_datatype_t*)ompi_datatype_basicDatatypes[MPIType2];         \
-        base = (OPAL_PTRDIFF_TYPE)(&(s[0]));                                         \
-        displ[0] = (OPAL_PTRDIFF_TYPE)(&(s[0].v1));                                  \
+        base = (ptrdiff_t)(&(s[0]));                                                 \
+        displ[0] = (ptrdiff_t)(&(s[0].v1));                                          \
         displ[0] -= base;                                                            \
-        displ[1] = (OPAL_PTRDIFF_TYPE)(&(s[0].v2));                                  \
+        displ[1] = (ptrdiff_t)(&(s[0].v2));                                          \
         displ[1] -= base;                                                            \
                                                                                      \
         ompi_datatype_create_struct( 2, bLength, displ, types, &ptype );             \
-        displ[0] = (OPAL_PTRDIFF_TYPE)(&(s[1]));                                     \
+        displ[0] = (ptrdiff_t)(&(s[1]));                                             \
         displ[0] -= base;                                                            \
-        if( displ[0] != (displ[1] + (OPAL_PTRDIFF_TYPE)sizeof(type2)) )              \
+        if( displ[0] != (displ[1] + (ptrdiff_t)sizeof(type2)) )                      \
             ptype->super.ub = displ[0];  /* force a new extent for the datatype */   \
         ptype->super.flags |= (FLAGS);                                               \
         ptype->id = MPIDDT;                                                          \
@@ -617,7 +615,7 @@ int32_t ompi_datatype_init( void )
     MOOG(uint64_t, 65);
     MOOG(aint, 66);
     MOOG(offset, 67);
-    MOOG(c_complex, 68);
+    MOOG(c_bool, 68);
     MOOG(c_float_complex, 69);
     MOOG(c_double_complex, 70);
     MOOG(c_long_double_complex, 71);
@@ -625,16 +623,13 @@ int32_t ompi_datatype_init( void )
     /* MPI 3.0 types */
     MOOG(count, 72);
 
-    /* MPI 2.2 types (again) */
-    MOOG(c_bool, 73);
-
     /**
      * Now make sure all non-contiguous types are marked as such.
      */
     for( i = 0; i < ompi_mpi_count.dt.d_f_to_c_index; i++ ) {
         opal_datatype_t* datatype = (opal_datatype_t*)opal_pointer_array_get_item(&ompi_datatype_f_to_c_table, i );
 
-        if( (datatype->ub - datatype->lb) == (OPAL_PTRDIFF_TYPE)datatype->size ) {
+        if( (datatype->ub - datatype->lb) == (ptrdiff_t)datatype->size ) {
             datatype->flags |= OPAL_DATATYPE_FLAG_NO_GAPS;
         } else {
             datatype->flags &= ~OPAL_DATATYPE_FLAG_NO_GAPS;
@@ -661,12 +656,6 @@ int32_t ompi_datatype_finalize( void )
 
     /* Get rid of the Fortran2C translation table */
     OBJ_DESTRUCT(&ompi_datatype_f_to_c_table);
-
-#if defined(VERBOSE)
-    if( ompi_datatype_dfd != -1 )
-        opal_output_close( ompi_datatype_dfd );
-    ompi_datatype_dfd = -1;
-#endif  /* VERBOSE */
 
     /* release the local convertors (external32 and local) */
     ompi_datatype_default_convertors_fini();
@@ -749,7 +738,7 @@ void ompi_datatype_dump( const ompi_datatype_t* pData )
                      (long)pData->super.size, (int)pData->super.align, pData->super.id, (int)pData->super.desc.length, (int)pData->super.desc.used,
                      (long)pData->super.true_lb, (long)pData->super.true_ub, (long)(pData->super.true_ub - pData->super.true_lb),
                      (long)pData->super.lb, (long)pData->super.ub, (long)(pData->super.ub - pData->super.lb),
-                     (int)pData->super.nbElems, (int)pData->super.btypes[OPAL_DATATYPE_LOOP], (int)pData->super.flags );
+                     (int)pData->super.nbElems, (int)pData->super.loops, (int)pData->super.flags );
     /* dump the flags */
     if( ompi_datatype_is_predefined(pData) ) {
         index += snprintf( buffer + index, length - index, "predefined " );

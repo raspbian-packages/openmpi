@@ -98,7 +98,7 @@ static int mca_spml_ucx_component_register(void)
                                       &mca_spml_ucx.priority);
 
     mca_spml_ucx_param_register_int("num_disconnect", 1,
-                                    "How many disconnects to do in parallel",
+                                    "How may disconnects go in parallel",
                                     &mca_spml_ucx.num_disconnect);
 
     mca_spml_ucx_param_register_int("heap_reg_nb", 0,
@@ -126,8 +126,9 @@ static int mca_spml_ucx_component_open(void)
     }
 
     memset(&params, 0, sizeof(params));
-    params.field_mask = UCP_PARAM_FIELD_FEATURES;
+    params.field_mask = UCP_PARAM_FIELD_FEATURES|UCP_PARAM_FIELD_ESTIMATED_NUM_EPS;
     params.features   = UCP_FEATURE_RMA|UCP_FEATURE_AMO32|UCP_FEATURE_AMO64;
+    params.estimated_num_eps = ompi_proc_world_size();
 
     err = ucp_init(&params, ucp_config, &mca_spml_ucx.ucp_context);
     ucp_config_release(ucp_config);

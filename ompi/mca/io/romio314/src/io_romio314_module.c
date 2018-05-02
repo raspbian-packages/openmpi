@@ -11,6 +11,7 @@
  *                         All rights reserved.
  * Copyright (c) 2008      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2008      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -59,8 +60,8 @@ mca_io_base_module_2_0_0_t mca_io_romio314_module = {
     mca_io_romio314_file_write_at_all,
     mca_io_romio314_file_iread_at,
     mca_io_romio314_file_iwrite_at,
-    NULL, /* iread_at_all */
-    NULL, /* iwrite_at_all */
+    mca_io_romio314_file_iread_at_all,
+    mca_io_romio314_file_iwrite_at_all,
 
     /* non-indexed IO operations */
     mca_io_romio314_file_read,
@@ -69,8 +70,8 @@ mca_io_base_module_2_0_0_t mca_io_romio314_module = {
     mca_io_romio314_file_write_all,
     mca_io_romio314_file_iread,
     mca_io_romio314_file_iwrite,
-    NULL, /* iread_all */
-    NULL, /* iwrite_all */
+    mca_io_romio314_file_iread_all,
+    mca_io_romio314_file_iwrite_all,
 
     mca_io_romio314_file_seek,
     mca_io_romio314_file_get_position,
@@ -138,6 +139,14 @@ void ADIOI_Datatype_iscontig(MPI_Datatype datatype, int *flag)
      * In addition, if the data is contiguous but true_lb differes
      * from zero, ROMIO will ignore the displacement. Thus, lie!
      */
+
+    size_t size;
+    opal_datatype_type_size (&datatype->super, &size);
+    if ( 0 == size ) {
+        *flag = 1;
+        return;
+    }
+
     *flag = ompi_datatype_is_contiguous_memory_layout(datatype, 2);
     if (*flag) {
         MPI_Aint true_extent, true_lb;

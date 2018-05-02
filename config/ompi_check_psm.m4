@@ -70,12 +70,12 @@ AC_DEFUN([OMPI_CHECK_PSM],[
               [AC_MSG_WARN([PSM driver does not currently support progress threads.  Disabling BTL.])
                ompi_check_psm_happy="no"])
 
-	AS_IF([test "$ompi_check_psm_happy" = "yes"],
+    	AS_IF([test "$ompi_check_psm_happy" = "yes"],
               [AC_CHECK_HEADERS(
-                glob.h,
-                    [],
-                    [AC_MSG_WARN([glob.h not found.  Can not build component.])
-                    ompi_check_psm_happy="no"])])
+               glob.h,
+               [],
+               [AC_MSG_WARN([glob.h not found.  Can not build component.])
+               ompi_check_psm_happy="no"])])
 
 	OPAL_SUMMARY_ADD([[Transports]],[[Intel TrueScale (PSM)]],[$1],[$ompi_check_psm_happy])
     fi

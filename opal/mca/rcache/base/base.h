@@ -10,7 +10,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2012-2016 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2012-2015 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * $COPYRIGHT$
  *
@@ -27,7 +27,7 @@
 #include "opal_config.h"
 
 #include "opal/class/opal_list.h"
-#include "opal/mca/base/base.h"
+#include "opal/mca/mca.h"
 #include "opal/mca/rcache/rcache.h"
 #include "opal/mca/memory/base/base.h"
 
@@ -57,6 +57,12 @@ OPAL_DECLSPEC OBJ_CLASS_DECLARATION(mca_rcache_base_selected_module_t);
 OPAL_DECLSPEC mca_rcache_base_component_t *mca_rcache_base_component_lookup(const char *name);
 OPAL_DECLSPEC mca_rcache_base_module_t *mca_rcache_base_module_lookup (const char *name);
 OPAL_DECLSPEC int mca_rcache_base_module_destroy(mca_rcache_base_module_t *module);
+
+extern opal_free_list_t mca_rcache_base_vma_tree_items;
+extern bool mca_rcache_base_vma_tree_items_inited;
+extern unsigned int mca_rcache_base_vma_tree_items_min;
+extern int mca_rcache_base_vma_tree_items_max;
+extern unsigned int mca_rcache_base_vma_tree_items_inc;
 
 /* only used within base -- no need to DECLSPEC */
 extern int mca_rcache_base_used_mem_hooks;

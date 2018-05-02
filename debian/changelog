@@ -1,4 +1,4 @@
-openmpi (2.1.1-8+rpi1) buster-staging; urgency=medium
+openmpi (3.0.1-9+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
@@ -6,14 +6,156 @@ openmpi (2.1.1-8+rpi1) buster-staging; urgency=medium
   * replace dmb with MCR p15, 0, r0, c7, c10, 5 in opal/asm/base/ARM.asm
     as suggested at http://www.open-mpi.org/community/lists/devel/2012/02/10626.php
 
- -- Raspbian forward porter <root@raspbian.org>  Sat, 10 Feb 2018 10:35:25 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 02 May 2018 05:51:02 +0000
 
-openmpi (2.1.1-8) unstable; urgency=medium
+openmpi (3.0.1-9) unstable; urgency=medium
 
-  * Remove obsolete dependency on libcr-dev. Closes: #877009
+  * Enable verbose output in build. Closes: #896863
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 24 Apr 2018 17:47:14 +0100
+
+openmpi (3.0.1-8) unstable; urgency=medium
+
+  * Fix for update-alternatives error in postinst. Closes: #896189
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 24 Apr 2018 06:31:20 +0100
+
+openmpi (3.0.1-7) unstable; urgency=medium
+
+  * Delete old non-mpi alternatives if needed. Closes: #896189
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 22 Apr 2018 15:20:35 +0100
+
+openmpi (3.0.1-6) unstable; urgency=medium
+
+  * Ship internal libpmix shlib where external is not available
+  * Ensure arch-dependent build rules are consistent
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 18 Apr 2018 06:34:01 +0100
+
+openmpi (3.0.1-5) unstable; urgency=medium
+
+  * Fix broken symlink 
+  * PMIX build check reversed; Closes: #895827
+  * Ack olf bugs fixed: Closes: #877069, #886644
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 16 Apr 2018 13:01:55 +0100
+
+openmpi (3.0.1-4) unstable; urgency=medium
+
+  * Update hurd patch for pmix (Add MAXPATHLEN)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 14 Apr 2018 07:14:05 +0100
+
+openmpi (3.0.1-3) experimental; urgency=medium
+
+  * Re-enable PPC using -O3 as documented upstream
+  * Add riscv64 to current no-java list
+  * Add m68k, hurd-i386 to no-pmix list
+  * rm -f the incorrect symlink in perms;  may not be present on kfreebsd
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 09 Apr 2018 15:44:23 +0100
+
+openmpi (3.0.1-2) experimental; urgency=medium
+
+  * Undo arm_support patch that breaks armel
+  * Standard-Version: 4.1.4. No changes required
+  * Don't use pmix on minor archs due to pmix dependencies missing;
+    (sh4 x32, riscv64, powerpcspe)
+  * Don't depend on default-jdk on archs which don't use it
+  * Fix more manpage macros for whatis entries
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 08 Apr 2018 16:17:25 +0100
+
+openmpi (3.0.1-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 03 Apr 2018 15:59:29 +0100
+
+openmpi (3.0.1~rc4-1) experimental; urgency=medium
+
+  [ Alastair McKinsty ]
+  * New upstream release
+  * Delete obsolete conflicts
+  * Fix logic in update-alternatives, libopenmpi-dev.prerm
+
+  [ Andreas Beckmann ]
+  * Fix Vcs-* URLs.
+  * Fix libmca_common_ompio.so.41 symlink.
+  * Fix *.so -> SONAME symlinks.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 22 Mar 2018 09:22:40 +0000
+
+openmpi (3.0.1~rc2-2) experimental; urgency=medium
+
+  * Fix multi-arch alternatives handling. Closes: #889715
+  * Move mpicc, etc. binaries to openmpi-bin for M-A safe libopenmpi-dev
+  * Add breaks/conflicts for bin move
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 26 Feb 2018 06:05:17 +0000
+
+openmpi (3.0.1~rc2-1) experimental; urgency=medium
+
+  * New upstream release
   * Disable Java on ia64. Closes: 888286
+  * Move VCS to point to salsa.debian.org
 
- -- Alastair McKinstry <mckinstry@debian.org>  Mon, 05 Feb 2018 09:06:53 +0000
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 04 Feb 2018 10:36:39 +0000
+
+openmpi (3.0.1~rc1-2) experimental; urgency=medium
+
+  * Remove obsolete pmix-disable-check.patch
+  * Remove "--enable-heterogeneous" as buggy. Closes: #886336
+  * Remove Sylvestre Ledru from Uploaders, with thanks for all the work
+    he's done. Closes: #886552
+  * Add MultiArch versioning to mpi alternatives (See #886644)
+  * Add dependency on openssh-client to openmpi-bin. Closes: #882603
+  * Ack old bug closed in 3.0.1rc1: Closes: #876142
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 23 Jan 2018 16:25:35 +0000
+
+openmpi (3.0.1~rc1-1) experimental; urgency=medium
+
+  * New upstream release
+  * libopenmpi-dev now depends on openmpi-bin; doesn't ship conflicting
+    etc/ that it depends on
+  * Standards-Version: 4.1.3; change VCS to https:
+  * libopenmpi3 no longer conflicts with libopenmpi1 / libopenmpi2
+  * Now have DH_COMPAT=11
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 04 Jan 2018 15:21:01 +0000
+
+openmpi (3.0.0-3) experimental; urgency=medium
+
+  * Rebuild against reconfigured pmix. 
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 26 Nov 2017 08:03:40 +0000
+
+openmpi (3.0.0-2) experimental; urgency=medium
+
+  * Build against external pmix. Closes: #881967
+  * Standatds-Version: 4.1.1
+  * Change Priority: extra to Priority: optional
+  * Fix for Hurd FTBFS.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 17 Nov 2017 14:56:53 +0000
+
+openmpi (3.0.0-1) experimental; urgency=medium
+
+  * New upstream release;
+    - Arm detection patch now merged upstream
+  * Remove obsolete dependency on libcr-dev. Closes: #877009
+  * Re-enable opalcc.1, opalc++.1 manpages
+  * Depend on external libevent (2.1 in debian better than internal 2.0.22)
+  * Change so lib from openmpi -> openmpi3 in libopenmpi3 to avoid collisions
+  * Include pmix (until separate package is in debian/)
+  * Drop redundant --parallel --autodev_tools on dh line 
+  * openmpi-bin depends on openssh-client to ensure jobs launch.
+    Closes: #882603
+  * Ack. old bug closed with upload: Closes: #876142
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 30 Sep 2017 16:56:07 +0100
 
 openmpi (2.1.1-7) unstable; urgency=medium
 

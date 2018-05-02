@@ -10,7 +10,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2008      University of Houston, Inc.  All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC.  All rights
  *                         reserved.
@@ -26,8 +26,11 @@
 #include "ompi_config.h"
 #include <stdio.h>
 
+#include "opal/util/show_help.h"
+
 #include "ompi/mpi/c/bindings.h"
 #include "ompi/runtime/params.h"
+#include "ompi/runtime/mpiruntime.h"
 #include "ompi/communicator/communicator.h"
 #include "ompi/errhandler/errhandler.h"
 #include "ompi/info/info.h"
@@ -89,11 +92,16 @@ int MPI_Comm_accept(const char *port_name, MPI_Info info, int root,
         }
     }
 
+    if (!ompi_mpi_dynamics_is_enabled(FUNC_NAME)) {
+        return OMPI_ERRHANDLER_INVOKE(comm, OMPI_ERR_NOT_SUPPORTED, FUNC_NAME);
+    }
+
     /* parse info object. no prefedined values for this function in MPI-2
      * so lets ignore it for the moment.
      * if ( rank == root && MPI_INFO_NULL != info ) {
      * }
      */
+    OPAL_CR_ENTER_LIBRARY();
 
     if ( rank == root ) {
 	rc = ompi_dpm_connect_accept (comm, root, port_name, send_first,
@@ -102,6 +110,16 @@ int MPI_Comm_accept(const char *port_name, MPI_Info info, int root,
     else {
 	rc = ompi_dpm_connect_accept (comm, root, NULL, send_first,
 				      &newcomp);
+    }
+
+    OPAL_CR_EXIT_LIBRARY();
+
+    if (OPAL_ERR_NOT_SUPPORTED == rc) {
+        opal_show_help("help-mpi-api.txt",
+                       "MPI function not supported",
+                       true,
+                       FUNC_NAME,
+                       "Underlying runtime environment does not support accept/connect functionality");
     }
 
     *newcomm = newcomp;

@@ -12,7 +12,7 @@
  * Copyright (c) 2007-2012 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2009-2016 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2014-2015 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -151,9 +151,7 @@ BEGIN_C_DECLS
 
 /* notifier support */
 #define ORTE_RML_TAG_NOTIFIER_HNP           52
-
-/* confirm spawn by tool */
-#define ORTE_RML_TAG_CONFIRM_SPAWN          53
+#define ORTE_RML_TAG_NOTIFY_COMPLETE        53
 
 /*** QOS specific  RML TAGS ***/
 #define ORTE_RML_TAG_OPEN_CHANNEL_REQ       54
@@ -168,10 +166,25 @@ BEGIN_C_DECLS
 /* stacktrace for debug */
 #define ORTE_RML_TAG_STACK_TRACE            60
 
+/* memory profile */
+#define ORTE_RML_TAG_MEMPROFILE             61
+
+/* topology report */
+#define ORTE_RML_TAG_TOPOLOGY_REPORT        62
+
+/* warmup connection - simply establishes the connection */
+#define ORTE_RML_TAG_WARMUP_CONNECTION      63
+
 #define ORTE_RML_TAG_MAX                   100
+
 
 #define ORTE_RML_TAG_NTOH(t) ntohl(t)
 #define ORTE_RML_TAG_HTON(t) htonl(t)
+
+/*** length of the tag. change this when type of orte_rml_tag_t is changed ***/
+/*** max valu in unit32_t is 0xFFFF_FFFF when converted to char this is 8  **
+#define ORTE_RML_TAG_T_CHAR_LEN   8
+#define ORTE_RML_TAG_T_SPRINT    "%8x" */
 
 /**
  * Message matching tag
@@ -183,6 +196,18 @@ BEGIN_C_DECLS
  */
 typedef uint32_t orte_rml_tag_t;
 
+/* Conduit ID */
+typedef uint16_t orte_rml_conduit_t;
+#define ORTE_RML_CONDUIT_INVALID  0xff
+
+/* define an object for reporting transports */
+typedef struct {
+    opal_list_item_t super;
+    char *component;
+    opal_list_t attributes;
+    opal_list_t transports;
+} orte_rml_pathway_t;
+OBJ_CLASS_DECLARATION(orte_rml_pathway_t);
 
 /* ******************************************************************** */
 

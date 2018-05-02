@@ -91,7 +91,6 @@ static int opal_memory_base_open(mca_base_open_flag_t flags)
     /* can only be zero or one */
     OPAL_LIST_FOREACH(item, &opal_memory_base_framework.framework_components, mca_base_component_list_item_t) {
         tmp = (opal_memory_base_component_2_0_0_t *) item->cli_component;
-
         ret = tmp->memoryc_query (&priority);
         if (OPAL_SUCCESS != ret || priority < highest_priority) {
             continue;

@@ -1635,7 +1635,7 @@ int progress_one_cuda_htod_event(struct mca_btl_base_descriptor_t **frag) {
         return 1;
     }
     OPAL_THREAD_UNLOCK(&common_cuda_htod_lock);
-    return 0;
+    return OPAL_ERR_RESOURCE_BUSY;
 }
 
 
@@ -1990,8 +1990,8 @@ int mca_common_cuda_get_address_range(void *pbase, size_t *psize, void *base)
     CUresult result;
     result = cuFunc.cuMemGetAddressRange((CUdeviceptr *)pbase, psize, (CUdeviceptr)base);
     if (OPAL_UNLIKELY(CUDA_SUCCESS != result)) {
-        opal_show_help("help-mpi-common-cuda.txt", "cuMemGetAddressRange failed",
-                       true, result, base);
+        opal_show_help("help-mpi-common-cuda.txt", "cuMemGetAddressRange failed 2",
+                       true, OPAL_PROC_MY_HOSTNAME, result, base);
         return OPAL_ERROR;
     } else {
         opal_output_verbose(50, mca_common_cuda_output,
@@ -2050,7 +2050,8 @@ void mca_common_cuda_get_buffer_id(mca_rcache_base_registration_t *reg)
     res = cuFunc.cuPointerGetAttribute(&bufID, CU_POINTER_ATTRIBUTE_BUFFER_ID,
                                        (CUdeviceptr)dbuf);
     if (OPAL_UNLIKELY(res != CUDA_SUCCESS)) {
-        opal_show_help("help-mpi-common-cuda.txt", "bufferID failed", true, res);
+        opal_show_help("help-mpi-common-cuda.txt", "bufferID failed",
+                       true, OPAL_PROC_MY_HOSTNAME, res);
     }
     reg->gpu_bufID = bufID;
 

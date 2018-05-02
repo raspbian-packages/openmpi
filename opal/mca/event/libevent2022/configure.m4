@@ -75,9 +75,9 @@ EOF
            # Add some stuff to CPPFLAGS so that the rest of the source
            # tree can be built
            libevent_file=$libevent_basedir/libevent
-           CPPFLAGS="$CPPFLAGS -I$OPAL_TOP_SRCDIR/$libevent_file -I$OPAL_TOP_SRCDIR/$libevent_file/include"
+           CPPFLAGS="-I$OPAL_TOP_SRCDIR/$libevent_file -I$OPAL_TOP_SRCDIR/$libevent_file/include $CPPFLAGS"
            AS_IF([test "$OPAL_TOP_BUILDDIR" != "$OPAL_TOP_SRCDIR"],
-                 [CPPFLAGS="$CPPFLAGS -I$OPAL_TOP_BUILDDIR/$libevent_file/include"])
+                 [CPPFLAGS="-I$OPAL_TOP_BUILDDIR/$libevent_file/include $CPPFLAGS"])
            unset libevent_file
           ])
 ])
@@ -154,6 +154,7 @@ AC_DEFUN([MCA_opal_event_libevent2022_CONFIG],[
                   AC_HELP_STRING([--enable-event-debug], [enable event library debug output]))
     if test "$enable_event_debug" = "yes"; then
         event_args="$event_args --enable-debug-mode"
+        CFLAGS="-DUSE_DEBUG $CFLAGS"
     fi
 
     AC_MSG_RESULT([$event_args])

@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2012 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
@@ -67,18 +67,15 @@ int MPI_Neighbor_alltoall(const void *sendbuf, int sendcount, MPI_Datatype sendt
         /* Unrooted operation -- same checks for all ranks on both
            intracommunicators and intercommunicators */
 
-        if (MPI_IN_PLACE == sendbuf) {
-            sendcount = recvcount;
-            sendtype = recvtype;
-        }
-
         err = MPI_SUCCESS;
         OMPI_ERR_INIT_FINALIZE(FUNC_NAME);
-        if (ompi_comm_invalid(comm) || !(OMPI_COMM_IS_CART(comm) || OMPI_COMM_IS_GRAPH(comm) ||
-                                         OMPI_COMM_IS_DIST_GRAPH(comm))) {
+        if (ompi_comm_invalid(comm) || OMPI_COMM_IS_INTER(comm)) {
             return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_COMM,
                                           FUNC_NAME);
-        } else if (MPI_IN_PLACE == recvbuf) {
+        } else if (! OMPI_COMM_IS_TOPO(comm)) {
+            return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_TOPOLOGY,
+                                          FUNC_NAME);
+        } else if (MPI_IN_PLACE == sendbuf || MPI_IN_PLACE == recvbuf) {
             return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_ARG,
                                           FUNC_NAME);
         } else {
@@ -88,12 +85,10 @@ int MPI_Neighbor_alltoall(const void *sendbuf, int sendcount, MPI_Datatype sendt
             OMPI_ERRHANDLER_CHECK(err, comm, err, FUNC_NAME);
         }
 
-        if (MPI_IN_PLACE != sendbuf && !OMPI_COMM_IS_INTER(comm)) {
-            ompi_datatype_type_size(sendtype, &sendtype_size);
-            ompi_datatype_type_size(recvtype, &recvtype_size);
-            if ((sendtype_size*sendcount) != (recvtype_size*recvcount)) {
-                return OMPI_ERRHANDLER_INVOKE(comm, MPI_ERR_TRUNCATE, FUNC_NAME);
-            }
+        ompi_datatype_type_size(sendtype, &sendtype_size);
+        ompi_datatype_type_size(recvtype, &recvtype_size);
+        if ((sendtype_size*sendcount) != (recvtype_size*recvcount)) {
+            return OMPI_ERRHANDLER_INVOKE(comm, MPI_ERR_TRUNCATE, FUNC_NAME);
         }
 
         if( OMPI_COMM_IS_CART(comm) ) {
@@ -123,16 +118,17 @@ int MPI_Neighbor_alltoall(const void *sendbuf, int sendcount, MPI_Datatype sendt
 
     ompi_datatype_type_size(sendtype, &sendtype_size);
     ompi_datatype_type_size(recvtype, &recvtype_size);
-    if (((MPI_IN_PLACE == sendbuf) ||
-         (0 == sendcount) || (0 == sendtype_size)) &&
+    if (((0 == sendcount) || (0 == sendtype_size)) &&
         ((0 == recvcount) || 0 == (recvtype_size))) {
         return MPI_SUCCESS;
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /* Invoke the coll component to perform the back-end operation */
-    err = comm->c_coll.coll_neighbor_alltoall(sendbuf, sendcount, sendtype, recvbuf,
+    err = comm->c_coll->coll_neighbor_alltoall(sendbuf, sendcount, sendtype, recvbuf,
                                               recvcount, recvtype, comm,
-                                              comm->c_coll.coll_neighbor_alltoall_module);
+                                              comm->c_coll->coll_neighbor_alltoall_module);
     OMPI_ERRHANDLER_RETURN(err, comm, err, FUNC_NAME);
 }
 

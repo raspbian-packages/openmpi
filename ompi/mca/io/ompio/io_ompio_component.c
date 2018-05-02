@@ -10,8 +10,8 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2008-2016 University of Houston. All rights reserved.
- * Copyright (c) 2015-2016 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2008-2017 University of Houston. All rights reserved.
+ * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
@@ -31,18 +31,6 @@
 #include "ompi/mca/io/io.h"
 #include "ompi/mca/fs/base/base.h"
 #include "io_ompio.h"
-
-#ifdef HAVE_SYS_STATFS_H
-#include <sys/statfs.h> /* or <sys/vfs.h> */
-#endif
-#ifdef HAVE_SYS_MOUNT_H
-#include <sys/mount.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-
-
 
 int mca_io_ompio_cycle_buffer_size = OMPIO_DEFAULT_CYCLE_BUF_SIZE;
 int mca_io_ompio_bytes_per_agg = OMPIO_PREALLOC_MAX_BUF_SIZE;
@@ -281,28 +269,27 @@ file_query(struct ompi_file_t *file,
             if (LUSTRE == mca_fs_base_get_fstype(file->f_filename)) {
                 is_lustre = 1; //true
             }
-	}
+        }
         
-	file->f_comm->c_coll.coll_bcast (&is_lustre,
-                                         1,
-                                         MPI_INT,
-                                         0,
-                                         file->f_comm,
-                                         file->f_comm->c_coll.coll_bcast_module);
+        file->f_comm->c_coll->coll_bcast (&is_lustre,
+                                          1,
+                                          MPI_INT,
+                                          0,
+                                          file->f_comm,
+                                          file->f_comm->c_coll->coll_bcast_module);
     }
     else {
-	if (!strncmp(file->f_filename, "lustre:", 7) ||
-	    !strncmp(file->f_filename, "LUSTRE:", 7)) {
+        if (!strncasecmp(file->f_filename, "lustre:", 7) ) {
             is_lustre = 1;
         }
     }
 
-   if (is_lustre) {
-       *priority = 1;
-   }
-   else {
-       *priority = priority_param;
-   }
+    if (is_lustre) {
+        *priority = 1;
+    }
+    else {
+        *priority = priority_param;
+    }
 
     /* Allocate a space for this module to hang private data (e.g.,
        the OMPIO file handle) */

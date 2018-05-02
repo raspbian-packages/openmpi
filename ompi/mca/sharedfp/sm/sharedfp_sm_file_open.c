@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -71,7 +71,7 @@ int mca_sharedfp_sm_file_open (struct ompi_communicator_t *comm,
         opal_output(0, "mca_sharedfp_sm_file_open: Error during memory allocation\n");
         return OMPI_ERR_OUT_OF_RESOURCE;
     }
-    err = ompio_io_ompio_file_open(comm,filename,amode,info,shfileHandle,false);
+    err = mca_common_ompio_file_open(comm,filename,amode,info,shfileHandle,false);
     if ( OMPI_SUCCESS != err) {
         opal_output(0, "mca_sharedfp_sm_file_open: Error during file open\n");
         free (shfileHandle);
@@ -81,12 +81,12 @@ int mca_sharedfp_sm_file_open (struct ompi_communicator_t *comm,
     data = (mca_io_ompio_data_t *) fh->f_fh->f_io_selected_data;
     ompio_fh = &data->ompio_fh;
 
-    err = mca_io_ompio_set_view_internal (shfileHandle,
-                                          ompio_fh->f_disp,
-                                          ompio_fh->f_etype,
-                                          ompio_fh->f_orig_filetype,
-                                          ompio_fh->f_datarep,
-                                          MPI_INFO_NULL);
+    err = mca_common_ompio_set_view (shfileHandle,
+                                     ompio_fh->f_disp,
+                                     ompio_fh->f_etype,
+                                     ompio_fh->f_orig_filetype,
+                                     ompio_fh->f_datarep,
+                                     MPI_INFO_NULL);
 
     /*Memory is allocated here for the sh structure*/
     if ( mca_sharedfp_sm_verbose ) {
@@ -147,8 +147,8 @@ int mca_sharedfp_sm_file_open (struct ompi_communicator_t *comm,
         ompi_proc_t *masterproc = ompi_group_peer_lookup(comm->c_local_group, 0 );
         masterjobid = OMPI_CAST_RTE_NAME(&masterproc->super.proc_name)->jobid;
     }
-    comm->c_coll.coll_bcast ( &masterjobid, 1, MPI_UNSIGNED, 0, comm, 
-                              comm->c_coll.coll_bcast_module );
+    comm->c_coll->coll_bcast ( &masterjobid, 1, MPI_UNSIGNED, 0, comm, 
+                               comm->c_coll->coll_bcast_module );
 
     sprintf(sm_filename,"/tmp/OMPIO_%s_%d_%s",filename_basename, masterjobid, ".sm");
     /* open shared memory file, initialize to 0, map into memory */
@@ -171,7 +171,7 @@ int mca_sharedfp_sm_file_open (struct ompi_communicator_t *comm,
         memset ( &sm_offset, 0, sizeof (struct mca_sharedfp_sm_offset ));
         write ( sm_fd, &sm_offset, sizeof(struct mca_sharedfp_sm_offset));
     }
-    comm->c_coll.coll_barrier (comm, comm->c_coll.coll_barrier_module );
+    comm->c_coll->coll_barrier (comm, comm->c_coll->coll_barrier_module );
 
     /*the file has been written to, now we can map*/
     sm_offset_ptr = mmap(NULL, sizeof(struct mca_sharedfp_sm_offset), PROT_READ | PROT_WRITE,
@@ -233,7 +233,13 @@ int mca_sharedfp_sm_file_open (struct ompi_communicator_t *comm,
         err = OMPI_ERROR;
     }
 
-    comm->c_coll.coll_barrier (comm, comm->c_coll.coll_barrier_module );
+    comm->c_coll->coll_barrier (comm, comm->c_coll->coll_barrier_module );
+
+#if defined(HAVE_SEM_OPEN)
+    if ( 0 == rank ) {
+        sem_unlink ( sm_data->sem_name);
+    }
+#endif
 
     return err;
 }
@@ -259,7 +265,7 @@ int mca_sharedfp_sm_file_close (mca_io_ompio_file_t *fh)
      * all processes are ready to release the
      * shared file pointer resources
      */
-    sh->comm->c_coll.coll_barrier (sh->comm, sh->comm->c_coll.coll_barrier_module );
+    sh->comm->c_coll->coll_barrier (sh->comm, sh->comm->c_coll->coll_barrier_module );
 
     file_data = (sm_data*)(sh->selected_module_data);
     if (file_data)  {
@@ -267,7 +273,7 @@ int mca_sharedfp_sm_file_close (mca_io_ompio_file_t *fh)
         if (file_data->sm_offset_ptr) {
             /* destroy semaphore */
 #if defined(HAVE_SEM_OPEN)
-             sem_unlink (file_data->sem_name);
+             sem_close ( file_data->mutex);
              free (file_data->sem_name);
 #elif defined(HAVE_SEM_INIT)
             sem_destroy(&file_data->sm_offset_ptr->mutex);
@@ -285,7 +291,7 @@ int mca_sharedfp_sm_file_close (mca_io_ompio_file_t *fh)
     }
 
     /* Close the main file opened by this component*/
-    err = ompio_io_ompio_file_close(sh->sharedfh);
+    err = mca_common_ompio_file_close(sh->sharedfh);
 
     /*free shared file pointer data struct*/
     free(sh);

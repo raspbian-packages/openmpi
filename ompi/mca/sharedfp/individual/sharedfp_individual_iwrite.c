@@ -2,14 +2,14 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2013-2015 University of Houston. All rights reserved.
+ * Copyright (c) 2013-2016 University of Houston. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -76,8 +76,8 @@ int mca_sharedfp_individual_iwrite(mca_io_ompio_file_t *fh,
 
 
     /*Write the data into individual file*/
-    ret = ompio_io_ompio_file_iwrite_at ( headnode->datafilehandle, headnode->datafile_offset,
-					  buf, count, datatype, request);
+    ret = mca_common_ompio_file_iwrite_at ( headnode->datafilehandle, headnode->datafile_offset,
+                                            buf, count, datatype, request);
     if ( OMPI_SUCCESS != ret )  {
 	opal_output(0,"sharedfp_individual_iwrite: Error while iwriting the datafile \n");
 	return ret;
@@ -159,9 +159,9 @@ int mca_sharedfp_individual_write_ordered_begin(mca_io_ompio_file_t *fh,
     }
 
     /*collect the total bytes to be written*/
-    sh->comm->c_coll.coll_gather ( &totalbytes, 1, OMPI_OFFSET_DATATYPE,
+    sh->comm->c_coll->coll_gather ( &totalbytes, 1, OMPI_OFFSET_DATATYPE,
 				   offbuff, 1, OMPI_OFFSET_DATATYPE, 0,
-				   sh->comm, sh->comm->c_coll.coll_gather_module );
+				   sh->comm, sh->comm->c_coll->coll_gather_module );
 
     if ( 0 == rank ) {
         prev_offset = offbuff[0];
@@ -180,16 +180,16 @@ int mca_sharedfp_individual_write_ordered_begin(mca_io_ompio_file_t *fh,
 
 
     /* Scatter the results to the other processes */
-    ret = sh->comm->c_coll.coll_scatter ( offbuff, 1, OMPI_OFFSET_DATATYPE,
+    ret = sh->comm->c_coll->coll_scatter ( offbuff, 1, OMPI_OFFSET_DATATYPE,
 					  &offset, 1, OMPI_OFFSET_DATATYPE, 0,
-					  sh->comm, sh->comm->c_coll.coll_scatter_module );
+					  sh->comm, sh->comm->c_coll->coll_scatter_module );
     if ( OMPI_SUCCESS != ret )  {
 	opal_output(0,"sharedfp_individual_write_ordered_begin: Error in scattering offsets \n");
 	goto exit;
     }
 
-    ret = sh->comm->c_coll.coll_bcast ( &global_offset, 1, OMPI_OFFSET_DATATYPE,
-				  0, sh->comm, sh->comm->c_coll.coll_bcast_module );
+    ret = sh->comm->c_coll->coll_bcast ( &global_offset, 1, OMPI_OFFSET_DATATYPE,
+                                        0, sh->comm, sh->comm->c_coll->coll_bcast_module );
     if ( OMPI_SUCCESS != ret )  {
 	opal_output(0,"sharedfp_individual_write_ordered_begin: Error while bcasting global offset \n");
 	goto exit;
@@ -198,8 +198,8 @@ int mca_sharedfp_individual_write_ordered_begin(mca_io_ompio_file_t *fh,
     sh->global_offset = global_offset;
 
     /*use file_write_at_all to ensure the order*/
-    ret = ompio_io_ompio_file_iwrite_at_all(sh->sharedfh,offset, buf,count,datatype,
-					   &fh->f_split_coll_req);
+    ret = mca_common_ompio_file_iwrite_at_all(sh->sharedfh,offset, buf,count,datatype,
+                                              &fh->f_split_coll_req);
     fh->f_split_coll_in_use = true;
     if ( OMPI_SUCCESS != ret )  {
 	opal_output(0,"sharedfp_individual_write_ordered_begin: Error while writing the datafile \n");

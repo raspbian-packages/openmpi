@@ -1,11 +1,14 @@
 /**
-  Copyright (c) 2011 Mellanox Technologies. All rights reserved.
-  Copyright (c) 2016      IBM Corporation.  All rights reserved.
-  $COPYRIGHT$
-
-  Additional copyrights may follow
-
- $HEADER$
+ * Copyright (c) 2011 Mellanox Technologies. All rights reserved.
+ * Copyright (c) 2016      IBM Corporation.  All rights reserved.
+ * Copyright (c) 2017      The University of Tennessee and The University
+ *                         of Tennessee Research Foundation.  All rights
+ *                         reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
  */
 
 #include "ompi_config.h"
@@ -14,7 +17,7 @@
 
 int hcoll_comm_attr_keyval;
 int hcoll_type_attr_keyval;
-
+mca_coll_hcoll_dtype_t zero_dte_mapping;
 /*
  * Initial query function that is invoked during MPI_INIT, allowing
  * this module to indicate what level of thread support it provides.
@@ -149,9 +152,9 @@ static void mca_coll_hcoll_module_destruct(mca_coll_hcoll_module_t *hcoll_module
 }
 
 #define HCOL_SAVE_PREV_COLL_API(__api) do {\
-    hcoll_module->previous_ ## __api            = comm->c_coll.coll_ ## __api;\
-    hcoll_module->previous_ ## __api ## _module = comm->c_coll.coll_ ## __api ## _module;\
-    if (!comm->c_coll.coll_ ## __api || !comm->c_coll.coll_ ## __api ## _module) {\
+    hcoll_module->previous_ ## __api            = comm->c_coll->coll_ ## __api;\
+    hcoll_module->previous_ ## __api ## _module = comm->c_coll->coll_ ## __api ## _module;\
+    if (!comm->c_coll->coll_ ## __api || !comm->c_coll->coll_ ## __api ## _module) {\
         return OMPI_ERROR;\
     }\
     OBJ_RETAIN(hcoll_module->previous_ ## __api ## _module);\
@@ -200,7 +203,7 @@ static int mca_coll_hcoll_save_coll_handlers(mca_coll_hcoll_module_t *hcoll_modu
 /*
 ** Communicator free callback
 */
-int hcoll_comm_attr_del_fn(MPI_Comm comm, int keyval, void *attr_val, void *extra)
+static int hcoll_comm_attr_del_fn(MPI_Comm comm, int keyval, void *attr_val, void *extra)
 {
 
     mca_coll_hcoll_module_t *hcoll_module;
@@ -330,6 +333,7 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
         }
 
         if (mca_coll_hcoll_component.derived_types_support_enabled) {
+            zero_dte_mapping.type = DTE_ZERO;
             copy_fn.attr_datatype_copy_fn = (MPI_Type_internal_copy_attr_function *) MPI_TYPE_NULL_COPY_FN;
             del_fn.attr_datatype_delete_fn = hcoll_type_attr_del_fn;
             err = ompi_attr_create_keyval(TYPE_ATTR, copy_fn, del_fn, &hcoll_type_attr_keyval, NULL ,0, NULL);

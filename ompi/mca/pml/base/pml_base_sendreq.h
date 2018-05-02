@@ -1,3 +1,4 @@
+/* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
@@ -12,6 +13,9 @@
  * Copyright (c) 2006      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2016      Los Alamos National Security, LLC. All rights
+ *                         reserved.
+ * Copyright (c) 2017      Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -95,7 +99,7 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION( mca_pml_base_send_request_t );
                                                                           \
       /* initialize datatype convertor for this request */                \
       if( count > 0 ) {                                                   \
-          OBJ_RETAIN(datatype);                                           \
+          OMPI_DATATYPE_RETAIN(datatype);                                 \
          /* We will create a convertor specialized for the        */      \
          /* remote architecture and prepared with the datatype.   */      \
          opal_convertor_copy_and_prepare_for_send(                        \
@@ -110,6 +114,13 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION( mca_pml_base_send_request_t );
       }                                                                   \
    }
 
+#define MCA_PML_BASE_SEND_REQUEST_RESET(request)                        \
+    if ((request)->req_bytes_packed > 0) {                              \
+        size_t cnt = 0;                                                 \
+        opal_convertor_set_position(&(sendreq)->req_send.req_base.req_convertor, \
+                                    &cnt);                      \
+    }
+
 /**
  * Mark the request as started from the PML base point of view.
  *
@@ -118,10 +129,11 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION( mca_pml_base_send_request_t );
 
 #define MCA_PML_BASE_SEND_START( request )                    \
     do {                                                      \
-        (request)->req_pml_complete = false;                  \
-        (request)->req_ompi.req_complete = REQUEST_PENDING;   \
-        (request)->req_ompi.req_state = OMPI_REQUEST_ACTIVE;  \
-        (request)->req_ompi.req_status._cancelled = 0;        \
+        (request)->req_base.req_pml_complete = false;         \
+        (request)->req_base.req_ompi.req_complete = REQUEST_PENDING;    \
+        (request)->req_base.req_ompi.req_state = OMPI_REQUEST_ACTIVE;   \
+        (request)->req_base.req_ompi.req_status._cancelled = 0;         \
+        MCA_PML_BASE_SEND_REQUEST_RESET(request);             \
     } while (0)
 
 /**
@@ -135,7 +147,7 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION( mca_pml_base_send_request_t );
         OMPI_REQUEST_FINI(&(request)->req_base.req_ompi);                 \
         OBJ_RELEASE((request)->req_base.req_comm);                        \
         if( 0 != (request)->req_base.req_count )                          \
-            OBJ_RELEASE((request)->req_base.req_datatype);                \
+            OMPI_DATATYPE_RELEASE((request)->req_base.req_datatype);      \
         opal_convertor_cleanup( &((request)->req_base.req_convertor) );   \
     } while (0)
 
@@ -143,4 +155,3 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION( mca_pml_base_send_request_t );
 END_C_DECLS
 
 #endif
-

@@ -14,7 +14,7 @@
  *                         All rights reserved.
  * Copyright (c) 2009-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013-2015 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014      NVIDIA Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
@@ -80,7 +80,10 @@ static void component_shutdown(void);
 static int component_send(orte_rml_send_t *msg);
 static char* component_get_addr(void);
 static int component_set_addr(orte_process_name_t *peer, char **uris);
-static bool component_is_reachable(orte_process_name_t *peer);
+static bool component_is_reachable(char *routed, orte_process_name_t *peer);
+#if OPAL_ENABLE_FT_CR == 1
+static int component_ft_event(int state);
+#endif
 
 /*
  * Struct of function pointers and all that to let us be initialized
@@ -105,7 +108,10 @@ mca_oob_base_component_t mca_oob_alps_component = {
     .send_nb = component_send,
     .get_addr = component_get_addr,
     .set_addr = component_set_addr,
-    .is_reachable = component_is_reachable
+    .is_reachable = component_is_reachable,
+#if OPAL_ENABLE_FT_CR == 1
+    .ft_event = component_ft_event,
+#endif
 };
 
 /*
@@ -187,7 +193,6 @@ static int component_send(orte_rml_send_t *msg)
 
 static char* component_get_addr(void)
 {
-    int len;
     char hn[OPAL_MAXHOSTNAMELEN], *cptr;
 
     /*
@@ -195,7 +200,7 @@ static char* component_get_addr(void)
      * eventually be able to support connect/accept using aprun.
      */
 
-    len = gethostname(hn, sizeof(hn));
+    gethostname(hn, sizeof(hn));
 
     asprintf(&cptr, "gni://%s:%d", hn, getpid());
 
@@ -214,7 +219,7 @@ static int component_set_addr(orte_process_name_t *peer,
     return ORTE_ERR_NOT_SUPPORTED;
 }
 
-static bool component_is_reachable(orte_process_name_t *peer)
+static bool component_is_reachable(char *routed, orte_process_name_t *peer)
 {
     opal_output_verbose(10, orte_oob_base_framework.framework_output,
                         "%s oob:alps: component_set_addr invoked - this should not be happening",
@@ -222,3 +227,12 @@ static bool component_is_reachable(orte_process_name_t *peer)
     return false;
 }
 
+#if OPAL_ENABLE_FT_CR == 1
+static int component_ft_event(int state)
+{
+    opal_output_verbose(2, orte_oob_base_framework.framework_output,
+                        "%s ALPS EVENT", ORTE_NAME_PRINT(ORTE_PROC_MY_NAME));
+
+    return ORTE_ERR_NOT_SUPPORTED;
+}
+#endif

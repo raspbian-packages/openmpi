@@ -42,3 +42,5 @@ opal_condition_LDADD = \
         $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
 opal_condition_DEPENDENCIES = $(opal_condition_LDADD)
 
+distclean:
+	rm -rf *.dSYM .deps .libs *.log *.o *.trs $(check_PROGRAMS) Makefile

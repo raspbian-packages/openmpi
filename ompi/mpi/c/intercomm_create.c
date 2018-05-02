@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2014 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
@@ -80,6 +80,7 @@ int MPI_Intercomm_create(MPI_Comm local_comm, int local_leader,
         */
     }
 
+    OPAL_CR_ENTER_LIBRARY();
 
     local_size = ompi_comm_size ( local_comm );
     local_rank = ompi_comm_rank ( local_comm );
@@ -96,10 +97,12 @@ int MPI_Intercomm_create(MPI_Comm local_comm, int local_leader,
         if ( local_rank == local_leader ) {
             if ( ompi_comm_invalid ( bridge_comm ) ||
                  (bridge_comm->c_flags & OMPI_COMM_INTER) ) {
+                OPAL_CR_EXIT_LIBRARY();
                 return OMPI_ERRHANDLER_INVOKE ( local_comm, MPI_ERR_COMM,
                                                 FUNC_NAME);
             }
             if ( (remote_leader < 0) || (remote_leader >= ompi_comm_size(bridge_comm))) {
+                OPAL_CR_EXIT_LIBRARY();
                 return OMPI_ERRHANDLER_INVOKE ( local_comm, MPI_ERR_ARG,
                                                 FUNC_NAME);
             }
@@ -127,9 +130,9 @@ int MPI_Intercomm_create(MPI_Comm local_comm, int local_leader,
     }
 
     /* bcast size and list of remote processes to all processes in local_comm */
-    rc = local_comm->c_coll.coll_bcast ( &rsize, 1, MPI_INT, lleader,
+    rc = local_comm->c_coll->coll_bcast ( &rsize, 1, MPI_INT, lleader,
                                          local_comm,
-                                         local_comm->c_coll.coll_bcast_module);
+                                         local_comm->c_coll->coll_bcast_module);
     if ( rc != MPI_SUCCESS ) {
         goto err_exit;
     }
@@ -213,6 +216,7 @@ int MPI_Intercomm_create(MPI_Comm local_comm, int local_leader,
     }
 
  err_exit:
+    OPAL_CR_EXIT_LIBRARY();
 
     if ( NULL != rprocs ) {
         free ( rprocs );

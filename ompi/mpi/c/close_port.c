@@ -45,6 +45,8 @@ int MPI_Close_port(const char *port_name)
 {
     int ret;
 
+    OPAL_CR_NOOP_PROGRESS();
+
     if ( MPI_PARAM_CHECK ) {
         OMPI_ERR_INIT_FINALIZE(FUNC_NAME);
 

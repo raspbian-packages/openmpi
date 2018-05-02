@@ -15,8 +15,8 @@
  * Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
  * Copyright (c) 2010-2015 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2016 Intel, Inc. All rights reserved
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -35,12 +35,12 @@
 
 #include "opal/util/malloc.h"
 #include "opal/util/arch.h"
-#include "opal/util/opal_environ.h"
 #include "opal/util/output.h"
 #include "opal/util/show_help.h"
 #include "opal/util/proc.h"
 #include "opal/memoryhooks/memory.h"
 #include "opal/mca/base/base.h"
+#include "opal/mca/base/mca_base_var.h"
 #include "opal/runtime/opal.h"
 #include "opal/util/net.h"
 #include "opal/datatype/opal_datatype.h"
@@ -49,12 +49,18 @@
 #include "opal/mca/patcher/base/base.h"
 #include "opal/mca/memcpy/base/base.h"
 #include "opal/mca/hwloc/base/base.h"
-#include "opal/mca/sec/base/base.h"
 #include "opal/mca/timer/base/base.h"
 #include "opal/mca/memchecker/base/base.h"
+#include "opal/mca/if/base/base.h"
 #include "opal/dss/dss.h"
 #include "opal/mca/shmem/base/base.h"
+#if OPAL_ENABLE_FT_CR    == 1
+#include "opal/mca/compress/base/base.h"
+#endif
 #include "opal/threads/threads.h"
+
+#include "opal/runtime/opal_cr.h"
+#include "opal/mca/crs/base/base.h"
 
 #include "opal/runtime/opal_progress.h"
 #include "opal/mca/event/base/base.h"
@@ -244,8 +250,50 @@ opal_err2str(int errnum, const char **errmsg)
     case OPAL_ERR_SERVER_NOT_AVAIL:
         retval = "Server not available";
         break;
+    case OPAL_ERR_IN_PROCESS:
+        retval = "Operation in process";
+        break;
+    case OPAL_ERR_DEBUGGER_RELEASE:
+        retval = "Release debugger";
+        break;
+    case OPAL_ERR_HANDLERS_COMPLETE:
+        retval = "Event handlers complete";
+        break;
+    case OPAL_ERR_PARTIAL_SUCCESS:
+        retval = "Partial success";
+        break;
+    case OPAL_ERR_PROC_ABORTED:
+        retval = "Process abnormally terminated";
+        break;
+    case OPAL_ERR_PROC_REQUESTED_ABORT:
+        retval = "Process requested abort";
+        break;
+    case OPAL_ERR_PROC_ABORTING:
+        retval = "Process is aborting";
+        break;
+    case OPAL_ERR_NODE_DOWN:
+        retval = "Node has gone down";
+        break;
+    case OPAL_ERR_NODE_OFFLINE:
+        retval = "Node has gone offline";
+        break;
+    case OPAL_ERR_JOB_TERMINATED:
+        retval = "Job terminated";
+        break;
+    case OPAL_ERR_PROC_RESTART:
+        retval = "Process restarted";
+        break;
+    case OPAL_ERR_PROC_CHECKPOINT:
+        retval = "Process checkpoint";
+        break;
+    case OPAL_ERR_PROC_MIGRATE:
+        retval = "Process migrate";
+        break;
+    case OPAL_ERR_EVENT_REGISTRATION:
+        retval = "Event registration";
+        break;
     default:
-        retval = NULL;
+        retval = "UNRECOGNIZED";
     }
 
     *errmsg = retval;
@@ -295,15 +343,7 @@ opal_init_util(int* pargc, char*** pargv)
         return OPAL_SUCCESS;
     }
 
-#if OPAL_NO_LIB_DESTRUCTOR
-    if (opal_init_called) {
-        /* can't use show_help here */
-        fprintf (stderr, "opal_init_util: attempted to initialize after finalize without compiler "
-                 "support for either __attribute__(destructor) or linker support for -fini -- process "
-                 "will likely abort\n");
-        return OPAL_ERR_NOT_SUPPORTED;
-    }
-#endif
+    opal_thread_set_main();
 
     opal_init_called = true;
 
@@ -353,6 +393,13 @@ opal_init_util(int* pargc, char*** pargv)
         error = "mca_base_var_init";
         goto return_error;
     }
+
+    /* read any param files that were provided */
+    if (OPAL_SUCCESS != (ret = mca_base_var_cache_files(false))) {
+        error = "failed to cache files";
+        goto return_error;
+    }
+
 
     /* register params for opal */
     if (OPAL_SUCCESS != (ret = opal_register_params())) {
@@ -405,6 +452,13 @@ opal_init_util(int* pargc, char*** pargv)
         goto return_error;
     }
 
+    /* initialize if framework */
+    if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_if_base_framework, 0))) {
+        fprintf(stderr, "opal_if_base_open() failed -- process will likely abort (%s:%d, returned %d instead of OPAL_SUCCESS)\n",
+                __FILE__, __LINE__, ret);
+        return ret;
+    }
+
     return OPAL_SUCCESS;
 
  return_error:
@@ -452,11 +506,6 @@ opal_init(int* pargc, char*** pargv)
         goto return_error;
     }
 
-    if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_patcher_base_framework, 0))) {
-        error = "opal_patcher_base_open";
-        goto return_error;
-    }
-
     /* initialize the memory manager / tracker */
     if (OPAL_SUCCESS != (ret = opal_mem_hooks_init())) {
         error = "opal_mem_hooks_init";
@@ -487,6 +536,8 @@ opal_init(int* pargc, char*** pargv)
 
     /*
      * Need to start the event and progress engines if none else is.
+     * opal_cr_init uses the progress engine, so it is lumped together
+     * into this set as well.
      */
     /*
      * Initialize the event library
@@ -517,13 +568,31 @@ opal_init(int* pargc, char*** pargv)
         goto return_error;
     }
 
-    /* initialize the security framework */
-    if( OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_sec_base_framework, 0)) ) {
-        error = "opal_sec_base_open";
+#if OPAL_ENABLE_FT_CR    == 1
+    /*
+     * Initialize the compression framework
+     * Note: Currently only used in C/R so it has been marked to only
+     *       initialize when C/R is enabled. If other places in the code
+     *       wish to use this framework, it is safe to remove the protection.
+     */
+    if( OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_compress_base_framework, 0)) ) {
+        error = "opal_compress_base_open";
         goto return_error;
     }
-    if( OPAL_SUCCESS != (ret = opal_sec_base_select()) ) {
-        error = "opal_sec_base_select";
+    if( OPAL_SUCCESS != (ret = opal_compress_base_select()) ) {
+        error = "opal_compress_base_select";
+        goto return_error;
+    }
+#endif
+
+    /*
+     * Initalize the checkpoint/restart functionality
+     * Note: Always do this so we can detect if the user
+     * attempts to checkpoint a non checkpointable job,
+     * otherwise the tools may hang or not clean up properly.
+     */
+    if (OPAL_SUCCESS != (ret = opal_cr_init() ) ) {
+        error = "opal_cr_init";
         goto return_error;
     }
 

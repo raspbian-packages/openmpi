@@ -12,13 +12,15 @@ Copyright (c) 2006-2017 Cisco Systems, Inc.  All rights reserved.
 Copyright (c) 2006-2011 Mellanox Technologies. All rights reserved.
 Copyright (c) 2006-2012 Oracle and/or its affiliates.  All rights reserved.
 Copyright (c) 2007      Myricom, Inc.  All rights reserved.
-Copyright (c) 2008-2016 IBM Corporation.  All rights reserved.
+Copyright (c) 2008-2017 IBM Corporation.  All rights reserved.
 Copyright (c) 2010      Oak Ridge National Labs.  All rights reserved.
 Copyright (c) 2011      University of Houston. All rights reserved.
 Copyright (c) 2013-2015 Intel, Inc. All rights reserved
 Copyright (c) 2015      NVIDIA Corporation.  All rights reserved.
 Copyright (c) 2017      Los Alamos National Security, LLC.  All rights
                         reserved.
+Copyright (c) 2017      Research Organization for Information Science
+                        and Technology (RIST). All rights reserved.
 
 $COPYRIGHT$
 
@@ -33,10 +35,6 @@ extra information as possible.  This web page details all the
 information that we request in order to provide assistance:
 
      http://www.open-mpi.org/community/help/
-
-A GitHub issue template is also available to help in providing
-the information needed to triage and hopefully resolve the
-issue.
 
 The best way to report bugs, send comments, or ask questions is to
 sign up on the user's and/or developer's mailing list (for user-level
@@ -88,8 +86,6 @@ General notes
   This OpenSHMEM implementation will only work in Linux environments
   with a restricted set of supported networks.
 
-  See below for details on how to enable the OpenSHMEM implementation.
-
 - Open MPI includes support for a wide variety of supplemental
   hardware and software package.  When configuring Open MPI, you may
   need to supply additional flags to the "configure" script in order
@@ -118,33 +114,49 @@ General notes
 
 - The run-time systems that are currently supported are:
   - rsh / ssh
-  - LoadLeveler
   - PBS Pro, Torque
   - Platform LSF (v7.0.2 and later)
   - SLURM
   - Cray XE, XC, and XK
+  - Oracle Grid Engine (OGE) 6.1, 6.2 and open source Grid Engine
 
 - Systems that have been tested are:
-  - Linux (various flavors/distros), 32 bit, with gcc
   - Linux (various flavors/distros), 64 bit (x86), with gcc, Absoft,
     Intel, and Portland (*)
-  - OS X (10.8, 10.9, 10.10, 10.11), 32 and 64 bit (x86_64), with
-    XCode and Absoft compilers (*)
-  - MacOS (10.12), 64 bit (x85_64) with XCode and Absoft compilers (*)
-  - OpenBSD.  Requires configure option --enable-mca-no-build=patcher
-    with this release.
+  - macOS (10.12), 64 bit (x85_64) with XCode compilers
 
   (*) Be sure to read the Compiler Notes, below.
 
 - Other systems have been lightly (but not fully tested):
+  - Linux (various flavors/distros), 32 bit, with gcc
   - Cygwin 32 & 64 bit with gcc
   - ARMv4, ARMv5, ARMv6, ARMv7, ARMv8
   - Other 64 bit platforms (e.g., Linux on PPC64)
   - Oracle Solaris 10 and 11, 32 and 64 bit (SPARC, i386, x86_64),
     with Oracle Solaris Studio 12.5
+  - OpenBSD.  Requires configure options --enable-mca-no-build=patcher
+    and --disable-slopen with this release.
+  - Problems have been reported when building Open MPI on FreeBSD 11.1
+    using the clang-4.0 system compiler. A workaround is to build
+    Open MPI using the GNU compiler.
+
+Platform Notes
+--------------
+
+- Users on Intel Xeon Phi with XPPSL 1.5.1 will see a warning on job
+  launch from the internal hwloc.  To avoid the warning message, users
+  can build hwloc 1.11.6 externally and tell Open MPI's configure to
+  use the external hwloc with the --with-hwloc=external (if in default
+  search path) or --with-hwloc=<path>.
+- ARM and POWER users may experience intermittent hangs when Open MPI
+  is compiled with low optimization settings, due to an issue with our
+  atomic list implementation.  We recommend compiling with -O3
+  optimization, both for performance reasons and to avoid this hang.
 
 Compiler Notes
 --------------
+
+- Open MPI requires a C99-capable compiler to build.
 
 - Mixing compilers from different vendors when building Open MPI
   (e.g., using the C/C++ compiler from one vendor and the Fortran
@@ -183,8 +195,25 @@ Compiler Notes
   source directory path names that was resolved in 9.0-4 (9.0-3 is
   known to be broken in this regard).
 
-- IBM's xlf compilers: NO known good version that can build/link
-  the MPI f08 bindings or build/link the OpenSHMEM Fortran bindings.
+- OpenSHMEM Fortran bindings do not support the `no underscore` Fortran
+  symbol convention. IBM's xlf compilers build in that mode by default.
+  As such, IBM's xlf compilers cannot build/link the OpenSHMEM Fortran
+  bindings by default. A workaround is to pass FC="xlf -qextname" at
+  configure time to force a trailing underscore. See the issue below
+  for more details:
+  https://github.com/open-mpi/ompi/issues/3612
+
+- MPI applications that use the mpi_f08 module on PowerPC platforms
+  (tested ppc64le) will likely experience runtime failures if:
+   - they are using a GNU linker (ld) version after v2.25.1 and before v2.28,
+     -and-
+   - they compiled with PGI (tested 17.5) or XL (tested v15.1.5) compilers.
+  This was noticed on Ubuntu 16.04 which uses the 2.26.1 version of ld by
+  default. However, this issue impacts any OS using a version of ld noted
+  above. This GNU linker regression will be fixed in version 2.28.
+  Below is a link to the GNU bug on this issue:
+    https://sourceware.org/bugzilla/show_bug.cgi?id=21306
+  The XL compiler will include a fix for this issue in a future release.
 
 - On NetBSD-6 (at least AMD64 and i386), and possibly on OpenBSD,
   libtool misidentifies properties of f95/g95, leading to obscure
@@ -447,6 +476,9 @@ MPI Functionality and Features
 
 - All MPI-3 functionality is supported.
 
+- Rank reordering support is available using the TreeMatch library. It
+  is activated for the graph and dist_graph topologies.
+
 - When using MPI deprecated functions, some compilers will emit
   warnings.  For example:
 
@@ -531,24 +563,6 @@ OpenSHMEM Functionality and Features
 MPI Collectives
 ---------------
 
-- The "hierarch" coll component (i.e., an implementation of MPI
-  collective operations) attempts to discover network layers of
-  latency in order to segregate individual "local" and "global"
-  operations as part of the overall collective operation.  In this
-  way, network traffic can be reduced -- or possibly even minimized
-  (similar to MagPIe).  The current "hierarch" component only
-  separates MPI processes into on- and off-node groups.
-
-  Hierarch has had sufficient correctness testing, but has not
-  received much performance tuning.  As such, hierarch is not
-  activated by default -- it must be enabled manually by setting its
-  priority level to 100:
-
-    mpirun --mca coll_hierarch_priority 100 ...
-
-  We would appreciate feedback from the user community about how well
-  hierarch works for your applications.
-
 - The "fca" coll component: the Mellanox Fabric Collective Accelerator
   (FCA) is a solution for offloading collective operations from the
   MPI process onto Mellanox QDR InfiniBand switch CPUs and HCAs.
@@ -614,19 +628,21 @@ Network Support
       or
       shell$ mpirun --mca pml cm ...
 
-- Similarly, there are two OpenSHMEM network models available: "yoda",
-  and "ikrit". "yoda" also uses the BTL components for supported
-  networks. "ikrit" interfaces directly with Mellanox MXM.
+- Similarly, there are two OpenSHMEM network models available: "ucx",
+  and "ikrit":
+  - "ucx" interfaces directly with UCX;
+  - "ikrit" interfaces directly with Mellanox MXM.
 
-  - "yoda" supports a variety of networks that can be used:
-
-    - OpenFabrics: InfiniBand, iWARP, and RoCE
-    - Loopback (send-to-self)
-    - Shared memory
-    - TCP
-    - usNIC
-
-  - "ikrit" only supports Mellanox MXM.
+- UCX is the Unified Communication X (UCX) communication library 
+  (http://www.openucx.org/).
+  This is an open-source project developed in collaboration between
+  industry, laboratories, and academia to create an open-source
+  production grade communication framework for data centric and 
+  high-performance applications.
+  UCX currently supports:
+  - OFA Verbs;
+  - Cray's uGNI;
+  - NVIDIA CUDA drivers.
 
 - MXM is the Mellanox Messaging Accelerator library utilizing a full
   range of IB transports to provide the following messaging services
@@ -650,6 +666,25 @@ Network Support
   will not work properly with Open MPI v1.2 (and later) due to how its
   Mellanox InfiniBand plugin driver is created.  The problem is fixed
   OFED v1.1 (and later).
+
+- Better memory management support is available for OFED-based
+  transports using the "ummunotify" Linux kernel module.  OFED memory
+  managers are necessary for better bandwidth when re-using the same
+  buffers for large messages (e.g., benchmarks and some applications).
+
+  Unfortunately, the ummunotify module was not accepted by the Linux
+  kernel community (and is still not distributed by OFED).  But it
+  still remains the best memory management solution for MPI
+  applications that used the OFED network transports.  If Open MPI is
+  able to find the <linux/ummunotify.h> header file, it will build
+  support for ummunotify and include it by default.  If MPI processes
+  then find the ummunotify kernel module loaded and active, then their
+  memory managers (which have been shown to be problematic in some
+  cases) will be disabled and ummunotify will be used.  Otherwise, the
+  same memory managers from prior versions of Open MPI will be used.
+  The ummunotify Linux kernel module can be downloaded from:
+
+    http://lwn.net/Articles/343351/
 
 - The use of fork() with OpenFabrics-based networks (i.e., the openib
   BTL) is only partially supported, and only on Linux kernels >=
@@ -795,6 +830,33 @@ INSTALLATION OPTIONS
   Open MPI libraries.  You can control whether Open MPI's libraries
   are build as static or dynamic via --enable|disable-static and
   --enable|disable-shared.
+
+--disable-show-load-errors-by-default
+  Set the default value of the mca_base_component_show_load_errors MCA
+  variable: the --enable form of this option sets the MCA variable to
+  true, the --disable form sets the MCA variable to false.  The MCA
+  mca_base_component_show_load_errors variable can still be overridden
+  at run time via the usual MCA-variable-setting mechanisms; this
+  configure option simply sets the default value.
+
+  The --disable form of this option is intended for Open MPI packagers
+  who tend to enable support for many different types of networks and
+  systems in their packages.  For example, consider a packager who
+  includes support for both the FOO and BAR networks in their Open MPI
+  package, both of which require support libraries (libFOO.so and
+  libBAR.so).  If an end user only has BAR hardware, they likely only
+  have libBAR.so available on their systems -- not libFOO.so.
+  Disabling load errors by default will prevent the user from seeing
+  potentially confusing warnings about the FOO components failing to
+  load because libFOO.so is not available on their systems.
+
+  Conversely, system administrators tend to build an Open MPI that is
+  targeted at their specific environment, and contains few (if any)
+  components that are not needed.  In such cases, they might want
+  their users to be warned that the FOO network components failed to
+  load (e.g., if libFOO.so was mistakenly unavailable), because Open
+  MPI may otherwise silently failover to a slower network path for MPI
+  traffic.
 
 --with-platform=FILE
   Load configure options for the build from FILE.  Options on the
@@ -1026,6 +1088,36 @@ RUN-TIME SYSTEM SUPPORT
 
 MISCELLANEOUS SUPPORT LIBRARIES
 
+--with-blcr=<directory>
+  Specify the directory where the Berkeley Labs Checkpoint / Restart
+  (BLCR) libraries and header files are located.  This option is
+  generally only necessary if the BLCR headers and libraries are not
+  in default compiler/linker search paths.
+
+  This option is only meaningful if the --with-ft option is also used
+  to active Open MPI's fault tolerance behavior.
+
+--with-blcr-libdir=<directory>
+  Look in directory for the BLCR libraries.  By default, Open MPI will
+  look in <blcr directory>/lib and <blcr directory>/lib64, which
+  covers most cases.  This option is only needed for special
+  configurations.
+
+--with-dmtcp=<directory>
+  Specify the directory where the Distributed MultiThreaded
+  Checkpointing (DMTCP) libraries and header files are located.  This
+  option is generally only necessary if the DMTCP headers and
+  libraries are not in default compiler/linker search paths.
+
+  This option is only meaningful if the --with-ft option is also used
+  to active Open MPI's fault tolerance behavior.
+
+--with-dmtcp-libdir=<directory>
+  Look in directory for the DMTCP libraries.  By default, Open MPI
+  will look in <dmtcp directory>/lib and <dmtcp directory>/lib64,
+  which covers most cases.  This option is only needed for special
+  configurations.
+
 --with-libevent(=value)
   This option specifies where to find the libevent support headers and
   library.  The following VALUEs are permitted:
@@ -1142,9 +1234,9 @@ MPI FUNCTIONALITY
 
   If --with-mpi-param is not specified, "runtime" is the default.
 
---enable-mpi-thread-multiple
-  Allows the MPI thread level MPI_THREAD_MULTIPLE.
-  This is currently disabled by default.
+--disable-mpi-thread-multiple
+  Disable the MPI thread level MPI_THREAD_MULTIPLE (it is enabled by
+  default).
 
 --enable-mpi-cxx
   Enable building the C++ MPI bindings (default: disabled).
@@ -1233,6 +1325,11 @@ MISCELLANEOUS FUNCTIONALITY
 
   However, it may be necessary to disable the memory manager in order
   to build Open MPI statically.
+
+--with-ft=TYPE
+  Specify the type of fault tolerance to enable.  Options: LAM
+  (LAM/MPI-like), cr (Checkpoint/Restart).  Fault tolerance support is
+  disabled unless this option is specified.
 
 --enable-peruse
   Enable the PERUSE MPI data analysis interface.
@@ -1896,7 +1993,7 @@ to see what its tunable parameters are.  For example:
   shell$ ompi_info --param btl tcp
 
 shows some of the parameters (and default values) for the tcp btl
-component (use "--level 9" to show *all* the parameters; see below).
+component (use --level to show *all* the parameters; see below).
 
 Note that ompi_info only shows a small number a component's MCA
 parameters by default.  Each MCA parameter has a "level" value from 1

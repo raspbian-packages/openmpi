@@ -2,14 +2,14 @@
 /*
  * Copyright (c) 2004-2007 The Trustees of Indiana University.
  *                         All rights reserved.
- * Copyright (c) 2004-2008 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2007-2016 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2007-2017 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2006-2008 University of Houston.  All rights reserved.
  * Copyright (c) 2010      Oracle and/or its affiliates.  All rights reserved.
@@ -446,7 +446,7 @@ static int allocate_state_single (ompi_osc_rdma_module_t *module, void **base, s
     my_peer->flags |= OMPI_OSC_RDMA_PEER_LOCAL_BASE;
     my_peer->state = (uint64_t) (uintptr_t) module->state;
 
-    if (module->selected_btl->btl_flags & MCA_BTL_ATOMIC_SUPPORTS_GLOB) {
+    if (module->use_cpu_atomics) {
         /* all peers are local or it is safe to mix cpu and nic atomics */
         my_peer->flags |= OMPI_OSC_RDMA_PEER_LOCAL_STATE;
     } else {
@@ -483,11 +483,10 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
     unsigned long offset, total_size;
     unsigned long state_base, data_base;
     int local_rank, local_size, ret;
-    size_t local_rank_array_size, leader_peer_data_size;
+    size_t local_rank_array_size, leader_peer_data_size, my_base_offset = 0;
     int my_rank = ompi_comm_rank (module->comm);
     int global_size = ompi_comm_size (module->comm);
     ompi_osc_rdma_region_t *state_region;
-    int my_base_offset = 0;
     struct _local_data *temp;
     char *data_file;
 
@@ -495,6 +494,9 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
 
     local_rank = ompi_comm_rank (shared_comm);
     local_size = ompi_comm_size (shared_comm);
+
+    /* CPU atomics can be used if every process is on the same node or the NIC allows mixing CPU and NIC atomics */
+    module->use_cpu_atomics = local_size == global_size || (module->selected_btl->btl_flags & MCA_BTL_ATOMIC_SUPPORTS_GLOB);
 
     if (1 == local_size) {
         /* no point using a shared segment if there are no other processes on this node */
@@ -521,8 +523,8 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
         temp[local_rank].size = size;
 
         /* gather the local sizes and ranks */
-        ret = shared_comm->c_coll.coll_allgather (MPI_IN_PLACE, sizeof (*temp), MPI_BYTE, temp, sizeof (*temp),
-                                                  MPI_BYTE, shared_comm, shared_comm->c_coll.coll_allgather_module);
+        ret = shared_comm->c_coll->coll_allgather (MPI_IN_PLACE, sizeof (*temp), MPI_BYTE, temp, sizeof (*temp),
+                                                  MPI_BYTE, shared_comm, shared_comm->c_coll->coll_allgather_module);
         if (OMPI_SUCCESS != ret) {
             break;
         }
@@ -557,8 +559,8 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
             }
         }
 
-        ret = module->comm->c_coll.coll_bcast (&module->seg_ds, sizeof (module->seg_ds), MPI_BYTE, 0,
-                                               shared_comm, shared_comm->c_coll.coll_bcast_module);
+        ret = module->comm->c_coll->coll_bcast (&module->seg_ds, sizeof (module->seg_ds), MPI_BYTE, 0,
+                                               shared_comm, shared_comm->c_coll->coll_bcast_module);
         if (OMPI_SUCCESS != ret) {
             break;
         }
@@ -607,7 +609,7 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
         }
 
         /* barrier to make sure all ranks have attached */
-        shared_comm->c_coll.coll_barrier(shared_comm, shared_comm->c_coll.coll_barrier_module);
+        shared_comm->c_coll->coll_barrier(shared_comm, shared_comm->c_coll->coll_barrier_module);
 
         /* unlink the shared memory backing file */
         if (0 == local_rank) {
@@ -625,13 +627,15 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
             }
         }
 
-        /* barrier to make sure all ranks have attached */
-        shared_comm->c_coll.coll_barrier(shared_comm, shared_comm->c_coll.coll_barrier_module);
+        /* barrier to make sure all ranks have set up their region data */
+        shared_comm->c_coll->coll_barrier(shared_comm, shared_comm->c_coll->coll_barrier_module);
 
         offset = data_base;
         for (int i = 0 ; i < local_size ; ++i) {
+            /* local pointer to peer's state */
+            ompi_osc_rdma_state_t *peer_state = (ompi_osc_rdma_state_t *) ((uintptr_t) module->segment_base + state_base + module->state_size * i);
+            ompi_osc_rdma_region_t *peer_region = (ompi_osc_rdma_region_t *) peer_state->regions;
             ompi_osc_rdma_peer_extended_t *ex_peer;
-            ompi_osc_rdma_state_t *peer_state;
             ompi_osc_rdma_peer_t *peer;
             int peer_rank = temp[i].rank;
 
@@ -642,13 +646,12 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
 
             ex_peer = (ompi_osc_rdma_peer_extended_t *) peer;
 
-            /* peer state local pointer */
-            peer_state = (ompi_osc_rdma_state_t *) ((uintptr_t) module->segment_base + state_base + module->state_size * i);
-
-            if (local_size == global_size || (module->selected_btl->btl_flags & MCA_BTL_ATOMIC_SUPPORTS_GLOB)) {
+            /* set up peer state */
+            if (module->use_cpu_atomics) {
                 /* all peers are local or it is safe to mix cpu and nic atomics */
                 peer->flags |= OMPI_OSC_RDMA_PEER_LOCAL_STATE;
                 peer->state = (osc_rdma_counter_t) peer_state;
+                peer->state_endpoint = NULL;
             } else {
                 /* use my endpoint handle to modify the peer's state */
                 if (module->selected_btl->btl_register_mem) {
@@ -658,38 +661,39 @@ static int allocate_state_shared (ompi_osc_rdma_module_t *module, void **base, s
                 peer->state_endpoint = ompi_osc_rdma_peer_btl_endpoint (module, temp[0].rank);
             }
 
-            /* finish setting up the local peer structure */
-            if (MPI_WIN_FLAVOR_DYNAMIC != module->flavor) {
-                if (!module->same_disp_unit) {
-                    ex_peer->disp_unit = peer_state->disp_unit;
-                }
+            if (MPI_WIN_FLAVOR_DYNAMIC == module->flavor || MPI_WIN_FLAVOR_CREATE == module->flavor) {
+                /* use the peer's BTL endpoint directly */
+                peer->data_endpoint = ompi_osc_rdma_peer_btl_endpoint (module, peer_rank);
+            } else if (!module->use_cpu_atomics && temp[i].size) {
+                /* use the local leader's endpoint */
+                peer->data_endpoint = ompi_osc_rdma_peer_btl_endpoint (module, temp[0].rank);
+            }
 
-                if (!module->same_size) {
-                    ex_peer->size = temp[i].size;
-                }
+            ompi_osc_module_add_peer (module, peer);
 
-                if (my_rank == peer_rank) {
-                    peer->flags |= OMPI_OSC_RDMA_PEER_LOCAL_BASE;
-                }
+            if (MPI_WIN_FLAVOR_DYNAMIC == module->flavor || 0 == temp[i].size) {
+                /* nothing more to do */
+                continue;
+            }
 
-                if (MPI_WIN_FLAVOR_ALLOCATE == module->flavor) {
-                    if (temp[i].size) {
-                        ex_peer->super.base = state_region->base + offset;
-                        offset += temp[i].size;
-                    } else {
-                        ex_peer->super.base = 0;
-                    }
-                }
+            /* finish setting up the local peer structure for win allocate/create */
+            if (!(module->same_disp_unit && module->same_size)) {
+                ex_peer->disp_unit = peer_state->disp_unit;
+                ex_peer->size = temp[i].size;
+            }
 
-                ompi_osc_rdma_region_t *peer_region = (ompi_osc_rdma_region_t *) peer_state->regions;
-
+            if (module->use_cpu_atomics && MPI_WIN_FLAVOR_ALLOCATE == module->flavor) {
+                /* base is local and cpu atomics are available */
+                ex_peer->super.base = (uintptr_t) module->segment_base + offset;
+                peer->flags |= OMPI_OSC_RDMA_PEER_LOCAL_BASE;
+                offset += temp[i].size;
+            } else {
                 ex_peer->super.base = peer_region->base;
+
                 if (module->selected_btl->btl_register_mem) {
                     ex_peer->super.base_handle = (mca_btl_base_registration_handle_t *) peer_region->btl_handle_data;
                 }
             }
-
-            ompi_osc_module_add_peer (module, peer);
         }
     } while (0);
 
@@ -858,8 +862,8 @@ static int ompi_osc_rdma_share_data (ompi_osc_rdma_module_t *module)
         temp[my_rank].node_id = module->node_id;
         temp[my_rank].rank = ompi_comm_rank (module->shared_comm);
 
-        ret = module->comm->c_coll.coll_allgather (MPI_IN_PLACE, 1, MPI_2INT, temp, 1, MPI_2INT,
-                                                   module->comm, module->comm->c_coll.coll_allgather_module);
+        ret = module->comm->c_coll->coll_allgather (MPI_IN_PLACE, 1, MPI_2INT, temp, 1, MPI_2INT,
+                                                   module->comm, module->comm->c_coll->coll_allgather_module);
         if (OMPI_SUCCESS != ret) {
             break;
         }
@@ -879,9 +883,9 @@ static int ompi_osc_rdma_share_data (ompi_osc_rdma_module_t *module)
 
             /* gather state data at each node leader */
             if (ompi_comm_size (module->local_leaders) > 1) {
-                ret = module->local_leaders->c_coll.coll_allgather (MPI_IN_PLACE, module->region_size, MPI_BYTE, module->node_comm_info,
+                ret = module->local_leaders->c_coll->coll_allgather (MPI_IN_PLACE, module->region_size, MPI_BYTE, module->node_comm_info,
                                                                     module->region_size, MPI_BYTE, module->local_leaders,
-                                                                    module->local_leaders->c_coll.coll_allgather_module);
+                                                                    module->local_leaders->c_coll->coll_allgather_module);
                 if (OMPI_SUCCESS != ret) {
                     OSC_RDMA_VERBOSE(MCA_BASE_VERBOSE_ERROR, "leader allgather failed with ompi error code %d", ret);
                     break;
@@ -905,8 +909,8 @@ static int ompi_osc_rdma_share_data (ompi_osc_rdma_module_t *module)
     } while (0);
 
 
-    ret = module->comm->c_coll.coll_allreduce (&ret, &global_result, 1, MPI_INT, MPI_MIN, module->comm,
-                                               module->comm->c_coll.coll_allreduce_module);
+    ret = module->comm->c_coll->coll_allreduce (&ret, &global_result, 1, MPI_INT, MPI_MIN, module->comm,
+                                               module->comm->c_coll->coll_allreduce_module);
 
     if (OMPI_SUCCESS != ret) {
         global_result = ret;
@@ -953,8 +957,8 @@ static int ompi_osc_rdma_create_groups (ompi_osc_rdma_module_t *module)
     }
 
     if (ompi_comm_size (module->shared_comm) > 1) {
-        ret = module->shared_comm->c_coll.coll_bcast (values, 2, MPI_INT, 0, module->shared_comm,
-                                                      module->shared_comm->c_coll.coll_bcast_module);
+        ret = module->shared_comm->c_coll->coll_bcast (values, 2, MPI_INT, 0, module->shared_comm,
+                                                      module->shared_comm->c_coll->coll_bcast_module);
         if (OMPI_SUCCESS != ret) {
             OSC_RDMA_VERBOSE(MCA_BASE_VERBOSE_ERROR, "failed to broadcast local data. error code %d", ret);
             return ret;
@@ -993,8 +997,8 @@ static int ompi_osc_rdma_check_parameters (ompi_osc_rdma_module_t *module, int d
     values[2] = size;
     values[3] = -(ssize_t) size;
 
-    ret = module->comm->c_coll.coll_allreduce (MPI_IN_PLACE, values, 4, MPI_LONG, MPI_MIN, module->comm,
-                                               module->comm->c_coll.coll_allreduce_module);
+    ret = module->comm->c_coll->coll_allreduce (MPI_IN_PLACE, values, 4, MPI_LONG, MPI_MIN, module->comm,
+                                               module->comm->c_coll->coll_allreduce_module);
     if (OMPI_SUCCESS != ret) {
         return ret;
     }
@@ -1230,8 +1234,8 @@ static int ompi_osc_rdma_set_info (struct ompi_win_t *win, struct ompi_info_t *i
     }
 
     /* enforce collectiveness... */
-    return module->comm->c_coll.coll_barrier(module->comm,
-                                             module->comm->c_coll.coll_barrier_module);
+    return module->comm->c_coll->coll_barrier(module->comm,
+                                             module->comm->c_coll->coll_barrier_module);
 }
 
 

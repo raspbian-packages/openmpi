@@ -35,6 +35,7 @@
 #include "opal/prefetch.h"
 #include "opal/class/opal_object.h"
 #include "opal/class/opal_pointer_array.h"
+#include "opal/mca/pmix/pmix.h"
 
 #include "ompi/runtime/mpiruntime.h"
 #include "ompi/errhandler/errhandler_predefined.h"
@@ -236,6 +237,7 @@ struct ompi_request_t;
 #define OMPI_ERRHANDLER_CHECK(rc, mpi_object, err_code, message) \
   if( OPAL_UNLIKELY(rc != OMPI_SUCCESS) ) { \
     int __mpi_err_code = ompi_errcode_get_mpi_code(err_code);         \
+    OPAL_CR_EXIT_LIBRARY() \
     ompi_errhandler_invoke((mpi_object)->error_handler, \
 			   (mpi_object), \
                            (int) (mpi_object)->errhandler_type, \
@@ -260,6 +262,7 @@ struct ompi_request_t;
  * MPI_SUCCESS.
  */
 #define OMPI_ERRHANDLER_RETURN(rc, mpi_object, err_code, message) \
+  OPAL_CR_EXIT_LIBRARY() \
   if ( OPAL_UNLIKELY(OMPI_SUCCESS != rc) ) { \
     int __mpi_err_code = ompi_errcode_get_mpi_code(err_code);         \
     ompi_errhandler_invoke((mpi_object)->error_handler, \
@@ -365,29 +368,28 @@ struct ompi_request_t;
                                             ompi_errhandler_lang_t language);
 
 /**
- * Callback function from runtime layer to alert the MPI layer of an error at
- * the runtime layer.
- *
- * @param errors A pointer array containing structs of type
- *               ompi_rte_error_report_t that consists of at least
- *               {
- *                  ompi_process_name_t proc;
- *                  int errcode;
- *               }
- *               Each RTE is allowed to add additional information
- *               as required
+ * Callback function to alert the MPI layer of an error or notification
+ * from the internal RTE and/or the resource manager.
  *
  * This function is used to alert the MPI layer to a specific fault detected by the
- * runtime layer. This could be a process failure, a lost connection, or the inability
+ * runtime layer or host RM. This could be a process failure, a lost connection, or the inability
  * to send an OOB message. The MPI layer has the option to perform whatever actions it
  * needs to stabilize itself and continue running, abort, etc.
- *
- * Upon completion, the error handler should return OMPI_SUCCESS if the error has
- * been resolved and no further callbacks are to be executed. Return of any other
- * value will cause the RTE to continue executing error callbacks.
  */
-OMPI_DECLSPEC int ompi_errhandler_runtime_callback(opal_pointer_array_t *errors);
+typedef struct {
+    volatile bool active;
+    int status;
+} ompi_errhandler_errtrk_t;
 
+OMPI_DECLSPEC void ompi_errhandler_callback(int status,
+                                            const opal_process_name_t *source,
+                                            opal_list_t *info, opal_list_t *results,
+                                            opal_pmix_notification_complete_fn_t cbfunc,
+                                            void *cbdata);
+
+OMPI_DECLSPEC void ompi_errhandler_registration_callback(int status,
+                                                         size_t errhandler_ref,
+                                                         void *cbdata);
 /**
  * Check to see if an errhandler is intrinsic.
  *

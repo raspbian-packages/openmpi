@@ -4,10 +4,10 @@ Bug-Origin: https://github.com/open-mpi/ompi/issues/3442
 Forwarded: yes
 Last-Updated: 2017-05-03
 
-Index: openmpi-2.1.1~rc1/opal/include/opal/sys/arm64/atomic.h
+Index: openmpi-3.0.1~rc1/opal/include/opal/sys/arm64/atomic.h
 ===================================================================
---- openmpi-2.1.1~rc1.orig/opal/include/opal/sys/arm64/atomic.h
-+++ openmpi-2.1.1~rc1/opal/include/opal/sys/arm64/atomic.h
+--- openmpi-3.0.1~rc1.orig/opal/include/opal/sys/arm64/atomic.h
++++ openmpi-3.0.1~rc1/opal/include/opal/sys/arm64/atomic.h
 @@ -25,6 +25,9 @@
  
  #define OPAL_SYS_ARCH_ATOMIC_H 1

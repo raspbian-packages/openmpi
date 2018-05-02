@@ -13,8 +13,6 @@
  * Copyright (c) 2006-2008 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2010-2012 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2012      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2015      Los Alamos National Security, LLC.  All rights
- *                         reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -27,6 +25,8 @@
 #include "ompi/request/request.h"
 #include "ompi/request/request_default.h"
 #include "ompi/request/grequest.h"
+
+#include "ompi/mca/crcp/crcp.h"
 
 int ompi_request_default_test(ompi_request_t ** rptr,
                               int *completed,
@@ -49,6 +49,11 @@ int ompi_request_default_test(ompi_request_t ** rptr,
     }
 
     if( REQUEST_COMPLETE(request) ) {
+#if OPAL_ENABLE_FT_CR == 1
+        if( opal_cr_is_enabled) {
+            OMPI_CRCP_REQUEST_COMPLETE(request);
+        }
+#endif
 
         *completed = true;
         /* For a generalized request, we *have* to call the query_fn
@@ -119,6 +124,11 @@ int ompi_request_default_test_any(
         }
 
         if( REQUEST_COMPLETE(request) ) {
+#if OPAL_ENABLE_FT_CR == 1
+            if( opal_cr_is_enabled) {
+                OMPI_CRCP_REQUEST_COMPLETE(request);
+            }
+#endif
 
             *index = i;
             *completed = true;
@@ -224,6 +234,11 @@ int ompi_request_default_test_all(
             if (OMPI_REQUEST_GEN == request->req_type) {
                 ompi_grequest_invoke_query(request, &request->req_status);
             }
+#if OPAL_ENABLE_FT_CR == 1
+            if( opal_cr_is_enabled) {
+                OMPI_CRCP_REQUEST_COMPLETE(request);
+            }
+#endif
             statuses[i] = request->req_status;
             if( request->req_persistent ) {
                 request->req_state = OMPI_REQUEST_INACTIVE;
@@ -254,6 +269,11 @@ int ompi_request_default_test_all(
             if (OMPI_REQUEST_GEN == request->req_type) {
                 ompi_grequest_invoke_query(request, &request->req_status);
             }
+#if OPAL_ENABLE_FT_CR == 1
+            if( opal_cr_is_enabled) {
+                OMPI_CRCP_REQUEST_COMPLETE(request);
+            }
+#endif
             if( request->req_persistent ) {
                 request->req_state = OMPI_REQUEST_INACTIVE;
                 continue;
@@ -281,7 +301,7 @@ int ompi_request_default_test_some(
     int * indices,
     ompi_status_public_t * statuses)
 {
-    size_t i, num_requests_null_inactive=0, num_requests_done = 0;
+    size_t i, num_requests_null_inactive = 0, num_requests_done = 0;
     int rc = OMPI_SUCCESS;
     ompi_request_t **rptr;
     ompi_request_t *request;
@@ -295,6 +315,11 @@ int ompi_request_default_test_some(
             continue;
         }
         if( REQUEST_COMPLETE(request) ) {
+#if OPAL_ENABLE_FT_CR == 1
+            if( opal_cr_is_enabled) {
+                OMPI_CRCP_REQUEST_COMPLETE(request);
+            }
+#endif
             indices[num_requests_done++] = i;
         }
     }

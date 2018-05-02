@@ -14,6 +14,8 @@
  * Copyright (c) 2006-2009 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2012-2013 Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2015      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -72,13 +74,15 @@ int MPI_Group_incl(MPI_Group group, int n, const int ranks[], MPI_Group *new_gro
                                              FUNC_NAME);
           }
       }
-  }  /* end if( MPI_CHECK_ARGS) */
+  }  /* end if( MPI_PARAM_CHECK ) */
 
   if ( 0 == n ) {
       *new_group = MPI_GROUP_EMPTY;
       OBJ_RETAIN(MPI_GROUP_EMPTY);
       return MPI_SUCCESS;
   }
+
+  OPAL_CR_ENTER_LIBRARY();
 
   err = ompi_group_incl(group,n,ranks,new_group);
   OMPI_ERRHANDLER_RETURN(err, MPI_COMM_WORLD,err,FUNC_NAME);

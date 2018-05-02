@@ -9,9 +9,11 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2011-2012 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2011-2017 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2014-2015 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2015      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -28,35 +30,11 @@
 #include "opal/util/if.h"
 
 #include "orte/mca/errmgr/errmgr.h"
+#include "orte/mca/rmaps/base/base.h"
 #include "orte/util/name_fns.h"
 #include "orte/runtime/orte_globals.h"
 
 #include "orte/mca/ras/base/ras_private.h"
-
-static void orte_ras_base_proc_construct(orte_ras_proc_t* proc)
-{
-    proc->node_name = NULL;
-    proc->cpu_list = NULL;
-    proc->rank = ORTE_VPID_MAX;
-}
-
-static void orte_ras_base_proc_destruct(orte_ras_proc_t* proc)
-{
-    if (NULL != proc->node_name) {
-        free(proc->node_name);
-    }
-    if (NULL != proc->cpu_list) {
-        free(proc->cpu_list);
-    }
-}
-
-
-OBJ_CLASS_INSTANCE(
-    orte_ras_proc_t,
-    opal_list_item_t,
-    orte_ras_base_proc_construct,
-    orte_ras_base_proc_destruct);
-
 
 /*
  * Add the specified node definitions to the global data store
@@ -67,9 +45,9 @@ int orte_ras_base_node_insert(opal_list_t* nodes, orte_job_t *jdata)
     opal_list_item_t* item;
     orte_std_cntr_t num_nodes;
     int rc, i;
-    orte_node_t *node, *hnp_node;
+    orte_node_t *node, *hnp_node, *nptr;
     char *ptr;
-    bool hnp_alone = true;
+    bool hnp_alone = true, skiphnp = false;
     orte_attribute_t *kv;
     char **alias=NULL, **nalias;
 
@@ -84,16 +62,40 @@ int orte_ras_base_node_insert(opal_list_t* nodes, orte_job_t *jdata)
                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                          (long)num_nodes));
 
+    /* mark the job as being a large-cluster sim if that was requested */
+    if (1 < orte_ras_base.multiplier) {
+        orte_set_attribute(&jdata->attributes, ORTE_JOB_MULTI_DAEMON_SIM,
+                           ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
+    }
+
     /* set the size of the global array - this helps minimize time
      * spent doing realloc's
      */
-    if (ORTE_SUCCESS != (rc = opal_pointer_array_set_size(orte_node_pool, num_nodes))) {
+    if (ORTE_SUCCESS != (rc = opal_pointer_array_set_size(orte_node_pool, num_nodes * orte_ras_base.multiplier))) {
         ORTE_ERROR_LOG(rc);
         return rc;
     }
 
     /* get the hnp node's info */
     hnp_node = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, 0);
+
+    if ((orte_ras_base.launch_orted_on_hn == true) &&
+        (orte_managed_allocation)) {
+        if (NULL != hnp_node) {
+            OPAL_LIST_FOREACH(node, nodes, orte_node_t) {
+                if (orte_ifislocal(node->name)) {
+                    orte_hnp_is_allocated = true;
+                    break;
+                }
+            }
+            if (orte_hnp_is_allocated && !(ORTE_GET_MAPPING_DIRECTIVE(orte_rmaps_base.mapping) &
+                ORTE_MAPPING_NO_USE_LOCAL)) {
+                hnp_node->name = strdup("mpirun");
+                skiphnp = true;
+                ORTE_SET_MAPPING_DIRECTIVE(orte_rmaps_base.mapping, ORTE_MAPPING_NO_USE_LOCAL);
+            }
+        }
+    }
 
     /* cycle through the list */
     while (NULL != (item = opal_list_remove_first(nodes))) {
@@ -103,7 +105,7 @@ int orte_ras_base_node_insert(opal_list_t* nodes, orte_job_t *jdata)
          * first position since it is the first one entered. We need to check to see
          * if this node is the same as the HNP's node so we don't double-enter it
          */
-        if (NULL != hnp_node && orte_ifislocal(node->name)) {
+        if (!skiphnp && NULL != hnp_node && orte_ifislocal(node->name)) {
             OPAL_OUTPUT_VERBOSE((5, orte_ras_base_framework.framework_output,
                                  "%s ras:base:node_insert updating HNP [%s] info to %ld slots",
                                  ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
@@ -162,6 +164,12 @@ int orte_ras_base_node_insert(opal_list_t* nodes, orte_job_t *jdata)
             }
             /* don't keep duplicate copy */
             OBJ_RELEASE(node);
+            /* create copies, if required */
+            for (i=1; i < orte_ras_base.multiplier; i++) {
+                opal_dss.copy((void**)&node, hnp_node, ORTE_NODE);
+                ORTE_FLAG_UNSET(node, ORTE_NODE_FLAG_DAEMON_LAUNCHED);
+                node->index = opal_pointer_array_add(orte_node_pool, node);
+            }
         } else {
             /* insert the object onto the orte_nodes global array */
             OPAL_OUTPUT_VERBOSE((5, orte_ras_base_framework.framework_output,
@@ -189,14 +197,18 @@ int orte_ras_base_node_insert(opal_list_t* nodes, orte_job_t *jdata)
             }
             /* indicate the HNP is not alone */
             hnp_alone = false;
-        }
+            for (i=1; i < orte_ras_base.multiplier; i++) {
+                opal_dss.copy((void**)&nptr, node, ORTE_NODE);
+                nptr->index = opal_pointer_array_add(orte_node_pool, nptr);
+            }
+       }
     }
 
     /* if we didn't find any fqdn names in the allocation, then
      * ensure we don't have any domain info in the node record
      * for the hnp
      */
-    if (!orte_have_fqdn_allocation && !hnp_alone) {
+    if (NULL != hnp_node && !orte_have_fqdn_allocation && !hnp_alone) {
         if (NULL != (ptr = strchr(hnp_node->name, '.'))) {
             *ptr = '\0';
         }

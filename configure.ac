@@ -3,7 +3,7 @@
 # Copyright (c) 2004-2009 The Trustees of Indiana University and Indiana
 #                         University Research and Technology
 #                         Corporation.  All rights reserved.
-# Copyright (c) 2004-2014 The University of Tennessee and The University
+# Copyright (c) 2004-2015 The University of Tennessee and The University
 #                         of Tennessee Research Foundation.  All rights
 #                         reserved.
 # Copyright (c) 2004-2007 High Performance Computing Center Stuttgart,
@@ -19,10 +19,10 @@
 # Copyright (c) 2012      Oracle and/or its affiliates.  All rights reserved.
 # Copyright (c) 2013      Mellanox Technologies, Inc.
 #                         All rights reserved.
-# Copyright (c) 2013-2014 Intel, Inc.  All rights reserved.
-# Copyright (c) 2014-2016 Research Organization for Information Science
+# Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+# Copyright (c) 2014-2017 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
-# Copyright (c) 2016      IBM Corporation.  All rights reserved.
+# Copyright (c) 2016-2017 IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -55,6 +55,8 @@ AC_PREREQ(2.60)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR(config)
 
+OPAL_CAPTURE_CONFIGURE_CLI([OPAL_CONFIGURE_CLI])
+
 # Get our platform support file.  This has to be done very, very early
 # because it twiddles random bits of autoconf
 OPAL_LOAD_PLATFORM
@@ -82,6 +84,18 @@ AS_IF([test "$host" != "$target"],
       [AC_MSG_WARN([Cross-compile detected])
        AC_MSG_WARN([Cross-compiling is only partially supported])
        AC_MSG_WARN([Proceed at your own risk!])])
+# Check for architectures that we explicitly no longer support
+case "${host}" in
+    powerpc-*|powerpc64-*|ppc-*)
+        AC_MSG_WARN([Big endian PPC is no longer offically supported.])
+        ;;
+esac
+case "${target}" in
+    powerpc-*|powerpc64-*|ppc-*)
+        AC_MSG_WARN([Big endian PPC is no longer officially supported.])
+        ;;
+esac
+
 # AC_USE_SYSTEM_EXTENSIONS alters CFLAGS (e.g., adds -g -O2)
 OPAL_VAR_SCOPE_PUSH([CFLAGS_save])
 CFLAGS_save=$CFLAGS
@@ -155,6 +169,7 @@ AC_SUBST(libmca_opal_common_sm_so_version)
 AC_SUBST(libmca_opal_common_ugni_so_version)
 AC_SUBST(libmca_opal_common_verbs_so_version)
 AC_SUBST(libmca_orte_common_alps_so_version)
+AC_SUBST(libmca_ompi_common_ompio_so_version)
 
 #
 # Get the versions of the autotools that were used to bootstrap us
@@ -382,6 +397,7 @@ AC_CHECK_TYPES(ptrdiff_t)
 # Check for type sizes
 #
 
+AC_CHECK_SIZEOF(_Bool)
 AC_CHECK_SIZEOF(char)
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
@@ -416,6 +432,8 @@ if test "$ac_cv_type_ssize_t" = yes ; then
 fi
 if test "$ac_cv_type_ptrdiff_t" = yes; then
     AC_CHECK_SIZEOF(ptrdiff_t)
+else
+    AC_MSG_ERROR([ptrdiff_t type is not available, this is required by C99 standard.  Cannot continue])
 fi
 AC_CHECK_SIZEOF(wchar_t)
 
@@ -426,7 +444,7 @@ AC_CHECK_SIZEOF(pid_t)
 # Check for type alignments
 #
 
-OPAL_C_GET_ALIGNMENT(_Bool, OPAL_ALIGNMENT_BOOL)
+OPAL_C_GET_ALIGNMENT(bool, OPAL_ALIGNMENT_BOOL)
 OPAL_C_GET_ALIGNMENT(int8_t, OPAL_ALIGNMENT_INT8)
 OPAL_C_GET_ALIGNMENT(int16_t, OPAL_ALIGNMENT_INT16)
 OPAL_C_GET_ALIGNMENT(int32_t, OPAL_ALIGNMENT_INT32)
@@ -466,23 +484,6 @@ fi
 
 OPAL_C_GET_ALIGNMENT(void *, OPAL_ALIGNMENT_VOID_P)
 OPAL_C_GET_ALIGNMENT(size_t, OPAL_ALIGNMENT_SIZE_T)
-
-#
-# Does the C compiler native support "bool"? (i.e., without
-# <stdbool.h> or any other help)
-#
-
-OPAL_VAR_SCOPE_PUSH([MSG])
-AC_MSG_CHECKING(for C bool type)
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
-AC_INCLUDES_DEFAULT],
-[[bool bar, foo = true; bar = foo;]])],
-[OPAL_NEED_C_BOOL=0 MSG=yes],[OPAL_NEED_C_BOOL=1 MSG=no])
-AC_DEFINE_UNQUOTED(OPAL_NEED_C_BOOL, $OPAL_NEED_C_BOOL,
-    [Whether the C compiler supports "bool" without any other help (such as <stdbool.h>)])
-AC_MSG_RESULT([$MSG])
-AC_CHECK_SIZEOF(_Bool)
-OPAL_VAR_SCOPE_POP
 
 #
 # Check for other compiler characteristics
@@ -527,6 +528,9 @@ OPAL_CHECK_OFFSETOF
 # OPAL...?  Shrug.
 m4_ifdef([project_ompi], [OPAL_SETUP_CXX
                           OMPI_SETUP_CXX])
+# Used in Makefile.ompi-rules
+AM_CONDITIONAL(MAN_PAGE_BUILD_MPI_CXX_BINDINGS,
+               [test "$WANT_MPI_CXX_SUPPORT" = 1])
 
 ##################################
 # Only after setting up both
@@ -569,7 +573,15 @@ OPAL_CONFIG_ASM
 # Fortran
 ##################################
 
+OMPI_BUILD_FORTRAN_BINDINGS=0
+
 m4_ifdef([project_ompi], [OMPI_SETUP_MPI_FORTRAN], [ompi_fortran_happy=0])
+
+# Used in Makefile.ompi-rules
+AM_CONDITIONAL(MAN_PAGE_BUILD_MPIFH_BINDINGS,
+              [test $OMPI_BUILD_FORTRAN_BINDINGS -gt $OMPI_FORTRAN_NO_BINDINGS])
+AM_CONDITIONAL(MAN_PAGE_BUILD_USEMPIF08_BINDINGS,
+              [test $OMPI_BUILD_FORTRAN_BINDINGS -ge $OMPI_FORTRAN_USEMPIF08_BINDINGS])
 
 AM_CONDITIONAL(OSHMEM_BUILD_FORTRAN_BINDINGS,
     [test "$enable_oshmem" = "yes" && \
@@ -588,17 +600,18 @@ AC_CACHE_SAVE
 opal_show_title "Header file tests"
 
 AC_CHECK_HEADERS([alloca.h aio.h arpa/inet.h dirent.h \
-    dlfcn.h execinfo.h err.h fcntl.h grp.h libgen.h \
+    dlfcn.h endian.h execinfo.h err.h fcntl.h grp.h libgen.h \
     libutil.h memory.h netdb.h netinet/in.h netinet/tcp.h \
     poll.h pthread.h pty.h pwd.h sched.h \
-    strings.h stropts.h sys/fcntl.h sys/ipc.h sys/shm.h \
+    strings.h stropts.h linux/ethtool.h linux/sockios.h \
+    sys/fcntl.h sys/ipc.h sys/shm.h \
     sys/ioctl.h sys/mman.h sys/param.h sys/queue.h \
     sys/resource.h sys/select.h sys/socket.h sys/sockio.h \
     sys/stat.h sys/statfs.h sys/statvfs.h sys/time.h sys/tree.h \
     sys/types.h sys/uio.h sys/un.h net/uio.h sys/utsname.h sys/vfs.h sys/wait.h syslog.h \
     termios.h ulimit.h unistd.h util.h utmp.h malloc.h \
     ifaddrs.h crt_externs.h regex.h mntent.h paths.h \
-    ioLib.h sockLib.h hostLib.h shlwapi.h sys/synch.h db.h ndbm.h])
+    ioLib.h sockLib.h hostLib.h shlwapi.h sys/synch.h db.h ndbm.h zlib.h ieee754.h])
 
 AC_CHECK_HEADERS([sys/mount.h], [], [],
 [AC_INCLUDES_DEFAULT
@@ -631,37 +644,6 @@ AC_CHECK_HEADERS([net/if.h], [], [],
 #endif
 ])
 
-# Note that sometimes we have <stdbool.h>, but it doesn't work (e.g.,
-# have both Portland and GNU installed; using pgcc will find GNU's
-# <stdbool.h>, which all it does -- by standard -- is define "bool" to
-# "_Bool" [see
-# http://www.opengroup.org/onlinepubs/009695399/basedefs/stdbool.h.html],
-# and Portland has no idea what to do with _Bool).
-
-# So first figure out if we have <stdbool.h> (i.e., check the value of
-# the macro HAVE_STDBOOL_H from the result of AC_CHECK_HEADERS,
-# above).  If we do have it, then check to see if it actually works.
-# Define OPAL_USE_STDBOOL_H as approrpaite.
-AC_CHECK_HEADERS([stdbool.h], [have_stdbool_h=1], [have_stdbool_h=0])
-OPAL_VAR_SCOPE_PUSH([MSG])
-AC_MSG_CHECKING([if <stdbool.h> works])
-if test "$have_stdbool_h" = "1"; then
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
-AC_INCLUDES_DEFAULT[
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#endif]],
-[[bool bar, foo = true; bar = foo;]])],
-[OPAL_USE_STDBOOL_H=1 MSG=yes],[OPAL_USE_STDBOOL_H=0 MSG=no])
-else
-    OPAL_USE_STDBOOL_H=0
-    MSG="no (do not have <stdbool.h>)"
-fi
-AC_DEFINE_UNQUOTED(OPAL_USE_STDBOOL_H, $OPAL_USE_STDBOOL_H,
-    [Whether to use <stdbool.h> or not])
-AC_MSG_RESULT([$MSG])
-OPAL_VAR_SCOPE_POP
-
 # checkpoint results
 AC_CACHE_SAVE
 
@@ -673,13 +655,64 @@ AC_CACHE_SAVE
 opal_show_title "Type tests"
 
 AC_CHECK_TYPES([socklen_t, struct sockaddr_in, struct sockaddr_in6,
-                struct sockaddr_storage],
+                struct sockaddr_storage, struct ifreq, struct ethtool_cmd],
                [], [], [AC_INCLUDES_DEFAULT
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+#ifdef HAVE_LINUX_ETHTOOL_H
+#include <linux/ethtool.h>
+#endif
+#ifdef HAVE_NET_IF_H
+#include <net/if.h>
+#endif])
+
+AC_CHECK_DECLS([ethtool_cmd_speed, SIOCETHTOOL],
+               [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_LINUX_ETHTOOL_H
+#include <linux/ethtool.h>
+#endif
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif])
+
+AC_CHECK_MEMBERS([struct ethtool_cmd.speed_hi],
+               [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_LINUX_ETHTOOL_H
+#include <linux/ethtool.h>
+#endif
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif])
+
+AC_CHECK_MEMBERS([struct ethtool_cmd.speed_hi],
+               [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_LINUX_ETHTOOL_H
+#include <linux/ethtool.h>
+#endif
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif])
+
+AC_CHECK_MEMBERS([struct ethtool_cmd.speed_hi],
+               [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_LINUX_ETHTOOL_H
+#include <linux/ethtool.h>
+#endif
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif])
+
+AC_CHECK_MEMBERS([struct ethtool_cmd.speed_hi],
+               [], [], [AC_INCLUDES_DEFAULT
+#ifdef HAVE_LINUX_ETHTOOL_H
+#include <linux/ethtool.h>
+#endif
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
 #endif])
 
 AC_CHECK_DECLS([AF_UNSPEC, PF_UNSPEC, AF_INET6, PF_INET6],
@@ -764,27 +797,6 @@ AC_INCLUDES_DEFAULT
 ])
 
 #
-# Check for ptrdiff type.  Yes, there are platforms where
-# sizeof(void*) != sizeof(long) (64 bit Windows, apparently).
-#
-AC_MSG_CHECKING([for pointer diff type])
-if test $ac_cv_type_ptrdiff_t = yes ; then
-    opal_ptrdiff_t="ptrdiff_t"
-    opal_ptrdiff_size=$ac_cv_sizeof_ptrdiff_t
-elif test $ac_cv_sizeof_void_p -eq $ac_cv_sizeof_long ; then
-    opal_ptrdiff_t="long"
-    opal_ptrdiff_size=$ac_cv_sizeof_long
-elif test $ac_cv_type_long_long = yes && test $ac_cv_sizeof_void_p -eq $ac_cv_sizeof_long_long ; then
-    opal_ptrdiff_t="long long"
-    opal_ptrdiff_size=$ac_cv_sizeof_long_long
-else
-    AC_MSG_ERROR([Could not find datatype to emulate ptrdiff_t.  Cannot continue])
-fi
-AC_DEFINE_UNQUOTED([OPAL_PTRDIFF_TYPE], [$opal_ptrdiff_t],
-    [type to use for ptrdiff_t])
-AC_MSG_RESULT([$opal_ptrdiff_t (size: $opal_ptrdiff_size)])
-
-#
 # Find corresponding types for MPI_Aint, MPI_Count, and MPI_Offset.
 # And if relevant, find the corresponding MPI_ADDRESS_KIND,
 # MPI_COUNT_KIND, and MPI_OFFSET_KIND.
@@ -807,20 +819,6 @@ AC_TRY_LINK([void finalize (void) {}], [], [AC_MSG_RESULT([yes])
         opal_ld_have_fini=0])
 LDFLAGS=$LDFLAGS_save
 OPAL_VAR_SCOPE_POP
-
-opal_destructor_use_fini=0
-opal_no_destructor=0
-if test x$opal_cv___attribute__destructor = x0 ; then
-    if test x$opal_ld_have_fini = x1 ; then
-        opal_destructor_use_fini=1
-    else
-        opal_no_destructor=1;
-    fi
-fi
-
-AC_DEFINE_UNQUOTED(OPAL_NO_LIB_DESTRUCTOR, [$opal_no_destructor],
-    [Whether libraries can be configured with destructor functions])
-AM_CONDITIONAL(OPAL_DESTRUCTOR_USE_FINI, [test x$opal_destructor_use_fini = x1])
 
 ##################################
 # Libraries
@@ -941,7 +939,6 @@ OPAL_CHECK_BROKEN_QSORT
 # Check out what thread support we have
 #
 OPAL_CONFIG_THREADS
-OMPI_CONFIG_THREADS
 
 CFLAGS="$CFLAGS $THREAD_CFLAGS"
 CPPFLAGS="$CPPFLAGS $THREAD_CPPFLAGS"
@@ -1076,6 +1073,30 @@ AC_INCLUDES_DEFAULT
 
 # checkpoint results
 AC_CACHE_SAVE
+
+###########################################################
+#        Fault Tolerance
+#
+# The FT code in the OMPI trunk is currently broken. We don't
+# have an active maintainer for it at this time, and it isn't
+# clear if/when we will return to it. We have therefore removed
+# the configure options supporting it until such time as it
+# can be fixed.
+#
+# However, we recognize that there are researchers who use this
+# option on their independent branches. In such cases, simply
+# uncomment the line below to render the FT configure options
+# visible again
+#
+###########################################################
+dnl OPAL_SETUP_FT_OPTIONS
+###########################################################
+# The following line is always required as it contains the
+# AC_DEFINE and AM_CONDITIONAL calls that set variables used
+# throughout the build system. If the above line is commented
+# out, then those variables will be set to "off". Otherwise,
+# they are controlled by the options
+OPAL_SETUP_FT
 
 ##################################
 # MCA
@@ -1346,11 +1367,13 @@ esac
 # easier to deal with the problem of opal, orte, and ompi built from
 # their own tarballs, with their own PACKAGE variables.
 opaldatadir='${datadir}/openmpi'
-opallibdir='${libdir}/openmpi'
+opallibdir='${libdir}/openmpi3'
 opalincludedir='${includedir}/openmpi'
+pkglibdir='${libdir}/openmpi3'
 AC_SUBST(opaldatadir)
 AC_SUBST(opallibdir)
 AC_SUBST(opalincludedir)
+AC_SUBST(pkglibdir)
 
 OPAL_SET_MCA_PREFIX([OMPI_MCA_])
 OPAL_SET_MCA_CMD_LINE_ID([mca])
@@ -1393,11 +1416,14 @@ AC_CONFIG_FILES([
     test/event/Makefile
     test/asm/Makefile
     test/datatype/Makefile
+    test/dss/Makefile
     test/class/Makefile
     test/support/Makefile
     test/threads/Makefile
     test/util/Makefile
 ])
+m4_ifdef([project_ompi], [AC_CONFIG_FILES([test/monitoring/Makefile])])
+
 AC_CONFIG_FILES([contrib/dist/mofed/debian/rules],
                 [chmod +x contrib/dist/mofed/debian/rules])
 AC_CONFIG_FILES([contrib/dist/mofed/compile_debian_mlnx_example],
@@ -1407,6 +1433,8 @@ OPAL_CONFIG_FILES
 m4_ifdef([project_orte], [ORTE_CONFIG_FILES])
 m4_ifdef([project_ompi], [OMPI_CONFIG_FILES])
 m4_ifdef([project_oshmem], [OSHMEM_CONFIG_FILES])
+
+OPAL_CHECK_LIBNL_SUMMARY
 
 AC_OUTPUT
 

@@ -13,10 +13,10 @@
  *                         All rights reserved.
  * Copyright (c) 2009-2012 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013-2015 Intel, Inc.  All rights reserved.
- * Copyright (c) 2014      Mellanox Technologies, Inc.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2017 Mellanox Technologies, Inc.
  *                         All rights reserved.
- * Copyright (c) 2014-2016 Research Organization for Information Science
+ * Copyright (c) 2014-2015 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -54,10 +54,10 @@
 #include "opal/mca/base/mca_base_var.h"
 #include "opal/mca/pmix/pmix.h"
 #include "opal/util/opal_environ.h"
-#include "opal/util/os_path.h"
 #include "opal/util/show_help.h"
 #include "opal/util/error.h"
 #include "opal/util/output.h"
+#include "opal/util/os_path.h"
 #include "opal/util/argv.h"
 
 #include "orte/mca/errmgr/errmgr.h"
@@ -65,8 +65,10 @@
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/rml/base/rml_contact.h"
 #include "orte/util/name_fns.h"
+#include "orte/util/proc_info.h"
 #include "orte/util/session_dir.h"
 #include "orte/util/show_help.h"
+#include "orte/util/threads.h"
 #include "orte/runtime/orte_globals.h"
 
 #include "pmix_server.h"
@@ -82,23 +84,30 @@ static void pmix_server_dmdx_resp(int status, orte_process_name_t* sender,
                                   opal_buffer_t *buffer,
                                   orte_rml_tag_t tg, void *cbdata);
 
+#define ORTE_PMIX_SERVER_MIN_ROOMS    4096
+
 pmix_server_globals_t orte_pmix_server_globals = {0};
 
 static opal_pmix_server_module_t pmix_server = {
-    pmix_server_client_connected_fn,
-    pmix_server_client_finalized_fn,
-    pmix_server_abort_fn,
-    pmix_server_fencenb_fn,
-    pmix_server_dmodex_req_fn,
-    pmix_server_publish_fn,
-    pmix_server_lookup_fn,
-    pmix_server_unpublish_fn,
-    pmix_server_spawn_fn,
-    pmix_server_connect_fn,
-    pmix_server_disconnect_fn,
-    pmix_server_register_events_fn,
-    pmix_server_deregister_events_fn,
-    NULL
+    .client_connected = pmix_server_client_connected_fn,
+    .client_finalized = pmix_server_client_finalized_fn,
+    .abort = pmix_server_abort_fn,
+    .fence_nb = pmix_server_fencenb_fn,
+    .direct_modex = pmix_server_dmodex_req_fn,
+    .publish = pmix_server_publish_fn,
+    .lookup = pmix_server_lookup_fn,
+    .unpublish = pmix_server_unpublish_fn,
+    .spawn = pmix_server_spawn_fn,
+    .connect = pmix_server_connect_fn,
+    .disconnect = pmix_server_disconnect_fn,
+    .register_events = pmix_server_register_events_fn,
+    .deregister_events = pmix_server_deregister_events_fn,
+    .notify_event = pmix_server_notify_event,
+    .query = pmix_server_query_fn,
+    .tool_connected = pmix_tool_connected_fn,
+    .log = pmix_server_log_fn,
+    .allocate = pmix_server_alloc_fn,
+    .job_control = pmix_server_job_ctrl_fn
 };
 
 void pmix_server_register_params(void)
@@ -116,7 +125,7 @@ void pmix_server_register_params(void)
                                   orte_pmix_server_globals.verbosity);
     }
     /* specify the size of the hotel */
-    orte_pmix_server_globals.num_rooms = 256;
+    orte_pmix_server_globals.num_rooms = -1;
     (void) mca_base_var_register ("orte", "pmix", NULL, "server_max_reqs",
                                   "Maximum number of backlogged PMIx server direct modex requests",
                                   MCA_BASE_VAR_TYPE_INT, NULL, 0, 0,
@@ -130,14 +139,6 @@ void pmix_server_register_params(void)
                                   OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
                                   &orte_pmix_server_globals.timeout);
 
-    /* register the URI of the UNIVERSAL data server */
-    orte_pmix_server_globals.server_uri = NULL;
-    (void) mca_base_var_register ("orte", "pmix", NULL, "server_uri",
-                                  "URI of a session-level keyval server for publish/lookup operations",
-                                  MCA_BASE_VAR_TYPE_STRING, NULL, 0, 0,
-                                  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
-                                  &orte_pmix_server_globals.server_uri);
-
     /* whether or not to wait for the universal server */
     orte_pmix_server_globals.wait_for_server = false;
     (void) mca_base_var_register ("orte", "pmix", NULL, "wait_for_server",
@@ -145,6 +146,14 @@ void pmix_server_register_params(void)
                                   MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
                                   OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
                                   &orte_pmix_server_globals.wait_for_server);
+
+    /* whether or not to support legacy usock connections as well as tcp */
+    orte_pmix_server_globals.legacy = false;
+    (void) mca_base_var_register ("orte", "pmix", NULL, "server_usock_connections",
+                                  "Whether or not to support legacy usock connections",
+                                  MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
+                                  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
+                                  &orte_pmix_server_globals.legacy);
 }
 
 static void eviction_cbfunc(struct opal_hotel_t *hotel,
@@ -152,9 +161,10 @@ static void eviction_cbfunc(struct opal_hotel_t *hotel,
 {
     pmix_server_req_t *req = (pmix_server_req_t*)occupant;
     bool timeout = false;
-    int rc;
+    int rc=OPAL_ERR_TIMEOUT;
 
     /* decrement the request timeout */
+    req->timeout -= orte_pmix_server_globals.timeout;
     if (req->timeout > 0) {
         req->timeout -= orte_pmix_server_globals.timeout;
         if (0 >= req->timeout) {
@@ -168,6 +178,8 @@ static void eviction_cbfunc(struct opal_hotel_t *hotel,
         }
         ORTE_ERROR_LOG(rc);
         /* fall thru and return an error so the caller doesn't hang */
+    } else {
+        orte_show_help("help-orted.txt", "timedout", true, req->operation);
     }
     /* don't let the caller hang */
     if (NULL != req->opcbfunc) {
@@ -190,7 +202,6 @@ int pmix_server_init(void)
     int rc;
     opal_list_t info;
     opal_value_t *kv;
-    char *tmp;
 
     if (orte_pmix_server_globals.initialized) {
         return ORTE_SUCCESS;
@@ -199,6 +210,17 @@ int pmix_server_init(void)
 
     /* setup the server's state variables */
     OBJ_CONSTRUCT(&orte_pmix_server_globals.reqs, opal_hotel_t);
+    /* by the time we init the server, we should know how many nodes we
+     * have in our environment - with the exception of mpirun. If the
+     * user specified the size of the hotel, then use that value. Otherwise,
+     * set the value to something large to avoid running out of rooms on
+     * large machines */
+    if (-1 == orte_pmix_server_globals.num_rooms) {
+        orte_pmix_server_globals.num_rooms = orte_process_info.num_procs * 2;
+        if (orte_pmix_server_globals.num_rooms < ORTE_PMIX_SERVER_MIN_ROOMS) {
+            orte_pmix_server_globals.num_rooms = ORTE_PMIX_SERVER_MIN_ROOMS;
+        }
+    }
     if (OPAL_SUCCESS != (rc = opal_hotel_init(&orte_pmix_server_globals.reqs,
                                               orte_pmix_server_globals.num_rooms,
                                               orte_event_base, orte_pmix_server_globals.timeout*1000000,
@@ -206,6 +228,8 @@ int pmix_server_init(void)
         ORTE_ERROR_LOG(rc);
         return rc;
     }
+    OBJ_CONSTRUCT(&orte_pmix_server_globals.notifications, opal_list_t);
+    orte_pmix_server_globals.server = *ORTE_NAME_INVALID;
 
    /* setup recv for direct modex requests */
     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX,
@@ -222,6 +246,10 @@ int pmix_server_init(void)
     /* setup recv for replies from data server */
     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DATA_CLIENT,
                             ORTE_RML_PERSISTENT, pmix_server_keyval_client, NULL);
+
+    /* setup recv for notifications */
+    orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_NOTIFICATION,
+                            ORTE_RML_PERSISTENT, pmix_server_notify, NULL);
 
     /* ensure the PMIx server uses the proper rendezvous directory */
     opal_setenv("PMIX_SERVER_TMPDIR", orte_process_info.proc_session_dir, true, &environ);
@@ -244,113 +272,33 @@ int pmix_server_init(void)
         kv->type = OPAL_STRING;
         opal_list_append(&info, &kv->super);
     }
-    /* tell the server our temp directory - use the
-     * job-family level so all our connection info
-     * is unique to us */
-     tmp = opal_os_path(false,
-                        orte_process_info.tmpdir_base,
-                        orte_process_info.top_session_dir, NULL);
+    /* tell the server our temp directory */
     kv = OBJ_NEW(opal_value_t);
     kv->key = strdup(OPAL_PMIX_SERVER_TMPDIR);
     kv->type = OPAL_STRING;
-    kv->data.string = orte_build_job_session_dir(tmp, ORTE_PROC_MY_NAME, ORTE_JOBID_WILDCARD);
+    kv->data.string = opal_os_path(false, orte_process_info.jobfam_session_dir, NULL);
     opal_list_append(&info, &kv->super);
-    free(tmp);
+    if (!orte_pmix_server_globals.legacy) {
+        /* use only one listener */
+        kv = OBJ_NEW(opal_value_t);
+        kv->key = strdup(OPAL_PMIX_SINGLE_LISTENER);
+        kv->type = OPAL_BOOL;
+        kv->data.flag = true;
+        opal_list_append(&info, &kv->super);
+    }
+    /* tell the server to use its own internal monitoring */
+    kv = OBJ_NEW(opal_value_t);
+    kv->key = strdup(OPAL_PMIX_SERVER_ENABLE_MONITORING);
+    kv->type = OPAL_BOOL;
+    kv->data.flag = true;
+    opal_list_append(&info, &kv->super);
 
     /* setup the local server */
     if (ORTE_SUCCESS != (rc = opal_pmix.server_init(&pmix_server, &info))) {
-        ORTE_ERROR_LOG(rc);
-        /* memory cleanup will occur when finalize is called */
+        /* pmix will provide a nice show_help output here */
+        return rc;
     }
     OPAL_LIST_DESTRUCT(&info);
-
-    /* if the universal server wasn't specified, then we use
-     * our own HNP for that purpose */
-    if (NULL == orte_pmix_server_globals.server_uri) {
-        orte_pmix_server_globals.server = *ORTE_PROC_MY_HNP;
-    } else {
-        char *server;
-        opal_buffer_t buf;
-        if (0 == strncmp(orte_pmix_server_globals.server_uri, "file", strlen("file")) ||
-            0 == strncmp(orte_pmix_server_globals.server_uri, "FILE", strlen("FILE"))) {
-            char input[1024], *filename;
-            FILE *fp;
-
-            /* it is a file - get the filename */
-            filename = strchr(orte_pmix_server_globals.server_uri, ':');
-            if (NULL == filename) {
-                /* filename is not correctly formatted */
-                orte_show_help("help-orterun.txt", "orterun:ompi-server-filename-bad", true,
-                               orte_basename, orte_pmix_server_globals.server_uri);
-                return ORTE_ERR_BAD_PARAM;
-            }
-            ++filename; /* space past the : */
-
-            if (0 >= strlen(filename)) {
-                /* they forgot to give us the name! */
-                orte_show_help("help-orterun.txt", "orterun:ompi-server-filename-missing", true,
-                               orte_basename, orte_pmix_server_globals.server_uri);
-                return ORTE_ERR_BAD_PARAM;
-            }
-
-            /* open the file and extract the uri */
-            fp = fopen(filename, "r");
-            if (NULL == fp) { /* can't find or read file! */
-                orte_show_help("help-orterun.txt", "orterun:ompi-server-filename-access", true,
-                               orte_basename, orte_pmix_server_globals.server_uri);
-                return ORTE_ERR_BAD_PARAM;
-            }
-            if (NULL == fgets(input, 1024, fp)) {
-                /* something malformed about file */
-                fclose(fp);
-                orte_show_help("help-orterun.txt", "orterun:ompi-server-file-bad", true,
-                               orte_basename, orte_pmix_server_globals.server_uri,
-                               orte_basename);
-                return ORTE_ERR_BAD_PARAM;
-            }
-            fclose(fp);
-            input[strlen(input)-1] = '\0';  /* remove newline */
-            server = strdup(input);
-        } else {
-            server = strdup(orte_pmix_server_globals.server_uri);
-        }
-        /* setup our route to the server */
-        OBJ_CONSTRUCT(&buf, opal_buffer_t);
-        opal_dss.pack(&buf, &server, 1, OPAL_STRING);
-        if (ORTE_SUCCESS != (rc = orte_rml_base_update_contact_info(&buf))) {
-            ORTE_ERROR_LOG(rc);
-            ORTE_UPDATE_EXIT_STATUS(ORTE_ERROR_DEFAULT_EXIT_CODE);
-            return rc;
-        }
-        OBJ_DESTRUCT(&buf);
-        /* parse the URI to get the server's name */
-        if (ORTE_SUCCESS != (rc = orte_rml_base_parse_uris(server, &orte_pmix_server_globals.server, NULL))) {
-            ORTE_ERROR_LOG(rc);
-            return rc;
-        }
-        /* check if we are to wait for the server to start - resolves
-         * a race condition that can occur when the server is run
-         * as a background job - e.g., in scripts
-         */
-        if (orte_pmix_server_globals.wait_for_server) {
-            /* ping the server */
-            struct timeval timeout;
-            timeout.tv_sec = orte_pmix_server_globals.timeout;
-            timeout.tv_usec = 0;
-            if (ORTE_SUCCESS != (rc = orte_rml.ping(server, &timeout))) {
-                /* try it one more time */
-                if (ORTE_SUCCESS != (rc = orte_rml.ping(server, &timeout))) {
-                    /* okay give up */
-                    orte_show_help("help-orterun.txt", "orterun:server-not-found", true,
-                                   orte_basename, server,
-                                   (long)orte_pmix_server_globals.timeout,
-                                   ORTE_ERROR_NAME(rc));
-                    ORTE_UPDATE_EXIT_STATUS(ORTE_ERROR_DEFAULT_EXIT_CODE);
-                    return rc;
-                }
-            }
-        }
-    }
 
     return rc;
 }
@@ -368,16 +316,20 @@ void pmix_server_finalize(void)
     /* stop receives */
     orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX);
     orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX_RESP);
-
-    /* cleanup collectives */
-    OBJ_DESTRUCT(&orte_pmix_server_globals.reqs);
+    orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_LAUNCH_RESP);
+    orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DATA_CLIENT);
+    orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_NOTIFICATION);
 
     /* shutdown the local server */
     opal_pmix.server_finalize();
+
+    /* cleanup collectives */
+    OBJ_DESTRUCT(&orte_pmix_server_globals.reqs);
+    OPAL_LIST_DESTRUCT(&orte_pmix_server_globals.notifications);
 }
 
 static void send_error(int status, opal_process_name_t *idreq,
-                       orte_process_name_t *remote)
+                       orte_process_name_t *remote, int remote_room)
 {
     opal_buffer_t *reply;
     int rc;
@@ -386,19 +338,28 @@ static void send_error(int status, opal_process_name_t *idreq,
     /* pack the status */
     if (OPAL_SUCCESS != (rc = opal_dss.pack(reply, &status, 1, OPAL_INT))) {
         ORTE_ERROR_LOG(rc);
-        OBJ_RELEASE(reply);
-        return;
+        goto error;
     }
     /* pack the id of the requested proc */
     if (OPAL_SUCCESS != (rc = opal_dss.pack(reply, idreq, 1, OPAL_NAME))) {
         ORTE_ERROR_LOG(rc);
-        OBJ_RELEASE(reply);
-        return;
+        goto error;
     }
+
+    /* pack the remote daemon's request room number */
+    if (OPAL_SUCCESS != (rc = opal_dss.pack(reply, &remote_room, 1, OPAL_INT))) {
+        ORTE_ERROR_LOG(rc);
+        goto error;
+    }
+
     /* send the response */
-    orte_rml.send_buffer_nb(remote, reply,
+    orte_rml.send_buffer_nb(orte_mgmt_conduit,
+                            remote, reply,
                             ORTE_RML_TAG_DIRECT_MODEX_RESP,
                             orte_rml_send_callback, NULL);
+    return;
+error:
+    OBJ_RELEASE(reply);
     return;
 }
 
@@ -407,6 +368,8 @@ static void _mdxresp(int sd, short args, void *cbdata)
     pmix_server_req_t *req = (pmix_server_req_t*)cbdata;
     int rc;
     opal_buffer_t *reply;
+
+    ORTE_ACQUIRE_OBJECT(req);
 
     /* check us out of the hotel */
     opal_hotel_checkout(&orte_pmix_server_globals.reqs, req->room_num);
@@ -434,7 +397,8 @@ static void _mdxresp(int sd, short args, void *cbdata)
     opal_dss.copy_payload(reply, &req->msg);
 
     /* send the response */
-    orte_rml.send_buffer_nb(&req->proxy, reply,
+    orte_rml.send_buffer_nb(orte_mgmt_conduit,
+                            &req->proxy, reply,
                             ORTE_RML_TAG_DIRECT_MODEX_RESP,
                             orte_rml_send_callback, NULL);
 
@@ -456,6 +420,8 @@ static void modex_resp(int status,
     pmix_server_req_t *req = (pmix_server_req_t*)cbdata;
     opal_buffer_t xfer;
 
+    ORTE_ACQUIRE_OBJECT(req);
+
     req->status = status;
     /* we need to preserve the data as the caller
      * will free it upon our return */
@@ -470,6 +436,7 @@ static void modex_resp(int status,
     opal_event_set(orte_event_base, &(req->ev),
                    -1, OPAL_EV_WRITE, _mdxresp, req);
     opal_event_set_priority(&(req->ev), ORTE_MSG_PRI);
+    ORTE_POST_OBJECT(req);
     opal_event_active(&(req->ev), OPAL_EV_WRITE, 1);
 }
 static void pmix_server_dmdx_recv(int status, orte_process_name_t* sender,
@@ -510,34 +477,44 @@ static void pmix_server_dmdx_recv(int status, orte_process_name_t* sender,
          * condition, so just log the request and we will fill
          * it later */
         req = OBJ_NEW(pmix_server_req_t);
+        (void)asprintf(&req->operation, "DMDX: %s:%d", __FILE__, __LINE__);
         req->proxy = *sender;
         req->target = idreq;
         req->remote_room_num = room_num;
+        /* adjust the timeout to reflect the size of the job as it can take some
+         * amount of time to start the job */
+        ORTE_ADJUST_TIMEOUT(req);
         if (OPAL_SUCCESS != (rc = opal_hotel_checkin(&orte_pmix_server_globals.reqs, req, &req->room_num))) {
+            orte_show_help("help-orted.txt", "noroom", true, req->operation, orte_pmix_server_globals.num_rooms);
             OBJ_RELEASE(req);
-            send_error(rc, &idreq, sender);
+            send_error(rc, &idreq, sender, room_num);
         }
         return;
     }
     if (NULL == (proc = (orte_proc_t*)opal_pointer_array_get_item(jdata->procs, name.vpid))) {
         /* this is truly an error, so notify the sender */
-        send_error(ORTE_ERR_NOT_FOUND, &idreq, sender);
+        send_error(ORTE_ERR_NOT_FOUND, &idreq, sender, room_num);
         return;
     }
     if (!ORTE_FLAG_TEST(proc, ORTE_PROC_FLAG_LOCAL)) {
         /* send back an error - they obviously have made a mistake */
-        send_error(ORTE_ERR_NOT_FOUND, &idreq, sender);
+        send_error(ORTE_ERR_NOT_FOUND, &idreq, sender, room_num);
         return;
     }
     /* track the request since the call down to the PMIx server
      * is asynchronous */
     req = OBJ_NEW(pmix_server_req_t);
+    (void)asprintf(&req->operation, "DMDX: %s:%d", __FILE__, __LINE__);
     req->proxy = *sender;
     req->target = idreq;
     req->remote_room_num = room_num;
+    /* adjust the timeout to reflect the size of the job as it can take some
+     * amount of time to start the job */
+    ORTE_ADJUST_TIMEOUT(req);
     if (OPAL_SUCCESS != (rc = opal_hotel_checkin(&orte_pmix_server_globals.reqs, req, &req->room_num))) {
+        orte_show_help("help-orted.txt", "noroom", true, req->operation, orte_pmix_server_globals.num_rooms);
         OBJ_RELEASE(req);
-        send_error(rc, &idreq, sender);
+        send_error(rc, &idreq, sender, room_num);
         return;
     }
 
@@ -546,7 +523,7 @@ static void pmix_server_dmdx_recv(int status, orte_process_name_t* sender,
         ORTE_ERROR_LOG(rc);
         opal_hotel_checkout(&orte_pmix_server_globals.reqs, req->room_num);
         OBJ_RELEASE(req);
-        send_error(rc, &idreq, sender);
+        send_error(rc, &idreq, sender, room_num);
         return;
     }
     return;
@@ -654,7 +631,11 @@ static void pmix_server_dmdx_resp(int status, orte_process_name_t* sender,
 static void opcon(orte_pmix_server_op_caddy_t *p)
 {
     p->procs = NULL;
+    p->eprocs = NULL;
     p->info = NULL;
+    p->cbfunc = NULL;
+    p->infocbfunc = NULL;
+    p->toolcbfunc = NULL;
     p->cbdata = NULL;
 }
 OBJ_CLASS_INSTANCE(orte_pmix_server_op_caddy_t,
@@ -663,8 +644,10 @@ OBJ_CLASS_INSTANCE(orte_pmix_server_op_caddy_t,
 
 static void rqcon(pmix_server_req_t *p)
 {
-    p->target = *ORTE_NAME_INVALID;
+    p->operation = NULL;
+    p->range = OPAL_PMIX_RANGE_SESSION;
     p->proxy = *ORTE_NAME_INVALID;
+    p->target = *ORTE_NAME_INVALID;
     p->timeout = orte_pmix_server_globals.timeout;
     p->jdata = NULL;
     OBJ_CONSTRUCT(&p->msg, opal_buffer_t);
@@ -677,6 +660,9 @@ static void rqcon(pmix_server_req_t *p)
 }
 static void rqdes(pmix_server_req_t *p)
 {
+    if (NULL != p->operation) {
+        free(p->operation);
+    }
     if (NULL != p->jdata) {
         OBJ_RELEASE(p->jdata);
     }

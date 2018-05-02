@@ -10,9 +10,11 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2007      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2012      Los Alamos National Security, LLC.
+ * Copyright (c) 2012-2016 Los Alamos National Security, LLC.
  *                         All rights reserved
- * Copyright (c) 2015      Intel, Inc. All rights reserved.
+ * Copyright (c) 2015-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2017      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -69,6 +71,9 @@ typedef struct {
 static void construct(orte_data_object_t *ptr)
 {
     ptr->index = -1;
+    ptr->uid = UINT32_MAX;
+    ptr->range = OPAL_PMIX_RANGE_UNDEF;
+    ptr->persistence = OPAL_PMIX_PERSIST_SESSION;
     OBJ_CONSTRUCT(&ptr->values, opal_list_t);
 }
 
@@ -106,6 +111,8 @@ OBJ_CLASS_INSTANCE(orte_data_req_t,
 static opal_pointer_array_t orte_data_server_store;
 static opal_list_t pending;
 static bool initialized = false;
+static int orte_data_server_output = -1;
+static int orte_data_server_verbosity = -1;
 
 int orte_data_server_init(void)
 {
@@ -115,6 +122,19 @@ int orte_data_server_init(void)
         return ORTE_SUCCESS;
     }
     initialized = true;
+
+    /* register a verbosity */
+    orte_data_server_verbosity = -1;
+    (void) mca_base_var_register ("orte", "orte", "data", "server_verbose",
+                                  "Debug verbosity for ORTE data server",
+                                  MCA_BASE_VAR_TYPE_INT, NULL, 0, 0,
+                                  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
+                                  &orte_data_server_verbosity);
+    if (0 <= orte_data_server_verbosity) {
+        orte_data_server_output = opal_output_open(NULL);
+        opal_output_set_verbosity(orte_data_server_output,
+                                  orte_data_server_verbosity);
+    }
 
     OBJ_CONSTRUCT(&orte_data_server_store, opal_pointer_array_t);
     if (ORTE_SUCCESS != (rc = opal_pointer_array_init(&orte_data_server_store,
@@ -146,8 +166,6 @@ void orte_data_server_finalize(void)
     }
     initialized = false;
 
-    orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DATA_SERVER);
-
     for (i=0; i < orte_data_server_store.size; i++) {
         if (NULL != (data = (orte_data_object_t*)opal_pointer_array_get_item(&orte_data_server_store, i))) {
             OBJ_RELEASE(data);
@@ -172,11 +190,12 @@ void orte_data_server(int status, orte_process_name_t* sender,
     char **keys = NULL, *str;
     bool ret_packed = false, wait = false, data_added;
     int room_number;
-    uint32_t uid;
+    uint32_t uid = UINT32_MAX;
     opal_pmix_data_range_t range;
     orte_data_req_t *req, *rqnext;
+    orte_jobid_t jobid = ORTE_JOBID_INVALID;
 
-    OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+    OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                          "%s data server got message from %s",
                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                          ORTE_NAME_PRINT(sender)));
@@ -206,7 +225,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
     switch(command) {
     case ORTE_PMIX_PUBLISH_CMD:
         data = OBJ_NEW(orte_data_object_t);
-        /* unpack the requestor */
+        /* unpack the publisher */
         count = 1;
         if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &data->owner, &count, OPAL_NAME))) {
             ORTE_ERROR_LOG(rc);
@@ -214,14 +233,14 @@ void orte_data_server(int status, orte_process_name_t* sender,
             goto SEND_ERROR;
         }
 
-        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                              "%s data server: publishing data from %s",
                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                              ORTE_NAME_PRINT(&data->owner)));
 
         /* unpack the range */
         count = 1;
-        if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &data->range, &count, OPAL_INT))) {
+        if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &data->range, &count, OPAL_PMIX_DATA_RANGE))) {
             ORTE_ERROR_LOG(rc);
             OBJ_RELEASE(data);
             goto SEND_ERROR;
@@ -241,7 +260,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
                 data->uid = iptr->data.uint32;
                 OBJ_RELEASE(iptr);
             } else {
-                OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
                                      "%s data server: adding %s to data from %s",
                                      ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), iptr->key,
                                      ORTE_NAME_PRINT(&data->owner)));
@@ -251,7 +270,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
 
         data->index = opal_pointer_array_add(&orte_data_server_store, data);
 
-        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                              "%s data server: checking for pending requests",
                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
 
@@ -261,13 +280,25 @@ void orte_data_server(int status, orte_process_name_t* sender,
             if (req->uid != data->uid) {
                 continue;
             }
-            if (req->range != data->range) {
-                continue;
+            /* if the published range is constrained to namespace, then only
+             * consider this data if the publisher is
+             * in the same namespace as the requestor */
+            if (OPAL_PMIX_RANGE_NAMESPACE == data->range) {
+                if (jobid != data->owner.jobid) {
+                    continue;
+                }
             }
             for (i=0; NULL != req->keys[i]; i++) {
                 /* cycle thru the data keys for matches */
                 OPAL_LIST_FOREACH(iptr, &data->values, opal_value_t) {
+                    OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
+                                         "%s\tCHECKING %s TO %s",
+                                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                         iptr->key, req->keys[i]));
                     if (0 == strcmp(iptr->key, req->keys[i])) {
+                        OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
+                                             "%s data server: packaging return",
+                                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
                         /* found it - package it for return */
                         if (NULL == reply) {
                             reply = OBJ_NEW(opal_buffer_t);
@@ -287,7 +318,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
                             ORTE_ERROR_LOG(rc);
                             break;
                         }
-                        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                        OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
                                              "%s data server: adding %s data from %s to response",
                                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), iptr->key,
                                              ORTE_NAME_PRINT(&data->owner)));
@@ -300,12 +331,13 @@ void orte_data_server(int status, orte_process_name_t* sender,
             }
             if (NULL != reply) {
                 /* send it back to the requestor */
-                OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                                      "%s data server: returning data to %s",
                                      ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                                      ORTE_NAME_PRINT(&req->requestor)));
 
-                if (0 > (rc = orte_rml.send_buffer_nb(&req->requestor, reply, ORTE_RML_TAG_DATA_CLIENT,
+                if (0 > (rc = orte_rml.send_buffer_nb(orte_mgmt_conduit,
+                                                      &req->requestor, reply, ORTE_RML_TAG_DATA_CLIENT,
                                                       orte_rml_send_callback, NULL))) {
                     ORTE_ERROR_LOG(rc);
                     OBJ_RELEASE(reply);
@@ -316,7 +348,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
                 reply = NULL;
                 /* if the persistence is "first_read", then delete this data */
                 if (OPAL_PMIX_PERSIST_FIRST_READ == data->persistence) {
-                    OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                    OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                                         "%s NOT STORING DATA FROM %s AT INDEX %d",
                                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                                         ORTE_NAME_PRINT(&data->owner), data->index));
@@ -339,14 +371,21 @@ void orte_data_server(int status, orte_process_name_t* sender,
         break;
 
     case ORTE_PMIX_LOOKUP_CMD:
-        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                              "%s data server: lookup data from %s",
                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                              ORTE_NAME_PRINT(sender)));
 
+        /* unpack the requestor's jobid */
+        count = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &jobid, &count, ORTE_JOBID))) {
+            ORTE_ERROR_LOG(rc);
+            goto SEND_ERROR;
+        }
+
         /* unpack the range - this sets some constraints on the range of data to be considered */
         count = 1;
-        if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &range, &count, OPAL_INT))) {
+        if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &range, &count, OPAL_PMIX_DATA_RANGE))) {
             ORTE_ERROR_LOG(rc);
             goto SEND_ERROR;
         }
@@ -399,7 +438,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
         /* cycle across the provided keys */
         ret_packed = false;
         for (i=0; NULL != keys[i]; i++) {
-            OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+            OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
                                  "%s data server: looking for %s",
                                  ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), keys[i]));
             /* cycle across the stored data, looking for a match */
@@ -409,17 +448,30 @@ void orte_data_server(int status, orte_process_name_t* sender,
                 if (NULL == data) {
                     continue;
                 }
-                /* can only access data posted by the same user id */
+                /* for security reasons, can only access data posted by the same user id */
                 if (uid != data->uid) {
+                    OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
+                                         "%s\tMISMATCH UID %u %u",
+                                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                         (unsigned)uid, (unsigned)data->uid));
                     continue;
                 }
-                /* if the range doesn't match, then we cannot consider it */
-                if (range != data->range) {
-                    continue;
+                /* if the published range is constrained to namespace, then only
+                 * consider this data if the publisher is
+                 * in the same namespace as the requestor */
+                if (OPAL_PMIX_RANGE_NAMESPACE == data->range) {
+                    if (jobid != data->owner.jobid) {
+                        OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
+                                             "%s\tMISMATCH JOBID %s %s",
+                                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                             ORTE_JOBID_PRINT(jobid),
+                                             ORTE_JOBID_PRINT(data->owner.jobid)));
+                        continue;
+                    }
                 }
                 /* see if we have this key */
                 OPAL_LIST_FOREACH(iptr, &data->values, opal_value_t) {
-                    OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                    OPAL_OUTPUT_VERBOSE((10, orte_data_server_output,
                                         "%s COMPARING %s %s",
                                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                                         keys[i], iptr->key));
@@ -440,7 +492,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
                             opal_argv_free(keys);
                             goto SEND_ERROR;
                         }
-                        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                                              "%s data server: adding %s to data from %s",
                                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), iptr->key,
                                              ORTE_NAME_PRINT(&data->owner)));
@@ -452,7 +504,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
                     }
                 }
                 if (data_added && OPAL_PMIX_PERSIST_FIRST_READ == data->persistence) {
-                    OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                    OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                                         "%s REMOVING DATA FROM %s AT INDEX %d",
                                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                                         ORTE_NAME_PRINT(&data->owner), data->index));
@@ -462,16 +514,17 @@ void orte_data_server(int status, orte_process_name_t* sender,
             }
         }
         if (!ret_packed) {
-            OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+            OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                                  "%s data server:lookup: data not found",
                                  ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
 
             /* if we were told to wait for the data, then queue this up
              * for later processing */
             if (wait) {
-                OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+                OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                                      "%s data server:lookup: pushing request to wait",
                                      ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
+                OBJ_RELEASE(answer);
                 req = OBJ_NEW(orte_data_req_t);
                 req->room_number = room_number;
                 req->requestor = *sender;
@@ -488,7 +541,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
         }
 
         opal_argv_free(keys);
-        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                              "%s data server:lookup: data found",
                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
         goto SEND_ANSWER;
@@ -502,7 +555,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
             goto SEND_ERROR;
         }
 
-        OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                              "%s data server: unpublish data from %s",
                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                              ORTE_NAME_PRINT(&requestor)));
@@ -600,6 +653,46 @@ void orte_data_server(int status, orte_process_name_t* sender,
         goto SEND_ANSWER;
         break;
 
+    case ORTE_PMIX_PURGE_PROC_CMD:
+        /* unpack the proc whose data is to be purged - session
+         * data is purged by providing a requestor whose rank
+         * is wildcard */
+        count = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss.unpack(buffer, &requestor, &count, OPAL_NAME))) {
+            ORTE_ERROR_LOG(rc);
+            goto SEND_ERROR;
+        }
+
+        OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
+                             "%s data server: purge data from %s",
+                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                             ORTE_NAME_PRINT(&requestor)));
+
+        /* cycle across the stored data, looking for a match */
+        for (k=0; k < orte_data_server_store.size; k++) {
+            data = (orte_data_object_t*)opal_pointer_array_get_item(&orte_data_server_store, k);
+            if (NULL == data) {
+                continue;
+            }
+            /* check if data posted by the same process */
+            if (OPAL_EQUAL != orte_util_compare_name_fields(ORTE_NS_CMP_ALL, &data->owner, &requestor)) {
+                continue;
+            }
+            /* check persistence - if it is intended to persist beyond the
+             * proc itself, then we only delete it if rank=wildcard*/
+            if ((data->persistence == OPAL_PMIX_PERSIST_APP ||
+                 data->persistence == OPAL_PMIX_PERSIST_SESSION) &&
+                ORTE_VPID_WILDCARD != requestor.vpid) {
+                continue;
+            }
+            /* remove the object */
+            opal_pointer_array_set_item(&orte_data_server_store, k, NULL);
+            OBJ_RELEASE(data);
+        }
+        /* no response is required */
+        OBJ_RELEASE(answer);
+        return;
+
     default:
         ORTE_ERROR_LOG(ORTE_ERR_BAD_PARAM);
         rc = ORTE_ERR_BAD_PARAM;
@@ -607,7 +700,7 @@ void orte_data_server(int status, orte_process_name_t* sender,
     }
 
  SEND_ERROR:
-    OPAL_OUTPUT_VERBOSE((1, orte_debug_output,
+    OPAL_OUTPUT_VERBOSE((1, orte_data_server_output,
                          "%s data server: sending error %s",
                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                          ORTE_ERROR_NAME(rc)));
@@ -617,11 +710,10 @@ void orte_data_server(int status, orte_process_name_t* sender,
     }
 
  SEND_ANSWER:
-    if (0 > (rc = orte_rml.send_buffer_nb(sender, answer, ORTE_RML_TAG_DATA_CLIENT,
+    if (0 > (rc = orte_rml.send_buffer_nb(orte_mgmt_conduit,
+                                          sender, answer, ORTE_RML_TAG_DATA_CLIENT,
                                           orte_rml_send_callback, NULL))) {
         ORTE_ERROR_LOG(rc);
         OBJ_RELEASE(answer);
     }
 }
-
-

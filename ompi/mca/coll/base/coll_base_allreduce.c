@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2015 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -13,7 +13,7 @@
  * Copyright (c) 2009      University of Houston. All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC. All Rights
  *                         reserved.
- * Copyright (c) 2015-2016 Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -65,22 +65,22 @@ ompi_coll_base_allreduce_intra_nonoverlapping(const void *sbuf, void *rbuf, int 
 
     if (MPI_IN_PLACE == sbuf) {
         if (0 == rank) {
-            err = comm->c_coll.coll_reduce (MPI_IN_PLACE, rbuf, count, dtype,
-                                            op, 0, comm, comm->c_coll.coll_reduce_module);
+            err = comm->c_coll->coll_reduce (MPI_IN_PLACE, rbuf, count, dtype,
+                                            op, 0, comm, comm->c_coll->coll_reduce_module);
         } else {
-            err = comm->c_coll.coll_reduce (rbuf, NULL, count, dtype, op, 0,
-                                            comm, comm->c_coll.coll_reduce_module);
+            err = comm->c_coll->coll_reduce (rbuf, NULL, count, dtype, op, 0,
+                                            comm, comm->c_coll->coll_reduce_module);
         }
     } else {
-        err = comm->c_coll.coll_reduce (sbuf, rbuf, count, dtype, op, 0,
-                                        comm, comm->c_coll.coll_reduce_module);
+        err = comm->c_coll->coll_reduce (sbuf, rbuf, count, dtype, op, 0,
+                                        comm, comm->c_coll->coll_reduce_module);
     }
     if (MPI_SUCCESS != err) {
         return err;
     }
 
-    return comm->c_coll.coll_bcast (rbuf, count, dtype, 0, comm,
-                                    comm->c_coll.coll_bcast_module);
+    return comm->c_coll->coll_bcast (rbuf, count, dtype, 0, comm,
+                                    comm->c_coll->coll_bcast_module);
 }
 
 /*
@@ -136,7 +136,7 @@ ompi_coll_base_allreduce_intra_recursivedoubling(const void *sbuf, void *rbuf,
     int newrank, newremote, extra_ranks;
     char *tmpsend = NULL, *tmprecv = NULL, *tmpswap = NULL, *inplacebuf_free = NULL, *inplacebuf;
     ompi_request_t *reqs[2] = {NULL, NULL};
-    OPAL_PTRDIFF_TYPE span, gap;
+    ptrdiff_t span, gap;
 
     size = ompi_comm_size(comm);
     rank = ompi_comm_rank(comm);
@@ -530,6 +530,7 @@ ompi_coll_base_allreduce_intra_ring(const void *sbuf, void *rbuf, int count,
  error_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output, "%s:%4d\tRank %d Error occurred %d\n",
                  __FILE__, line, rank, ret));
+    (void)line;  // silence compiler warning
     if (NULL != inbuf[0]) free(inbuf[0]);
     if (NULL != inbuf[1]) free(inbuf[1]);
     return ret;
@@ -629,7 +630,7 @@ ompi_coll_base_allreduce_intra_ring_segmented(const void *sbuf, void *rbuf, int 
     char *tmpsend = NULL, *tmprecv = NULL, *inbuf[2] = {NULL, NULL};
     ptrdiff_t block_offset, max_real_segsize;
     ompi_request_t *reqs[2] = {NULL, NULL};
-    OPAL_PTRDIFF_TYPE lb, extent, gap;
+    ptrdiff_t lb, extent, gap;
 
     size = ompi_comm_size(comm);
     rank = ompi_comm_rank(comm);
@@ -848,6 +849,7 @@ ompi_coll_base_allreduce_intra_ring_segmented(const void *sbuf, void *rbuf, int 
  error_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output, "%s:%4d\tRank %d Error occurred %d\n",
                  __FILE__, line, rank, ret));
+    (void)line;  // silence compiler warning
     if (NULL != inbuf[0]) free(inbuf[0]);
     if (NULL != inbuf[1]) free(inbuf[1]);
     return ret;

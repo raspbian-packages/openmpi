@@ -107,7 +107,6 @@ struct mca_btl_tcp_component_t {
     uint32_t tcp_num_btls;                  /**< number of interfaces available to the TCP component */
     unsigned int tcp_num_links;             /**< number of logical links per physical device */
     struct mca_btl_tcp_module_t **tcp_btls; /**< array of available BTL modules */
-    struct mca_btl_tcp_proc_t* tcp_local;   /**< local proc struct */
     int tcp_free_list_num;                  /**< initial size of free lists */
     int tcp_free_list_max;                  /**< maximum size of free lists */
     int tcp_free_list_inc;                  /**< number of elements to alloc when growing free lists */
@@ -170,7 +169,10 @@ struct mca_btl_tcp_module_t {
 #endif
     struct sockaddr_storage tcp_ifaddr; /**< BTL interface address */
     uint32_t           tcp_ifmask;  /**< BTL interface netmask */
+
+    opal_mutex_t       tcp_endpoints_mutex;
     opal_list_t        tcp_endpoints;
+
     mca_btl_base_module_error_cb_fn_t tcp_error_cb;  /**< Upper layer error callback */
 #if MCA_BTL_TCP_STATISTICS
     size_t tcp_bytes_sent;
@@ -341,6 +343,13 @@ extern void
 mca_btl_tcp_dump(struct mca_btl_base_module_t* btl,
                  struct mca_btl_base_endpoint_t* endpoint,
                  int verbose);
+
+/**
+  * Fault Tolerance Event Notification Function
+  * @param state Checkpoint Stae
+  * @return OPAL_SUCCESS or failure status
+  */
+int mca_btl_tcp_ft_event(int state);
 
 END_C_DECLS
 #endif

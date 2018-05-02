@@ -11,10 +11,10 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2008-2010 Oracle and/or its affiliates.  All rights reserved
- * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2015-2017 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2015-2016 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * Copyright (c) 2015-2017 Cisco Systems, Inc.  All rights reserved
  * $COPYRIGHT$
@@ -164,10 +164,6 @@ mca_btl_tcp_proc_t* mca_btl_tcp_proc_create(opal_proc_t* proc)
         if(NULL == btl_proc->proc_endpoints) {
             rc = OPAL_ERR_OUT_OF_RESOURCE;
             break;
-        }
-
-        if(NULL == mca_btl_tcp_component.tcp_local && (proc == opal_proc_local_get())) {
-            mca_btl_tcp_component.tcp_local = btl_proc;
         }
 
         /* convert the OPAL addr_family field to OS constants,
@@ -750,8 +746,8 @@ mca_btl_tcp_proc_t* mca_btl_tcp_proc_lookup(const opal_process_name_t *name)
         mca_btl_base_endpoint_t *endpoint;
         opal_proc_t *opal_proc;
 
-        BTL_VERBOSE(("adding tcp proc for unknown peer {.jobid = 0x%x, .vpid = 0x%x}",
-                     name->jobid, name->vpid));
+        BTL_VERBOSE(("adding tcp proc for unknown peer {%s}",
+                     OPAL_NAME_PRINT(*name)));
 
         opal_proc = opal_proc_for_name (*name);
         if (NULL == opal_proc) {
@@ -764,7 +760,7 @@ mca_btl_tcp_proc_t* mca_btl_tcp_proc_lookup(const opal_process_name_t *name)
             (void) mca_btl_tcp_add_procs (&mca_btl_tcp_component.tcp_btls[i]->super, 1, &opal_proc,
                                           &endpoint, NULL);
             if (NULL != endpoint && NULL == proc) {
-                /* get the proc and continue on (could probably just break here) */
+                /* construct all the endpoints and get the proc */
                 proc = endpoint->endpoint_proc;
             }
         }
@@ -786,12 +782,20 @@ void mca_btl_tcp_proc_accept(mca_btl_tcp_proc_t* btl_proc, struct sockaddr* addr
         if( btl_endpoint->endpoint_addr->addr_family != addr->sa_family ) {
             continue;
         }
-
         switch (addr->sa_family) {
         case AF_INET:
             if( memcmp( &btl_endpoint->endpoint_addr->addr_inet,
                         &(((struct sockaddr_in*)addr)->sin_addr),
                         sizeof(struct in_addr) ) ) {
+                char tmp[2][16];
+                opal_output_verbose(20, opal_btl_base_framework.framework_output,
+                                    "btl: tcp: Match incoming connection from %s %s with locally known IP %s failed (iface %d/%d)!\n",
+                                    OPAL_NAME_PRINT(btl_proc->proc_opal->proc_name),
+                                    inet_ntop(AF_INET, (void*)&((struct sockaddr_in*)addr)->sin_addr,
+                                              tmp[0], 16),
+                                    inet_ntop(AF_INET, (void*)(struct in_addr*)&btl_endpoint->endpoint_addr->addr_inet,
+                                              tmp[1], 16),
+                                    (int)i, (int)btl_proc->proc_endpoint_count);
                 continue;
             }
             break;
@@ -800,6 +804,15 @@ void mca_btl_tcp_proc_accept(mca_btl_tcp_proc_t* btl_proc, struct sockaddr* addr
             if( memcmp( &btl_endpoint->endpoint_addr->addr_inet,
                         &(((struct sockaddr_in6*)addr)->sin6_addr),
                         sizeof(struct in6_addr) ) ) {
+                char tmp[2][INET6_ADDRSTRLEN];
+                opal_output_verbose(20, opal_btl_base_framework.framework_output,
+                                    "btl: tcp: Match incoming connection from %s %s with locally known IP %s failed (iface %d/%d)!\n",
+                                    OPAL_NAME_PRINT(btl_proc->proc_opal->proc_name),
+                                    inet_ntop(AF_INET6, (void*)&((struct sockaddr_in6*)addr)->sin6_addr,
+                                              tmp[0], INET6_ADDRSTRLEN),
+                                    inet_ntop(AF_INET6, (void*)(struct in6_addr*)&btl_endpoint->endpoint_addr->addr_inet,
+                                              tmp[1], INET6_ADDRSTRLEN),
+                                    (int)i, (int)btl_proc->proc_endpoint_count);
                 continue;
             }
             break;
@@ -815,24 +828,27 @@ void mca_btl_tcp_proc_accept(mca_btl_tcp_proc_t* btl_proc, struct sockaddr* addr
     /* No further use of this socket. Close it */
     CLOSE_THE_SOCKET(sd);
     {
-        size_t len = 1024;
-        char* addr_str = (char*)malloc(len);
-        if( NULL != addr_str ) {
-            memset(addr_str, 0, len);
-            for (size_t i = 0; i < btl_proc->proc_endpoint_count; i++) {
-                mca_btl_base_endpoint_t* btl_endpoint = btl_proc->proc_endpoints[i];
-                if (btl_endpoint->endpoint_addr->addr_family != addr->sa_family) {
-                    continue;
-                }
-
-                if (addr_str[0] != '\0') {
-                    strncat(addr_str, ", ", len);
-                    len -= 2;
-                }
-                strncat(addr_str, inet_ntop(AF_INET6, (void*)(struct in6_addr*)&btl_endpoint->endpoint_addr->addr_inet,
-                                            addr_str + 1024 - len, INET6_ADDRSTRLEN), len);
-                len = 1024 - strlen(addr_str);
+        char *addr_str=NULL, *tmp, pnet[1024];
+        for (size_t i = 0; i < btl_proc->proc_endpoint_count; i++) {
+            mca_btl_base_endpoint_t* btl_endpoint = btl_proc->proc_endpoints[i];
+            if (btl_endpoint->endpoint_addr->addr_family != addr->sa_family) {
+                continue;
             }
+            if (AF_INET == addr->sa_family) {
+                inet_ntop(AF_INET, (void*)(struct in_addr*)&btl_endpoint->endpoint_addr->addr_inet, pnet, 1024);
+            } else if (AF_INET6 == addr->sa_family) {
+                inet_ntop(AF_INET6, (void*)(struct in6_addr*)&btl_endpoint->endpoint_addr->addr_inet, pnet, 1024);
+            } else {
+                /* unrecognized family */
+                continue;
+            }
+            if (NULL == addr_str) {
+                (void)asprintf(&tmp, "\n\t%s", pnet);
+            } else {
+                (void)asprintf(&tmp, "%s\n\t%s", addr_str, pnet);
+                free(addr_str);
+            }
+            addr_str = tmp;
         }
         opal_show_help("help-mpi-btl-tcp.txt", "dropped inbound connection",
                        true, opal_process_info.nodename,
@@ -840,8 +856,10 @@ void mca_btl_tcp_proc_accept(mca_btl_tcp_proc_t* btl_proc, struct sockaddr* addr
                        btl_proc->proc_opal->proc_hostname,
                        OPAL_NAME_PRINT(btl_proc->proc_opal->proc_name),
                        opal_net_get_hostname((struct sockaddr*)addr),
-                       addr_str);
-        free(addr_str);
+                       (NULL == addr_str) ? "NONE" : addr_str);
+        if (NULL != addr_str) {
+            free(addr_str);
+        }
     }
     OPAL_THREAD_UNLOCK(&btl_proc->proc_lock);
 }

@@ -17,8 +17,8 @@
  * Copyright (c) 2008-2009 Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2011      Sandia National Laboratories. All rights reserved.
  * Copyright (c) 2012-2013 Inria.  All rights reserved.
- * Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
- * Copyright (c) 2014-2015 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      Mellanox Technologies Ltd. All rights reserved.
  *
@@ -34,9 +34,7 @@
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif  /* HAVE_SYS_TIME_H */
-#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -62,6 +60,7 @@
 #include "opal/mca/btl/base/base.h"
 #include "opal/mca/pmix/pmix.h"
 #include "opal/util/timings.h"
+#include "opal/util/opal_environ.h"
 
 #include "ompi/constants.h"
 #include "ompi/mpi/fortran/base/constants.h"
@@ -93,9 +92,16 @@
 #include "ompi/mca/pml/base/pml_base_bsend.h"
 #include "ompi/dpm/dpm.h"
 #include "ompi/mpiext/mpiext.h"
+#include "ompi/mca/hook/base/base.h"
+
+#if OPAL_ENABLE_FT_CR == 1
+#include "ompi/mca/crcp/crcp.h"
+#include "ompi/mca/crcp/base/base.h"
+#endif
+#include "ompi/runtime/ompi_cr.h"
 
 /* newer versions of gcc have poisoned this deprecated feature */
-#if HAVE___MALLOC_INITIALIZE_HOOK
+#ifdef HAVE___MALLOC_INITIALIZE_HOOK
 #include "opal/mca/memory/base/base.h"
 /* So this sucks, but with OPAL in its own library that is brought in
    implicity from libmpi, there are times when the malloc initialize
@@ -322,15 +328,7 @@ void ompi_mpi_thread_level(int requested, int *provided)
      */
     ompi_mpi_thread_requested = requested;
 
-    if (OMPI_ENABLE_THREAD_MULTIPLE == 1) {
-        ompi_mpi_thread_provided = *provided = requested;
-    } else {
-        if (MPI_THREAD_MULTIPLE == requested) {
-            ompi_mpi_thread_provided = *provided = MPI_THREAD_SERIALIZED;
-        } else {
-            ompi_mpi_thread_provided = *provided = requested;
-        }
-    }
+    ompi_mpi_thread_provided = *provided = requested;
 
     if (!ompi_mpi_main_thread) {
         ompi_mpi_main_thread = opal_thread_get_self();
@@ -380,14 +378,18 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
     ompi_proc_t** procs;
     size_t nprocs;
     char *error = NULL;
-    char *cmd=NULL, *av=NULL;
+    ompi_errhandler_errtrk_t errtrk;
     volatile bool active;
+    opal_list_t info;
+    opal_value_t *kv;
     OPAL_TIMING_DECLARE(tm);
     OPAL_TIMING_INIT_EXT(&tm, OPAL_TIMING_GET_TIME_OF_DAY);
 
     /* bitflag of the thread level support provided. To be used
      * for the modex in order to work in heterogeneous environments. */
     uint8_t threadlevel_bf;
+
+    ompi_hook_base_mpi_init_top(argc, argv, requested, provided);
 
     /* Ensure that we were not already initialized or finalized.
 
@@ -475,6 +477,15 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
         mca_base_var_set_value(ret, allvalue, 4, MCA_BASE_VAR_SOURCE_DEFAULT, NULL);
     }
 
+    /* open the ompi hook framework */
+    if (OMPI_SUCCESS != (ret = mca_base_framework_open(&ompi_hook_base_framework, 0))) {
+        error = "ompi_hook_base_open() failed";
+        goto error;
+    }
+
+    ompi_hook_base_mpi_init_top_post_opal(argc, argv, requested, provided);
+
+
     OPAL_TIMING_MSTART((&tm,"time from start to completion of rte_init"));
 
     /* if we were not externally started, then we need to setup
@@ -483,15 +494,13 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
      * the requested thread level
      */
     if (NULL == getenv("OMPI_COMMAND") && NULL != argv && NULL != argv[0]) {
-        asprintf(&cmd, "OMPI_COMMAND=%s", argv[0]);
-        putenv(cmd);
+        opal_setenv("OMPI_COMMAND", argv[0], true, &environ);
     }
     if (NULL == getenv("OMPI_ARGV") && 1 < argc) {
         char *tmp;
         tmp = opal_argv_join(&argv[1], ' ');
-        asprintf(&av, "OMPI_ARGV=%s", tmp);
+        opal_setenv("OMPI_ARGV", tmp, true, &environ);
         free(tmp);
-        putenv(av);
     }
 
     /* open the rte framework */
@@ -511,28 +520,31 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
     /* check for timing request - get stop time and report elapsed time if so */
     OPAL_TIMING_MNEXT((&tm,"time from completion of rte_init to modex"));
 
-    /* if hwloc is available but didn't get setup for some
-     * reason, do so now
-     */
-    if (NULL == opal_hwloc_topology) {
-        if (OPAL_SUCCESS != (ret = opal_hwloc_base_get_topology())) {
-            error = "Topology init";
-            goto error;
-        }
-    }
+    /* Register the default errhandler callback  */
+    errtrk.status = OPAL_ERROR;
+    errtrk.active = true;
+    /* we want to go first */
+    OBJ_CONSTRUCT(&info, opal_list_t);
+    kv = OBJ_NEW(opal_value_t);
+    kv->key = strdup(OPAL_PMIX_EVENT_ORDER_PREPEND);
+    opal_list_append(&info, &kv->super);
+    opal_pmix.register_evhandler(NULL, &info, ompi_errhandler_callback,
+                                 ompi_errhandler_registration_callback,
+                                 (void*)&errtrk);
+    OMPI_LAZY_WAIT_FOR_COMPLETION(errtrk.active);
 
-    /* Register the default errhandler callback - RTE will ignore if it
-     * doesn't support this capability
-     */
-    ompi_rte_register_errhandler(ompi_errhandler_runtime_callback,
-                                 OMPI_RTE_ERRHANDLER_LAST);
+    OPAL_LIST_DESTRUCT(&info);
+    if (OPAL_SUCCESS != errtrk.status) {
+        error = "Error handler registration";
+        ret = errtrk.status;
+        goto error;
+    }
 
 
     /* determine the bitflag belonging to the threadlevel_support provided */
     memset ( &threadlevel_bf, 0, sizeof(uint8_t));
     OMPI_THREADLEVEL_SET_BITFLAG ( ompi_mpi_thread_provided, threadlevel_bf );
 
-#if OMPI_ENABLE_THREAD_MULTIPLE
     /* add this bitflag to the modex */
     OPAL_MODEX_SEND_STRING(ret, OPAL_PMIX_GLOBAL,
                            "MPI_THREAD_LEVEL", &threadlevel_bf, sizeof(uint8_t));
@@ -540,7 +552,6 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
         error = "ompi_mpi_init: modex send thread level";
         goto error;
     }
-#endif
 
     /* initialize datatypes. This step should be done early as it will
      * create the local convertor and local arch used in the proc
@@ -612,6 +623,13 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
         goto error;
     }
 
+#if OPAL_ENABLE_FT_CR == 1
+    if (OMPI_SUCCESS != (ret = mca_base_framework_open(&ompi_crcp_base_framework, 0))) {
+        error = "ompi_crcp_base_open() failed";
+        goto error;
+    }
+#endif
+
     /* In order to reduce the common case for MPI apps (where they
        don't use MPI-2 IO or MPI-1 topology functions), the io and
        topo frameworks are initialized lazily, at the first use of
@@ -634,10 +652,10 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
      * if data exchange is required. The modex occurs solely across procs
      * in our job. If a barrier is required, the "modex" function will
      * perform it internally */
-    active = true;
     opal_pmix.commit();
     if (!opal_pmix_base_async_modex) {
         if (NULL != opal_pmix.fence_nb) {
+            active = true;
             opal_pmix.fence_nb(NULL, opal_pmix_collect_all_data,
                                fence_release, (void*)&active);
             OMPI_LAZY_WAIT_FOR_COMPLETION(active);
@@ -668,6 +686,13 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
         error = "ompi_osc_base_find_available() failed";
         goto error;
     }
+
+#if OPAL_ENABLE_FT_CR == 1
+    if (OMPI_SUCCESS != (ret = ompi_crcp_base_select() ) ) {
+        error = "ompi_crcp_base_select() failed";
+        goto error;
+    }
+#endif
 
     /* io and topo components are not selected here -- see comment
        above about the io and topo frameworks being loaded lazily */
@@ -805,14 +830,15 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
     /* wait for everyone to reach this point - this is a hard
      * barrier requirement at this time, though we hope to relax
      * it at a later point */
-    active = true;
-    opal_pmix.commit();
-    if (NULL != opal_pmix.fence_nb) {
-        opal_pmix.fence_nb(NULL, false,
-                           fence_release, (void*)&active);
-        OMPI_LAZY_WAIT_FOR_COMPLETION(active);
-    } else {
-        opal_pmix.fence(NULL, false);
+    if (!ompi_async_mpi_init) {
+        active = true;
+        if (NULL != opal_pmix.fence_nb) {
+            opal_pmix.fence_nb(NULL, false,
+                               fence_release, (void*)&active);
+            OMPI_LAZY_WAIT_FOR_COMPLETION(active);
+        } else {
+            opal_pmix.fence(NULL, false);
+        }
     }
 
     /* check for timing request - get stop time and report elapsed
@@ -879,6 +905,16 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
         goto error;
     }
 
+    /*
+     * Startup the Checkpoint/Restart Mech.
+     * Note: Always do this so tools don't hang when
+     * in a non-checkpointable build
+     */
+    if (OMPI_SUCCESS != (ret = ompi_cr_init())) {
+        error = "ompi_cr_init";
+        goto error;
+    }
+
     /* Undo OPAL calling opal_progress_event_users_increment() during
        opal_init, to get better latency when not using TCP.  Do
        this *after* dyn_init, as dyn init uses lots of RTE
@@ -908,13 +944,14 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
  error:
     if (ret != OMPI_SUCCESS) {
         /* Only print a message if one was not already printed */
-        if (NULL != error) {
+        if (NULL != error && OMPI_ERR_SILENT != ret) {
             const char *err_msg = opal_strerror(ret);
             opal_show_help("help-mpi-runtime.txt",
                            "mpi_init:startup:internal-failure", true,
                            "MPI_INIT", "MPI_INIT", error, err_msg, ret);
         }
         opal_mutex_unlock(&ompi_mpi_bootstrap_mutex);
+        ompi_hook_base_mpi_init_error(argc, argv, requested, provided);
         return ret;
     }
 
@@ -945,5 +982,8 @@ int ompi_mpi_init(int argc, char **argv, int requested, int *provided)
     OPAL_TIMING_RELEASE(&tm);
 
     opal_mutex_unlock(&ompi_mpi_bootstrap_mutex);
+
+    ompi_hook_base_mpi_init_bottom(argc, argv, requested, provided);
+
     return MPI_SUCCESS;
 }

@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -53,7 +53,7 @@ int mca_sharedfp_lockedfile_file_open (struct ompi_communicator_t *comm,
     /*Open the same file again without shared file pointer support*/
     /*------------------------------------------------------------*/
     shfileHandle =  (mca_io_ompio_file_t *)malloc(sizeof(mca_io_ompio_file_t));
-    err = ompio_io_ompio_file_open(comm,filename,amode,info,shfileHandle,false);
+    err = mca_common_ompio_file_open(comm,filename,amode,info,shfileHandle,false);
     if ( OMPI_SUCCESS != err)  {
         opal_output(0, "mca_sharedfp_lockedfile_file_open: Error during file open\n");
         return err;
@@ -62,13 +62,13 @@ int mca_sharedfp_lockedfile_file_open (struct ompi_communicator_t *comm,
     data = (mca_io_ompio_data_t *) fh->f_fh->f_io_selected_data;
     ompio_fh = &data->ompio_fh;
 
-    err = mca_io_ompio_set_view_internal (shfileHandle,
-                                          ompio_fh->f_disp,
-                                          ompio_fh->f_etype,
-                                          ompio_fh->f_orig_filetype,
-                                          ompio_fh->f_datarep,
-                                          MPI_INFO_NULL);
-
+    err = mca_common_ompio_set_view (shfileHandle,
+                                     ompio_fh->f_disp,
+                                     ompio_fh->f_etype,
+                                     ompio_fh->f_orig_filetype,
+                                     ompio_fh->f_datarep,
+                                     MPI_INFO_NULL);
+    
 
     /*Memory is allocated here for the sh structure*/
     sh = (struct mca_sharedfp_base_data_t*)malloc(sizeof(struct mca_sharedfp_base_data_t));
@@ -106,8 +106,8 @@ int mca_sharedfp_lockedfile_file_open (struct ompi_communicator_t *comm,
         ompi_proc_t *masterproc = ompi_group_peer_lookup(comm->c_local_group, 0 );
         masterjobid = OMPI_CAST_RTE_NAME(&masterproc->super.proc_name)->jobid;
     }
-    comm->c_coll.coll_bcast ( &masterjobid, 1, MPI_UNSIGNED, 0, comm, 
-                              comm->c_coll.coll_bcast_module );
+    comm->c_coll->coll_bcast ( &masterjobid, 1, MPI_UNSIGNED, 0, comm, 
+                               comm->c_coll->coll_bcast_module );
  
     size_t filenamelen = strlen(filename) + 16;
     lockedfilename = (char*)malloc(sizeof(char) * filenamelen);
@@ -132,7 +132,7 @@ int mca_sharedfp_lockedfile_file_open (struct ompi_communicator_t *comm,
 	write ( handle, &position, sizeof(OMPI_MPI_OFFSET_TYPE) );
 	close ( handle );
     }
-    comm->c_coll.coll_barrier ( comm, comm->c_coll.coll_barrier_module );
+    comm->c_coll->coll_barrier ( comm, comm->c_coll->coll_barrier_module );
 
     handle = open ( lockedfilename, O_RDWR, 0644  );
     if ( -1 == handle ) {
@@ -150,7 +150,7 @@ int mca_sharedfp_lockedfile_file_open (struct ompi_communicator_t *comm,
     /*remember the shared file handle*/
     fh->f_sharedfp_data = sh;
 
-    comm->c_coll.coll_barrier ( comm, comm->c_coll.coll_barrier_module );
+    comm->c_coll->coll_barrier ( comm, comm->c_coll->coll_barrier_module );
 
     return err;
 }
@@ -187,7 +187,7 @@ int mca_sharedfp_lockedfile_file_close (mca_io_ompio_file_t *fh)
     }
 
     /* Close the main file opened by this component*/
-    err = ompio_io_ompio_file_close(sh->sharedfh);
+    err = mca_common_ompio_file_close(sh->sharedfh);
 
     /*free shared file pointer data struct*/
     free(sh);

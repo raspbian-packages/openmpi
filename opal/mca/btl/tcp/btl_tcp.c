@@ -12,7 +12,7 @@
  *                         All rights reserved.
  * Copyright (c) 2006-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2016      Research Organization for Information Science
+ * Copyright (c) 2016-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      Intel, Inc. All rights reserved.
  *
@@ -49,8 +49,9 @@ mca_btl_tcp_module_t mca_btl_tcp_module = {
         .btl_send = mca_btl_tcp_send,
         .btl_put = mca_btl_tcp_put,
         .btl_dump = mca_btl_base_dump,
-        .btl_ft_event = NULL
-    }
+        .btl_ft_event = mca_btl_tcp_ft_event
+    },
+    .tcp_endpoints_mutex = OPAL_MUTEX_STATIC_INIT
 };
 
 /**
@@ -122,7 +123,9 @@ int mca_btl_tcp_add_procs( struct mca_btl_base_module_t* btl,
                 continue;
             }
 
+            OPAL_THREAD_LOCK(&tcp_btl->tcp_endpoints_mutex);
             opal_list_append(&tcp_btl->tcp_endpoints, (opal_list_item_t*)tcp_endpoint);
+            OPAL_THREAD_UNLOCK(&tcp_btl->tcp_endpoints_mutex);
         }
 
         OPAL_THREAD_UNLOCK(&tcp_proc->proc_lock);
@@ -143,20 +146,21 @@ int mca_btl_tcp_add_procs( struct mca_btl_base_module_t* btl,
 }
 
 int mca_btl_tcp_del_procs(struct mca_btl_base_module_t* btl,
-        size_t nprocs,
-        struct opal_proc_t **procs,
-        struct mca_btl_base_endpoint_t ** endpoints)
+                          size_t nprocs,
+                          struct opal_proc_t **procs,
+                          struct mca_btl_base_endpoint_t ** endpoints)
 {
     mca_btl_tcp_module_t* tcp_btl = (mca_btl_tcp_module_t*)btl;
     size_t i;
+
+    OPAL_THREAD_LOCK(&tcp_btl->tcp_endpoints_mutex);
     for( i = 0; i < nprocs; i++ ) {
         mca_btl_tcp_endpoint_t* tcp_endpoint = endpoints[i];
-        if(tcp_endpoint->endpoint_proc != mca_btl_tcp_proc_local()) {
-            opal_list_remove_item(&tcp_btl->tcp_endpoints, (opal_list_item_t*)tcp_endpoint);
-            OBJ_RELEASE(tcp_endpoint);
-        }
+        opal_list_remove_item(&tcp_btl->tcp_endpoints, (opal_list_item_t*)tcp_endpoint);
+        OBJ_RELEASE(tcp_endpoint);
         opal_progress_event_users_decrement();
     }
+    OPAL_THREAD_UNLOCK(&tcp_btl->tcp_endpoints_mutex);
     return OPAL_SUCCESS;
 }
 
@@ -377,6 +381,7 @@ int mca_btl_tcp_put (mca_btl_base_module_t *btl, struct mca_btl_base_endpoint_t 
 
     frag->segments[1].seg_addr.lval = remote_address;
     frag->segments[1].seg_len = size;
+    if (endpoint->endpoint_nbo) MCA_BTL_BASE_SEGMENT_HTON(frag->segments[1]);
 
     frag->base.des_flags = MCA_BTL_DES_FLAGS_BTL_OWNERSHIP | MCA_BTL_DES_SEND_ALWAYS_CALLBACK;
     frag->base.des_cbfunc = fake_rdma_complete;
@@ -479,6 +484,10 @@ int mca_btl_tcp_finalize(struct mca_btl_base_module_t* btl)
 {
     mca_btl_tcp_module_t* tcp_btl = (mca_btl_tcp_module_t*) btl;
     opal_list_item_t* item;
+
+    /* Don't lock the tcp_endpoints_mutex, at this point a single
+     * thread should be active.
+     */
     for( item = opal_list_remove_first(&tcp_btl->tcp_endpoints);
          item != NULL;
          item = opal_list_remove_first(&tcp_btl->tcp_endpoints)) {
@@ -512,11 +521,13 @@ void mca_btl_tcp_dump(struct mca_btl_base_module_t* base_btl,
     } else if( verbose ) {
         opal_list_item_t *item;
 
+        OPAL_THREAD_LOCK(&btl->tcp_endpoints_mutex);
         for(item =  opal_list_get_first(&btl->tcp_endpoints);
             item != opal_list_get_end(&btl->tcp_endpoints);
             item = opal_list_get_next(item)) {
             MCA_BTL_TCP_ENDPOINT_DUMP(10, (mca_btl_base_endpoint_t*)item, false, "TCP");
         }
+        OPAL_THREAD_UNLOCK(&btl->tcp_endpoints_mutex);
     }
 #endif /* OPAL_ENABLE_DEBUG && WANT_PEER_DUMP */
 }

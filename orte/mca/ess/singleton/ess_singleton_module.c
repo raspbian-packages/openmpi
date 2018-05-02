@@ -12,7 +12,7 @@
  *                         All rights reserved.
  * Copyright (c) 2010      Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
  * Copyright (c) 2016      Research Organization for Information Science
@@ -42,10 +42,10 @@
 #include "opal/util/argv.h"
 #include "opal/util/opal_environ.h"
 #include "opal/util/path.h"
+#include "opal/runtime/opal_progress_threads.h"
 #include "opal/mca/installdirs/installdirs.h"
 #include "opal/mca/pmix/base/base.h"
 #include "opal/mca/pmix/pmix.h"
-#include "opal/runtime/opal_progress_threads.h"
 
 #include "orte/util/show_help.h"
 #include "orte/util/proc_info.h"
@@ -84,13 +84,9 @@ static int rte_init(void)
 {
     int rc, ret;
     char *error = NULL;
-    uint64_t unique_key[2];
-    char *string_key;
-    char *envar;
-    opal_value_t *kv;
-    char *val;
     int u32, *u32ptr;
     uint16_t u16, *u16ptr;
+    orte_process_name_t name;
 
     /* run the prolog */
     if (ORTE_SUCCESS != (rc = orte_ess_base_std_prolog())) {
@@ -100,19 +96,19 @@ static int rte_init(void)
     u32ptr = &u32;
     u16ptr = &u16;
 
-    if (NULL != orte_ess_singleton_server_uri) {
+    if (NULL != mca_ess_singleton_component.server_uri) {
         /* we are going to connect to a server HNP */
-        if (0 == strncmp(orte_ess_singleton_server_uri, "file", strlen("file")) ||
-            0 == strncmp(orte_ess_singleton_server_uri, "FILE", strlen("FILE"))) {
+        if (0 == strncmp(mca_ess_singleton_component.server_uri, "file", strlen("file")) ||
+            0 == strncmp(mca_ess_singleton_component.server_uri, "FILE", strlen("FILE"))) {
             char input[1024], *filename;
             FILE *fp;
 
             /* it is a file - get the filename */
-            filename = strchr(orte_ess_singleton_server_uri, ':');
+            filename = strchr(mca_ess_singleton_component.server_uri, ':');
             if (NULL == filename) {
                 /* filename is not correctly formatted */
                 orte_show_help("help-orterun.txt", "orterun:ompi-server-filename-bad", true,
-                               "singleton", orte_ess_singleton_server_uri);
+                               "singleton", mca_ess_singleton_component.server_uri);
                 return ORTE_ERROR;
             }
             ++filename; /* space past the : */
@@ -120,7 +116,7 @@ static int rte_init(void)
             if (0 >= strlen(filename)) {
                 /* they forgot to give us the name! */
                 orte_show_help("help-orterun.txt", "orterun:ompi-server-filename-missing", true,
-                               "singleton", orte_ess_singleton_server_uri);
+                               "singleton", mca_ess_singleton_component.server_uri);
                 return ORTE_ERROR;
             }
 
@@ -128,7 +124,7 @@ static int rte_init(void)
             fp = fopen(filename, "r");
             if (NULL == fp) { /* can't find or read file! */
                 orte_show_help("help-orterun.txt", "orterun:ompi-server-filename-access", true,
-                               "singleton", orte_ess_singleton_server_uri);
+                               "singleton", mca_ess_singleton_component.server_uri);
                 return ORTE_ERROR;
             }
             memset(input, 0, 1024);  // initialize the array to ensure a NULL termination
@@ -136,14 +132,14 @@ static int rte_init(void)
                 /* something malformed about file */
                 fclose(fp);
                 orte_show_help("help-orterun.txt", "orterun:ompi-server-file-bad", true,
-                               "singleton", orte_ess_singleton_server_uri, "singleton");
+                               "singleton", mca_ess_singleton_component.server_uri, "singleton");
                 return ORTE_ERROR;
             }
             fclose(fp);
             input[strlen(input)-1] = '\0';  /* remove newline */
             orte_process_info.my_hnp_uri = strdup(input);
         } else {
-            orte_process_info.my_hnp_uri = strdup(orte_ess_singleton_server_uri);
+            orte_process_info.my_hnp_uri = strdup(mca_ess_singleton_component.server_uri);
         }
         /* save the daemon uri - we will process it later */
         orte_process_info.my_daemon_uri = strdup(orte_process_info.my_hnp_uri);
@@ -157,7 +153,11 @@ static int rte_init(void)
         ORTE_PROC_MY_NAME->vpid = 0;
 
         /* for convenience, push the pubsub version of this param into the environ */
-        opal_setenv (OPAL_MCA_PREFIX"pubsub_orte_server", orte_process_info.my_hnp_uri, 1, &environ);
+        opal_setenv (OPAL_MCA_PREFIX"pubsub_orte_server", orte_process_info.my_hnp_uri, true, &environ);
+    } else if (NULL != getenv("SINGULARITY_CONTAINER") ||
+               mca_ess_singleton_component.isolated) {
+        /* ensure we use the isolated pmix component */
+        opal_setenv(OPAL_MCA_PREFIX"pmix", "isolated", true, &environ);
     } else {
         /* we want to use PMIX_NAMESPACE that will be sent by the hnp as a jobid */
         opal_setenv(OPAL_MCA_PREFIX"orte_launch", "1", true, &environ);
@@ -167,6 +167,7 @@ static int rte_init(void)
             return rc;
         }
         /* our name was given to us by the HNP */
+        opal_setenv(OPAL_MCA_PREFIX"pmix", "^s1,s2,cray,isolated", true, &environ);
     }
 
     /* get an async event base - we use the opal_async one so
@@ -175,19 +176,20 @@ static int rte_init(void)
     progress_thread_running = true;
 
     /* open and setup pmix */
-    if (NULL == opal_pmix.initialized) {
-        if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_pmix_base_framework, 0))) {
-            error = "opening pmix";
-            goto error;
-        }
-        if (OPAL_SUCCESS != (ret = opal_pmix_base_select())) {
-            error = "select pmix";
-            goto error;
-        }
+    if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_pmix_base_framework, 0))) {
+        error = "opening pmix";
+        goto error;
     }
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_select())) {
+        error = "select pmix";
+        goto error;
+    }
+    /* set the event base */
+    opal_pmix_base_set_evbase(orte_event_base);
     /* initialize the selected module */
-    if (!opal_pmix.initialized() && (OPAL_SUCCESS != (ret = opal_pmix.init()))) {
-        error = "init pmix";
+    if (!opal_pmix.initialized() && (OPAL_SUCCESS != (ret = opal_pmix.init(NULL)))) {
+        /* we cannot run */
+        error = "pmix init";
         goto error;
     }
 
@@ -195,6 +197,8 @@ static int rte_init(void)
      * so carry it forward here */
     ORTE_PROC_MY_NAME->jobid = OPAL_PROC_MY_NAME.jobid;
     ORTE_PROC_MY_NAME->vpid = OPAL_PROC_MY_NAME.vpid;
+    name.jobid = OPAL_PROC_MY_NAME.jobid;
+    name.vpid = ORTE_VPID_WILDCARD;
 
     /* get our local rank from PMI */
     OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_RANK,
@@ -214,14 +218,17 @@ static int rte_init(void)
     }
     orte_process_info.my_node_rank = u16;
 
-    /* get universe size */
-    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_UNIV_SIZE,
-                          ORTE_PROC_MY_NAME, &u32ptr, OPAL_UINT32);
+    /* get max procs */
+    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_MAX_PROCS,
+                          &name, &u32ptr, OPAL_UINT32);
     if (OPAL_SUCCESS != ret) {
-        error = "getting univ size";
+        error = "getting max procs";
         goto error;
     }
-    orte_process_info.num_procs = u32;
+    orte_process_info.max_procs = u32;
+
+    /* we are a singleton, so there is only one proc in the job */
+    orte_process_info.num_procs = 1;
     /* push into the environ for pickup in MPI layer for
      * MPI-3 required info key
      */
@@ -242,7 +249,7 @@ static int rte_init(void)
 
 
     /* get our app number from PMI - ok if not found */
-    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_APPNUM,
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_APPNUM,
                           ORTE_PROC_MY_NAME, &u32ptr, OPAL_UINT32);
     if (OPAL_SUCCESS == ret) {
         orte_process_info.app_num = u32;
@@ -257,93 +264,18 @@ static int rte_init(void)
      * because they are unique values assigned by the RM
      */
     if (NULL == getenv(OPAL_MCA_PREFIX"orte_precondition_transports")) {
-        unique_key[0] = ORTE_JOB_FAMILY(ORTE_PROC_MY_NAME->jobid);
-        unique_key[1] = ORTE_LOCAL_JOBID(ORTE_PROC_MY_NAME->jobid);
-        if (NULL == (string_key = orte_pre_condition_transports_print(unique_key))) {
-            ORTE_ERROR_LOG(ORTE_ERR_OUT_OF_RESOURCE);
-            return ORTE_ERR_OUT_OF_RESOURCE;
+        char *key;
+        ret = orte_pre_condition_transports(NULL, &key);
+        if (ORTE_SUCCESS == ret) {
+            opal_setenv(OPAL_MCA_PREFIX"orte_precondition_transports", key, true, &environ);
+            free(key);
         }
-        asprintf(&envar, OPAL_MCA_PREFIX"orte_precondition_transports=%s", string_key);
-        putenv(envar);
-        added_transport_keys = true;
-        /* cannot free the envar as that messes up our environ */
-        free(string_key);
-    }
-
-    /* retrieve our topology */
-    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_TOPO,
-                          ORTE_PROC_MY_NAME, &val, OPAL_STRING);
-    if (OPAL_SUCCESS == ret && NULL != val) {
-        /* load the topology */
-        if (0 != hwloc_topology_init(&opal_hwloc_topology)) {
-            ret = OPAL_ERROR;
-            free(val);
-            error = "setting topology";
-            goto error;
-        }
-        if (0 != hwloc_topology_set_xmlbuffer(opal_hwloc_topology, val, strlen(val))) {
-            ret = OPAL_ERROR;
-            free(val);
-            hwloc_topology_destroy(opal_hwloc_topology);
-            error = "setting topology";
-            goto error;
-        }
-        /* since we are loading this from an external source, we have to
-         * explicitly set a flag so hwloc sets things up correctly
-         */
-        if (0 != hwloc_topology_set_flags(opal_hwloc_topology,
-                                         (HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM |
-                                          HWLOC_TOPOLOGY_FLAG_WHOLE_SYSTEM |
-                                          HWLOC_TOPOLOGY_FLAG_IO_DEVICES))) {
-            ret = OPAL_ERROR;
-            hwloc_topology_destroy(opal_hwloc_topology);
-            free(val);
-            error = "setting topology";
-            goto error;
-        }
-        /* now load the topology */
-        if (0 != hwloc_topology_load(opal_hwloc_topology)) {
-            ret = OPAL_ERROR;
-            hwloc_topology_destroy(opal_hwloc_topology);
-            free(val);
-            error = "setting topology";
-            goto error;
-        }
-        free(val);
-    } else {
-        /* it wasn't passed down to us, so go get it */
-        if (OPAL_SUCCESS != (ret = opal_hwloc_base_get_topology())) {
-            error = "topology discovery";
-            goto error;
-        }
-        /* push it into the PMIx database in case someone
-         * tries to retrieve it so we avoid an attempt to
-         * get it again */
-        kv = OBJ_NEW(opal_value_t);
-        kv->key = strdup(OPAL_PMIX_LOCAL_TOPO);
-        kv->type = OPAL_STRING;
-        if (0 != (ret = hwloc_topology_export_xmlbuffer(opal_hwloc_topology, &kv->data.string, &u32))) {
-            error = "topology export";
-            goto error;
-        }
-        if (OPAL_SUCCESS != (ret = opal_pmix.store_local(ORTE_PROC_MY_NAME, kv))) {
-            error = "topology store";
-            goto error;
-        }
-        OBJ_RELEASE(kv);
     }
 
     /* use the std app init to complete the procedure */
     if (ORTE_SUCCESS != (rc = orte_ess_base_app_setup(true))) {
         ORTE_ERROR_LOG(rc);
         return rc;
-    }
-
-    /* push our hostname so others can find us, if they need to */
-    OPAL_MODEX_SEND_VALUE(ret, OPAL_PMIX_GLOBAL, OPAL_PMIX_HOSTNAME, orte_process_info.nodename, OPAL_STRING);
-    if (ORTE_SUCCESS != ret) {
-        error = "db store hostname";
-        goto error;
     }
 
     return ORTE_SUCCESS;
@@ -379,7 +311,6 @@ static int rte_finalize(void)
         unsetenv("PMIX_SERVER_URI");
         unsetenv("PMIX_SECURITY_MODE");
     }
-
     /* use the default procedure to finish */
     if (ORTE_SUCCESS != (ret = orte_ess_base_app_finalize())) {
         ORTE_ERROR_LOG(ret);
@@ -396,7 +327,6 @@ static int rte_finalize(void)
         opal_progress_thread_finalize(NULL);
         progress_thread_running = false;
     }
-
     return ret;
 }
 
@@ -503,6 +433,16 @@ static int fork_hnp(void)
     opal_argv_append(&argc, &argv, "state_novm_select");
     opal_argv_append(&argc, &argv, "1");
 
+    /* direct the selection of the ess component */
+    opal_argv_append(&argc, &argv, "-"OPAL_MCA_CMD_LINE_ID);
+    opal_argv_append(&argc, &argv, "ess");
+    opal_argv_append(&argc, &argv, "hnp");
+
+    /* direct the selection of the pmix component */
+    opal_argv_append(&argc, &argv, "-"OPAL_MCA_CMD_LINE_ID);
+    opal_argv_append(&argc, &argv, "pmix");
+    opal_argv_append(&argc, &argv, "^s1,s2,cray,isolated");
+
     /* Fork off the child */
     orte_process_info.hnp_pid = fork();
     if(orte_process_info.hnp_pid < 0) {
@@ -568,14 +508,24 @@ static int fork_hnp(void)
         orted_uri = (char*)malloc(buffer_length);
         memset(orted_uri, 0, buffer_length);
 
-        while (chunk == (rc = read(p[0], &orted_uri[num_chars_read], chunk))) {
-            /* we read an entire buffer - better get more */
-            num_chars_read += chunk;
-            orted_uri = realloc((void*)orted_uri, buffer_length+ORTE_URI_MSG_LGTH);
-            memset(&orted_uri[buffer_length], 0, ORTE_URI_MSG_LGTH);
-            buffer_length += ORTE_URI_MSG_LGTH;
+        while (0 != (rc = read(p[0], &orted_uri[num_chars_read], chunk))) {
+            if (rc < 0 && (EAGAIN == errno || EINTR == errno)) {
+                continue;
+            } else if (rc < 0) {
+                num_chars_read = -1;
+                break;
+            }
+            /* we read something - better get more */
+            num_chars_read += rc;
+            chunk -= rc;
+            if (0 == chunk) {
+                chunk = ORTE_URI_MSG_LGTH;
+                orted_uri = realloc((void*)orted_uri, buffer_length+chunk);
+                memset(&orted_uri[buffer_length], 0, chunk);
+                buffer_length += chunk;
+            }
         }
-        num_chars_read += rc;
+        close(p[0]);
 
         if (num_chars_read <= 0) {
             /* we didn't get anything back - this is bad */
@@ -618,7 +568,7 @@ static int fork_hnp(void)
         orte_process_info.my_hnp_uri = orted_uri;
 
         /* split the pmix_uri into its parts */
-        argv = opal_argv_split(cptr, ',');
+        argv = opal_argv_split(cptr, '*');
         count = opal_argv_count(argv);
         /* push each piece into the environment */
         for (i=0; i < count; i++) {

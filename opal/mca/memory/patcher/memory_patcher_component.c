@@ -10,10 +10,10 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2009-2016 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2009-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2013-2017 Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2016      Research Organization for Information Science
+ * Copyright (c) 2016-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      IBM Corporation.  All rights reserved.
  *
@@ -178,6 +178,7 @@ static int intercept_munmap(void *start, size_t length)
     OPAL_PATCHER_END;
     return result;
 }
+
 #endif
 
 #if defined (SYS_mremap)
@@ -486,7 +487,7 @@ static int patcher_open (void)
     }
 #endif
 
-#if defined(SYS_munmap)
+#if defined (SYS_munmap)
     rc = opal_patcher->patch_symbol ("munmap", (uintptr_t)intercept_munmap, (uintptr_t *) &original_munmap);
     if (OPAL_SUCCESS != rc) {
         return rc;
@@ -500,15 +501,11 @@ static int patcher_open (void)
     }
 #endif
 
-    /* NTH: we can't currently allow madvise to be intercepted due to a deadlock when running with glibc. in
-     * the future we may re-enable this hook if the deadlock can be resolved. */
-#if 0
 #if defined (SYS_madvise)
     rc = opal_patcher->patch_symbol ("madvise", (uintptr_t)intercept_madvise, (uintptr_t *) &original_madvise);
     if (OPAL_SUCCESS != rc) {
         return rc;
     }
-#endif
 #endif
 
 #if defined(SYS_shmdt) && defined(__linux__)

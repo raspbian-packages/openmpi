@@ -1,3 +1,4 @@
+/* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
@@ -9,7 +10,10 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2012-2017 Cisco Systems, Inc.  All rights reserved
+ * Copyright (c) 2012      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2015-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2016-2017 Los Alamos National Security, LLC. All rights
+ *                         reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -128,7 +132,7 @@ BEGIN_C_DECLS
         opal_object_t super;
 
         /** Thread safety */
-        opal_mutex_t lcl_mutex;
+        opal_recursive_mutex_t lcl_mutex;
 
         /** List of cmd_line_option_t's (defined internally) */
         opal_list_t lcl_options;
@@ -173,6 +177,33 @@ BEGIN_C_DECLS
     typedef enum opal_cmd_line_type_t opal_cmd_line_type_t;
 
     /**
+     * Command line option type, for use in
+     * mpirun --help output.
+     */
+    enum opal_cmd_line_otype_t {
+        OPAL_CMD_LINE_OTYPE_GENERAL,
+        OPAL_CMD_LINE_OTYPE_DEBUG,
+        OPAL_CMD_LINE_OTYPE_OUTPUT,
+        OPAL_CMD_LINE_OTYPE_INPUT,
+        OPAL_CMD_LINE_OTYPE_MAPPING,
+        OPAL_CMD_LINE_OTYPE_RANKING,
+        OPAL_CMD_LINE_OTYPE_BINDING,
+        OPAL_CMD_LINE_OTYPE_DEVEL,
+        OPAL_CMD_LINE_OTYPE_COMPAT, /* Backwards compatibility */
+        OPAL_CMD_LINE_OTYPE_LAUNCH,
+        OPAL_CMD_LINE_OTYPE_DVM,
+        OPAL_CMD_LINE_OTYPE_UNSUPPORTED,
+        OPAL_CMD_LINE_OTYPE_PARSABLE,
+        OPAL_CMD_LINE_OTYPE_NULL
+    };
+    /**
+     * \internal
+     *
+     * Convenience typedef
+     */
+    typedef enum opal_cmd_line_otype_t opal_cmd_line_otype_t;
+
+    /**
      * Datatype used to construct a command line handle; see
      * opal_cmd_line_create().
      */
@@ -203,6 +234,9 @@ BEGIN_C_DECLS
         /** Description of the command line option, to be used with
             opal_cmd_line_get_usage_msg(). */
         const char *ocl_description;
+
+        /** Category for mpirun --help output */
+        opal_cmd_line_otype_t ocl_otype;
     };
     /**
      * \internal
@@ -267,6 +301,16 @@ BEGIN_C_DECLS
     OPAL_DECLSPEC int opal_cmd_line_create(opal_cmd_line_t *cmd,
                                            opal_cmd_line_init_t *table);
 
+    /* Add a table of opal_cmd_line_init_t instances
+     * to an existing OPAL command line handle.
+     *
+     * Multiple calls to opal_cmd_line_add are permitted - each
+     * subsequent call will simply append new options to the existing
+     * handle. Note that any duplicates will return an error.
+     */
+     OPAL_DECLSPEC int opal_cmd_line_add(opal_cmd_line_t *cmd,
+                                         opal_cmd_line_init_t *table);
+
     /**
      * Create a command line option.
      *
@@ -321,6 +365,8 @@ BEGIN_C_DECLS
      * @param cmd OPAL command line handle.
      * @param ignore_unknown Whether to print an error message upon
      * finding an unknown token or not
+     * @param ignore_unknown_option Whether to print an error message upon
+     * finding an unknown option or not
      * @param argc Length of the argv array.
      * @param argv Array of strings from the command line.
      *
@@ -403,6 +449,7 @@ BEGIN_C_DECLS
      */
     OPAL_DECLSPEC int opal_cmd_line_parse(opal_cmd_line_t *cmd,
                                           bool ignore_unknown,
+                                          bool ignore_unknown_option,
                                           int argc, char **argv);
 
     /**

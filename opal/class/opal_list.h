@@ -12,6 +12,8 @@
  * Copyright (c) 2007      Voltaire All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2016      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -168,22 +170,26 @@ typedef struct opal_list_t opal_list_t;
  *
  * @param[in] list List to destruct or release
  */
-#define OPAL_LIST_DESTRUCT(list)                                \
-    do {                                                        \
-        opal_list_item_t *it;                                   \
-        while (NULL != (it = opal_list_remove_first(list))) {   \
-            OBJ_RELEASE(it);                                    \
-        }                                                       \
-        OBJ_DESTRUCT(list);                                     \
+#define OPAL_LIST_DESTRUCT(list)                                  \
+    do {                                                          \
+        opal_list_item_t *it;                                     \
+        if (1 == ((opal_object_t*)(list))->obj_reference_count) { \
+          while (NULL != (it = opal_list_remove_first(list))) {   \
+              OBJ_RELEASE(it);                                    \
+          }                                                       \
+        }                                                         \
+        OBJ_DESTRUCT(list);                                       \
     } while(0);
 
-#define OPAL_LIST_RELEASE(list)                                 \
-    do {                                                        \
-        opal_list_item_t *it;                                   \
-        while (NULL != (it = opal_list_remove_first(list))) {   \
-            OBJ_RELEASE(it);                                    \
-        }                                                       \
-        OBJ_RELEASE(list);                                      \
+#define OPAL_LIST_RELEASE(list)                                   \
+    do {                                                          \
+        opal_list_item_t *it;                                     \
+        if (1 == ((opal_object_t*)(list))->obj_reference_count) { \
+          while (NULL != (it = opal_list_remove_first(list))) {   \
+              OBJ_RELEASE(it);                                    \
+          }                                                       \
+        }                                                         \
+        OBJ_RELEASE(list);                                        \
     } while(0);
 
 
@@ -200,8 +206,8 @@ typedef struct opal_list_t opal_list_t;
  * Example Usage:
  *
  * class_foo_t *foo;
- * opal_list_foreach(foo, list, class_foo_t) {
- *    do something;
+ * OPAL_LIST_FOREACH(foo, list, class_foo_t) {
+ *    do something(foo);
  * }
  */
 #define OPAL_LIST_FOREACH(item, list, type)                             \
@@ -868,7 +874,7 @@ static inline void opal_list_insert_pos(opal_list_t *list, opal_list_item_t *pos
      * Explanation below.
      * @retval 1 if \em a is greater than \em b
      * @retval 0 if \em a is equal to \em b
-     * @retval 11 if \em a is less than \em b
+     * @retval -1 if \em a is less than \em b
      *
      * This function is invoked by qsort(3) from within
      * opal_list_sort().  It is important to understand what

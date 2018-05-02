@@ -14,9 +14,11 @@
  * Copyright (c) 2007-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2013      NVIDIA Corporation.  All rights reserved.
- * Copyright (c) 2013-2014 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2015      Mellanox Technologies, Inc.
  *                         All rights reserved.
+ * Copyright (c) 2016      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -35,6 +37,7 @@
 #include "ompi/runtime/params.h"
 #include "ompi/mca/rte/rte.h"
 
+#include "opal/mca/pmix/base/base.h"
 #include "opal/util/argv.h"
 #include "opal/util/output.h"
 #include "opal/util/show_help.h"
@@ -64,6 +67,9 @@ int ompi_mpi_event_tick_rate = -1;
 char *ompi_mpi_show_mca_params_string = NULL;
 bool ompi_mpi_have_sparse_group_storage = !!(OMPI_GROUP_SPARSE);
 bool ompi_mpi_preconnect_mpi = false;
+
+bool ompi_async_mpi_init = false;
+bool ompi_async_mpi_finalize = false;
 
 #define OMPI_ADD_PROCS_CUTOFF_DEFAULT 0
 uint32_t ompi_add_procs_cutoff = OMPI_ADD_PROCS_CUTOFF_DEFAULT;
@@ -198,7 +204,6 @@ int ompi_mpi_register_params(void)
     }
 
     /* File to use when dumping the parameters */
-    ompi_mpi_show_mca_params_file = "";
     (void) mca_base_var_register("ompi", "mpi", NULL, "show_mca_params_file",
                                  "If mpi_show_mca_params is true, setting this string to a valid filename tells Open MPI to dump all the MCA parameter values into a file suitable for reading via the mca_param_files parameter (good for reproducability of MPI jobs)",
                                  MCA_BASE_VAR_TYPE_STRING, NULL, 0, 0,
@@ -274,6 +279,34 @@ int ompi_mpi_register_params(void)
                                   0, 0, OPAL_INFO_LVL_3, MCA_BASE_VAR_SCOPE_LOCAL,
                                   &ompi_add_procs_cutoff);
 
+    ompi_mpi_dynamics_enabled = true;
+    (void) mca_base_var_register("ompi", "mpi", NULL, "dynamics_enabled",
+                                 "Is the MPI dynamic process functionality enabled (e.g., MPI_COMM_SPAWN)?  Default is yes, but certain transports and/or environments may disable it.",
+                                 MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
+                                 OPAL_INFO_LVL_4,
+                                 MCA_BASE_VAR_SCOPE_READONLY,
+                                 &ompi_mpi_dynamics_enabled);
+
+    if (opal_pmix_base_async_modex) {
+        ompi_async_mpi_init = true;
+    } else {
+        ompi_async_mpi_init = false;
+    }
+    (void) mca_base_var_register("ompi", "async", "mpi", "init",
+                                 "Do not perform a barrier at the end of MPI_Init",
+                                 MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
+                                 OPAL_INFO_LVL_9,
+                                 MCA_BASE_VAR_SCOPE_READONLY,
+                                 &ompi_async_mpi_init);
+
+    ompi_async_mpi_finalize = false;
+    (void) mca_base_var_register("ompi", "async", "mpi", "finalize",
+                                 "Do not perform a barrier at the beginning of MPI_Finalize",
+                                 MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
+                                 OPAL_INFO_LVL_9,
+                                 MCA_BASE_VAR_SCOPE_READONLY,
+                                 &ompi_async_mpi_finalize);
+
     value = mca_base_var_find ("opal", "opal", NULL, "abort_delay");
     if (0 <= value) {
         (void) mca_base_var_register_synonym(value, "ompi", "mpi", NULL, "abort_delay",
@@ -303,7 +336,8 @@ int ompi_show_all_mca_params(int32_t rank, int requested, char *nodename) {
     timestamp = time(NULL);
 
     /* Open the file if one is specified */
-    if (0 != strlen(ompi_mpi_show_mca_params_file)) {
+    if (NULL != ompi_mpi_show_mca_params_file &&
+        0 != strlen(ompi_mpi_show_mca_params_file)) {
         if ( NULL == (fp = fopen(ompi_mpi_show_mca_params_file, "w")) ) {
             opal_output(0, "Unable to open file <%s> to write MCA parameters", ompi_mpi_show_mca_params_file);
             return OMPI_ERR_FILE_OPEN_FAILURE;
@@ -362,7 +396,8 @@ int ompi_show_all_mca_params(int32_t rank, int requested, char *nodename) {
         }
 
         /* Print the parameter */
-        if (0 != strlen(ompi_mpi_show_mca_params_file)) {
+        if (NULL != ompi_mpi_show_mca_params_file &&
+            0 != strlen(ompi_mpi_show_mca_params_file)) {
             fprintf(fp, "%s\n", var_dump[0]);
         } else {
             opal_output(0, "%s\n", var_dump[0]);
@@ -372,7 +407,8 @@ int ompi_show_all_mca_params(int32_t rank, int requested, char *nodename) {
     }
 
     /* Close file, cleanup allocated memory*/
-    if (0 != strlen(ompi_mpi_show_mca_params_file)) {
+    if (NULL != ompi_mpi_show_mca_params_file &&
+        0 != strlen(ompi_mpi_show_mca_params_file)) {
         fclose(fp);
     }
 

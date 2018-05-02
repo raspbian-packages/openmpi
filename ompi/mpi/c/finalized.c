@@ -12,6 +12,7 @@
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2015      Intel, Inc. All rights reserved
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -25,6 +26,7 @@
 #include "ompi/runtime/params.h"
 #include "ompi/communicator/communicator.h"
 #include "ompi/errhandler/errhandler.h"
+#include "ompi/mca/hook/base/base.h"
 
 #if OMPI_BUILD_MPI_PROFILING
 #if OPAL_HAVE_WEAK_SYMBOLS
@@ -38,7 +40,9 @@ static const char FUNC_NAME[] = "MPI_Finalized";
 
 int MPI_Finalized(int *flag)
 {
-    MPI_Comm null = NULL;
+    OPAL_CR_NOOP_PROGRESS();
+
+    ompi_hook_base_mpi_finalized_top(flag);
 
     /* We must obtain the lock to guarnatee consistent values of
        ompi_mpi_initialized and ompi_mpi_finalized.  Note, too, that
@@ -61,7 +65,10 @@ int MPI_Finalized(int *flag)
                                               FUNC_NAME);
             } else {
                 opal_mutex_unlock(&ompi_mpi_bootstrap_mutex);
-                return OMPI_ERRHANDLER_INVOKE(null, MPI_ERR_ARG,
+                /* We have no MPI object here so call ompi_errhandle_invoke
+                 * directly */
+                return ompi_errhandler_invoke(NULL, NULL, -1,
+                                              ompi_errcode_get_mpi_code(MPI_ERR_ARG),
                                               FUNC_NAME);
             }
         }
@@ -69,6 +76,8 @@ int MPI_Finalized(int *flag)
 
     *flag = ompi_mpi_finalized;
     opal_mutex_unlock(&ompi_mpi_bootstrap_mutex);
+
+    ompi_hook_base_mpi_finalized_bottom(flag);
 
     return MPI_SUCCESS;
 }

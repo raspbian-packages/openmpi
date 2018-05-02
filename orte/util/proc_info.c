@@ -12,7 +12,7 @@
  * Copyright (c) 2009-2016 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2012      Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2014-2015 Intel, Inc. All rights reserved
+ * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2016      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
@@ -59,7 +59,6 @@ ORTE_DECLSPEC orte_proc_info_t orte_process_info = {
     .my_hnp =                          ORTE_NAME_INVALID,
     .my_hnp_uri =                      NULL,
     .my_parent =                       ORTE_NAME_INVALID,
-    .my_scheduler =                    ORTE_NAME_INVALID,
     .hnp_pid =                         0,
     .app_num =                         0,
     .num_procs =                       1,
@@ -70,7 +69,6 @@ ORTE_DECLSPEC orte_proc_info_t orte_process_info = {
     .aliases =                         NULL,
     .pid =                             0,
     .proc_type =                       ORTE_PROC_TYPE_NONE,
-    .sync_buf =                        NULL,
     .my_port =                         0,
     .num_restarts =                    0,
     .my_node_rank =                    ORTE_NODE_RANK_INVALID,
@@ -78,6 +76,7 @@ ORTE_DECLSPEC orte_proc_info_t orte_process_info = {
     .num_local_peers =                 0,
     .tmpdir_base =                     NULL,
     .top_session_dir =                 NULL,
+    .jobfam_session_dir =              NULL,
     .job_session_dir =                 NULL,
     .proc_session_dir =                NULL,
     .sock_stdin =                      NULL,
@@ -104,6 +103,7 @@ int orte_proc_info(void)
     if (init) {
         return ORTE_SUCCESS;
     }
+
     init = true;
 
     OBJ_CONSTRUCT(&orte_process_info.super, opal_proc_t);
@@ -180,10 +180,10 @@ int orte_proc_info(void)
 
     orte_strip_prefix = NULL;
     (void) mca_base_var_register ("orte", "orte", NULL, "strip_prefix",
-				  "Prefix(es) to match when deciding whether to strip leading characters and zeroes from "
-				  "node names returned by daemons", MCA_BASE_VAR_TYPE_STRING, NULL, 0, 0,
-				  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_READONLY,
-				  &orte_strip_prefix);
+                  "Prefix(es) to match when deciding whether to strip leading characters and zeroes from "
+                  "node names returned by daemons", MCA_BASE_VAR_TYPE_STRING, NULL, 0, 0,
+                  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_READONLY,
+                  &orte_strip_prefix);
 
     /* we have to strip node names here, if user directs, to ensure that
      * the names exchanged in the modex match the names found locally
@@ -264,9 +264,6 @@ int orte_proc_info(void)
                                   &orte_ess_node_rank);
     orte_process_info.my_node_rank = (orte_node_rank_t) orte_ess_node_rank;
 
-    /* setup the sync buffer */
-    orte_process_info.sync_buf = OBJ_NEW(opal_buffer_t);
-
     return ORTE_SUCCESS;
 }
 
@@ -285,6 +282,11 @@ int orte_proc_info_finalize(void)
     if (NULL != orte_process_info.top_session_dir) {
         free(orte_process_info.top_session_dir);
         orte_process_info.top_session_dir = NULL;
+    }
+
+    if (NULL != orte_process_info.jobfam_session_dir) {
+        free(orte_process_info.jobfam_session_dir);
+        orte_process_info.jobfam_session_dir = NULL;
     }
 
     if (NULL != orte_process_info.job_session_dir) {
@@ -323,11 +325,6 @@ int orte_proc_info_finalize(void)
     }
 
     orte_process_info.proc_type = ORTE_PROC_TYPE_NONE;
-
-    OBJ_RELEASE(orte_process_info.sync_buf);
-    orte_process_info.sync_buf = NULL;
-
-    OBJ_DESTRUCT(&orte_process_info.super);
 
     opal_argv_free(orte_process_info.aliases);
 

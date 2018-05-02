@@ -59,6 +59,8 @@ int MPI_Type_get_true_extent(MPI_Datatype datatype,
       }
    }
 
+   OPAL_CR_ENTER_LIBRARY();
+
    rc = ompi_datatype_get_true_extent( datatype, true_lb, true_extent );
    OMPI_ERRHANDLER_RETURN(rc, MPI_COMM_WORLD, rc, FUNC_NAME );
 }

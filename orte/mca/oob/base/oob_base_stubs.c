@@ -1,8 +1,8 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2012-2015 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2012-2014 Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2013-2015 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -21,15 +21,18 @@
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/state/state.h"
 #include "orte/mca/rml/rml.h"
-
+#include "orte/util/threads.h"
 #include "orte/mca/oob/base/base.h"
+#if OPAL_ENABLE_FT_CR == 1
+#include "orte/mca/state/base/base.h"
+#endif
 
 static void process_uri(char *uri);
 
 void orte_oob_base_send_nb(int fd, short args, void *cbdata)
 {
     orte_oob_send_t *cd = (orte_oob_send_t*)cbdata;
-    orte_rml_send_t *msg = cd->msg;
+    orte_rml_send_t *msg;
     mca_base_component_list_item_t *cli;
     orte_oob_base_peer_t *pr;
     int rc;
@@ -39,13 +42,25 @@ void orte_oob_base_send_nb(int fd, short args, void *cbdata)
     bool reachable;
     char *uri;
 
+    ORTE_ACQUIRE_OBJECT(cd);
+
     /* done with this. release it now */
+    msg = cd->msg;
     OBJ_RELEASE(cd);
 
     opal_output_verbose(5, orte_oob_base_framework.framework_output,
-                        "%s oob:base:send to target %s",
+                        "%s oob:base:send to target %s - attempt %u",
                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                        ORTE_NAME_PRINT(&msg->dst));
+                        ORTE_NAME_PRINT(&msg->dst), msg->retries);
+
+    /* don't try forever - if we have exceeded the number of retries,
+     * then report this message as undeliverable even if someone continues
+     * to think they could reach it */
+    if (orte_rml_base.max_retries <= msg->retries) {
+        msg->status = ORTE_ERR_NO_PATH_TO_TARGET;
+        ORTE_RML_SEND_COMPLETE(msg);
+        return;
+    }
 
     /* check if we have this peer in our hash table */
     memcpy(&ui64, (char*)&msg->dst, sizeof(uint64_t));
@@ -91,7 +106,7 @@ void orte_oob_base_send_nb(int fd, short args, void *cbdata)
             OPAL_LIST_FOREACH(cli, &orte_oob_base.actives, mca_base_component_list_item_t) {
                 component = (mca_oob_base_component_t*)cli->cli_component;
                 if (NULL != component->is_reachable) {
-                    if (component->is_reachable(&msg->dst)) {
+                    if (component->is_reachable(msg->routed, &msg->dst)) {
                         /* there is a way to reach this peer - record it
                          * so we don't waste this time again
                          */
@@ -117,8 +132,11 @@ void orte_oob_base_send_nb(int fd, short args, void *cbdata)
                  * this is a local proc we just haven't heard from
                  * yet due to a race condition. Check that situation */
                 if (ORTE_PROC_IS_DAEMON || ORTE_PROC_IS_HNP) {
-                    ORTE_OOB_SEND(msg);
-                    return;
+                    ++msg->retries;
+                    if (msg->retries < orte_rml_base.max_retries) {
+                        ORTE_OOB_SEND(msg);
+                        return;
+                    }
                 }
                 msg->status = ORTE_ERR_ADDRESSEE_UNKNOWN;
                 ORTE_RML_SEND_COMPLETE(msg);
@@ -151,7 +169,7 @@ void orte_oob_base_send_nb(int fd, short args, void *cbdata)
     OPAL_LIST_FOREACH(cli, &orte_oob_base.actives, mca_base_component_list_item_t) {
         component = (mca_oob_base_component_t*)cli->cli_component;
         /* is this peer reachable via this component? */
-        if (!component->is_reachable(&msg->dst)) {
+        if (!component->is_reachable(msg->routed, &msg->dst)) {
             continue;
         }
         /* it is addressable, so attempt to send via that transport */
@@ -261,7 +279,7 @@ void orte_oob_base_get_addr(char **uri)
         }
     }
 
- unblock:
+  unblock:
     *uri = final;
 }
 
@@ -288,7 +306,10 @@ OBJ_CLASS_INSTANCE(mca_oob_uri_req_t,
 void orte_oob_base_set_addr(int fd, short args, void *cbdata)
 {
     mca_oob_uri_req_t *req = (mca_oob_uri_req_t*)cbdata;
-    char *uri = req->uri;
+    char *uri;
+
+    ORTE_ACQUIRE_OBJECT(req);
+    uri = req->uri;
 
     opal_output_verbose(5, orte_oob_base_framework.framework_output,
                         "%s: set_addr to uri %s",
@@ -397,3 +418,59 @@ static void process_uri(char *uri)
     opal_argv_free(uris);
 }
 
+void orte_oob_base_get_transports(opal_list_t *transports)
+{
+    mca_base_component_list_item_t *cli;
+    mca_oob_base_component_t *component;
+    orte_rml_pathway_t *p;
+
+    opal_output_verbose(5, orte_oob_base_framework.framework_output,
+                        "%s: get transports",
+                        ORTE_NAME_PRINT(ORTE_PROC_MY_NAME));
+
+    OPAL_LIST_FOREACH(cli, &orte_oob_base.actives, mca_base_component_list_item_t) {
+        component = (mca_oob_base_component_t*)cli->cli_component;
+        opal_output_verbose(5, orte_oob_base_framework.framework_output,
+                            "%s:get transports for component %s",
+                            ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                            component->oob_base.mca_component_name);
+        if (NULL != component->query_transports) {
+            if (NULL != (p = component->query_transports())) {
+                opal_list_append(transports, &p->super);
+            }
+        }
+    }
+}
+
+#if OPAL_ENABLE_FT_CR == 1
+void orte_oob_base_ft_event(int sd, short argc, void *cbdata)
+{
+    int rc;
+    mca_base_component_list_item_t *cli;
+    mca_oob_base_component_t *component;
+    orte_state_caddy_t *state = (orte_state_caddy_t*)cbdata;
+
+    opal_output_verbose(5, orte_oob_base_framework.framework_output,
+                        "%s oob:base:ft_event %s(%d)",
+                        ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                        orte_job_state_to_str(state->job_state),
+                        state->job_state);
+
+    /* loop across all available modules in priority order
+     * and call each one's ft_event handler
+     */
+    OPAL_LIST_FOREACH(cli, &orte_oob_base.actives, mca_base_component_list_item_t) {
+        component = (mca_oob_base_component_t*)cli->cli_component;
+        if (NULL == component->ft_event) {
+            /* doesn't support this ability */
+            continue;
+        }
+
+        if (ORTE_SUCCESS != (rc = component->ft_event(state->job_state))) {
+            ORTE_ERROR_LOG(rc);
+        }
+    }
+    OBJ_RELEASE(state);
+}
+
+#endif

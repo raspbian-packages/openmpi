@@ -4,10 +4,10 @@ Bug-Origin: https://github.com/open-mpi/ompi/issues/2055
 Last-Updated: 2017-05-03
 Forwarded: yes
 
-Index: openmpi-2.1.1~rc1/opal/include/opal/sys/powerpc/atomic.h
+Index: openmpi-3.0.1~rc1/opal/include/opal/sys/powerpc/atomic.h
 ===================================================================
---- openmpi-2.1.1~rc1.orig/opal/include/opal/sys/powerpc/atomic.h
-+++ openmpi-2.1.1~rc1/opal/include/opal/sys/powerpc/atomic.h
+--- openmpi-3.0.1~rc1.orig/opal/include/opal/sys/powerpc/atomic.h
++++ openmpi-3.0.1~rc1/opal/include/opal/sys/powerpc/atomic.h
 @@ -27,6 +27,13 @@
   * On powerpc ...
   */
@@ -21,4 +21,4 @@ Index: openmpi-2.1.1~rc1/opal/include/opal/sys/powerpc/atomic.h
 +
  #define MB()  __asm__ __volatile__ ("sync" : : : "memory")
  #define RMB() __asm__ __volatile__ ("lwsync" : : : "memory")
- #define WMB() __asm__ __volatile__ ("eieio" : : : "memory")
+ #define WMB() __asm__ __volatile__ ("lwsync" : : : "memory")

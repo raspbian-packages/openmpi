@@ -13,9 +13,9 @@
  * Copyright (c) 2009-2010 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
- * Copyright (c) 2014-2015 Research Organization for Information Science
- *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
@@ -72,22 +72,28 @@ char *orte_basename = NULL;
 bool orte_coprocessors_detected = false;
 opal_hash_table_t *orte_coprocessors = NULL;
 char *orte_topo_signature = NULL;
+char *orte_mgmt_transport = NULL;
+char *orte_coll_transport = NULL;
+int orte_mgmt_conduit = -1;
+int orte_coll_conduit = -1;
+bool orte_no_vm = false;
+char *orte_data_server_uri = NULL;
 
 /* ORTE OOB port flags */
 bool orte_static_ports = false;
 char *orte_oob_static_ports = NULL;
 bool orte_standalone_operation = false;
+bool orte_fwd_mpirun_port = false;
 
 bool orte_keep_fqdn_hostnames = false;
 bool orte_have_fqdn_allocation = false;
 bool orte_show_resolved_nodenames = false;
 bool orte_retain_aliases = false;
 int orte_use_hostname_alias = -1;
+int orte_hostname_cutoff = 1000;
 
 int orted_debug_failure = -1;
 int orted_debug_failure_delay = -1;
-bool orte_hetero_apps = false;
-bool orte_hetero_nodes = false;
 bool orte_never_launched = false;
 bool orte_devel_level_output = false;
 bool orte_display_topo_with_map = false;
@@ -103,6 +109,8 @@ bool orte_display_allocation = false;
 bool orte_display_devel_allocation = false;
 bool orte_soft_locations = false;
 int orted_pmi_version = 0;
+bool orte_nidmap_communicated = false;
+bool orte_node_info_communicated = false;
 
 /* launch agents */
 char *orte_launch_agent = NULL;
@@ -133,7 +141,7 @@ opal_buffer_t *orte_tree_launch_cmd = NULL;
 int orte_stack_trace_wait_timeout = 30;
 
 /* global arrays for data storage */
-opal_pointer_array_t *orte_job_data = NULL;
+opal_hash_table_t *orte_job_data = NULL;
 opal_pointer_array_t *orte_node_pool = NULL;
 opal_pointer_array_t *orte_node_topologies = NULL;
 opal_pointer_array_t *orte_local_children = NULL;
@@ -142,12 +150,8 @@ orte_vpid_t orte_total_procs = 0;
 /* IOF controls */
 bool orte_tag_output = false;
 bool orte_timestamp_output = false;
-char *orte_output_filename = NULL;
 /* generate new xterm windows to display output from specified ranks */
 char *orte_xterm = NULL;
-
-/* whether or not to forward SIGTSTP and SIGCONT signals */
-bool orte_forward_job_control = false;
 
 /* report launch progress */
 bool orte_report_launch_progress = false;
@@ -185,10 +189,6 @@ int orte_stat_history_size = -1;
 /* envars to forward */
 char **orte_forwarded_envars = NULL;
 
-/* map-reduce mode */
-bool orte_map_reduce = false;
-bool orte_staged_execution = false;
-
 /* map stddiag output to stderr so it isn't forwarded to mpirun */
 bool orte_map_stddiag_to_stderr = false;
 bool orte_map_stddiag_to_stdout = false;
@@ -198,9 +198,6 @@ int orte_max_vm_size = -1;
 
 /* user debugger */
 char *orte_base_user_debugger = NULL;
-
-/* modex cutoff */
-uint32_t orte_direct_modex_cutoff = UINT32_MAX;
 
 int orte_debug_output = -1;
 bool orte_debug_daemons_flag = false;
@@ -420,22 +417,16 @@ int orte_dt_init(void)
 
 orte_job_t* orte_get_job_data_object(orte_jobid_t job)
 {
-    int32_t ljob;
+    orte_job_t *jdata;
 
     /* if the job data wasn't setup, we cannot provide the data */
     if (NULL == orte_job_data) {
         return NULL;
     }
 
-    /* the job is indexed by its local jobid, so we can
-     * just look it up here. it is not an error for this
-     * to not be found - could just be
-     * a race condition whereby the job has already been
-     * removed from the array. The get_item function
-     * will just return NULL in that case.
-     */
-    ljob = ORTE_LOCAL_JOBID(job);
-    return (orte_job_t*)opal_pointer_array_get_item(orte_job_data, ljob);
+    jdata = NULL;
+    opal_hash_table_get_value_uint32(orte_job_data, job, (void**)&jdata);
+    return jdata;
 }
 
 orte_proc_t* orte_get_proc_object(orte_process_name_t *proc)
@@ -470,7 +461,7 @@ orte_vpid_t orte_get_proc_daemon_vpid(orte_process_name_t *proc)
 char* orte_get_proc_hostname(orte_process_name_t *proc)
 {
     orte_proc_t *proct;
-    char *hostname;
+    char *hostname = NULL;
     int rc;
 
     /* if we are a tool, then we have no way of obtaining
@@ -518,12 +509,13 @@ orte_node_rank_t orte_get_proc_node_rank(orte_process_name_t *proc)
     }
 
     /* if we are an app, get the value from the modex db */
+    noderank = &nd;
     OPAL_MODEX_RECV_VALUE(rc, OPAL_PMIX_NODE_RANK,
                           (opal_process_name_t*)proc,
                           &noderank, ORTE_NODE_RANK);
-
-    nd = *noderank;
-    free(noderank);
+    if (OPAL_SUCCESS != rc) {
+        nd = ORTE_NODE_RANK_INVALID;
+    }
     return nd;
 }
 
@@ -660,7 +652,6 @@ static void orte_job_construct(orte_job_t* job)
     job->num_local_procs = 0;
 
     job->flags = 0;
-    ORTE_FLAG_SET(job, ORTE_JOB_FLAG_GANG_LAUNCHED);
     ORTE_FLAG_SET(job, ORTE_JOB_FLAG_FORWARD_OUTPUT);
 
     OBJ_CONSTRUCT(&job->attributes, opal_list_t);
@@ -670,7 +661,6 @@ static void orte_job_destruct(orte_job_t* job)
 {
     orte_proc_t *proc;
     orte_app_context_t *app;
-    orte_job_t *jdata;
     int n;
     orte_timer_t *evtimer;
 
@@ -685,7 +675,7 @@ static void orte_job_destruct(orte_job_t* job)
     }
 
     if (NULL != job->personality) {
-        free(job->personality);
+        opal_argv_free(job->personality);
     }
     for (n=0; n < job->apps->size; n++) {
         if (NULL == (app = (orte_app_context_t*)opal_pointer_array_get_item(job->apps, n))) {
@@ -727,18 +717,9 @@ static void orte_job_destruct(orte_job_t* job)
     /* release the attributes */
     OPAL_LIST_DESTRUCT(&job->attributes);
 
-    /* find the job in the global array */
     if (NULL != orte_job_data && ORTE_JOBID_INVALID != job->jobid) {
-        for (n=0; n < orte_job_data->size; n++) {
-            if (NULL == (jdata = (orte_job_t*)opal_pointer_array_get_item(orte_job_data, n))) {
-                continue;
-            }
-            if (jdata->jobid == job->jobid) {
-                /* set the entry to NULL */
-                opal_pointer_array_set_item(orte_job_data, n, NULL);
-                break;
-            }
-        }
+        /* remove the job from the global array */
+        opal_hash_table_remove_value_uint32(orte_job_data, job->jobid);
     }
 }
 
@@ -855,7 +836,7 @@ static void orte_job_map_construct(orte_job_map_t* map)
     map->ranking = 0;
     map->binding = 0;
     map->ppr = NULL;
-    map->cpus_per_rank = 1;
+    map->cpus_per_rank = 0;
     map->display_map = false;
     map->num_new_daemons = 0;
     map->daemon_vpid_start = ORTE_VPID_INVALID;
@@ -925,7 +906,7 @@ static void tcon(orte_topology_t *t)
 static void tdes(orte_topology_t *t)
 {
     if (NULL != t->topo) {
-        hwloc_topology_destroy(t->topo);
+        opal_hwloc_base_free_topology(t->topo);
     }
     if (NULL != t->sig) {
         free(t->sig);

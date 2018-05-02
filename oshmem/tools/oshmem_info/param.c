@@ -2,11 +2,9 @@
  * Copyright (c) 2013      Mellanox Technologies, Inc.
  *                         All rights reserved.
  *
- * Copyright (c) 2014-2015 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2014-2015 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Cisco Systems, Inc.  All rights reserved
+ * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2015      Los Alamos National Security, LLC.
- *                         All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -31,6 +29,7 @@
 #endif
 
 #include MCA_timer_IMPLEMENTATION_HEADER
+#include "opal/include/opal/version.h"
 #include "opal/class/opal_value_array.h"
 #include "opal/class/opal_pointer_array.h"
 #include "opal/util/printf.h"
@@ -118,6 +117,8 @@ void oshmem_info_do_config(bool want_all)
     char *have_mpi_io;
     char *wtime_support;
     char *symbol_visibility;
+    char *ft_support;
+    char *crdebug_support;
     char *topology_support;
 
     /* Do a little preprocessor trickery here to figure opal_info_out the
@@ -143,6 +144,16 @@ void oshmem_info_do_config(bool want_all)
 #else
     paramcheck = "runtime";
 #endif
+
+    /* The current mpi_f08 implementation does not support Fortran
+       subarrays.  However, someday it may/will.  Hence, I'm leaving
+       in all the logic that checks to see whether subarrays are
+       supported, but I'm just hard-coding
+       OMPI_BUILD_FORTRAN_F08_SUBARRAYS to 0 (we used to have a
+       prototype mpi_f08 module that implemented a handful of
+       descriptor-based interfaces and supported subarrays, but that
+       has been removed). */
+    const int OMPI_BUILD_FORTRAN_F08_SUBARRAYS = 0;
 
     /* setup the strings that don't require allocations*/
     cxx = OMPI_BUILD_CXX_BINDINGS ? "yes" : "no";
@@ -188,7 +199,7 @@ void oshmem_info_do_config(bool want_all)
         } else {
             int first = 1;
             snprintf(f08_msg, sizeof(f08_msg),
-                     "The mpi_f08 module is available, but due to limitations in the %s compiler, does not support the following: ",
+                     "The mpi_f08 module is available, but due to limitations in the %s compiler and/or Open MPI, does not support the following: ",
                      OMPI_FC);
             if (!OMPI_BUILD_FORTRAN_F08_SUBARRAYS) {
                 append(f08_msg, sizeof(f08_msg), &first, "array subsections");
@@ -266,23 +277,24 @@ void oshmem_info_do_config(bool want_all)
     }
 
 #if OMPI_RTE_ORTE
-    (void)asprintf(&threads, "%s (MPI_THREAD_MULTIPLE: %s, OPAL support: %s, OMPI progress: %s, ORTE progress: yes, Event lib: yes)",
-                   "posix",
-                   OMPI_ENABLE_THREAD_MULTIPLE ? "yes" : "no",
-                   OPAL_ENABLE_MULTI_THREADS ? "yes" : "no",
-                   OPAL_ENABLE_PROGRESS_THREADS ? "yes" : "no");
+    (void)asprintf(&threads, "%s (MPI_THREAD_MULTIPLE: yes, OPAL support: yes, OMPI progress: %s, ORTE progress: yes, Event lib: yes)",
+                   "posix", OPAL_ENABLE_PROGRESS_THREADS ? "yes" : "no");
 #else
-    (void)asprintf(&threads, "%s (MPI_THREAD_MULTIPLE: %s, OPAL support: %s, OMPI progress: %s, Event lib: yes)",
-                   "posix",
-                   OMPI_ENABLE_THREAD_MULTIPLE ? "yes" : "no",
-                   OPAL_ENABLE_MULTI_THREADS ? "yes" : "no",
-                   OPAL_ENABLE_PROGRESS_THREADS ? "yes" : "no");
+    (void)asprintf(&threads, "%s (MPI_THREAD_MULTIPLE: yes, OPAL support: yes, OMPI progress: %s, Event lib: yes)",
+                   "posix", OPAL_ENABLE_PROGRESS_THREADS ? "yes" : "no");
 #endif
+
+    (void)asprintf(&ft_support, "%s (checkpoint thread: %s)",
+                   OPAL_ENABLE_FT ? "yes" : "no", OPAL_ENABLE_FT_THREAD ? "yes" : "no");
+
+    (void)asprintf(&crdebug_support, "%s",
+                   OPAL_ENABLE_CRDEBUG ? "yes" : "no");
 
     /* output values */
     opal_info_out("Configured by", "config:user", OPAL_CONFIGURE_USER);
     opal_info_out("Configured on", "config:timestamp", OPAL_CONFIGURE_DATE);
     opal_info_out("Configure host", "config:host", OPAL_CONFIGURE_HOST);
+    opal_info_out("Configure command line", "config:cli", OPAL_CONFIGURE_CLI);
 
     opal_info_out("Built by", "build:user", OMPI_BUILD_USER);
     opal_info_out("Built on", "build:timestamp", OMPI_BUILD_DATE);
@@ -571,6 +583,12 @@ void oshmem_info_do_config(bool want_all)
                   topology_support);
 
     opal_info_out("MPI extensions", "options:mpi_ext", OMPI_MPIEXT_COMPONENTS);
+
+    opal_info_out("FT Checkpoint support", "options:ft_support", ft_support);
+    free(ft_support);
+
+    opal_info_out("C/R Enabled Debugging", "options:crdebug_support", crdebug_support);
+    free(crdebug_support);
 
     opal_info_out_int("MPI_MAX_PROCESSOR_NAME", "options:mpi-max-processor-name",
                   MPI_MAX_PROCESSOR_NAME);

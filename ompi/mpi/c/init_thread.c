@@ -1,3 +1,4 @@
+/* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
@@ -12,7 +13,9 @@
  * Copyright (c) 2010      Oak Ridge National Labs.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2015      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2015 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2016      Los Alamos National Security, LLC. All rights
+ *                         reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -28,6 +31,7 @@
 #include "ompi/communicator/communicator.h"
 #include "ompi/errhandler/errhandler.h"
 #include "ompi/constants.h"
+#include "ompi/mca/hook/base/base.h"
 
 #if OMPI_BUILD_MPI_PROFILING
 #if OPAL_HAVE_WEAK_SYMBOLS
@@ -44,22 +48,15 @@ int MPI_Init_thread(int *argc, char ***argv, int required,
 {
     int err;
 
+    ompi_hook_base_mpi_init_thread_top(argc, argv, required, provided);
+
     if ( MPI_PARAM_CHECK ) {
         if (required < MPI_THREAD_SINGLE || required > MPI_THREAD_MULTIPLE) {
             ompi_mpi_errors_are_fatal_comm_handler(NULL, NULL, FUNC_NAME);
         }
     }
 
-    /*
-     *   A thread compliant MPI implementation will be able to return provided
-     *   = MPI_THREAD_MULTIPLE. Such an implementation may always return provided
-     *   = MPI_THREAD_MULTIPLE, irrespective of the value of required.
-     */
-#if OMPI_ENABLE_THREAD_MULTIPLE
-    *provided = MPI_THREAD_MULTIPLE;
-#else
-    *provided = MPI_THREAD_SINGLE;
-#endif
+    *provided = required;
 
     /* Call the back-end initialization function (we need to put as
        little in this function as possible so that if it's profiled, we
@@ -81,6 +78,10 @@ int MPI_Init_thread(int *argc, char ***argv, int required,
                                       err < 0 ? ompi_errcode_get_mpi_code(err) :
                                       err, FUNC_NAME);
     }
+
+    OPAL_CR_INIT_LIBRARY();
+
+    ompi_hook_base_mpi_init_thread_bottom(argc, argv, required, provided);
 
     return MPI_SUCCESS;
 }

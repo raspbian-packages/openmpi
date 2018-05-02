@@ -16,7 +16,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "opal/util/opal_environ.h"
 #include "oshmem_config.h"
 #include "orte/util/show_help.h"
 #include "shmem.h"
@@ -89,15 +88,16 @@ static inline int check_mxm_tls(char *var)
     return OSHMEM_SUCCESS;
 }
 
-static inline int set_mxm_tls()
+static inline int set_mxm_tls(void)
 {
     char *tls;
 
-    /* disable dci pull for rdma ops. Use single pool.
-     * Pool size is controlled by MXM_DC_QP_LIMIT
-     * variable
+    /*
+     * Set DC defaults optimized for shmem
      */
-    setenv("MXM_OSHMEM_DC_RNDV_QP_LIMIT", "0", 0);
+    opal_setenv("MXM_OSHMEM_DC_QP_LIMIT",      "2", 0, &environ);
+    opal_setenv("MXM_OSHMEM_DC_RNDV_QP_LIMIT", "2", 0, &environ);
+    opal_setenv("MXM_OSHMEM_DC_MSS",          "8196", 0, &environ);
 
     tls = getenv("MXM_OSHMEM_TLS");
     if (NULL != tls) {
@@ -136,7 +136,7 @@ static inline int check_mxm_hw_tls(char *v, char *tls)
     return OSHMEM_ERROR;
 }
 
-static inline int set_mxm_hw_rdma_tls()
+static inline int set_mxm_hw_rdma_tls(void)
 {
     if (!mca_spml_ikrit.hw_rdma_channel) {
         return check_mxm_hw_tls("MXM_OSHMEM_TLS", getenv("MXM_OSHMEM_TLS"));

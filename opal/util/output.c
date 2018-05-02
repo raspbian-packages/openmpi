@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2010 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2008 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2006 High Performance Computing Center Stuttgart,
@@ -87,6 +87,7 @@ typedef struct {
  * Private functions
  */
 static void construct(opal_object_t *stream);
+static void destruct(opal_object_t *stream);
 static int do_open(int output_id, opal_output_stream_t * lds);
 static int open_file(int i);
 static void free_descriptor(int output_id);
@@ -120,7 +121,7 @@ static bool syslog_opened = false;
 #endif
 static char *redirect_syslog_ident = NULL;
 
-OBJ_CLASS_INSTANCE(opal_output_stream_t, opal_object_t, construct, NULL);
+OBJ_CLASS_INSTANCE(opal_output_stream_t, opal_object_t, construct, destruct);
 
 /*
  * Setup the output stream infrastructure
@@ -146,6 +147,7 @@ bool opal_output_init(void)
         }
     }
     str = getenv("OPAL_OUTPUT_SYSLOG_PRI");
+#ifdef HAVE_SYSLOG_H
     if (NULL != str) {
         if (0 == strcasecmp(str, "info")) {
             opal_output_redirected_syslog_pri = LOG_INFO;
@@ -159,7 +161,7 @@ bool opal_output_init(void)
     } else {
         opal_output_redirected_syslog_pri = LOG_ERR;
     }
-
+#endif  /* HAVE_SYSLOG_H */
     str = getenv("OPAL_OUTPUT_SYSLOG_IDENT");
     if (NULL != str) {
         redirect_syslog_ident = strdup(str);
@@ -348,7 +350,7 @@ void opal_output_close(int output_id)
             }
         }
 
-#if defined(HAVE_SYSLOG)
+#if defined(HAVE_SYSLOG) && defined(HAVE_SYSLOG_H)
         if (i >= OPAL_OUTPUT_MAX_STREAMS && syslog_opened) {
             closelog();
         }
@@ -536,6 +538,15 @@ static void construct(opal_object_t *obj)
     stream->lds_want_file_append = false;
     stream->lds_file_suffix = NULL;
 }
+static void destruct(opal_object_t *obj)
+{
+    opal_output_stream_t *stream = (opal_output_stream_t*) obj;
+
+    if( NULL != stream->lds_file_suffix ) {
+        free(stream->lds_file_suffix);
+        stream->lds_file_suffix = NULL;
+    }
+}
 
 /*
  * Back-end of open() and reopen().  Necessary to have it as a
@@ -602,7 +613,7 @@ static int do_open(int output_id, opal_output_stream_t * lds)
     info[i].ldi_verbose_level = lds->lds_verbose_level;
 
 #if USE_SYSLOG
-#if defined(HAVE_SYSLOG)
+#if defined(HAVE_SYSLOG) && defined(HAVE_SYSLOG_H)
     if (opal_output_redirected_to_syslog) {
         info[i].ldi_syslog = true;
         info[i].ldi_syslog_priority = opal_output_redirected_syslog_pri;
@@ -619,7 +630,7 @@ static int do_open(int output_id, opal_output_stream_t * lds)
         info[i].ldi_syslog = lds->lds_want_syslog;
         if (lds->lds_want_syslog) {
 
-#if defined(HAVE_SYSLOG)
+#if defined(HAVE_SYSLOG) && defined(HAVE_SYSLOG_H)
             if (NULL != lds->lds_syslog_ident) {
                 info[i].ldi_syslog_ident = strdup(lds->lds_syslog_ident);
                 openlog(lds->lds_syslog_ident, LOG_PID, LOG_USER);
@@ -632,7 +643,7 @@ static int do_open(int output_id, opal_output_stream_t * lds)
             info[i].ldi_syslog_priority = lds->lds_syslog_priority;
         }
 
-#if defined(HAVE_SYSLOG)
+#if defined(HAVE_SYSLOG) && defined(HAVE_SYSLOG_H)
     }
 #endif
 
@@ -941,7 +952,7 @@ static int output(int output_id, const char *format, va_list arglist)
         }
 
         /* Syslog output -- does not use the newline-appended string */
-#if defined(HAVE_SYSLOG)
+#if defined(HAVE_SYSLOG) && defined(HAVE_SYSLOG_H)
         if (ldi->ldi_syslog) {
             syslog(ldi->ldi_syslog_priority, "%s", str);
         }

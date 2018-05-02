@@ -123,6 +123,8 @@
 #include "opal/mca/mca.h"
 #include "opal/mca/mpool/mpool.h"
 #include "opal/mca/rcache/rcache.h"
+#include "opal/mca/crs/crs.h"
+#include "opal/mca/crs/base/base.h"
 
 BEGIN_C_DECLS
 
@@ -133,6 +135,7 @@ BEGIN_C_DECLS
 struct mca_btl_base_module_t;
 struct mca_btl_base_endpoint_t;
 struct mca_btl_base_descriptor_t;
+struct mca_mpool_base_resources_t;
 struct opal_proc_t;
 
 /**

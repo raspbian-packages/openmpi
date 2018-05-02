@@ -23,7 +23,6 @@
 
 #include "btl_self.h"
 #include "btl_self_frag.h"
-#include "opal/mca/base/mca_base_var.h"
 
 static int mca_btl_self_component_register(void);
 static int mca_btl_self_component_open(void);

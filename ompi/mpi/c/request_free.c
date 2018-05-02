@@ -56,6 +56,8 @@ int MPI_Request_free(MPI_Request *request)
         OMPI_ERRHANDLER_CHECK(rc, MPI_COMM_WORLD, rc, FUNC_NAME);
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     rc = ompi_request_free(request);
     OMPI_ERRHANDLER_RETURN(rc, MPI_COMM_WORLD, rc, FUNC_NAME);
 }

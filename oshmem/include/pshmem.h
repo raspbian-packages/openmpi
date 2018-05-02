@@ -175,6 +175,7 @@ OSHMEM_DECLSPEC void pshmem_iput128(void* target, const void* source, ptrdiff_t 
 /*
  * Nonblocking put routines
  */
+OSHMEM_DECLSPEC  void pshmem_putmem_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_char_put_nbi(char *target, const char *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_short_put_nbi(short *target, const short *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_int_put_nbi(int* target, const int* source, size_t len, int pe);
@@ -201,7 +202,6 @@ OSHMEM_DECLSPEC  void pshmem_put16_nbi(void *target, const void *source, size_t 
 OSHMEM_DECLSPEC  void pshmem_put32_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_put64_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_put128_nbi(void *target, const void *source, size_t len, int pe);
-OSHMEM_DECLSPEC  void pshmem_putmem_nbi(void *target, const void *source, size_t len, int pe);
 
 /*
  * Elemental get routines
@@ -291,6 +291,7 @@ OSHMEM_DECLSPEC void pshmem_iget128(void* target, const void* source, ptrdiff_t 
 /*
  * Nonblocking data get routines
  */
+OSHMEM_DECLSPEC  void pshmem_getmem_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_char_get_nbi(char *target, const char *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_short_get_nbi(short *target, const short *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_int_get_nbi(int *target, const int *source, size_t len, int pe);
@@ -317,7 +318,6 @@ OSHMEM_DECLSPEC  void pshmem_get16_nbi(void *target, const void *source, size_t 
 OSHMEM_DECLSPEC  void pshmem_get32_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_get64_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void pshmem_get128_nbi(void *target, const void *source, size_t len, int pe);
-OSHMEM_DECLSPEC  void pshmem_getmem_nbi(void *target, const void *source, size_t len, int pe);
 
 /*
  * Atomic operations

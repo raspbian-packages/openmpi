@@ -10,7 +10,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2008-2015 University of Houston. All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -25,6 +25,7 @@
 #include "mpi.h"
 #include "ompi/constants.h"
 #include "ompi/mca/fcoll/fcoll.h"
+#include "ompi/mca/fcoll/base/fcoll_base_coll_array.h"
 #include "ompi/mca/io/ompio/io_ompio.h"
 #include "ompi/mca/io/io.h"
 #include "math.h"
@@ -100,14 +101,14 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
     int my_aggregator=-1;
     bool sendbuf_is_contiguous = false;
     size_t ftype_size;
-    OPAL_PTRDIFF_TYPE ftype_extent, lb;
+    ptrdiff_t ftype_extent, lb;
 
 
 #if OMPIO_FCOLL_WANT_TIME_BREAKDOWN
     double write_time = 0.0, start_write_time = 0.0, end_write_time = 0.0;
     double comm_time = 0.0, start_comm_time = 0.0, end_comm_time = 0.0;
     double exch_write = 0.0, start_exch = 0.0, end_exch = 0.0;
-    mca_io_ompio_print_entry nentry;
+    mca_common_ompio_print_entry nentry;
 #endif
 
     opal_datatype_type_size ( &datatype->super, &ftype_size );
@@ -116,7 +117,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
     /**************************************************************************
      ** 1.  In case the data is not contigous in memory, decode it into an iovec
      **************************************************************************/
-    if ( ( ftype_extent == (OPAL_PTRDIFF_TYPE) ftype_size)             &&
+    if ( ( ftype_extent == (ptrdiff_t) ftype_size)             &&
          opal_datatype_is_contiguous_memory_layout(&datatype->super,1) &&
          0 == lb ) {
         sendbuf_is_contiguous = true;
@@ -167,17 +168,17 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
 #if OMPIO_FCOLL_WANT_TIME_BREAKDOWN
     start_comm_time = MPI_Wtime();
 #endif
-    ret = fh->f_allgather_array (&max_data,
-				 1,
-				 MPI_LONG,
-				 total_bytes_per_process,
-				 1,
-				 MPI_LONG,
-				 fh->f_aggregator_index,
-				 fh->f_procs_in_group,
-				 fh->f_procs_per_group,
-				 fh->f_comm);
-
+    ret = fcoll_base_coll_allgather_array (&max_data,
+                                           1,
+                                           MPI_LONG,
+                                           total_bytes_per_process,
+                                           1,
+                                           MPI_LONG,
+                                           fh->f_aggregator_index,
+                                           fh->f_procs_in_group,
+                                           fh->f_procs_per_group,
+                                           fh->f_comm);
+    
     if( OMPI_SUCCESS != ret){
 	goto exit;
     }
@@ -230,17 +231,17 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
 #if OMPIO_FCOLL_WANT_TIME_BREAKDOWN
     start_comm_time = MPI_Wtime();
 #endif
-    ret = fh->f_allgather_array (&local_count,
-				 1,
-				 MPI_INT,
-				 fview_count,
-				 1,
-				 MPI_INT,
-				 fh->f_aggregator_index,
-				 fh->f_procs_in_group,
-				 fh->f_procs_per_group,
-				 fh->f_comm);
-
+    ret = fcoll_base_coll_allgather_array (&local_count,
+                                           1,
+                                           MPI_INT,
+                                           fview_count,
+                                           1,
+                                           MPI_INT,
+                                           fh->f_aggregator_index,
+                                           fh->f_procs_in_group,
+                                           fh->f_procs_per_group,
+                                           fh->f_comm);
+    
     if( OMPI_SUCCESS != ret){
 	goto exit;
     }
@@ -292,17 +293,17 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
 #if OMPIO_FCOLL_WANT_TIME_BREAKDOWN
     start_comm_time = MPI_Wtime();
 #endif
-    ret = fh->f_allgatherv_array (local_iov_array,
-				  local_count,
-				  fh->f_iov_type,
-				  global_iov_array,
-				  fview_count,
-				  displs,
-				  fh->f_iov_type,
-				  fh->f_aggregator_index,
-				  fh->f_procs_in_group,
-				  fh->f_procs_per_group,
-				  fh->f_comm);
+    ret = fcoll_base_coll_allgatherv_array (local_iov_array,
+                                            local_count,
+                                            fh->f_iov_type,
+                                            global_iov_array,
+                                            fview_count,
+                                            displs,
+                                            fh->f_iov_type,
+                                            fh->f_aggregator_index,
+                                            fh->f_procs_in_group,
+                                            fh->f_procs_per_group,
+                                            fh->f_comm);
     if (OMPI_SUCCESS != ret){
 	goto exit;
     }
@@ -326,7 +327,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
             ret = OMPI_ERR_OUT_OF_RESOURCE;
 	    goto exit;
         }
-	fh->f_sort_iovec (global_iov_array, total_fview_count, sorted);
+	fcoll_base_sort_iovec (global_iov_array, total_fview_count, sorted);
     }
 
     if (NULL != local_iov_array){
@@ -522,7 +523,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
                     if (my_aggregator == fh->f_rank) {
                         blocklen_per_process[n][disp_index[n] - 1] = bytes_remaining;
                         displs_per_process[n][disp_index[n] - 1] =
-                            (OPAL_PTRDIFF_TYPE)global_iov_array[sorted[current_index]].iov_base +
+                            (ptrdiff_t)global_iov_array[sorted[current_index]].iov_base +
                             (global_iov_array[sorted[current_index]].iov_len
                              - bytes_remaining);
 
@@ -550,7 +551,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
                     if (my_aggregator == fh->f_rank) {
                         blocklen_per_process[n][disp_index[n] - 1] = bytes_to_write_in_cycle;
                         displs_per_process[n][disp_index[n] - 1] =
-                            (OPAL_PTRDIFF_TYPE)global_iov_array[sorted[current_index]].iov_base +
+                            (ptrdiff_t)global_iov_array[sorted[current_index]].iov_base +
                             (global_iov_array[sorted[current_index]].iov_len
                              - bytes_remaining);
                     }
@@ -571,7 +572,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
                     if (my_aggregator == fh->f_rank) {
                         blocklen_per_process[n][disp_index[n] - 1] = bytes_to_write_in_cycle;
                         displs_per_process[n][disp_index[n] - 1] =
-                            (OPAL_PTRDIFF_TYPE)global_iov_array[sorted[current_index]].iov_base ;
+                            (ptrdiff_t)global_iov_array[sorted[current_index]].iov_base ;
                     }
                     if (fh->f_procs_in_group[n] == fh->f_rank) {
                         bytes_sent += bytes_to_write_in_cycle;
@@ -587,7 +588,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
                     if (my_aggregator == fh->f_rank) {
                         blocklen_per_process[n][disp_index[n] - 1] =
                             global_iov_array[sorted[current_index]].iov_len;
-                        displs_per_process[n][disp_index[n] - 1] = (OPAL_PTRDIFF_TYPE)
+                        displs_per_process[n][disp_index[n] - 1] = (ptrdiff_t)
                             global_iov_array[sorted[current_index]].iov_base;
 
                         /*realloc for next blocklength
@@ -797,7 +798,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
             /* allocate a send buffer and copy the data that needs
                to be sent into it in case the data is non-contigous
                in memory */
-            OPAL_PTRDIFF_TYPE mem_address;
+            ptrdiff_t mem_address;
             size_t remaining = 0;
             size_t temp_position = 0;
 
@@ -811,7 +812,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
             remaining = bytes_sent;
 
             while (remaining) {
-                mem_address = (OPAL_PTRDIFF_TYPE)
+                mem_address = (ptrdiff_t)
                     (decoded_iov[iov_index].iov_base) + current_position;
 
                 if (remaining >=
@@ -945,7 +946,7 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
             for (i=0 ; i<fh->f_num_of_io_entries ; i++) {
                 printf(" ADDRESS: %p  OFFSET: %ld   LENGTH: %ld\n",
                        fh->f_io_array[i].memory_address,
-                       (OPAL_PTRDIFF_TYPE)fh->f_io_array[i].offset,
+                       (ptrdiff_t)fh->f_io_array[i].offset,
                        fh->f_io_array[i].length);
             }
 
@@ -978,9 +979,9 @@ mca_fcoll_dynamic_file_write_all (mca_io_ompio_file_t *fh,
     else
 	nentry.aggregator = 0;
     nentry.nprocs_for_coll = dynamic_num_io_procs;
-    if (!fh->f_full_print_queue(WRITE_PRINT_QUEUE)){
-        fh->f_register_print_entry(WRITE_PRINT_QUEUE,
-                                   nentry);
+    if (!mca_common_ompio_full_print_queue(fh->f_coll_write_time)){
+        mca_common_ompio_register_print_entry(fh->f_coll_write_time,
+                                              nentry);
     }
 #endif
 
@@ -1041,7 +1042,7 @@ exit :
         free(blocklen_per_process);
         free(displs_per_process);
     }
-    
+
     if (NULL != displs){
 	free(displs);
 	displs=NULL;

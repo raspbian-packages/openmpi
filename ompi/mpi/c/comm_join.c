@@ -13,6 +13,7 @@
  *                         All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015 Cisco Systems, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -36,8 +37,11 @@
 #include <netinet/in.h>
 #endif
 
+#include "opal/util/show_help.h"
+
 #include "ompi/mpi/c/bindings.h"
 #include "ompi/runtime/params.h"
+#include "ompi/runtime/mpiruntime.h"
 #include "ompi/communicator/communicator.h"
 #include "ompi/errhandler/errhandler.h"
 #include "ompi/dpm/dpm.h"
@@ -74,6 +78,12 @@ int MPI_Comm_join(int fd, MPI_Comm *intercomm)
         }
     }
 
+    if (!ompi_mpi_dynamics_is_enabled(FUNC_NAME)) {
+        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, OMPI_ERR_NOT_SUPPORTED,
+                                      FUNC_NAME);
+    }
+
+    OPAL_CR_ENTER_LIBRARY();
 
     /* send my process name */
     tmp_name = *OMPI_PROC_MY_NAME;
@@ -91,6 +101,7 @@ int MPI_Comm_join(int fd, MPI_Comm *intercomm)
         } else if (OMPI_PROC_MY_NAME->vpid == rname.vpid) {
             /* joining to myself is not allowed */
             *intercomm = MPI_COMM_NULL;
+            OPAL_CR_EXIT_LIBRARY();
             return MPI_ERR_INTERN;
         } else {
             send_first = false;
@@ -111,7 +122,7 @@ int MPI_Comm_join(int fd, MPI_Comm *intercomm)
     if (send_first) {
         /* open a port */
         if (OMPI_SUCCESS != (rc = ompi_dpm_open_port(port_name))) {
-            return rc;
+            goto error;
         }
         llen   = (uint32_t)(strlen(port_name)+1);
         len    = htonl(llen);
@@ -126,7 +137,21 @@ int MPI_Comm_join(int fd, MPI_Comm *intercomm)
     /* use the port to connect/accept */
     rc = ompi_dpm_connect_accept (MPI_COMM_SELF, 0, port_name, send_first, &newcomp);
 
+    OPAL_CR_EXIT_LIBRARY();
+
     *intercomm = newcomp;
+
+ error:
+    OPAL_CR_EXIT_LIBRARY();
+
+    if (OPAL_ERR_NOT_SUPPORTED == rc) {
+        opal_show_help("help-mpi-api.txt",
+                       "MPI function not supported",
+                       true,
+                       FUNC_NAME,
+                       "Underlying runtime environment does not support join functionality");
+    }
+
     OMPI_ERRHANDLER_RETURN (rc, MPI_COMM_SELF, rc, FUNC_NAME);
 }
 

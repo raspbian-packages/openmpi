@@ -14,6 +14,7 @@
  *                         reserved.
  * Copyright (c) 2015-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2016-2017 IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -33,6 +34,15 @@
 #include "ompi/op/op.h"
 #include "ompi/mca/coll/base/coll_base_functions.h"
 #include "coll_base_topo.h"
+
+int mca_coll_base_reduce_local(const void *inbuf, void *inoutbuf, int count,
+                               struct ompi_datatype_t * dtype, struct ompi_op_t * op,
+                               mca_coll_base_module_t *module)
+{
+    /* XXX -- CONST -- do not cast away const -- update ompi/op/op.h */
+    ompi_op_reduce(op, (void *)inbuf, inoutbuf, count, dtype);
+    return OMPI_SUCCESS;
+}
 
 /**
  * This is a generic implementation of the reduce protocol. It used the tree
@@ -65,7 +75,7 @@ int ompi_coll_base_reduce_generic( const void* sendbuf, void* recvbuf, int origi
      * sent per operation
      */
     ompi_datatype_type_extent( datatype, &extent );
-    num_segments = (original_count + count_by_segment - 1) / count_by_segment;
+    num_segments = (int)(((size_t)original_count + (size_t)count_by_segment - (size_t)1) / (size_t)count_by_segment);
     segment_increment = (ptrdiff_t)count_by_segment * extent;
 
     sendtmpbuf = (char*) sendbuf;
@@ -327,6 +337,7 @@ int ompi_coll_base_reduce_generic( const void* sendbuf, void* recvbuf, int origi
     OPAL_OUTPUT (( ompi_coll_base_framework.framework_output,
                    "ERROR_HNDL: node %d file %s line %d error %d\n",
                    rank, __FILE__, line, ret ));
+    (void)line;  // silence compiler warning
     if( inbuf_free[0] != NULL ) free(inbuf_free[0]);
     if( inbuf_free[1] != NULL ) free(inbuf_free[1]);
     if( accumbuf_free != NULL ) free(accumbuf);

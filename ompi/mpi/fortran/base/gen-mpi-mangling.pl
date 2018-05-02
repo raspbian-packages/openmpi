@@ -77,20 +77,20 @@ $fortran->{weights_empty} = {
 $fortran->{argv_null} = {
     c_type => "char *",
     c_name => "mpi_fortran_argv_null",
-    f_type => "integer",
+    f_type => "character, dimension(1)",
     f_name => "MPI_ARGV_NULL",
 };
 $fortran->{argvs_null} = {
     c_type => "char *",
     c_name => "mpi_fortran_argvs_null",
-    f_type => "integer",
+    f_type => "character, dimension(1, 1)",
     f_name => "MPI_ARGVS_NULL",
 };
 
 $fortran->{errcodes_ignore} = {
     c_type => "int *",
     c_name => "mpi_fortran_errcodes_ignore",
-    f_type => "integer",
+    f_type => "integer, dimension(1)",
     f_name => "MPI_ERRCODES_IGNORE",
 };
 $fortran->{status_ignore} = {

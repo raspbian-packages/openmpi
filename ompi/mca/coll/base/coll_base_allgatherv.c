@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2015 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -11,12 +11,11 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2009      University of Houston. All rights reserved.
- * Copyright (c) 2013      Los Alamos National Security, LLC. All Rights
+ * Copyright (c) 2013-2017 Los Alamos National Security, LLC. All Rights
  *                         reserved.
  * Copyright (c) 2015-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
- * Copyright (c) 2017 Cisco Systems, Inc.  All rights reserved
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -35,17 +34,6 @@
 #include "ompi/mca/coll/base/coll_base_functions.h"
 #include "coll_base_topo.h"
 #include "coll_base_util.h"
-
-/* valid values for coll_base_allgatherv_forced_algorithm */
-mca_base_var_enum_value_t coll_base_allgatherv_algorithms[] = {
-    {0, "ignore"},
-    {1, "default"},
-    {2, "bruck"},
-    {3, "ring"},
-    {4, "neighbor"},
-    {5, "two_proc"},
-    {0, NULL}
-};
 
 /*
  * ompi_coll_base_allgatherv_intra_bruck
@@ -213,6 +201,7 @@ int ompi_coll_base_allgatherv_intra_bruck(const void *sbuf, int scount,
 
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,  "%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -299,6 +288,7 @@ int ompi_coll_base_allgatherv_intra_ring(const void *sbuf, int scount,
  err_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,  "%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -504,6 +494,7 @@ ompi_coll_base_allgatherv_intra_neighborexchange(const void *sbuf, int scount,
  err_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,  "%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -569,6 +560,7 @@ int ompi_coll_base_allgatherv_intra_two_procs(const void *sbuf, int scount,
  err_hndl:
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output, "%s:%4d\tError occurred %d, rank %2d",
                  __FILE__, line, err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -631,10 +623,10 @@ ompi_coll_base_allgatherv_intra_basic_default(const void *sbuf, int scount,
         send_type = sdtype;
     }
 
-    err = comm->c_coll.coll_gatherv(send_buf,
+    err = comm->c_coll->coll_gatherv(send_buf,
                                     scount, send_type,rbuf,
                                     rcounts, disps, rdtype, 0,
-                                    comm, comm->c_coll.coll_gatherv_module);
+                                    comm, comm->c_coll->coll_gatherv_module);
     if (MPI_SUCCESS != err) {
         return err;
     }
@@ -661,8 +653,8 @@ ompi_coll_base_allgatherv_intra_basic_default(const void *sbuf, int scount,
         return err;
     }
 
-    comm->c_coll.coll_bcast(rbuf, 1, newtype, 0, comm,
-                            comm->c_coll.coll_bcast_module);
+    comm->c_coll->coll_bcast(rbuf, 1, newtype, 0, comm,
+                            comm->c_coll->coll_bcast_module);
 
     ompi_datatype_destroy (&newtype);
 

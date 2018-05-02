@@ -13,6 +13,7 @@
  * Copyright (c) 2008-2011 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2012-2015 Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2016      Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -496,8 +497,6 @@ OPAL_DECLSPEC int mca_base_var_deregister(int vari);
  *
  * @param[in] vari Index of variable
  * @param[in,out] value Pointer to copy the value to. Can be NULL.
- * @param[in,out] value_size Size of memory pointed to by value.
- * copied size will be returned in value_size.
  * @param[out] source Source of current value. Can be NULL.
  * @param[out] source_file Source file for the current value if
  * it was set from a file.
@@ -729,8 +728,19 @@ OPAL_DECLSPEC int mca_base_var_dump(int vari, char ***out, mca_base_var_dump_typ
  * Parse a provided list of envars and add their local value, or
  * their assigned value, to the provided argv
  */
-OPAL_DECLSPEC int mca_base_var_process_env_list(char ***argv);
+OPAL_DECLSPEC int mca_base_var_process_env_list(char *list, char ***argv);
 OPAL_DECLSPEC int mca_base_var_process_env_list_from_file(char ***argv);
+
+/*
+ * Initialize any file-based params
+ */
+OPAL_DECLSPEC int mca_base_var_cache_files(bool rel_path_search);
+
+
+extern char *mca_base_env_list;
+#define MCA_BASE_ENV_LIST_SEP_DEFAULT ";"
+extern char *mca_base_env_list_sep;
+extern char *mca_base_env_list_internal;
 
 END_C_DECLS
 

@@ -18,7 +18,7 @@
  * Copyright (c) 2012      Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2014      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2015      Intel, Inc. All rights reserved.
+ * Copyright (c) 2015-2016 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -48,6 +48,7 @@
 #include "opal/util/show_help.h"
 #include "opal/util/printf.h"
 #include "opal/mca/hwloc/base/base.h"
+#include "opal/mca/pmix/base/base.h"
 #include "opal/mca/shmem/base/base.h"
 #include "opal/mca/shmem/shmem.h"
 #include "opal/datatype/opal_convertor.h"
@@ -60,6 +61,13 @@
 #endif /* OPAL_CUDA_SUPPORT */
 #include "opal/mca/mpool/base/base.h"
 #include "opal/mca/rcache/base/base.h"
+
+#if OPAL_ENABLE_FT_CR    == 1
+#include "opal/mca/crs/base/base.h"
+#include "opal/util/basename.h"
+#include "orte/mca/sstore/sstore.h"
+#include "opal/runtime/opal_cr.h"
+#endif
 
 #include "btl_smcuda.h"
 #include "btl_smcuda_endpoint.h"
@@ -92,7 +100,7 @@ mca_btl_smcuda_t mca_btl_smcuda = {
         .btl_sendi = mca_btl_smcuda_sendi,
         .btl_dump = mca_btl_smcuda_dump,
         .btl_register_error = mca_btl_smcuda_register_error_cb,
-        .btl_ft_event = NULL
+        .btl_ft_event = mca_btl_smcuda_ft_event
     }
 };
 
@@ -225,23 +233,28 @@ smcuda_btl_first_time_init(mca_btl_smcuda_t *smcuda_btl,
     int my_mem_node, num_mem_nodes, i, rc;
     mca_common_sm_mpool_resources_t *res = NULL;
     mca_btl_smcuda_component_t* m = &mca_btl_smcuda_component;
+    char *loc, *mynuma;
+    opal_process_name_t wildcard_rank;
 
     /* Assume we don't have hwloc support and fill in dummy info */
     mca_btl_smcuda_component.mem_node = my_mem_node = 0;
     mca_btl_smcuda_component.num_mem_nodes = num_mem_nodes = 1;
 
-    /* If we have hwloc support, then get accurate information */
-    if (NULL != opal_hwloc_topology) {
-        i = opal_hwloc_base_get_nbobjs_by_type(opal_hwloc_topology,
-                                               HWLOC_OBJ_NODE, 0,
-                                               OPAL_HWLOC_AVAILABLE);
-
-        /* If we find >0 NUMA nodes, then investigate further */
-        if (i > 0) {
-            int numa=0, w;
-            unsigned n_bound=0;
-            hwloc_cpuset_t avail;
-            hwloc_obj_t obj;
+    /* see if we were given a topology signature */
+    wildcard_rank.jobid = OPAL_PROC_MY_NAME.jobid;
+    wildcard_rank.vpid = OPAL_VPID_WILDCARD;
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(rc, OPAL_PMIX_TOPOLOGY_SIGNATURE,
+                                   &wildcard_rank, &loc, OPAL_STRING);
+    if (OPAL_SUCCESS == rc) {
+        /* the number of NUMA nodes is right at the front */
+        mca_btl_smcuda_component.num_mem_nodes = num_mem_nodes = strtoul(loc, NULL, 10);
+        free(loc);
+    } else {
+        /* If we have hwloc support, then get accurate information */
+        if (OPAL_SUCCESS == opal_hwloc_base_get_topology()) {
+            i = opal_hwloc_base_get_nbobjs_by_type(opal_hwloc_topology,
+                                                   HWLOC_OBJ_NODE, 0,
+                                                   OPAL_HWLOC_AVAILABLE);
 
             /* JMS This tells me how many numa nodes are *available*,
                but it's not how many are being used *by this job*.
@@ -250,32 +263,64 @@ smcuda_btl_first_time_init(mca_btl_smcuda_t *smcuda_btl,
                should be improved to be how many NUMA nodes are being
                used *in this job*. */
             mca_btl_smcuda_component.num_mem_nodes = num_mem_nodes = i;
+        }
+    }
+    /* see if we were given our location */
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(rc, OPAL_PMIX_LOCALITY_STRING,
+                                   &OPAL_PROC_MY_NAME, &loc, OPAL_STRING);
+    if (OPAL_SUCCESS == rc) {
+        if (NULL == loc) {
+            mca_btl_smcuda_component.mem_node = my_mem_node = -1;
+        } else {
+            /* get our NUMA location */
+            mynuma = opal_hwloc_base_get_location(loc, HWLOC_OBJ_NODE, 0);
+            if (NULL == mynuma ||
+                NULL != strchr(mynuma, ',') ||
+                NULL != strchr(mynuma, '-')) {
+                /* we either have no idea what NUMA we are on, or we
+                 * are on multiple NUMA nodes */
+                mca_btl_smcuda_component.mem_node = my_mem_node = -1;
+            } else {
+                /* we are bound to a single NUMA node */
+                my_mem_node = strtoul(mynuma, NULL, 10);
+                mca_btl_smcuda_component.mem_node = my_mem_node;
+            }
+            if (NULL != mynuma) {
+                free(mynuma);
+            }
+            free(loc);
+        }
+    } else {
+        /* If we have hwloc support, then get accurate information */
+        if (OPAL_SUCCESS == opal_hwloc_base_get_topology() &&
+            num_mem_nodes > 0 && NULL != opal_process_info.cpuset) {
+            int numa=0, w;
+            unsigned n_bound=0;
+            hwloc_cpuset_t avail;
+            hwloc_obj_t obj;
 
-            /* if we are not bound, then there is nothing further to do */
-            if (NULL != opal_process_info.cpuset) {
-                /* count the number of NUMA nodes to which we are bound */
-                for (w=0; w < i; w++) {
-                    if (NULL == (obj = opal_hwloc_base_get_obj_by_type(opal_hwloc_topology,
-                                                                       HWLOC_OBJ_NODE, 0, w,
-                                                                       OPAL_HWLOC_AVAILABLE))) {
-                        continue;
-                    }
-                    /* get that NUMA node's available cpus */
-                    avail = opal_hwloc_base_get_available_cpus(opal_hwloc_topology, obj);
-                    /* see if we intersect */
-                    if (hwloc_bitmap_intersects(avail, opal_hwloc_my_cpuset)) {
-                        n_bound++;
-                        numa = w;
-                    }
+            /* count the number of NUMA nodes to which we are bound */
+            for (w=0; w < i; w++) {
+                if (NULL == (obj = opal_hwloc_base_get_obj_by_type(opal_hwloc_topology,
+                                                                   HWLOC_OBJ_NODE, 0, w,
+                                                                   OPAL_HWLOC_AVAILABLE))) {
+                    continue;
                 }
-                /* if we are located on more than one NUMA, or we didn't find
-                 * a NUMA we are on, then not much we can do
-                 */
-                if (1 == n_bound) {
-                    mca_btl_smcuda_component.mem_node = my_mem_node = numa;
-                } else {
-                    mca_btl_smcuda_component.mem_node = my_mem_node = -1;
+                /* get that NUMA node's available cpus */
+                avail = opal_hwloc_base_get_available_cpus(opal_hwloc_topology, obj);
+                /* see if we intersect */
+                if (hwloc_bitmap_intersects(avail, opal_hwloc_my_cpuset)) {
+                    n_bound++;
+                    numa = w;
                 }
+            }
+            /* if we are located on more than one NUMA, or we didn't find
+             * a NUMA we are on, then not much we can do
+             */
+            if (1 == n_bound) {
+                mca_btl_smcuda_component.mem_node = my_mem_node = numa;
+            } else {
+                mca_btl_smcuda_component.mem_node = my_mem_node = -1;
             }
         }
     }
@@ -424,7 +469,7 @@ smcuda_btl_first_time_init(mca_btl_smcuda_t *smcuda_btl,
                              mca_btl_smcuda_component.sm_free_list_inc,
                              mca_btl_smcuda_component.sm_mpool, 0, NULL, NULL, NULL);
     if ( OPAL_SUCCESS != i )
-	    return i;
+            return i;
 
     mca_btl_smcuda_component.num_outstanding_frags = 0;
 
@@ -1113,8 +1158,8 @@ int mca_btl_smcuda_get_cuda (struct mca_btl_base_module_t *btl,
     mca_common_wait_stream_synchronize(&rget_reg);
 
     rc = mca_common_cuda_memcpy(local_address, remote_memory_address, size,
-				"mca_btl_smcuda_get", (mca_btl_base_descriptor_t *)frag,
-				&done);
+                                "mca_btl_smcuda_get", (mca_btl_base_descriptor_t *)frag,
+                                &done);
     if (OPAL_SUCCESS != rc) {
         /* Out of resources can be handled by upper layers. */
         if (OPAL_ERR_OUT_OF_RESOURCE != rc) {
@@ -1240,3 +1285,61 @@ void mca_btl_smcuda_dump(struct mca_btl_base_module_t* btl,
     }
 }
 
+#if OPAL_ENABLE_FT_CR    == 0
+int mca_btl_smcuda_ft_event(int state) {
+    return OPAL_SUCCESS;
+}
+#else
+int mca_btl_smcuda_ft_event(int state) {
+    /* Notify mpool */
+    if( NULL != mca_btl_smcuda_component.sm_mpool &&
+        NULL != mca_btl_smcuda_component.sm_mpool->mpool_ft_event) {
+        mca_btl_smcuda_component.sm_mpool->mpool_ft_event(state);
+    }
+
+    if(OPAL_CRS_CHECKPOINT == state) {
+        if( NULL != mca_btl_smcuda_component.sm_seg ) {
+            /* On restart we need the old file names to exist (not necessarily
+             * contain content) so the CRS component does not fail when searching
+             * for these old file handles. The restart procedure will make sure
+             * these files get cleaned up appropriately.
+             */
+            /* Disabled to get FT code compiled again
+             * TODO: FIXIT soon
+            orte_sstore.set_attr(orte_sstore_handle_current,
+                                 SSTORE_METADATA_LOCAL_TOUCH,
+                                 mca_btl_smcuda_component.sm_seg->shmem_ds.seg_name);
+             */
+        }
+    }
+    else if(OPAL_CRS_CONTINUE == state) {
+        if (opal_cr_continue_like_restart) {
+            if( NULL != mca_btl_smcuda_component.sm_seg ) {
+                /* Add shared memory file */
+                opal_crs_base_cleanup_append(mca_btl_smcuda_component.sm_seg->shmem_ds.seg_name, false);
+            }
+
+            /* Clear this so we force the module to re-init the sm files */
+            mca_btl_smcuda_component.sm_mpool = NULL;
+        }
+    }
+    else if(OPAL_CRS_RESTART == state ||
+            OPAL_CRS_RESTART_PRE == state) {
+        if( NULL != mca_btl_smcuda_component.sm_seg ) {
+            /* Add shared memory file */
+            opal_crs_base_cleanup_append(mca_btl_smcuda_component.sm_seg->shmem_ds.seg_name, false);
+        }
+
+        /* Clear this so we force the module to re-init the sm files */
+        mca_btl_smcuda_component.sm_mpool = NULL;
+    }
+    else if(OPAL_CRS_TERM == state ) {
+        ;
+    }
+    else {
+        ;
+    }
+
+    return OPAL_SUCCESS;
+}
+#endif /* OPAL_ENABLE_FT_CR */

@@ -12,7 +12,9 @@
  * Copyright (c) 2008-2012 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2012-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2016 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2016-2017 Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -50,6 +52,7 @@
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/grpcomm/grpcomm.h"
 #include "orte/mca/rml/rml.h"
+#include "orte/mca/schizo/schizo.h"
 #include "orte/util/proc_info.h"
 #include "orte/util/show_help.h"
 #include "orte/util/name_fns.h"
@@ -87,13 +90,13 @@ static int rte_init(void)
     char *envar, *ev1, *ev2;
     uint64_t unique_key[2];
     char *string_key;
-    char *rmluri;
     opal_value_t *kv;
     char *val;
     int u32, *u32ptr;
     uint16_t u16, *u16ptr;
-    char **peers=NULL, *mycpuset, **cpusets=NULL;
-    opal_process_name_t name;
+    char **peers=NULL, *mycpuset;
+    opal_process_name_t wildcard_rank, pname;
+    bool bool_val, *bool_ptr = &bool_val, tdir_mca_override = false;
     size_t i;
 
     /* run the prolog */
@@ -122,8 +125,25 @@ static int rte_init(void)
     /* set the event base */
     opal_pmix_base_set_evbase(orte_event_base);
     /* initialize the selected module */
-    if (!opal_pmix.initialized() && (OPAL_SUCCESS != (ret = opal_pmix.init()))) {
-        /* we cannot run */
+    if (!opal_pmix.initialized() && (OPAL_SUCCESS != (ret = opal_pmix.init(NULL)))) {
+        /* we cannot run - this could be due to being direct launched
+         * without the required PMI support being built. Try to detect
+         * that scenario and warn the user */
+        if (ORTE_SCHIZO_DIRECT_LAUNCHED == orte_schizo.check_launch_environment() &&
+            NULL != (envar = getenv("ORTE_SCHIZO_DETECTION"))) {
+            if (0 == strcmp(envar, "SLURM")) {
+                /* yes to both - so emit a hopefully helpful
+                 * error message and abort */
+                orte_show_help_finalize();
+                orte_show_help("help-ess-base.txt", "slurm-error", true);
+                return ORTE_ERR_SILENT;
+            } else if (0 == strcmp(envar, "ALPS")) {
+                /* we were direct launched by ALPS */
+                orte_show_help_finalize();
+                orte_show_help("help-ess-base.txt", "alps-error", true);
+                return ORTE_ERR_SILENT;
+            }
+        }
         error = "pmix init";
         goto error;
     }
@@ -135,6 +155,14 @@ static int rte_init(void)
      * so carry it forward here */
     ORTE_PROC_MY_NAME->jobid = OPAL_PROC_MY_NAME.jobid;
     ORTE_PROC_MY_NAME->vpid = OPAL_PROC_MY_NAME.vpid;
+
+    /* setup a name for retrieving data associated with the job */
+    wildcard_rank.jobid = ORTE_PROC_MY_NAME->jobid;
+    wildcard_rank.vpid = ORTE_NAME_WILDCARD->vpid;
+
+    /* setup a name for retrieving proc-specific data */
+    pname.jobid = ORTE_PROC_MY_NAME->jobid;
+    pname.vpid = 0;
 
     /* get our local rank from PMI */
     OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_RANK,
@@ -154,18 +182,18 @@ static int rte_init(void)
     }
     orte_process_info.my_node_rank = u16;
 
-    /* get universe size */
-    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_UNIV_SIZE,
-                          ORTE_PROC_MY_NAME, &u32ptr, OPAL_UINT32);
+    /* get max procs for this application */
+    OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_MAX_PROCS,
+                          &wildcard_rank, &u32ptr, OPAL_UINT32);
     if (OPAL_SUCCESS != ret) {
-        error = "getting univ size";
+        error = "getting max procs";
         goto error;
     }
     orte_process_info.max_procs = u32;
 
     /* get job size */
     OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_JOB_SIZE,
-                          ORTE_PROC_MY_NAME, &u32ptr, OPAL_UINT32);
+                          &wildcard_rank, &u32ptr, OPAL_UINT32);
     if (OPAL_SUCCESS != ret) {
         error = "getting job size";
         goto error;
@@ -199,11 +227,18 @@ static int rte_init(void)
     /* get the number of local peers - required for wireup of
      * shared memory BTL */
     OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_SIZE,
-                          ORTE_PROC_MY_NAME, &u32ptr, OPAL_UINT32);
+                          &wildcard_rank, &u32ptr, OPAL_UINT32);
     if (OPAL_SUCCESS == ret) {
         orte_process_info.num_local_peers = u32 - 1;  // want number besides ourselves
     } else {
         orte_process_info.num_local_peers = 0;
+    }
+
+    /* get number of nodes in the job */
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_NUM_NODES,
+                                   &wildcard_rank, &u32ptr, OPAL_UINT32);
+    if (OPAL_SUCCESS == ret) {
+        orte_process_info.num_nodes = u32;
     }
 
     /* setup transport keys in case the MPI layer needs them -
@@ -227,73 +262,61 @@ static int rte_init(void)
         free(string_key);
     }
 
-    /* retrieve our topology */
-    val = NULL;
-    OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_LOCAL_TOPO,
-                                   ORTE_PROC_MY_NAME, &val, OPAL_STRING);
+    /* retrieve temp directories info */
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_TMPDIR, &wildcard_rank, &val, OPAL_STRING);
     if (OPAL_SUCCESS == ret && NULL != val) {
-        /* load the topology */
-        if (0 != hwloc_topology_init(&opal_hwloc_topology)) {
-            ret = OPAL_ERROR;
-            free(val);
-            error = "setting topology";
-            goto error;
-        }
-        if (0 != hwloc_topology_set_xmlbuffer(opal_hwloc_topology, val, strlen(val))) {
-            ret = OPAL_ERROR;
-            free(val);
-            hwloc_topology_destroy(opal_hwloc_topology);
-            error = "setting topology";
-            goto error;
-        }
-        /* since we are loading this from an external source, we have to
-         * explicitly set a flag so hwloc sets things up correctly
+        /* We want to provide user with ability
+         * to override RM settings at his own risk
          */
-        if (0 != hwloc_topology_set_flags(opal_hwloc_topology,
-                                         (HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM |
-                                          HWLOC_TOPOLOGY_FLAG_WHOLE_SYSTEM |
-                                          HWLOC_TOPOLOGY_FLAG_IO_DEVICES))) {
-            ret = OPAL_ERROR;
-            hwloc_topology_destroy(opal_hwloc_topology);
+        if( NULL == orte_process_info.top_session_dir ){
+            orte_process_info.top_session_dir = val;
+        } else {
+            /* keep the MCA setting */
+            tdir_mca_override = true;
             free(val);
-            error = "setting topology";
-            goto error;
         }
-        /* now load the topology */
-        if (0 != hwloc_topology_load(opal_hwloc_topology)) {
-            ret = OPAL_ERROR;
-            hwloc_topology_destroy(opal_hwloc_topology);
-            free(val);
-            error = "setting topology";
-            goto error;
+        val = NULL;
+    }
+
+    if( !tdir_mca_override ){
+        OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_NSDIR, &wildcard_rank, &val, OPAL_STRING);
+        if (OPAL_SUCCESS == ret && NULL != val) {
+            /* We want to provide user with ability
+             * to override RM settings at his own risk
+             */
+            if( NULL == orte_process_info.job_session_dir ){
+                orte_process_info.job_session_dir = val;
+            } else {
+                /* keep the MCA setting */
+                free(val);
+                tdir_mca_override = true;
+            }
+            val = NULL;
         }
-        free(val);
-        /* filter the cpus thru any default cpu set */
-        if (OPAL_SUCCESS != (ret = opal_hwloc_base_filter_cpus(opal_hwloc_topology))) {
-            error = "filtering topology";
-            goto error;
+    }
+
+    if( !tdir_mca_override ){
+        OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_PROCDIR, &wildcard_rank, &val, OPAL_STRING);
+        if (OPAL_SUCCESS == ret && NULL != val) {
+            /* We want to provide user with ability
+             * to override RM settings at his own risk
+             */
+            if( NULL == orte_process_info.proc_session_dir ){
+                orte_process_info.proc_session_dir = val;
+            } else {
+                /* keep the MCA setting */
+                tdir_mca_override = true;
+                free(val);
+            }
+            val = NULL;
         }
-    } else {
-        /* it wasn't passed down to us, so go get it */
-        if (OPAL_SUCCESS != (ret = opal_hwloc_base_get_topology())) {
-            error = "topology discovery";
-            goto error;
+    }
+
+    if( !tdir_mca_override ){
+        OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_TDIR_RMCLEAN, &wildcard_rank, &bool_ptr, OPAL_BOOL);
+        if (OPAL_SUCCESS == ret ) {
+            orte_process_info.rm_session_dirs = bool_val;
         }
-        /* push it into the PMIx database in case someone
-         * tries to retrieve it so we avoid an attempt to
-         * get it again */
-        kv = OBJ_NEW(opal_value_t);
-        kv->key = strdup(OPAL_PMIX_LOCAL_TOPO);
-        kv->type = OPAL_STRING;
-        if (0 != (ret = hwloc_topology_export_xmlbuffer(opal_hwloc_topology, &kv->data.string, &u32))) {
-            error = "topology export";
-            goto error;
-        }
-        if (OPAL_SUCCESS != (ret = opal_pmix.store_local(ORTE_PROC_MY_NAME, kv))) {
-            error = "topology store";
-            goto error;
-        }
-        OBJ_RELEASE(kv);
     }
 
     /* get our local peers */
@@ -306,68 +329,69 @@ static int rte_init(void)
         }
         /* retrieve the local peers */
         OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_PEERS,
-                              ORTE_PROC_MY_NAME, &val, OPAL_STRING);
+                              &wildcard_rank, &val, OPAL_STRING);
         if (OPAL_SUCCESS == ret && NULL != val) {
             peers = opal_argv_split(val, ',');
             free(val);
-            /* and their cpusets, if available */
-            OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_LOCAL_CPUSETS, ORTE_PROC_MY_NAME, &val, OPAL_STRING);
-            if (OPAL_SUCCESS == ret && NULL != val) {
-                cpusets = opal_argv_split(val, ':');
-                free(val);
-            } else {
-                cpusets = NULL;
-            }
         } else {
             peers = NULL;
-            cpusets = NULL;
         }
     } else {
         peers = NULL;
-        cpusets = NULL;
     }
 
     /* set the locality */
     if (NULL != peers) {
-        /* indentify our cpuset */
-        if (NULL != cpusets) {
-            mycpuset = cpusets[orte_process_info.my_local_rank];
+        /* identify our location */
+        val = NULL;
+        OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_LOCALITY_STRING,
+                                       ORTE_PROC_MY_NAME, &val, OPAL_STRING);
+        if (OPAL_SUCCESS == ret && NULL != val) {
+            mycpuset = val;
         } else {
             mycpuset = NULL;
         }
-        name.jobid = ORTE_PROC_MY_NAME->jobid;
+        pname.jobid = ORTE_PROC_MY_NAME->jobid;
         for (i=0; NULL != peers[i]; i++) {
+            pname.vpid = strtoul(peers[i], NULL, 10);
+            if (pname.vpid == ORTE_PROC_MY_NAME->vpid) {
+                /* we are fully local to ourselves */
+                u16 = OPAL_PROC_ALL_LOCAL;
+            } else {
+                val = NULL;
+                OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_LOCALITY_STRING,
+                                               &pname, &val, OPAL_STRING);
+                if (OPAL_SUCCESS == ret && NULL != val) {
+                    u16 = opal_hwloc_compute_relative_locality(mycpuset, val);
+                    free(val);
+                } else {
+                    /* all we can say is that it shares our node */
+                    u16 = OPAL_PROC_ON_CLUSTER | OPAL_PROC_ON_CU | OPAL_PROC_ON_NODE;
+                }
+            }
             kv = OBJ_NEW(opal_value_t);
             kv->key = strdup(OPAL_PMIX_LOCALITY);
             kv->type = OPAL_UINT16;
-            name.vpid = strtoul(peers[i], NULL, 10);
-            if (name.vpid == ORTE_PROC_MY_NAME->vpid) {
-                /* we are fully local to ourselves */
-                u16 = OPAL_PROC_ALL_LOCAL;
-            } else if (NULL == mycpuset || NULL == cpusets[i] ||
-                       0 == strcmp(cpusets[i], "UNBOUND")) {
-                /* all we can say is that it shares our node */
-                u16 = OPAL_PROC_ON_CLUSTER | OPAL_PROC_ON_CU | OPAL_PROC_ON_NODE;
-            } else {
-                /* we have it, so compute the locality */
-                u16 = opal_hwloc_base_get_relative_locality(opal_hwloc_topology, mycpuset, cpusets[i]);
-            }
             OPAL_OUTPUT_VERBOSE((1, orte_ess_base_framework.framework_output,
-                                 "%s ess:pmi:locality: proc %s locality %x",
+                                 "%s ess:pmi:locality: proc %s locality %s",
                                  ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                                 ORTE_NAME_PRINT(&name), u16));
+                                 ORTE_NAME_PRINT(&pname), opal_hwloc_base_print_locality(u16)));
             kv->data.uint16 = u16;
-            ret = opal_pmix.store_local(&name, kv);
+            ret = opal_pmix.store_local(&pname, kv);
             if (OPAL_SUCCESS != ret) {
                 error = "local store of locality";
                 opal_argv_free(peers);
-                opal_argv_free(cpusets);
+                if (NULL != mycpuset) {
+                    free(mycpuset);
+                }
                 goto error;
             }
             OBJ_RELEASE(kv);
         }
         opal_argv_free(peers);
-        opal_argv_free(cpusets);
+        if (NULL != mycpuset) {
+            free(mycpuset);
+        }
     }
 
     /* now that we have all required info, complete the setup */
@@ -393,19 +417,9 @@ static int rte_init(void)
         orte_process_info.max_procs = orte_process_info.num_procs;
     }
 
-    /***  PUSH DATA FOR OTHERS TO FIND   ***/
-
-    /* push our RML URI in case others need to talk directly to us */
-    rmluri = orte_rml.get_contact_info();
-    /* push it out for others to use */
-    OPAL_MODEX_SEND_VALUE(ret, OPAL_PMIX_GLOBAL, OPAL_PMIX_PROC_URI, rmluri, OPAL_STRING);
-    if (ORTE_SUCCESS != ret) {
-        error = "pmix put uri";
-        goto error;
-    }
-    free(rmluri);
-
-    /* push our hostname so others can find us, if they need to */
+    /* push our hostname so others can find us, if they need to - the
+     * native PMIx component will ignore this request as the hostname
+     * is provided by the system */
     OPAL_MODEX_SEND_VALUE(ret, OPAL_PMIX_GLOBAL, OPAL_PMIX_HOSTNAME, orte_process_info.nodename, OPAL_STRING);
     if (ORTE_SUCCESS != ret) {
         error = "db store hostname";
@@ -423,6 +437,8 @@ static int rte_init(void)
      * in the job won't be executing this step, so we would hang
      */
     if (ORTE_PROC_IS_NON_MPI && !orte_do_not_barrier) {
+        /* need to commit the data before we fence */
+        opal_pmix.commit();
         opal_pmix.fence(NULL, 0);
     }
 
@@ -464,12 +480,6 @@ static int rte_finalize(void)
     if (ORTE_SUCCESS != (ret = orte_ess_base_app_finalize())) {
         ORTE_ERROR_LOG(ret);
         return ret;
-    }
-
-    /* mark us as finalized */
-    if (NULL != opal_pmix.finalize) {
-        opal_pmix.finalize();
-        (void) mca_base_framework_close(&opal_pmix_base_framework);
     }
 
     /* release the event base */

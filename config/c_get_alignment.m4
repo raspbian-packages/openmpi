@@ -11,7 +11,9 @@ dnl                         University of Stuttgart.  All rights reserved.
 dnl Copyright (c) 2004-2005 The Regents of the University of California.
 dnl                         All rights reserved.
 dnl Copyright (c) 2009      Sun Microsystems, Inc.  All rights reserved.
-dnl Copyright (c) 2014      Intel, Inc. All rights reserved.
+dnl Copyright (c) 2014-2015 Intel, Inc. All rights reserved.
+dnl Copyright (c) 2015      Research Organization for Information Science
+dnl                         and Technology (RIST). All rights reserved.
 dnl $COPYRIGHT$
 dnl
 dnl Additional copyrights may follow
@@ -23,10 +25,18 @@ dnl
 # ----------------------------------
 # Determine datatype alignment.
 # First arg is type, 2nd arg is config var to define.
+# Now that we require C99 compilers, we include stdbool.h
+# in the alignment test so that we can find the definition
+# of "bool" when we test for its alignment. We might be able
+# to avoid this if we test for alignemtn of _Bool, but
+# since we use "bool" in the code, let's be safe and check
+# what we use. Yes, they should be the same - but "should" and
+# "are" frequently differ
 AC_DEFUN([OPAL_C_GET_ALIGNMENT],[
     AC_CACHE_CHECK([alignment of $1],
                    [AS_TR_SH([opal_cv_c_align_$1])],
-		   [AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT],
+		   [AC_RUN_IFELSE([AC_LANG_PROGRAM([AC_INCLUDES_DEFAULT
+                                                    #include <stdbool.h> ],
 [[
     struct foo { char c; $1 x; };
     struct foo *p = (struct foo *) malloc(sizeof(struct foo));
@@ -45,6 +55,8 @@ AC_DEFUN([OPAL_C_GET_ALIGNMENT],[
                                  _AC_COMPUTE_INT([(long int) offsetof (opal__type_alignof_, y)],
                                                  [AS_TR_SH([opal_cv_c_align_$1])],
                                                  [AC_INCLUDES_DEFAULT
+#include <stdbool.h>
+
 #ifndef offsetof
 # define offsetof(type, member) ((char *) &((type *) 0)->member - (char *) 0)
 #endif

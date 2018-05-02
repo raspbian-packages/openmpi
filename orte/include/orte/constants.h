@@ -11,6 +11,7 @@
  *                         All rights reserved.
  * Copyright (c) 2014      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015-2017 Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -85,6 +86,13 @@ enum {
     ORTE_ERR_CONNECTION_FAILED              = OPAL_ERR_CONNECTION_FAILED,
     ORTE_ERR_AUTHENTICATION_FAILED          = OPAL_ERR_AUTHENTICATION_FAILED,
     ORTE_ERR_COMM_FAILURE                   = OPAL_ERR_COMM_FAILURE,
+    ORTE_ERR_DEBUGGER_RELEASE               = OPAL_ERR_DEBUGGER_RELEASE,
+    ORTE_ERR_PARTIAL_SUCCESS                = OPAL_ERR_PARTIAL_SUCCESS,
+    ORTE_ERR_PROC_ABORTED                   = OPAL_ERR_PROC_ABORTED,
+    ORTE_ERR_PROC_REQUESTED_ABORT           = OPAL_ERR_PROC_REQUESTED_ABORT,
+    ORTE_ERR_PROC_ABORTING                  = OPAL_ERR_PROC_ABORTING,
+    ORTE_ERR_NODE_DOWN                      = OPAL_ERR_NODE_DOWN,
+    ORTE_ERR_NODE_OFFLINE                   = OPAL_ERR_NODE_OFFLINE,
 
 /* error codes specific to ORTE - don't forget to update
     orte/util/error_strings.c when adding new error codes!!
@@ -133,7 +141,13 @@ enum {
     ORTE_ERR_SENSOR_LIMIT_EXCEEDED          = (ORTE_ERR_BASE - 42),
     ORTE_ERR_ALLOCATION_PENDING             = (ORTE_ERR_BASE - 43),
     ORTE_ERR_NO_PATH_TO_TARGET              = (ORTE_ERR_BASE - 44),
-    ORTE_ERR_OP_IN_PROGRESS                 = (ORTE_ERR_BASE - 45)
+    ORTE_ERR_OP_IN_PROGRESS                 = (ORTE_ERR_BASE - 45),
+    ORTE_ERR_OPEN_CONDUIT_FAIL              = (ORTE_ERR_BASE - 46),
+    ORTE_ERR_DUPLICATE_MSG                  = (ORTE_ERR_BASE - 47),
+    ORTE_ERR_OUT_OF_ORDER_MSG               = (ORTE_ERR_BASE - 48),
+    ORTE_ERR_FORCE_SELECT                   = (ORTE_ERR_BASE - 49),
+    ORTE_ERR_JOB_CANCELLED                  = (ORTE_ERR_BASE - 50),
+    ORTE_ERR_CONDUIT_SEND_FAIL              = (ORTE_ERR_BASE - 51)
 };
 
 #define ORTE_ERR_MAX                      (ORTE_ERR_BASE - 100)
@@ -141,4 +155,3 @@ enum {
 END_C_DECLS
 
 #endif /* ORTE_CONSTANTS_H */
-

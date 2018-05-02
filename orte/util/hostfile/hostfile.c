@@ -12,8 +12,8 @@
  * Copyright (c) 2007      Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2013-2014 Intel, Inc. All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
@@ -304,8 +304,9 @@ static int hostfile_parse_line(int token, opal_list_t* updates,
             free(node_name);
         }
         OPAL_OUTPUT_VERBOSE((1, orte_ras_base_framework.framework_output,
-                             "%s hostfile: node %s slots %d",
-                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), node->name, node->slots));
+                             "%s hostfile: node %s slots %d nodes-given %s",
+                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), node->name, node->slots,
+                             ORTE_FLAG_TEST(node, ORTE_NODE_FLAG_SLOTS_GIVEN) ? "TRUE" : "FALSE"));
         /* mark the slots as "given" since we take them as being the
          * number specified via the rankfile
          */
@@ -338,6 +339,17 @@ static int hostfile_parse_line(int token, opal_list_t* updates,
                 orte_set_attribute(&node->attributes, ORTE_NODE_USERNAME, ORTE_ATTR_LOCAL, username, OPAL_STRING);
                 free(username);
             }
+            break;
+
+        case ORTE_HOSTFILE_PORT:
+            rc = hostfile_parse_int();
+            if (rc < 0) {
+                orte_show_help("help-hostfile.txt", "port",
+                               true,
+                               cur_hostfile_name, rc);
+                return ORTE_ERROR;
+            }
+            orte_set_attribute(&node->attributes, ORTE_NODE_PORT, ORTE_ATTR_LOCAL, &rc, OPAL_INT);
             break;
 
         case ORTE_HOSTFILE_COUNT:
@@ -503,6 +515,7 @@ static int hostfile_parse(const char *hostfile, opal_list_t* updates,
     }
     fclose(orte_util_hostfile_in);
     orte_util_hostfile_in = NULL;
+    orte_util_hostfile_lex_destroy();
 
 unlock:
     cur_hostfile_name = NULL;
@@ -648,7 +661,6 @@ int orte_util_filter_hostfile_nodes(opal_list_t *nodes,
             orte_node_t *node = (orte_node_t*)item2;
             if (0 == strcmp(node_from_file->name, node->name)) {
                 /* match - remove it */
-                opal_output(0, "HOST %s ON EXCLUDE LIST - REMOVING", node->name);
                 opal_list_remove_item(&newnodes, item2);
                 OBJ_RELEASE(item2);
                 break;
@@ -782,7 +794,8 @@ int orte_util_filter_hostfile_nodes(opal_list_t *nodes,
                      * to the specified count - this allows people
                      * to subdivide an allocation
                      */
-                    if (node_from_file->slots < node_from_list->slots) {
+                    if (ORTE_FLAG_TEST(node_from_file, ORTE_NODE_FLAG_SLOTS_GIVEN) &&
+                        node_from_file->slots < node_from_list->slots) {
                         node_from_list->slots = node_from_file->slots;
                     }
                     if (remove) {

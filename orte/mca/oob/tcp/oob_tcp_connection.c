@@ -13,7 +13,7 @@
  *                         All rights reserved.
  * Copyright (c) 2009-2014 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013-2015 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014-2015 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      Mellanox Technologies Ltd. All rights reserved.
@@ -54,7 +54,6 @@
 #include "opal_stdint.h"
 #include "opal/mca/backtrace/backtrace.h"
 #include "opal/mca/base/mca_base_var.h"
-#include "opal/mca/sec/sec.h"
 #include "opal/util/output.h"
 #include "opal/util/net.h"
 #include "opal/util/fd.h"
@@ -64,6 +63,7 @@
 
 #include "orte/util/name_fns.h"
 #include "orte/util/show_help.h"
+#include "orte/util/threads.h"
 #include "orte/mca/state/state.h"
 #include "orte/runtime/orte_globals.h"
 #include "orte/mca/errmgr/errmgr.h"
@@ -153,13 +153,16 @@ static int tcp_peer_create_socket(mca_oob_tcp_peer_t* peer)
 void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
 {
     mca_oob_tcp_conn_op_t *op = (mca_oob_tcp_conn_op_t*)cbdata;
-    mca_oob_tcp_peer_t *peer = op->peer;
+    mca_oob_tcp_peer_t *peer;
     int rc;
     opal_socklen_t addrlen = 0;
     mca_oob_tcp_addr_t *addr;
     char *host;
     mca_oob_tcp_send_t *snd;
     bool connected = false;
+
+    ORTE_ACQUIRE_OBJECT(op);
+    peer = op->peer;
 
     opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
                         "%s orte_tcp_peer_try_connect: "
@@ -191,6 +194,7 @@ void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
                         ORTE_NAME_PRINT(&(peer->name)), peer->sd);
 
     addrlen = sizeof(struct sockaddr_in);
+    peer->active_addr = NULL;
     OPAL_LIST_FOREACH(addr, &peer->addrs, mca_oob_tcp_addr_t) {
         opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
                             "%s orte_tcp_peer_try_connect: "
@@ -272,6 +276,8 @@ void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
             if (mca_oob_tcp_component.max_recon_attempts < 0 ||
                 peer->num_retries < mca_oob_tcp_component.max_recon_attempts) {
                 struct timeval tv;
+                /* close the current socket */
+                CLOSE_THE_SOCKET(peer->sd);
                 /* reset the addr states */
                 OPAL_LIST_FOREACH(addr, &peer->addrs, mca_oob_tcp_addr_t) {
                     addr->state = MCA_OOB_TCP_UNCONNECTED;
@@ -288,7 +294,7 @@ void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
         /* no address succeeded, so we cannot reach this peer */
         peer->state = MCA_OOB_TCP_FAILED;
         host = orte_get_proc_hostname(&(peer->name));
-        if (NULL == host) {
+        if (NULL == host && NULL != peer->active_addr) {
             host = opal_net_get_hostname((struct sockaddr*)&(peer->active_addr->addr));
         }
         /* use an opal_output here instead of show_help as we may well
@@ -305,13 +311,15 @@ void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
                     "------------------------------------------------------------",
                     orte_process_info.nodename,
                     (NULL == host) ? "<unknown>" : host);
+        /* close the socket */
+        CLOSE_THE_SOCKET(peer->sd);
         /* let the TCP component know that this module failed to make
          * the connection so it can do some bookkeeping and fail back
          * to the OOB level so another component can try. This will activate
          * an event in the component event base, and so it will fire async
          * from us if we are in our own progress thread
          */
-        ORTE_ACTIVATE_TCP_CMP_OP(&peer->name, mca_oob_tcp_component_failed_to_connect);
+        ORTE_ACTIVATE_TCP_CMP_OP(peer, NULL, mca_oob_tcp_component_failed_to_connect);
         /* FIXME: post any messages in the send queue back to the OOB
          * level for reassignment
          */
@@ -349,6 +357,8 @@ void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
         } else {
             peer->state = MCA_OOB_TCP_UNCONNECTED;
         }
+        /* close the socket */
+        CLOSE_THE_SOCKET(peer->sd);
         return;
     } else {
         opal_output(0,
@@ -360,6 +370,8 @@ void mca_oob_tcp_peer_try_connect(int fd, short args, void *cbdata)
                     opal_net_get_port((struct sockaddr*)&addr->addr),
                     opal_strerror(rc),
                     rc);
+        /* close the socket */
+        CLOSE_THE_SOCKET(peer->sd);
         ORTE_FORCED_TERMINATE(1);
     }
 
@@ -376,10 +388,7 @@ static int tcp_peer_send_connect_ack(mca_oob_tcp_peer_t* peer)
     char *msg;
     mca_oob_tcp_hdr_t hdr;
     uint16_t ack_flag = htons(1);
-    int rc;
     size_t sdsize, offset = 0;
-    char *cred;
-    size_t credsize;
 
     opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
                         "%s SEND CONNECT ACK", ORTE_NAME_PRINT(ORTE_PROC_MY_NAME));
@@ -389,21 +398,11 @@ static int tcp_peer_send_connect_ack(mca_oob_tcp_peer_t* peer)
     hdr.dst = peer->name;
     hdr.type = MCA_OOB_TCP_IDENT;
     hdr.tag = 0;
-
-    /* get our security credential*/
-    if (OPAL_SUCCESS != (rc = opal_sec.get_my_credential(peer->auth_method,
-                                                         ORTE_PROC_MY_NAME,
-                                                         &cred, &credsize))) {
-        ORTE_ERROR_LOG(rc);
-        return rc;
-    }
-    opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
-                        "%s SENDING CREDENTIAL OF SIZE %lu",
-                        ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                        (unsigned long)credsize);
+    hdr.seq_num = 0;
+    memset(hdr.routed, 0, ORTE_MAX_RTD_SIZE+1);
 
     /* payload size */
-    sdsize = sizeof(ack_flag) + strlen(orte_version_string) + 1 + credsize;
+    sdsize = sizeof(ack_flag) + strlen(orte_version_string) + 1;
     hdr.nbytes = sdsize;
     MCA_OOB_TCP_HDR_HTON(&hdr);
 
@@ -421,11 +420,6 @@ static int tcp_peer_send_connect_ack(mca_oob_tcp_peer_t* peer)
     offset += sizeof(ack_flag);
     memcpy(msg + offset, orte_version_string, strlen(orte_version_string));
     offset += strlen(orte_version_string)+1;
-    memcpy(msg + offset, cred, credsize);
-    /* clear the memory */
-    if (NULL != cred) {
-        free(cred);
-    }
 
     /* send it */
     if (ORTE_SUCCESS != tcp_peer_send_blocking(peer->sd, msg, sdsize)) {
@@ -439,7 +433,10 @@ static int tcp_peer_send_connect_ack(mca_oob_tcp_peer_t* peer)
     return ORTE_SUCCESS;
 }
 
-/* Respond with refuse to the connection request */
+/* send a handshake that includes our process identifier, our
+ * version string, and a security token to ensure we are talking
+ * to another OMPI process
+ */
 static int tcp_peer_send_connect_nack(int sd, orte_process_name_t name)
 {
     char *msg;
@@ -456,6 +453,8 @@ static int tcp_peer_send_connect_nack(int sd, orte_process_name_t name)
     hdr.dst = name;
     hdr.type = MCA_OOB_TCP_IDENT;
     hdr.tag = 0;
+    hdr.seq_num = 0;
+    memset(hdr.routed, 0, ORTE_MAX_RTD_SIZE+1);
 
     /* payload size */
     sdsize = sizeof(ack_flag);
@@ -493,7 +492,10 @@ static void tcp_peer_event_init(mca_oob_tcp_peer_t* peer)
 {
     if (peer->sd >= 0) {
         assert(!peer->send_ev_active && !peer->recv_ev_active);
-        opal_event_set(mca_oob_tcp_module.ev_base,
+        if (NULL == peer->ev_base) {
+            ORTE_OOB_TCP_NEXT_BASE(peer);
+        }
+        opal_event_set(peer->ev_base,
                        &peer->recv_event,
                        peer->sd,
                        OPAL_EV_READ|OPAL_EV_PERSIST,
@@ -505,7 +507,7 @@ static void tcp_peer_event_init(mca_oob_tcp_peer_t* peer)
             peer->recv_ev_active = false;
         }
 
-        opal_event_set(mca_oob_tcp_module.ev_base,
+        opal_event_set(peer->ev_base,
                        &peer->send_event,
                        peer->sd,
                        OPAL_EV_WRITE|OPAL_EV_PERSIST,
@@ -588,8 +590,9 @@ void mca_oob_tcp_peer_complete_connect(mca_oob_tcp_peer_t *peer)
                             ORTE_NAME_PRINT(&(peer->name)));
 
         if (!peer->recv_ev_active) {
-            opal_event_add(&peer->recv_event, 0);
             peer->recv_ev_active = true;
+            ORTE_POST_OBJECT(peer);
+            opal_event_add(&peer->recv_event, 0);
         }
     } else {
         opal_output(0, "%s tcp_peer_complete_connect: unable to send connect ack to %s",
@@ -609,6 +612,8 @@ static int tcp_peer_send_blocking(int sd, void* data, size_t size)
     unsigned char* ptr = (unsigned char*)data;
     size_t cnt = 0;
     int retval;
+
+    ORTE_ACQUIRE_OBJECT(ptr);
 
     opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
                         "%s send blocking of %"PRIsize_t" bytes to socket %d",
@@ -701,9 +706,7 @@ int mca_oob_tcp_peer_recv_connect_ack(mca_oob_tcp_peer_t* pr,
 {
     char *msg;
     char *version;
-    int rc;
-    char *cred;
-    size_t credsize, offset = 0;
+    size_t offset = 0;
     mca_oob_tcp_hdr_t hdr;
     mca_oob_tcp_peer_t *peer;
     uint64_t *ui64;
@@ -784,9 +787,10 @@ int mca_oob_tcp_peer_recv_connect_ack(mca_oob_tcp_peer_t* pr,
                                 ORTE_NAME_PRINT(ORTE_PROC_MY_NAME));
             peer = OBJ_NEW(mca_oob_tcp_peer_t);
             peer->name = hdr.origin;
+            ORTE_OOB_TCP_NEXT_BASE(peer);  // assign it an event base
             peer->state = MCA_OOB_TCP_ACCEPTING;
             ui64 = (uint64_t*)(&peer->name);
-            if (OPAL_SUCCESS != opal_hash_table_set_value_uint64(&mca_oob_tcp_module.peers, (*ui64), peer)) {
+            if (OPAL_SUCCESS != opal_hash_table_set_value_uint64(&mca_oob_tcp_component.peers, (*ui64), peer)) {
                 OBJ_RELEASE(peer);
                 CLOSE_THE_SOCKET(sd);
                 return ORTE_ERR_OUT_OF_RESOURCE;
@@ -853,7 +857,7 @@ int mca_oob_tcp_peer_recv_connect_ack(mca_oob_tcp_peer_t* pr,
             }
 
             /* change the state so we'll accept the remote
-             * connection when it'll appear
+             * connection when it'll apeear
              */
             peer->state = MCA_OOB_TCP_UNCONNECTED;
         } else {
@@ -896,30 +900,10 @@ int mca_oob_tcp_peer_recv_connect_ack(mca_oob_tcp_peer_t* pr,
         free(msg);
         return ORTE_ERR_CONNECTION_REFUSED;
     }
-
-    opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
-                        "%s connect-ack version from %s matches ours",
-                        ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                        ORTE_NAME_PRINT(&peer->name));
-
-    /* check security token */
-    cred = (char*)((char*)msg + offset);
-    credsize = hdr.nbytes - offset;
-    if (OPAL_SUCCESS != (rc = opal_sec.authenticate(cred, credsize, &peer->auth_method))) {
-        char *hostname;
-        hostname = orte_get_proc_hostname(&peer->name);
-        orte_show_help("help-oob-tcp.txt", "authent-fail", true,
-                       (NULL == hostname) ? "unknown" : hostname,
-                       orte_process_info.nodename);
-        peer->state = MCA_OOB_TCP_FAILED;
-        mca_oob_tcp_peer_close(peer);
-        free(msg);
-        return ORTE_ERR_CONNECTION_REFUSED;
-    }
     free(msg);
 
     opal_output_verbose(OOB_TCP_DEBUG_CONNECT, orte_oob_base_framework.framework_output,
-                        "%s connect-ack %s authenticated",
+                        "%s connect-ack version from %s matches ours",
                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                         ORTE_NAME_PRINT(&peer->name));
 
@@ -933,7 +917,7 @@ int mca_oob_tcp_peer_recv_connect_ack(mca_oob_tcp_peer_t* pr,
     /* set the peer into the component and OOB-level peer tables to indicate
      * that we know this peer and we will be handling him
      */
-    ORTE_ACTIVATE_TCP_CMP_OP(&peer->name, mca_oob_tcp_component_set_module);
+    ORTE_ACTIVATE_TCP_CMP_OP(peer, NULL, mca_oob_tcp_component_set_module);
 
     /* connected */
     tcp_peer_connected(peer);
@@ -964,7 +948,7 @@ static void tcp_peer_connected(mca_oob_tcp_peer_t* peer)
     }
 
     /* update the route */
-    orte_routed.update_route(&peer->name, &peer->name);
+    orte_routed.update_route(NULL, &peer->name, &peer->name);
 
     /* initiate send of first message on queue */
     if (NULL == peer->send_msg) {
@@ -972,8 +956,9 @@ static void tcp_peer_connected(mca_oob_tcp_peer_t* peer)
             opal_list_remove_first(&peer->send_queue);
     }
     if (NULL != peer->send_msg && !peer->send_ev_active) {
-        opal_event_add(&peer->send_event, 0);
         peer->send_ev_active = true;
+        ORTE_POST_OBJECT(peer);
+        opal_event_add(&peer->send_event, 0);
     }
 }
 
@@ -1022,7 +1007,7 @@ void mca_oob_tcp_peer_close(mca_oob_tcp_peer_t *peer)
     /* inform the component-level that we have lost a connection so
      * it can decide what to do about it.
      */
-    ORTE_ACTIVATE_TCP_CMP_OP(&peer->name, mca_oob_tcp_component_lost_connection);
+    ORTE_ACTIVATE_TCP_CMP_OP(peer, NULL, mca_oob_tcp_component_lost_connection);
 
     if (orte_orteds_term_ordered || orte_finalizing || orte_abnormal_term_ordered) {
         /* nothing more to do */
@@ -1233,12 +1218,13 @@ bool mca_oob_tcp_peer_accept(mca_oob_tcp_peer_t* peer)
         /* set the peer into the component and OOB-level peer tables to indicate
          * that we know this peer and we will be handling him
          */
-        ORTE_ACTIVATE_TCP_CMP_OP(&peer->name, mca_oob_tcp_component_set_module);
+        ORTE_ACTIVATE_TCP_CMP_OP(peer, NULL, mca_oob_tcp_component_set_module);
 
         tcp_peer_connected(peer);
         if (!peer->recv_ev_active) {
-            opal_event_add(&peer->recv_event, 0);
             peer->recv_ev_active = true;
+            ORTE_POST_OBJECT(peer);
+            opal_event_add(&peer->recv_event, 0);
         }
         if (OOB_TCP_DEBUG_CONNECT <= opal_output_get_verbosity(orte_oob_base_framework.framework_output)) {
             mca_oob_tcp_peer_dump(peer, "accepted");

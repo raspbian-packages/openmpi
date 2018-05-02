@@ -1,7 +1,7 @@
 .\" -*- nroff -*-
-.\" Copyright (c) 2009-2014 Cisco Systems, Inc.  All rights reserved.
+.\" Copyright (c) 2009-2016 Cisco Systems, Inc.  All rights reserved.
 .\" Copyright (c) 2008-2009 Sun Microsystems, Inc.  All rights reserved.
-.\" Copyright (c) 2017      Intel, Inc.  All rights reserved.
+.\" Copyright (c) 2017-2018 Intel, Inc. All rights reserved.
 .\" Copyright (c) 2017      Los Alamos National Security, LLC.  All rights
 .\"                         reserved.
 .\" $COPYRIGHT$
@@ -192,8 +192,15 @@ Number of processes to run.
 .
 .TP
 .B -novm\fR,\fP --novm
-Execute without creating an allocation-spanning virtual machine (only start 
+Execute without creating an allocation-spanning virtual machine (only start
 daemons on nodes hosting application procs).
+.
+.
+.
+.TP
+.B -hnp\fR,\fP --hnp \fR<arg0>\fP
+Specify the URI of the Head Node Process (HNP), or the name of the file (specified as
+file:filename) that contains that info.
 .
 .
 .
@@ -323,7 +330,7 @@ each node. (Enabled by default).
 .
 .TP
 .B -oversubscribe\fR,\fP --oversubscribe
-Nodes are allowed to be oversubscribed, even on a managed system, and 
+Nodes are allowed to be oversubscribed, even on a managed system, and
 overloading of processing elements.
 .
 .TP
@@ -331,6 +338,10 @@ overloading of processing elements.
 Launch processes one per node, cycling by node in a round-robin
 fashion.  This spreads processes evenly among nodes and assigns
 MPI_COMM_WORLD ranks in a round-robin, "by node" manner.
+.
+.TP
+.B -cpu-list\fR,\fP --cpu-list \fR<cpus>\fP
+List of processor IDs to bind processes to [default=NULL].
 .
 .
 .
@@ -403,7 +414,10 @@ Redirect the stdout, stderr, and stddiag of all processes to a process-unique ve
 the specified filename. Any directories in the filename will automatically be created.
 Each output file will consist of filename.id, where the id will be the
 processes' rank in MPI_COMM_WORLD, left-filled with
-zero's for correct ordering in listings.
+zero's for correct ordering in listings. A relative path value will be converted to an
+absolute path based on the cwd where mpirun is executed. Note that this \fIwill not\fP work
+on environments where the file system on compute nodes differs from that where mpirun
+is executed.
 .
 .
 .TP
@@ -412,6 +426,11 @@ The MPI_COMM_WORLD rank of the process that is to receive stdin. The
 default is to forward stdin to MPI_COMM_WORLD rank 0, but this option
 can be used to forward stdin to any process. It is also acceptable to
 specify \fInone\fP, indicating that no processes are to receive stdin.
+.
+.
+.TP
+.B -merge-stderr-to-stdout\fR,\fP --merge-stderr-to-stdout
+Merge stderr to stdout for each process.
 .
 .
 .TP
@@ -552,6 +571,12 @@ Send arguments to various MCA modules.  See the "MCA" section, below.
 Aggregate MCA parameter set file list.
 .
 .
+.TP
+.B -tune\fR,\fP --tune \fR<tune_file>\fP
+Specify a tune file to set arguments for various MCA modules and environment variables.
+See the "Setting MCA parameters and environment variables from file" section, below.
+.
+.
 .
 .
 .P
@@ -583,6 +608,23 @@ a synonym for \fIorte_base_user_debugger\fP MCA parameter).
 .
 .
 .TP
+.B --timeout \fR<seconds>
+The maximum number of seconds that
+.I mpirun
+(also known as
+.I mpiexec\fR,\fI oshrun\fR,\fI orterun\fR,\fI
+etc.)
+will run.  After this many seconds,
+.I mpirun
+will abort the launched job and exit with a non-zero exit status.
+Using
+.B --timeout
+can be also useful when combined with the
+.B --get-stack-traces
+option.
+.
+.
+.TP
 .B -tv\fR,\fP --tv
 Launch processes under the TotalView debugger.
 Deprecated backwards compatibility flag. Synonym for \fI--debug\fP.
@@ -611,6 +653,11 @@ Provide an appfile, ignoring all other command line options.
 .TP
 .B -cf\fR,\fP --cartofile \fR<cartofile>\fP
 Provide a cartography file.
+.
+.
+.TP
+.B -continuous\fR,\fP --continuous
+Job is to run until explicitly terminated.
 .
 .
 .TP
@@ -680,21 +727,26 @@ Report events to a tool listening at the specified URI.
 .
 .TP
 .B -report-pid\fR,\fP --report-pid \fR<channel>\fP
-Print out mpirun's PID during startup. The channel must be either a '-' to indicate 
-that the pid is to be output to stdout, a '+' to indicate that the pid is to be 
+Print out mpirun's PID during startup. The channel must be either a '-' to indicate
+that the pid is to be output to stdout, a '+' to indicate that the pid is to be
 output to stderr, or a filename to which the pid is to be written.
 .
 .
 .TP
 .B -report-uri\fR,\fP --report-uri \fR<channel>\fP
-Print out mpirun's URI during startup. The channel must be either a '-' to indicate 
-that the URI is to be output to stdout, a '+' to indicate that the URI is to be 
+Print out mpirun's URI during startup. The channel must be either a '-' to indicate
+that the URI is to be output to stdout, a '+' to indicate that the URI is to be
 output to stderr, or a filename to which the URI is to be written.
 .
 .
 .TP
 .B -show-progress\fR,\fP --show-progress
 Output a brief periodic report on launch progress.
+.
+.
+.TP
+.B -terminate\fR,\fP --terminate
+Terminate the DVM.
 .
 .
 .TP
@@ -775,12 +827,9 @@ There may be other options listed with \fImpirun --help\fP.
 .
 .TP
 .B MPIEXEC_TIMEOUT
-The maximum number of seconds that
-.I mpirun
-.RI ( mpiexec )
-will run.  After this many seconds,
-.I mpirun
-will abort the launched job and exit.
+Synonym for the
+.B --timeout
+command line option.
 .
 .
 .\" **************************
@@ -838,10 +887,14 @@ Here, we list both the host names (aa, bb, and cc) but also how many "slots"
 there are for each.  Slots indicate how many processes can potentially execute
 on a node.  For best performance, the number of slots may be chosen to be the
 number of cores on the node or the number of processor sockets.  If the hostfile
-does not provide slots information, a default of 1 is assumed.
-When running under resource managers (e.g., SLURM, Torque, etc.),
-Open MPI will obtain both the hostnames and the number of slots directly
-from the resource manger.
+does not provide slots information, Open MPI will attempt to discover the number
+of cores (or hwthreads, if the use-hwthreads-as-cpus option is set) and set the
+number of slots to that value. This default behavior also occurs when specifying
+the \fI-host\fP option with a single hostname. Thus, the command
+.
+.TP 4
+mpirun -H aa ./a.out
+launches a number of processes equal to the number of cores on node aa.
 .
 .PP
 .
@@ -857,6 +910,11 @@ will launch two processes, both on node aa.
 mpirun -hostfile myhostfile -host dd ./a.out
 will find no hosts to run on and abort with an error.
 That is, the specified host dd is not in the specified hostfile.
+.
+.PP
+When running under resource managers (e.g., SLURM, Torque, etc.),
+Open MPI will obtain both the hostnames and the number of slots directly
+from the resource manger.
 .
 .SS Specifying Number of Processes
 .
@@ -1346,9 +1404,7 @@ SIGUSR1 and SIGUSR2 signals received by orterun are propagated to
 all processes in the job.
 .
 .PP
-One can turn on forwarding of SIGSTOP and SIGCONT to the program executed
-by mpirun by setting the MCA parameter orte_forward_job_control to 1.
-A SIGTSTOP signal to mpirun will then cause a SIGSTOP signal to be sent
+A SIGTSTOP signal to mpirun will cause a SIGSTOP signal to be sent
 to all of the programs started by mpirun and likewise a SIGCONT signal
 to mpirun will cause a SIGCONT sent.
 .
@@ -1576,7 +1632,7 @@ we return the exit status of the process with the lowest MPI_COMM_WORLD rank to 
 .IP \[bu]
 if all processes in the primary job normally terminate with exit status 0, and one or more
 processes in a secondary job normally terminate with non-zero exit status, we (a) return
-the exit status of the process with the lowest MPI_COMM_WORLD rank in the lowest jobid to have a non-zero 
+the exit status of the process with the lowest MPI_COMM_WORLD rank in the lowest jobid to have a non-zero
 status, and (b) output a message summarizing the exit status of the primary and all secondary jobs.
 .IP \[bu]
 if the cmd line option --report-child-jobs-separately is set, we will return -only- the
@@ -1649,6 +1705,19 @@ In the event that one or more processes exit before calling MPI_FINALIZE, the
 return value of the MPI_COMM_WORLD rank of the process that \fImpirun\fP first notices died
 before calling MPI_FINALIZE will be returned.  Note that, in general, this will
 be the first process that died but is not guaranteed to be so.
+.
+.PP
+If the
+.B --timeout
+command line option is used and the timeout expires before the job
+completes (thereby forcing
+.I mpirun
+to kill the job)
+.I mpirun
+will return an exit status equivalent to the value of
+.B ETIMEDOUT
+(which is typically 110 on Linux and OS X systems).
+
 .
 .\" **************************
 .\"    See Also Section

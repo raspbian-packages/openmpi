@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
@@ -84,7 +84,8 @@ int MPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
           err = MPI_ERR_TYPE;
         } else if (recvcount < 0) {
           err = MPI_ERR_COUNT;
-        } else if (MPI_IN_PLACE == recvbuf) {
+        } else if ((MPI_IN_PLACE == sendbuf && OMPI_COMM_IS_INTER(comm)) ||
+                   MPI_IN_PLACE == recvbuf) {
           return OMPI_ERRHANDLER_INVOKE(comm, MPI_ERR_ARG, FUNC_NAME);
         } else if (MPI_IN_PLACE != sendbuf) {
             OMPI_CHECK_DATATYPE_FOR_SEND(err, sendtype, sendcount);
@@ -114,11 +115,13 @@ int MPI_Allgather(const void *sendbuf, int sendcount, MPI_Datatype sendtype,
 	}
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /* Invoke the coll component to perform the back-end operation */
 
-    err = comm->c_coll.coll_allgather(sendbuf, sendcount, sendtype,
+    err = comm->c_coll->coll_allgather(sendbuf, sendcount, sendtype,
                                       recvbuf, recvcount, recvtype, comm,
-                                      comm->c_coll.coll_allgather_module);
+                                      comm->c_coll->coll_allgather_module);
     OMPI_ERRHANDLER_RETURN(err, comm, err, FUNC_NAME);
 }
 

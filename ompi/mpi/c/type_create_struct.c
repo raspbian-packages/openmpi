@@ -80,6 +80,7 @@ int MPI_Type_create_struct(int count,
         }
     }
 
+    OPAL_CR_ENTER_LIBRARY();
 
     rc = ompi_datatype_create_struct( count, array_of_blocklengths, array_of_displacements,
                                       array_of_types, newtype );
@@ -96,5 +97,6 @@ int MPI_Type_create_struct(int count,
                                 count, array_of_types, MPI_COMBINER_STRUCT );
     }
 
+    OPAL_CR_EXIT_LIBRARY();
     return MPI_SUCCESS;
 }

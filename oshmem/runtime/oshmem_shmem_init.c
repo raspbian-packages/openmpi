@@ -16,9 +16,7 @@
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif  /* HAVE_SYS_TIME_H */
-#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -281,17 +279,12 @@ static int _shmem_init(int argc, char **argv, int requested, int *provided)
         goto error;
     }
 
-    if (OSHMEM_SUCCESS
-            != (ret = mca_spml_base_select(OPAL_ENABLE_PROGRESS_THREADS,
-                                           OMPI_ENABLE_THREAD_MULTIPLE))) {
+    if (OSHMEM_SUCCESS != (ret = mca_spml_base_select(OPAL_ENABLE_PROGRESS_THREADS, 1))) {
         error = "mca_spml_base_select() failed";
         goto error;
     }
 
-    if (OSHMEM_SUCCESS
-            != (ret =
-                    mca_scoll_base_find_available(OPAL_ENABLE_PROGRESS_THREADS,
-                                                  OMPI_ENABLE_THREAD_MULTIPLE))) {
+    if (OSHMEM_SUCCESS != (ret = mca_scoll_base_find_available(OPAL_ENABLE_PROGRESS_THREADS, 1))) {
         error = "mca_scoll_base_find_available() failed";
         goto error;
     }
@@ -347,10 +340,7 @@ static int _shmem_init(int argc, char **argv, int requested, int *provided)
         goto error;
     }
 
-    if (OSHMEM_SUCCESS
-            != (ret =
-                    mca_atomic_base_find_available(OPAL_ENABLE_PROGRESS_THREADS,
-                                                   OMPI_ENABLE_THREAD_MULTIPLE))) {
+    if (OSHMEM_SUCCESS != (ret = mca_atomic_base_find_available(OPAL_ENABLE_PROGRESS_THREADS, 1))) {
         error = "mca_atomic_base_find_available() failed";
         goto error;
     }

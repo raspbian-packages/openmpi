@@ -2,14 +2,14 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2013-2015 University of Houston. All rights reserved.
+ * Copyright (c) 2013-2016 University of Houston. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -81,7 +81,7 @@ int mca_sharedfp_sm_write (mca_io_ompio_file_t *fh,
         }
 
         /* Write to the file*/
-        ret = ompio_io_ompio_file_write_at(sh->sharedfh,offset,buf,count,datatype,status);
+        ret = mca_common_ompio_file_write_at(sh->sharedfh,offset,buf,count,datatype,status);
     }
 
     return ret;
@@ -144,9 +144,9 @@ int mca_sharedfp_sm_write_ordered (mca_io_ompio_file_t *fh,
             return OMPI_ERR_OUT_OF_RESOURCE;
     }
 
-    ret = sh->comm->c_coll.coll_gather ( &sendBuff, sendcnt, OMPI_OFFSET_DATATYPE,
+    ret = sh->comm->c_coll->coll_gather ( &sendBuff, sendcnt, OMPI_OFFSET_DATATYPE,
                                    buff, recvcnt, OMPI_OFFSET_DATATYPE, 0,
-                                   sh->comm, sh->comm->c_coll.coll_gather_module );
+                                   sh->comm, sh->comm->c_coll->coll_gather_module );
     if ( OMPI_SUCCESS != ret ) {
         goto exit;
     }
@@ -185,9 +185,9 @@ int mca_sharedfp_sm_write_ordered (mca_io_ompio_file_t *fh,
     }
 
     /* Scatter the results to the other processes*/
-    ret = sh->comm->c_coll.coll_scatter ( buff, sendcnt, OMPI_OFFSET_DATATYPE,
+    ret = sh->comm->c_coll->coll_scatter ( buff, sendcnt, OMPI_OFFSET_DATATYPE,
                                           &offsetBuff, recvcnt, OMPI_OFFSET_DATATYPE, 0,
-                                          sh->comm, sh->comm->c_coll.coll_scatter_module );
+                                          sh->comm, sh->comm->c_coll->coll_scatter_module );
 
     if ( OMPI_SUCCESS != ret ) {
         goto exit;
@@ -202,7 +202,7 @@ int mca_sharedfp_sm_write_ordered (mca_io_ompio_file_t *fh,
                     "sharedfp_sm_write_ordered: Offset returned is %lld\n",offset);
     }
     /* write to the file */
-    ret = ompio_io_ompio_file_write_at_all(sh->sharedfh,offset,buf,count,datatype,status);
+    ret = mca_common_ompio_file_write_at_all(sh->sharedfh,offset,buf,count,datatype,status);
 
 exit:
     if ( NULL != buff ) {

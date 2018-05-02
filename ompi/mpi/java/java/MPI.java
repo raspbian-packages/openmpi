@@ -45,7 +45,6 @@
  * Copyright: Northeast Parallel Architectures Center
  *            at Syracuse University 1998
  */
-
 package mpi;
 
 import java.io.*;

@@ -52,7 +52,7 @@ static void out(char *str, char *arg);
 
 
 void ompi_mpi_errors_are_fatal_comm_handler(struct ompi_communicator_t **comm,
-					    int *error_code, ...)
+                                            int *error_code, ...)
 {
   char *name;
   struct ompi_communicator_t *abort_comm;
@@ -73,7 +73,7 @@ void ompi_mpi_errors_are_fatal_comm_handler(struct ompi_communicator_t **comm,
 
 
 void ompi_mpi_errors_are_fatal_file_handler(struct ompi_file_t **file,
-					    int *error_code, ...)
+                                            int *error_code, ...)
 {
   char *name;
   struct ompi_communicator_t *abort_comm;
@@ -94,7 +94,7 @@ void ompi_mpi_errors_are_fatal_file_handler(struct ompi_file_t **file,
 
 
 void ompi_mpi_errors_are_fatal_win_handler(struct ompi_win_t **win,
-					   int *error_code, ...)
+                                           int *error_code, ...)
 {
   char *name;
   struct ompi_communicator_t *abort_comm = NULL;
@@ -112,7 +112,7 @@ void ompi_mpi_errors_are_fatal_win_handler(struct ompi_win_t **win,
 }
 
 void ompi_mpi_errors_return_comm_handler(struct ompi_communicator_t **comm,
-					 int *error_code, ...)
+                                         int *error_code, ...)
 {
     /* Don't need anything more -- just need this function to exist */
     /* Silence some compiler warnings */
@@ -124,7 +124,7 @@ void ompi_mpi_errors_return_comm_handler(struct ompi_communicator_t **comm,
 
 
 void ompi_mpi_errors_return_file_handler(struct ompi_file_t **file,
-					 int *error_code, ...)
+                                         int *error_code, ...)
 {
     /* Don't need anything more -- just need this function to exist */
     /* Silence some compiler warnings */
@@ -136,7 +136,7 @@ void ompi_mpi_errors_return_file_handler(struct ompi_file_t **file,
 
 
 void ompi_mpi_errors_return_win_handler(struct ompi_win_t **win,
-					int *error_code, ...)
+                                        int *error_code, ...)
 {
     /* Don't need anything more -- just need this function to exist */
     /* Silence some compiler warnings */
@@ -149,7 +149,7 @@ void ompi_mpi_errors_return_win_handler(struct ompi_win_t **win,
 
 static void out(char *str, char *arg)
 {
-    if (ompi_mpi_initialized && !ompi_mpi_finalized) {
+    if (ompi_rte_initialized && !ompi_mpi_finalized) {
         if (NULL != arg) {
             opal_output(0, str, arg);
         } else {
@@ -189,8 +189,6 @@ static void backend_fatal_aggregate(char *type,
     // (NULL == foo) ? unknown_foo : foo
     const char* usable_prefix = unknown_prefix;
     const char* usable_err_msg = unknown_error;
-
-    assert(ompi_mpi_initialized && !ompi_mpi_finalized);
 
     arg = va_arg(arglist, char*);
     va_end(arglist);
@@ -375,9 +373,8 @@ static void backend_fatal(char *type, struct ompi_communicator_t *comm,
                           char *name, int *error_code,
                           va_list arglist)
 {
-    /* We only want aggregation after MPI_INIT and before
-       MPI_FINALIZE. */
-    if (ompi_mpi_initialized && !ompi_mpi_finalized) {
+    /* We only want aggregation while the rte is initialized */
+    if (ompi_rte_initialized) {
         backend_fatal_aggregate(type, comm, name, error_code, arglist);
     } else {
         backend_fatal_no_aggregate(type, comm, name, error_code, arglist);

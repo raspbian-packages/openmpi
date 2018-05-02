@@ -13,7 +13,7 @@
  * Copyright (c) 2007      Sun Microsystems, Inc.  All rights reserverd.
  * Copyright (c) 2012-2014 Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2017      Research Organization for Information Science
+ * Copyright (c) 2016-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -66,6 +66,10 @@ static inline void opal_atomic_rmb(void)
 static inline void opal_atomic_wmb(void)
 {
     MB();
+}
+
+static inline void opal_atomic_isync(void)
+{
 }
 
 #endif /* OPAL_GCC_INLINE_ASSEMBLY */
@@ -156,8 +160,8 @@ static inline int32_t opal_atomic_swap_32( volatile int32_t *addr,
     int32_t oldval;
 
     __asm__ __volatile__("xchg %1, %0" :
-			 "=r" (oldval), "=m" (*addr) :
-			 "0" (newval), "m" (*addr) :
+			 "=r" (oldval), "+m" (*addr) :
+			 "0" (newval) :
 			 "memory");
     return oldval;
 }
@@ -172,8 +176,8 @@ static inline int64_t opal_atomic_swap_64( volatile int64_t *addr,
     int64_t oldval;
 
     __asm__ __volatile__("xchgq %1, %0" :
-			 "=r" (oldval) :
-			 "m" (*addr), "0" (newval) :
+			 "=r" (oldval), "+m" (*addr) :
+			 "0" (newval) :
 			 "memory");
     return oldval;
 }
@@ -201,8 +205,8 @@ static inline int32_t opal_atomic_add_32(volatile int32_t* v, int i)
     int ret = i;
    __asm__ __volatile__(
                         SMPLOCK "xaddl %1,%0"
-                        :"=m" (*v), "+r" (ret)
-                        :"m" (*v)
+                        :"+m" (*v), "+r" (ret)
+                        :
                         :"memory", "cc"
                         );
    return (ret+i);
@@ -222,8 +226,8 @@ static inline int64_t opal_atomic_add_64(volatile int64_t* v, int64_t i)
     int64_t ret = i;
    __asm__ __volatile__(
                         SMPLOCK "xaddq %1,%0"
-                        :"=m" (*v), "+r" (ret)
-                        :"m" (*v)
+                        :"+m" (*v), "+r" (ret)
+                        :
                         :"memory", "cc"
                         );
    return (ret+i);
@@ -243,8 +247,8 @@ static inline int32_t opal_atomic_sub_32(volatile int32_t* v, int i)
     int ret = -i;
    __asm__ __volatile__(
                         SMPLOCK "xaddl %1,%0"
-                        :"=m" (*v), "+r" (ret)
-                        :"m" (*v)
+                        :"+m" (*v), "+r" (ret)
+                        :
                         :"memory", "cc"
                         );
    return (ret-i);
@@ -264,8 +268,8 @@ static inline int64_t opal_atomic_sub_64(volatile int64_t* v, int64_t i)
     int64_t ret = -i;
    __asm__ __volatile__(
                         SMPLOCK "xaddq %1,%0"
-                        :"=m" (*v), "+r" (ret)
-                        :"m" (*v)
+                        :"+m" (*v), "+r" (ret)
+                        :
                         :"memory", "cc"
                         );
    return (ret-i);

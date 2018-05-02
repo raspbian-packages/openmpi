@@ -11,7 +11,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2007      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2007-2015 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2007-2016 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2007      Voltaire. All rights reserved.
  * Copyright (c) 2010      Oracle and/or its affiliates.  All rights reserved.
@@ -116,7 +116,7 @@ BEGIN_C_DECLS
  */
 #define OPAL_THREAD_LOCK(mutex)                 \
     do {                                        \
-        if (opal_using_threads()) {             \
+        if (OPAL_UNLIKELY(opal_using_threads())) {      \
             opal_mutex_lock(mutex);             \
         }                                       \
     } while (0)
@@ -138,7 +138,7 @@ BEGIN_C_DECLS
  * Returns 0 if mutex was locked, non-zero otherwise.
  */
 #define OPAL_THREAD_TRYLOCK(mutex)                      \
-    (opal_using_threads() ? opal_mutex_trylock(mutex) : 0)
+    (OPAL_UNLIKELY(opal_using_threads()) ? opal_mutex_trylock(mutex) : 0)
 
 /**
  * Unlock a mutex if opal_using_threads() says that multiple threads
@@ -155,7 +155,7 @@ BEGIN_C_DECLS
  */
 #define OPAL_THREAD_UNLOCK(mutex)               \
     do {                                        \
-        if (opal_using_threads()) {             \
+        if (OPAL_UNLIKELY(opal_using_threads())) {      \
             opal_mutex_unlock(mutex);           \
         }                                       \
     } while (0)
@@ -178,7 +178,7 @@ BEGIN_C_DECLS
  */
 #define OPAL_THREAD_SCOPED_LOCK(mutex, action)  \
     do {                                        \
-        if(opal_using_threads()) {              \
+        if(OPAL_UNLIKELY(opal_using_threads())) {       \
             opal_mutex_lock(mutex);             \
             action;                             \
             opal_mutex_unlock(mutex);           \

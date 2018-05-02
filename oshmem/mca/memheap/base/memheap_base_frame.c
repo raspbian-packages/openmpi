@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013      Mellanox Technologies, Inc.
  *                         All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  *
  * $COPYRIGHT$
@@ -35,7 +35,7 @@ int mca_memheap_base_output = -1;
 int mca_memheap_base_key_exchange = 1;
 opal_list_t mca_memheap_base_components_opened = {{0}};
 int mca_memheap_base_already_opened = 0;
-mca_memheap_map_t mca_memheap_base_map;
+mca_memheap_map_t mca_memheap_base_map = {{{{0}}}};
 
 static int mca_memheap_base_register(mca_base_register_flag_t flags)
 {

@@ -2,14 +2,14 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2013-2015 University of Houston. All rights reserved.
+ * Copyright (c) 2013-2016 University of Houston. All rights reserved.
  * Copyright (c) 2015 Cisco Systems, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
@@ -95,7 +95,7 @@ mca_sharedfp_sm_seek (mca_io_ompio_file_t *fh,
         }
         else if( MPI_SEEK_END == whence){
             end_position=0;
-            ompio_io_ompio_file_get_size(sh->sharedfh,&end_position);
+            mca_common_ompio_file_get_size(sh->sharedfh,&end_position);
 
             offset = end_position + offset;
             if ( mca_sharedfp_sm_verbose ) {
@@ -146,7 +146,7 @@ mca_sharedfp_sm_seek (mca_io_ompio_file_t *fh,
     /* since we are only letting process 0, update the current pointer
      * all of the other processes need to wait before proceeding.
      */
-    sh->comm->c_coll.coll_barrier ( sh->comm, sh->comm->c_coll.coll_barrier_module );
+    sh->comm->c_coll->coll_barrier ( sh->comm, sh->comm->c_coll->coll_barrier_module );
 
     return ret;
 }

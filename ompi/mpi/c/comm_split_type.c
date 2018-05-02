@@ -86,6 +86,7 @@ int MPI_Comm_split_type(MPI_Comm comm, int split_type, int key,
         }
     }
 
+    OPAL_CR_ENTER_LIBRARY();
 
     if( (MPI_COMM_SELF == comm) && (MPI_UNDEFINED == split_type) ) {
         *newcomm = MPI_COMM_NULL;

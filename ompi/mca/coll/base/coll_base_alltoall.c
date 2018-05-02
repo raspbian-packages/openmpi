@@ -12,7 +12,7 @@
  *                         All rights reserved.
  * Copyright (c) 2013-2016 Los Alamos National Security, LLC. All Rights
  *                         reserved.
- * Copyright (c) 2014-2016 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -42,9 +42,9 @@ mca_coll_base_alltoall_intra_basic_inplace(const void *rbuf, int rcount,
                                            mca_coll_base_module_t *module)
 {
     int i, j, size, rank, err = MPI_SUCCESS, line;
-    OPAL_PTRDIFF_TYPE ext, gap;
+    ptrdiff_t ext, gap;
     ompi_request_t *req;
-    char *tmp_buffer;
+    char *allocated_buffer = NULL, *tmp_buffer;
     size_t max_size;
 
     /* Initialize. */
@@ -64,11 +64,9 @@ mca_coll_base_alltoall_intra_basic_inplace(const void *rbuf, int rcount,
     /* Initiate all send/recv to/from others. */
 
     /* Allocate a temporary buffer */
-    tmp_buffer = calloc (max_size, 1);
-    if (NULL == tmp_buffer) {
-      return OMPI_ERR_OUT_OF_RESOURCE;
-    }
-    tmp_buffer -= gap;
+    allocated_buffer = calloc (max_size, 1);
+    if( NULL == allocated_buffer) { err = OMPI_ERR_OUT_OF_RESOURCE; line = __LINE__; goto error_hndl; }
+    tmp_buffer = allocated_buffer - gap;
     max_size = ext * rcount;
 
     /* in-place alltoall slow algorithm (but works) */
@@ -116,7 +114,8 @@ mca_coll_base_alltoall_intra_basic_inplace(const void *rbuf, int rcount,
 
  error_hndl:
     /* Free the temporary buffer */
-    free (tmp_buffer);
+    if( NULL != allocated_buffer )
+        free (allocated_buffer);
 
     if( MPI_SUCCESS != err ) {
         OPAL_OUTPUT((ompi_coll_base_framework.framework_output,
@@ -183,6 +182,7 @@ int ompi_coll_base_alltoall_intra_pairwise(const void *sbuf, int scount,
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,
                  "%s:%4d\tError occurred %d, rank %2d", __FILE__, line,
                  err, rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -197,7 +197,7 @@ int ompi_coll_base_alltoall_intra_bruck(const void *sbuf, int scount,
     int i, k, line = -1, rank, size, err = 0;
     int sendto, recvfrom, distance, *displs = NULL, *blen = NULL;
     char *tmpbuf = NULL, *tmpbuf_free = NULL;
-    OPAL_PTRDIFF_TYPE sext, rext, span, gap;
+    ptrdiff_t sext, rext, span, gap;
     struct ompi_datatype_t *new_ddt;
 
     if (MPI_IN_PLACE == sbuf) {
@@ -305,6 +305,7 @@ int ompi_coll_base_alltoall_intra_bruck(const void *sbuf, int scount,
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,
                  "%s:%4d\tError occurred %d, rank %2d", __FILE__, line, err,
                  rank));
+    (void)line;  // silence compiler warning
     if (tmpbuf != NULL) free(tmpbuf_free);
     if (displs != NULL) free(displs);
     if (blen != NULL) free(blen);
@@ -469,6 +470,7 @@ int ompi_coll_base_alltoall_intra_linear_sync(const void *sbuf, int scount,
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,
                  "%s:%4d\tError occurred %d, rank %2d", __FILE__, line, error,
                  rank));
+    (void)line;  // silence compiler warning
     ompi_coll_base_free_reqs(reqs, nreqs);
     return error;
 }
@@ -533,6 +535,7 @@ int ompi_coll_base_alltoall_intra_two_procs(const void *sbuf, int scount,
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,
                  "%s:%4d\tError occurred %d, rank %2d", __FILE__, line, err,
                  rank));
+    (void)line;  // silence compiler warning
     return err;
 }
 
@@ -654,11 +657,13 @@ int ompi_coll_base_alltoall_intra_basic_linear(const void *sbuf, int scount,
      * the error after we free everything. */
 
     err = ompi_request_wait_all(nreqs, req, MPI_STATUSES_IGNORE);
+    if (MPI_SUCCESS != err) { line = __LINE__; goto err_hndl; }
 
  err_hndl:
     if( MPI_SUCCESS != err ) {
         OPAL_OUTPUT( (ompi_coll_base_framework.framework_output,"%s:%4d\tError occurred %d, rank %2d",
                       __FILE__, line, err, rank) );
+        (void)line;  // silence compiler warning
     }
     /* Free the reqs in all cases as they are persistent requests */
     ompi_coll_base_free_reqs(req, nreqs);

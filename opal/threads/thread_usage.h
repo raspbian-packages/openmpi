@@ -11,7 +11,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2007-2014 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2014      Research Organization for Information Science
+ * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015-2016 Los Alamos National Security, LLC. All rights
  *                         reserved.
@@ -25,9 +25,12 @@
 #if !defined(OPAL_THREAD_USAGE_H)
 #define OPAL_THREAD_USAGE_H
 
+#include "opal_config.h"
+
 #include "opal/sys/atomic.h"
 #include "opal/prefetch.h"
-#include "opal_config.h"
+
+OPAL_DECLSPEC extern bool opal_uses_threads;
 
 /**
  * Check and see if the process is using multiple threads.
@@ -60,16 +63,7 @@
  * possibility that we may have multiple threads, true will be
  * returned.
  */
-#if OMPI_ENABLE_THREAD_MULTIPLE
-
-OPAL_DECLSPEC extern bool opal_uses_threads;
 #define opal_using_threads()  opal_uses_threads
-
-#else
-
-#define opal_using_threads()  false
-
-#endif /* OMPI_ENABLE_THREAD_MULTIPLE */
 
 /**
  * Set whether the process is using multiple threads or not.
@@ -89,11 +83,7 @@ OPAL_DECLSPEC extern bool opal_uses_threads;
  */
 static inline bool opal_set_using_threads(bool have)
 {
-#if OMPI_ENABLE_THREAD_MULTIPLE
     opal_uses_threads = have;
-#else
-    have = true;               /* just shut up the compiler */
-#endif
     return opal_using_threads();
 }
 
@@ -102,6 +92,7 @@ static inline bool opal_set_using_threads(bool have)
  * Use an atomic operation for increment/decrement if opal_using_threads()
  * indicates that threads are in use by the application or library.
  */
+
 #define OPAL_THREAD_DEFINE_ATOMIC_ADD(type, suffix)     \
 static inline type opal_thread_add_ ## suffix (volatile type *addr, type delta) \
 {                                                                       \
@@ -110,6 +101,16 @@ static inline type opal_thread_add_ ## suffix (volatile type *addr, type delta) 
     }                                                                   \
                                                                         \
     return (*addr += delta);                                            \
+}
+
+#define OPAL_THREAD_DEFINE_ATOMIC_SUB(type, suffix)     \
+static inline type opal_thread_sub_ ## suffix (volatile type *addr, type delta) \
+{                                                                       \
+    if (OPAL_UNLIKELY(opal_using_threads())) {                          \
+        return opal_atomic_sub_ ## suffix (addr, delta);                \
+    }                                                                   \
+                                                                        \
+    return (*addr -= delta);                                            \
 }
 
 #define OPAL_THREAD_DEFINE_ATOMIC_CMPSET(type, addr_type, suffix)       \
@@ -142,6 +143,7 @@ static inline type opal_thread_swap_ ## suffix (volatile addr_type *ptr, type ne
 
 OPAL_THREAD_DEFINE_ATOMIC_ADD(int32_t, 32)
 OPAL_THREAD_DEFINE_ATOMIC_ADD(size_t, size_t)
+OPAL_THREAD_DEFINE_ATOMIC_SUB(size_t, size_t)
 OPAL_THREAD_DEFINE_ATOMIC_CMPSET(int32_t, int32_t, 32)
 OPAL_THREAD_DEFINE_ATOMIC_CMPSET(void *, intptr_t, ptr)
 OPAL_THREAD_DEFINE_ATOMIC_SWAP(int32_t, int32_t, 32)
@@ -152,6 +154,9 @@ OPAL_THREAD_DEFINE_ATOMIC_SWAP(void *, intptr_t, ptr)
 
 #define OPAL_THREAD_ADD_SIZE_T opal_thread_add_size_t
 #define OPAL_ATOMIC_ADD_SIZE_T opal_thread_add_size_t
+
+#define OPAL_THREAD_SUB_SIZE_T opal_thread_sub_size_t
+#define OPAL_ATOMIC_SUB_SIZE_T opal_thread_sub_size_t
 
 #define OPAL_THREAD_CMPSET_32 opal_thread_cmpset_bool_32
 #define OPAL_ATOMIC_CMPSET_32 opal_thread_cmpset_bool_32

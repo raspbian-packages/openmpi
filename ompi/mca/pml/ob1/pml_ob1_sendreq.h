@@ -12,7 +12,7 @@
  *                         All rights reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2011-2012 NVIDIA Corporation.  All rights reserved.
- * Copyright (c) 2011-2015 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2011-2016 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * $COPYRIGHT$
  *
@@ -99,6 +99,7 @@ add_request_to_send_pending(mca_pml_ob1_send_request_t* sendreq,
         opal_list_prepend(&mca_pml_ob1.send_pending, item);
 
     OPAL_THREAD_UNLOCK(&mca_pml_ob1.lock);
+    mca_pml_ob1_enable_progress(1);
 }
 
 static inline mca_pml_ob1_send_request_t*
@@ -156,12 +157,7 @@ get_request_from_send_pending(mca_pml_ob1_send_pending_t *type)
     }
 
 #define MCA_PML_OB1_SEND_REQUEST_RESET(sendreq)                         \
-    if ((sendreq)->req_send.req_bytes_packed > 0) {                     \
-        size_t _position = 0;                                           \
-        opal_convertor_set_position(&(sendreq)->req_send.req_base.req_convertor, \
-                                    &_position);                        \
-        assert( 0 == _position );                                       \
-    }
+    MCA_PML_BASE_SEND_REQUEST_RESET(&(sendreq)->req_send)
 
 static inline void mca_pml_ob1_free_rdma_resources (mca_pml_ob1_send_request_t* sendreq)
 {
@@ -226,7 +222,7 @@ static inline void mca_pml_ob1_send_request_fini (mca_pml_ob1_send_request_t *se
 }
 
 /*
- * Release resources associated with a request
+ * Release resources associated with a request and return the request.
  */
 
 #define MCA_PML_OB1_SEND_REQUEST_RETURN(sendreq)                        \
@@ -234,6 +230,7 @@ static inline void mca_pml_ob1_send_request_fini (mca_pml_ob1_send_request_t *se
         mca_pml_ob1_send_request_fini (sendreq);                        \
         opal_free_list_return ( &mca_pml_base_send_requests,            \
                                 (opal_free_list_item_t*)sendreq);       \
+        sendreq = NULL;  /* for safety */                               \
     } while(0)
 
 
@@ -459,7 +456,7 @@ mca_pml_ob1_send_request_start_seq (mca_pml_ob1_send_request_t* sendreq, mca_bml
     sendreq->req_pending = MCA_PML_OB1_SEND_PENDING_NONE;
     sendreq->req_send.req_base.req_sequence = seqn;
 
-    MCA_PML_BASE_SEND_START( &sendreq->req_send.req_base );
+    MCA_PML_BASE_SEND_START( &sendreq->req_send );
 
     for(size_t i = 0; i < mca_bml_base_btl_array_get_size(&endpoint->btl_eager); i++) {
         mca_bml_base_btl_t* bml_btl;

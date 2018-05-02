@@ -12,7 +12,7 @@
  * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2014-2015 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -66,8 +66,18 @@ int orte_dt_copy_job(orte_job_t **dest, orte_job_t *src, opal_data_type_t type)
  */
 int orte_dt_copy_node(orte_node_t **dest, orte_node_t *src, opal_data_type_t type)
 {
-    (*dest) = src;
-    OBJ_RETAIN(src);
+    orte_node_t *node;
+
+    node = OBJ_NEW(orte_node_t);
+    node->name = strdup(src->name);
+    node->state = src->state;
+    node->slots = src->slots;
+    node->slots_inuse = src->slots_inuse;
+    node->slots_max = src->slots_max;
+    node->topology = src->topology;
+    node->flags = src->flags;
+    (*dest) = node;
+
     return ORTE_SUCCESS;
 }
 
@@ -309,7 +319,6 @@ int orte_dt_copy_sig(orte_grpcomm_signature_t **dest, orte_grpcomm_signature_t *
     }
     (*dest)->sz = src->sz;
     (*dest)->signature = (orte_process_name_t*)malloc(src->sz * sizeof(orte_process_name_t));
-    (*dest)->seq_num = src->seq_num;
     if (NULL == (*dest)->signature) {
         ORTE_ERROR_LOG(ORTE_ERR_OUT_OF_RESOURCE);
         OBJ_RELEASE(*dest);

@@ -2044,7 +2044,6 @@ public class Comm implements Freeable, Cloneable
 		return req;
 	}
 
-
 	/**
 	 * Similar to {@code gather}, but all processes receive the result.
 	 * <p>Java binding of the MPI operation {@code MPI_IALLGATHER}

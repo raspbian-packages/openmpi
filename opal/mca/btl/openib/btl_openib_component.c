@@ -18,7 +18,7 @@
  * Copyright (c) 2009-2012 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2011-2015 NVIDIA Corporation.  All rights reserved.
  * Copyright (c) 2012      Oak Ridge National Laboratory.  All rights reserved
- * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2016 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2014      Bull SAS.  All rights reserved.
@@ -493,6 +493,8 @@ static void btl_openib_control(mca_btl_base_module_t* btl,
            trigger credit management (because the rd_credits will
            still be negative), and Bad Things will happen. */
         if (ep->endpoint_posted_recvs) {
+            /* need to hold to lock for both send_cts and connected */
+            OPAL_THREAD_LOCK(&ep->endpoint_lock);
             if (!ep->endpoint_cts_sent) {
                 mca_btl_openib_endpoint_send_cts(ep);
             }
@@ -1500,13 +1502,33 @@ static uint64_t read_module_param(char *file, uint64_t value, uint64_t max)
 static uint64_t calculate_total_mem (void)
 {
     hwloc_obj_t machine;
+    int rc;
+    uint64_t mem, *mptr;
+    opal_process_name_t wildcard_rank;
 
-    machine = hwloc_get_next_obj_by_type (opal_hwloc_topology, HWLOC_OBJ_MACHINE, NULL);
-    if (NULL == machine) {
-        return 0;
+    /* first try to retrieve it from PMIx as it may have
+     * been provided */
+    wildcard_rank.jobid = OPAL_PROC_MY_NAME.jobid;
+    wildcard_rank.vpid = OPAL_VPID_WILDCARD;
+    mptr = &mem;
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(rc, OPAL_PMIX_AVAIL_PHYS_MEMORY,
+                                   &wildcard_rank, &mptr, OPAL_UINT64);
+    if (OPAL_SUCCESS == rc) {
+        return mem;
     }
 
-    return machine->memory.total_memory;
+    /* if not available, then ensure that the topology has been
+     * loaded and try to get it from there */
+    if (OPAL_SUCCESS == opal_hwloc_base_get_topology()) {
+        machine = hwloc_get_next_obj_by_type (opal_hwloc_topology, HWLOC_OBJ_MACHINE, NULL);
+        if (NULL == machine) {
+            return 0;
+        }
+        return machine->memory.total_memory;
+    }
+
+    /* couldn't find it */
+    return 0;
 }
 
 
@@ -1715,7 +1737,11 @@ static int init_one_device(opal_list_t *btl_list, struct ibv_device* ib_dev)
     /* If we did find values for this device (or in the defaults
        section), handle them */
     merge_values(&values, &default_values);
-    if (values.mtu_set) {
+    /*  If MCA param was set, use it. If not, check the INI file
+        or default to IBV_MTU_1024 */
+    if (0 < mca_btl_openib_component.ib_mtu) {
+        device->mtu = mca_btl_openib_component.ib_mtu;
+    } else if (values.mtu_set) {
         switch (values.mtu) {
         case 256:
             device->mtu = IBV_MTU_256;
@@ -1734,11 +1760,11 @@ static int init_one_device(opal_list_t *btl_list, struct ibv_device* ib_dev)
             break;
         default:
             BTL_ERROR(("invalid MTU value specified in INI file (%d); ignored", values.mtu));
-            device->mtu = mca_btl_openib_component.ib_mtu;
+            device->mtu = IBV_MTU_1024 ;
             break;
         }
     } else {
-        device->mtu = mca_btl_openib_component.ib_mtu;
+        device->mtu = IBV_MTU_1024 ;
     }
 
     /* Allocate the protection domain for the device */
@@ -2306,7 +2332,8 @@ static float get_ib_dev_distance(struct ibv_device *dev)
     float distance = 0;
 
     /* Override any distance logic so all devices are used */
-    if (0 != mca_btl_openib_component.ignore_locality) {
+    if (0 != mca_btl_openib_component.ignore_locality ||
+        OPAL_SUCCESS != opal_hwloc_base_get_topology()) {
         return distance;
     }
 

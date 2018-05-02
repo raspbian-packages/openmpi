@@ -1,9 +1,12 @@
-arm_detection.diff
 manpage_macros
 powerpc.patch
 build_hurd
 link-libfabric.patch
 arm64.patch
-x32.patch
-test-3589.patch
+libdir.patch
+hurd-maxhostnamelen.patch
+hppa.patch
+opal_fifo.patch
+ppc.patch
+verbose-ompi-rules.patch
 raspbian.diff

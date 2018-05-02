@@ -11,7 +11,7 @@
  * Copyright (c) 2007-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc. All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2015      Intel, Inc. All rights reserved.
@@ -78,20 +78,21 @@ int ompi_osc_base_process_op (void *outbuf, void *inbuf, size_t inbuflen,
         return OMPI_ERR_NOT_SUPPORTED;
     }
 
-    /* TODO: Remove the following check when support is added.
-     * See the following issue for the current state:
-     *   https://github.com/open-mpi/ompi/issues/1666
-     */
+    /* TODO: Remove the following check when ompi adds support */
     if(MPI_MINLOC == op || MPI_MAXLOC == op) {
         if(MPI_SHORT_INT == datatype ||
            MPI_DOUBLE_INT == datatype ||
            MPI_LONG_INT == datatype ||
            MPI_LONG_DOUBLE_INT == datatype) {
            ompi_communicator_t *comm = &ompi_mpi_comm_world.comm;
-           opal_show_help("help-mca-osc-base.txt", "unsupported-dt", true,
-                          datatype->name,
-                          op->o_name,
-                          comm->c_my_rank);
+           opal_output(0, "Error: %s datatype is currently "
+                       "unsupported for MPI_MINLOC/MPI_MAXLOC "
+                       "operation\n", datatype->name);
+           opal_show_help("help-mpi-api.txt", "mpi-abort", true,
+                          comm->c_my_rank,
+                          ('\0' != comm->c_name[0]) ? comm->c_name : "<Unknown>",
+                          -1);
+
            ompi_mpi_abort(comm, -1);
         }
     }
@@ -104,7 +105,7 @@ int ompi_osc_base_process_op (void *outbuf, void *inbuf, size_t inbuflen,
         struct iovec iov[OMPI_OSC_BASE_DECODE_MAX];
         uint32_t iov_count;
         size_t size, primitive_size;
-        OPAL_PTRDIFF_TYPE lb, extent;
+        ptrdiff_t lb, extent;
         bool done;
 
         primitive_datatype = ompi_datatype_get_single_predefined_type_from_args(datatype);

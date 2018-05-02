@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2012 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
@@ -11,7 +11,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2007      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2012-2013 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2012-2017 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2014-2015 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
@@ -32,7 +32,6 @@
 #include "ompi/errhandler/errhandler.h"
 #include "ompi/datatype/ompi_datatype.h"
 #include "ompi/memchecker.h"
-#include "ompi/communicator/comm_helpers.h"
 #include "ompi/mca/topo/topo.h"
 #include "ompi/mca/topo/base/base.h"
 
@@ -52,7 +51,7 @@ int MPI_Neighbor_alltoallw(const void *sendbuf, const int sendcounts[], const MP
                            const MPI_Datatype recvtypes[], MPI_Comm comm)
 {
     int i, err;
-    int indegree, outdegree, weighted;
+    int indegree, outdegree;
 
     MEMCHECKER(
         ptrdiff_t recv_ext;
@@ -60,7 +59,7 @@ int MPI_Neighbor_alltoallw(const void *sendbuf, const int sendcounts[], const MP
 
         memchecker_comm(comm);
 
-        err = ompi_comm_neighbors_count(comm, &indegree, &outdegree, &weighted);
+        err = mca_topo_base_neighbor_count (comm, &indegree, &outdegree);
         if (MPI_SUCCESS == err) {
             if (MPI_IN_PLACE != sendbuf) {
                 for ( i = 0; i < outdegree; i++ ) {
@@ -89,25 +88,19 @@ int MPI_Neighbor_alltoallw(const void *sendbuf, const int sendcounts[], const MP
 
         err = MPI_SUCCESS;
         OMPI_ERR_INIT_FINALIZE(FUNC_NAME);
-        if (ompi_comm_invalid(comm) || !(OMPI_COMM_IS_CART(comm) || OMPI_COMM_IS_GRAPH(comm) ||
-                                         OMPI_COMM_IS_DIST_GRAPH(comm))) {
+        if (ompi_comm_invalid(comm) || OMPI_COMM_IS_INTER(comm)) {
             return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_COMM,
                                           FUNC_NAME);
-        }
-
-        if (MPI_IN_PLACE == sendbuf) {
-            sendcounts = recvcounts;
-            sdispls    = rdispls;
-            sendtypes  = recvtypes;
-        }
-
-        if ((NULL == sendcounts) || (NULL == sdispls) || (NULL == sendtypes) ||
+        } else if (! OMPI_COMM_IS_TOPO(comm)) {
+            return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_TOPOLOGY,
+                                          FUNC_NAME);
+        } else if ((NULL == sendcounts) || (NULL == sdispls) || (NULL == sendtypes) ||
             (NULL == recvcounts) || (NULL == rdispls) || (NULL == recvtypes) ||
-             MPI_IN_PLACE == recvbuf) {
+             MPI_IN_PLACE == sendbuf || MPI_IN_PLACE == recvbuf) {
             return OMPI_ERRHANDLER_INVOKE(comm, MPI_ERR_ARG, FUNC_NAME);
         }
 
-        err = ompi_comm_neighbors_count(comm, &indegree, &outdegree, &weighted);
+        err = mca_topo_base_neighbor_count (comm, &indegree, &outdegree);
         OMPI_ERRHANDLER_CHECK(err, comm, err, FUNC_NAME);
         for (i = 0; i < outdegree; ++i) {
             OMPI_CHECK_DATATYPE_FOR_SEND(err, sendtypes[i], sendcounts[i]);
@@ -141,10 +134,12 @@ int MPI_Neighbor_alltoallw(const void *sendbuf, const int sendcounts[], const MP
         }
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /* Invoke the coll component to perform the back-end operation */
-    err = comm->c_coll.coll_neighbor_alltoallw(sendbuf, sendcounts, sdispls, sendtypes,
+    err = comm->c_coll->coll_neighbor_alltoallw(sendbuf, sendcounts, sdispls, sendtypes,
                                                recvbuf, recvcounts, rdispls, recvtypes,
-                                               comm, comm->c_coll.coll_neighbor_alltoallw_module);
+                                               comm, comm->c_coll->coll_neighbor_alltoallw_module);
     OMPI_ERRHANDLER_RETURN(err, comm, err, FUNC_NAME);
 }
 

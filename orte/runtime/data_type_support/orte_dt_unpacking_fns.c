@@ -12,7 +12,7 @@
  * Copyright (c) 2011-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2014-2015 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -61,10 +61,13 @@ int orte_dt_unpack_job(opal_buffer_t *buffer, void *dest,
                        int32_t *num_vals, opal_data_type_t type)
 {
     int rc;
-    int32_t i, k, n, count;
+    int32_t i, k, n, count, bookmark;
     orte_job_t **jobs;
     orte_app_idx_t j;
     orte_attribute_t *kv;
+    char *tmp;
+    opal_value_t *val;
+    opal_list_t *cache;
 
     /* unpack into array of orte_job_t objects */
     jobs = (orte_job_t**) dest;
@@ -84,12 +87,68 @@ int orte_dt_unpack_job(opal_buffer_t *buffer, void *dest,
             ORTE_ERROR_LOG(rc);
             return rc;
         }
-        /* unpack the personality */
-        n=1;
-        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &jobs[i]->personality, &n, OPAL_STRING))) {
+        /* unpack the flags */
+        n = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
+                         (&(jobs[i]->flags)), &n, ORTE_JOB_FLAGS_T))) {
             ORTE_ERROR_LOG(rc);
             return rc;
         }
+
+        /* unpack the attributes */
+        n=1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &count,
+                                                         &n, ORTE_STD_CNTR))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
+        for (k=0; k < count; k++) {
+            n=1;
+            if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &kv,
+                                                             &n, ORTE_ATTRIBUTE))) {
+                ORTE_ERROR_LOG(rc);
+                return rc;
+            }
+            kv->local = ORTE_ATTR_GLOBAL;  // obviously not a local value
+            opal_list_append(&jobs[i]->attributes, &kv->super);
+        }
+        /* unpack any job info */
+        n=1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &count,
+                                                         &n, ORTE_STD_CNTR))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
+        if (0 < count){
+            cache = OBJ_NEW(opal_list_t);
+            orte_set_attribute(&jobs[i]->attributes, ORTE_JOB_INFO_CACHE, ORTE_ATTR_LOCAL, (void*)cache, OPAL_PTR);
+            for (k=0; k < count; k++) {
+                n=1;
+                if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &val,
+                                                                 &n, OPAL_VALUE))) {
+                    ORTE_ERROR_LOG(rc);
+                    return rc;
+                }
+                opal_list_append(cache, &val->super);
+            }
+        }
+
+        /* unpack the personality */
+        n=1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &count, &n, OPAL_INT32))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
+        for (k=0; k < count; k++) {
+            n=1;
+            if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &tmp, &n, OPAL_STRING))) {
+                ORTE_ERROR_LOG(rc);
+                return rc;
+            }
+            opal_argv_append_nosize(&jobs[i]->personality, tmp);
+            free(tmp);
+        }
+
         /* unpack the num apps */
         n = 1;
         if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
@@ -125,17 +184,21 @@ int orte_dt_unpack_job(opal_buffer_t *buffer, void *dest,
             ORTE_ERROR_LOG(rc);
             return rc;
         }
-        /* and the procs, if provided */
+
         if (0 < jobs[i]->num_procs) {
-            orte_proc_t *proc;
-            for (j=0; j < jobs[i]->num_procs; j++) {
-                n = 1;
-                if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
-                               &proc, &n, ORTE_PROC))) {
-                    ORTE_ERROR_LOG(rc);
-                    return rc;
+            /* check attributes to see if this job was fully
+             * described in the launch msg */
+            if (orte_get_attribute(&jobs[i]->attributes, ORTE_JOB_FULLY_DESCRIBED, NULL, OPAL_BOOL)) {
+                orte_proc_t *proc;
+                for (j=0; j < jobs[i]->num_procs; j++) {
+                    n = 1;
+                    if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
+                                   &proc, &n, ORTE_PROC))) {
+                        ORTE_ERROR_LOG(rc);
+                        return rc;
+                    }
+                    opal_pointer_array_add(jobs[i]->procs, proc);
                 }
-                opal_pointer_array_add(jobs[i]->procs, proc);
             }
         }
 
@@ -155,9 +218,9 @@ int orte_dt_unpack_job(opal_buffer_t *buffer, void *dest,
             return rc;
         }
 
-        /* if the map is NULL, then we din't pack it as there was
+        /* if the map is NULL, then we didn't pack it as there was
          * nothing to pack. Instead, we packed a flag to indicate whether or not
-         * the map is included         */
+         * the map is included */
         n = 1;
         if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
                                             &j, &n, ORTE_STD_CNTR))) {
@@ -174,7 +237,17 @@ int orte_dt_unpack_job(opal_buffer_t *buffer, void *dest,
             }
         }
 
-        /* no bookmark of oversubscribe_override flags to unpack */
+        /* unpack the bookmark */
+        n = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
+                                            &bookmark, &n, OPAL_INT32))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
+        if (0 <= bookmark) {
+            /* retrieve it */
+            jobs[i]->bookmark = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, bookmark);
+        }
 
         /* unpack the job state */
         n = 1;
@@ -182,32 +255,6 @@ int orte_dt_unpack_job(opal_buffer_t *buffer, void *dest,
                          (&(jobs[i]->state)), &n, ORTE_JOB_STATE))) {
             ORTE_ERROR_LOG(rc);
             return rc;
-        }
-
-        /* unpack the flags */
-        n = 1;
-        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
-                         (&(jobs[i]->flags)), &n, ORTE_JOB_FLAGS_T))) {
-            ORTE_ERROR_LOG(rc);
-            return rc;
-        }
-
-        /* unpack the attributes */
-        n=1;
-        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &count,
-                                                         &n, ORTE_STD_CNTR))) {
-            ORTE_ERROR_LOG(rc);
-            return rc;
-        }
-        for (k=0; k < count; k++) {
-            n=1;
-            if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer, &kv,
-                                                             &n, ORTE_ATTRIBUTE))) {
-                ORTE_ERROR_LOG(rc);
-                return rc;
-            }
-            kv->local = ORTE_ATTR_GLOBAL;  // obviously not a local value
-            opal_list_append(&jobs[i]->attributes, &kv->super);
         }
     }
 
@@ -365,6 +412,14 @@ int orte_dt_unpack_proc(opal_buffer_t *buffer, void *dest,
         n = 1;
         if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
                          (&(procs[i]->app_idx)), &n, ORTE_STD_CNTR))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
+
+        /* unpack the app_rank */
+        n = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
+                         (&(procs[i]->app_rank)), &n, OPAL_UINT32))) {
             ORTE_ERROR_LOG(rc);
             return rc;
         }
@@ -614,6 +669,14 @@ int orte_dt_unpack_map(opal_buffer_t *buffer, void *dest,
             return rc;
         }
 
+        /* unpack the last mapper */
+        n = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
+                                                         &(maps[i]->last_mapper), &n, OPAL_STRING))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
+
         /* unpack the policies */
         n = 1;
         if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
@@ -640,7 +703,13 @@ int orte_dt_unpack_map(opal_buffer_t *buffer, void *dest,
             ORTE_ERROR_LOG(rc);
             return rc;
         }
-
+        /* unpack the cpus/rank */
+        n = 1;
+        if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
+                                                         &(maps[i]->cpus_per_rank), &n, OPAL_INT16))) {
+            ORTE_ERROR_LOG(rc);
+            return rc;
+        }
         /* unpack the display map flag */
         n = 1;
         if (ORTE_SUCCESS != (rc = opal_dss_unpack_buffer(buffer,
@@ -883,10 +952,6 @@ int orte_dt_unpack_sig(opal_buffer_t *buffer, void *dest, int32_t *num_vals,
         /* unpack the #procs */
         cnt = 1;
         if (OPAL_SUCCESS != (rc = opal_dss.unpack(buffer, &ptr[i]->sz, &cnt, OPAL_SIZE))) {
-            ORTE_ERROR_LOG(rc);
-            return rc;
-        }
-        if (OPAL_SUCCESS != (rc = opal_dss.unpack(buffer, &ptr[i]->seq_num, &cnt, OPAL_UINT32))) {
             ORTE_ERROR_LOG(rc);
             return rc;
         }

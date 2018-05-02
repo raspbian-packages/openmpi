@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2014 The University of Tennessee and The University
+ * Copyright (c) 2004-2016 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -16,7 +16,6 @@
  *                         reserved.
  * Copyright (c) 2015-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2016 Broadcom Limited. All rights reserved.
- * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -37,6 +36,9 @@
 static opal_timer_t opal_timer_linux_get_cycles_sys_timer(void);
 static opal_timer_t opal_timer_linux_get_usec_sys_timer(void);
 
+/**
+ * Define some sane defaults until we call the _init function.
+ */
 #if OPAL_HAVE_CLOCK_GETTIME
 static opal_timer_t opal_timer_linux_get_cycles_clock_gettime(void);
 static opal_timer_t opal_timer_linux_get_usec_clock_gettime(void);

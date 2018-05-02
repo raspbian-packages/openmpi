@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2016 The University of Tennessee and The University
+ * Copyright (c) 2004-2018 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -207,6 +207,8 @@ extern int mca_pml_ob1_dump( struct ompi_communicator_t* comm,
 extern int mca_pml_ob1_start( size_t count,
                               ompi_request_t** requests );
 
+extern int mca_pml_ob1_ft_event( int state );
+
 /**
  * We will use these requests to hold on a traditionally allocated
  * requests in order to allow the parallel debugger full access to the
@@ -394,5 +396,11 @@ mca_pml_ob1_calc_weighted_length( mca_pml_ob1_com_btl_t *btls, int num_btls, siz
     /* account for rounding errors */
     btls[0].length += length_left;
 }
+
+/**
+ * A thread-safe function that should be called every time we need the OB1
+ * progress to be turned (or kept) on.
+ */
+int mca_pml_ob1_enable_progress(int32_t count);
 
 #endif

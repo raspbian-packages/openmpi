@@ -12,6 +12,7 @@
  *                         All rights reserved.
  * Copyright (c) 2007-2013 Los Alamos National Security, LLC.  All rights
  *                         reserved.
+ * Copyright (c) 2015-2017 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -41,18 +42,23 @@
 #include "orte/runtime/orte_globals.h"
 #include "orte/runtime/orte_wait.h"
 #include "orte/util/name_fns.h"
+#include "orte/util/threads.h"
 
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/rml/base/base.h"
 #include "orte/mca/rml/base/rml_contact.h"
 
+
 static void msg_match_recv(orte_rml_posted_recv_t *rcv, bool get_all);
+
 
 void orte_rml_base_post_recv(int sd, short args, void *cbdata)
 {
     orte_rml_recv_request_t *req = (orte_rml_recv_request_t*)cbdata;
     orte_rml_posted_recv_t *post, *recv;
     orte_ns_cmp_bitmask_t mask = ORTE_NS_CMP_ALL | ORTE_NS_CMP_WILD;
+
+    ORTE_ACQUIRE_OBJECT(req);
 
     opal_output_verbose(5, orte_rml_base_framework.framework_output,
                         "%s posting recv",
@@ -156,15 +162,19 @@ void orte_rml_base_process_msg(int fd, short flags, void *cbdata)
     orte_ns_cmp_bitmask_t mask = ORTE_NS_CMP_ALL | ORTE_NS_CMP_WILD;
     opal_buffer_t buf;
 
+    ORTE_ACQUIRE_OBJECT(msg);
+
     OPAL_OUTPUT_VERBOSE((5, orte_rml_base_framework.framework_output,
-                         "%s message received %d bytes from %s for tag %d",
+                         "%s message received from %s for tag %d",
                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                         (int)msg->iov.iov_len,
                          ORTE_NAME_PRINT(&msg->sender),
                          msg->tag));
 
-    OPAL_TIMING_EVENT((&tm_rml,"from %s %d bytes",
-                       ORTE_NAME_PRINT(&msg->sender), msg->iov.iov_len));
+    /* if this message is just to warmup the connection, then drop it */
+    if (ORTE_RML_TAG_WARMUP_CONNECTION == msg->tag) {
+        OBJ_RELEASE(msg);
+        return;
+    }
 
     /* see if we have a waiting recv for this message */
     OPAL_LIST_FOREACH(post, &orte_rml_base.posted_recvs, orte_rml_posted_recv_t) {
@@ -184,6 +194,11 @@ void orte_rml_base_process_msg(int fd, short flags, void *cbdata)
                 /* the user must have unloaded the buffer if they wanted
                  * to retain ownership of it, so release whatever remains
                  */
+                OPAL_OUTPUT_VERBOSE((5, orte_rml_base_framework.framework_output,
+                                     "%s message received  bytes from %s for tag %d called callback",
+                                     ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                     ORTE_NAME_PRINT(&msg->sender),
+                                     msg->tag));
                 OBJ_DESTRUCT(&buf);
             } else {
                 /* deliver as an iovec */
@@ -195,17 +210,30 @@ void orte_rml_base_process_msg(int fd, short flags, void *cbdata)
             }
             /* release the message */
             OBJ_RELEASE(msg);
+            OPAL_OUTPUT_VERBOSE((5, orte_rml_base_framework.framework_output,
+                                 "%s message tag %d on released",
+                                 ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                 post->tag));
             /* if the recv is non-persistent, remove it */
             if (!post->persistent) {
                 opal_list_remove_item(&orte_rml_base.posted_recvs, &post->super);
+                /*OPAL_OUTPUT_VERBOSE((5, orte_rml_base_framework.framework_output,
+                                     "%s non persistent recv %p remove success releasing now",
+                                     ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                     post));*/
                 OBJ_RELEASE(post);
+
             }
             return;
         }
     }
-
     /* we get here if no matching recv was found - we then hold
      * the message until such a recv is issued
      */
-    opal_list_append(&orte_rml_base.unmatched_msgs, &msg->super);
+     OPAL_OUTPUT_VERBOSE((5, orte_rml_base_framework.framework_output,
+                            "%s message received bytes from %s for tag %d Not Matched adding to unmatched msgs",
+                            ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                            ORTE_NAME_PRINT(&msg->sender),
+                            msg->tag));
+     opal_list_append(&orte_rml_base.unmatched_msgs, &msg->super);
 }

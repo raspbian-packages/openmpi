@@ -4,11 +4,11 @@ Bug-Origin: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=776730
 Last-Updated: 2016-09-04
 Forwarded: no
 
-Index: openmpi-2.0.1/config/opal_config_asm.m4
+Index: openmpi-3.0.1/config/opal_config_asm.m4
 ===================================================================
---- openmpi-2.0.1.orig/config/opal_config_asm.m4
-+++ openmpi-2.0.1/config/opal_config_asm.m4
-@@ -952,6 +952,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
+--- openmpi-3.0.1.orig/config/opal_config_asm.m4
++++ openmpi-3.0.1/config/opal_config_asm.m4
+@@ -1071,6 +1071,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
              OPAL_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
              ;;
  
@@ -18,25 +18,25 @@ Index: openmpi-2.0.1/config/opal_config_asm.m4
 +            OPAL_GCC_INLINE_ASSIGN='"copy 0,%0" : "=&r"(ret)'
 +            ;;
 +
-         mips-*|mipsel-*)
-            opal_cv_asm_arch="MIPS"
- 	    OPAL_ASM_SUPPORT_64BIT=0
-Index: openmpi-2.0.1/opal/include/opal/sys/architecture.h
+         mips-*|mips64*)
+             # Should really find some way to make sure that we are on
+             # a MIPS III machine (r4000 and later)
+Index: openmpi-3.0.1/opal/include/opal/sys/architecture.h
 ===================================================================
---- openmpi-2.0.1.orig/opal/include/opal/sys/architecture.h
-+++ openmpi-2.0.1/opal/include/opal/sys/architecture.h
-@@ -30,6 +30,7 @@
- #define OPAL_IA32           0010
- #define OPAL_IA64           0020
- #define OPAL_AMD64          0030
-+#define OPAL_HPPA           0110
+--- openmpi-3.0.1.orig/opal/include/opal/sys/architecture.h
++++ openmpi-3.0.1/opal/include/opal/sys/architecture.h
+@@ -36,6 +36,7 @@
+ #define OPAL_X86_64         0030
  #define OPAL_POWERPC32      0050
  #define OPAL_POWERPC64      0051
++#define OPAL_HPPA           0120
  #define OPAL_SPARC          0060
-Index: openmpi-2.0.1/opal/include/opal/sys/hppa/atomic.h
+ #define OPAL_SPARCV9_32     0061
+ #define OPAL_SPARCV9_64     0062
+Index: openmpi-3.0.1/opal/include/opal/sys/hppa/atomic.h
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/opal/include/opal/sys/hppa/atomic.h
++++ openmpi-3.0.1/opal/include/opal/sys/hppa/atomic.h
 @@ -0,0 +1,95 @@
 +/* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 +/*
@@ -133,10 +133,10 @@ Index: openmpi-2.0.1/opal/include/opal/sys/hppa/atomic.h
 +#define OPAL_HAVE_ATOMIC_CMPSET_64 0
 +
 +#endif /* ! OPAL_SYS_ARCH_ATOMIC_H */
-Index: openmpi-2.0.1/opal/include/opal/sys/hppa/Makefile.am
+Index: openmpi-3.0.1/opal/include/opal/sys/hppa/Makefile.am
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/opal/include/opal/sys/hppa/Makefile.am
++++ openmpi-3.0.1/opal/include/opal/sys/hppa/Makefile.am
 @@ -0,0 +1,23 @@
 +#
 +# Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
@@ -161,10 +161,10 @@ Index: openmpi-2.0.1/opal/include/opal/sys/hppa/Makefile.am
 +headers += \
 +	opal/sys/hppa/atomic.h \
 +	opal/sys/hppa/timer.h
-Index: openmpi-2.0.1/opal/include/opal/sys/hppa/timer.h
+Index: openmpi-3.0.1/opal/include/opal/sys/hppa/timer.h
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/opal/include/opal/sys/hppa/timer.h
++++ openmpi-3.0.1/opal/include/opal/sys/hppa/timer.h
 @@ -0,0 +1,33 @@
 +/*
 + * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
@@ -199,11 +199,11 @@ Index: openmpi-2.0.1/opal/include/opal/sys/hppa/timer.h
 +#define OPAL_HAVE_SYS_TIMER_GET_CYCLES 0
 +
 +#endif /* ! OPAL_SYS_ARCH_TIMER_H */
-Index: openmpi-2.0.1/opal/include/opal/sys/timer.h
+Index: openmpi-3.0.1/opal/include/opal/sys/timer.h
 ===================================================================
---- openmpi-2.0.1.orig/opal/include/opal/sys/timer.h
-+++ openmpi-2.0.1/opal/include/opal/sys/timer.h
-@@ -100,6 +100,8 @@ BEGIN_C_DECLS
+--- openmpi-3.0.1.orig/opal/include/opal/sys/timer.h
++++ openmpi-3.0.1/opal/include/opal/sys/timer.h
+@@ -104,6 +104,8 @@ BEGIN_C_DECLS
  #include "opal/sys/sparcv9/timer.h"
  #elif OPAL_ASSEMBLY_ARCH == OPAL_MIPS
  #include "opal/sys/mips/timer.h"
@@ -212,24 +212,24 @@ Index: openmpi-2.0.1/opal/include/opal/sys/timer.h
  #endif
  
  #ifndef DOXYGEN
-Index: openmpi-2.0.1/opal/mca/timer/linux/configure.m4
+Index: openmpi-3.0.1/opal/mca/timer/linux/configure.m4
 ===================================================================
---- openmpi-2.0.1.orig/opal/mca/timer/linux/configure.m4
-+++ openmpi-2.0.1/opal/mca/timer/linux/configure.m4
-@@ -46,7 +46,7 @@ AC_DEFUN([MCA_opal_timer_linux_CONFIG],[
+--- openmpi-3.0.1.orig/opal/mca/timer/linux/configure.m4
++++ openmpi-3.0.1/opal/mca/timer/linux/configure.m4
+@@ -47,7 +47,7 @@ AC_DEFUN([MCA_opal_timer_linux_CONFIG],[
                   [timer_linux_happy="no"])])
  
     case "${host}" in
--   i?86-*linux*|x86_64*linux*|ia64-*linux*|powerpc-*linux*|powerpc64-*linux*|sparc*-*linux*)
-+   i?86-*linux*|x86_64*linux*|ia64-*linux*|powerpc-*linux*|powerpc64-*linux*|sparc*-*linux*|arm*-*linux*|hppa*-*linux*)
+-   i?86-*linux*|x86_64*linux*|ia64-*linux*|powerpc-*linux*|powerpc64-*linux*|powerpc64le-*linux*|powerpcle-*linux*|sparc*-*linux*|aarch64-*linux*)
++       i?86-*linux*|x86_64*linux*|ia64-*linux*|powerpc-*linux*|powerpc64-*linux*|powerpc64le-*linux*|powerpcle-*linux*|sparc*-*linux*|aarch64-*linux*|hppa*-*linux*)
          AS_IF([test "$timer_linux_happy" = "yes"],
                [AS_IF([test -r "/proc/cpuinfo"],
                       [timer_linux_happy="yes"],
-Index: openmpi-2.0.1/opal/include/opal/sys/atomic.h
+Index: openmpi-3.0.1/opal/include/opal/sys/atomic.h
 ===================================================================
---- openmpi-2.0.1.orig/opal/include/opal/sys/atomic.h
-+++ openmpi-2.0.1/opal/include/opal/sys/atomic.h
-@@ -153,6 +153,8 @@ typedef struct opal_atomic_lock_t opal_a
+--- openmpi-3.0.1.orig/opal/include/opal/sys/atomic.h
++++ openmpi-3.0.1/opal/include/opal/sys/atomic.h
+@@ -165,6 +165,8 @@ enum {
  #include "opal/sys/ia32/atomic.h"
  #elif OPAL_ASSEMBLY_ARCH == OPAL_IA64
  #include "opal/sys/ia64/atomic.h"

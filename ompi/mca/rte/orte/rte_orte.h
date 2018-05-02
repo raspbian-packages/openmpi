@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2012-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2014      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015      Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -87,12 +88,6 @@ typedef orte_local_rank_t ompi_local_rank_t;
 OMPI_DECLSPEC void __opal_attribute_noreturn__
   ompi_rte_abort(int error_code, char *fmt, ...);
 #define ompi_rte_abort_peers(a, b, c) orte_errmgr.abort_peers(a, b, c)
-#define OMPI_RTE_ERRHANDLER_FIRST ORTE_ERRMGR_CALLBACK_FIRST
-#define OMPI_RTE_ERRHANDLER_LAST ORTE_ERRMGR_CALLBACK_LAST
-#define OMPI_RTE_ERRHANDLER_PREPEND ORTE_ERRMGR_CALLBACK_PREPEND
-#define OMPI_RTE_ERRHANDLER_APPEND ORTE_ERRMGR_CALLBACK_APPEND
-typedef orte_error_t ompi_rte_error_report_t;
-#define ompi_rte_register_errhandler(a, b) orte_errmgr.register_error_callback(a, b)
 #define OMPI_ERROR_LOG ORTE_ERROR_LOG
 
 /* Init and finalize objects and operations */
@@ -120,6 +115,9 @@ static inline orte_process_name_t * OMPI_CAST_RTE_NAME(opal_process_name_t * nam
     return (orte_process_name_t *)name;
 }
 #endif
+
+/* check dynamics support */
+OMPI_DECLSPEC bool ompi_rte_connect_accept_support(const char *port);
 
 END_C_DECLS
 

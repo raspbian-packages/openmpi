@@ -66,12 +66,7 @@
 
 #elif OPAL_ASSEMBLY_ARCH == OPAL_MIPS
 
-#if _MIPS_SIM == _MIPS_SIM_ABI32
-
-#define __NR_process_vm_readv 4345
-#define __NR_process_vm_writev 4346
-
-#elif _MIPS_SIM == _MIPS_SIM_ABI64
+#if _MIPS_SIM == _MIPS_SIM_ABI64
 
 #define __NR_process_vm_readv 5304
 #define __NR_process_vm_writev 5305

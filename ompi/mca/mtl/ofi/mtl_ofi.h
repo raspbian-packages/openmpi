@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Intel, Inc. All rights reserved
+ * Copyright (c) 2013-2017 Intel, Inc. All rights reserved
  *
  * $COPYRIGHT$
  *
@@ -11,10 +11,10 @@
 #ifndef MTL_OFI_H_HAS_BEEN_INCLUDED
 #define MTL_OFI_H_HAS_BEEN_INCLUDED
 
-#include "ompi/mca/pml/pml.h"
 #include "ompi/mca/mtl/mtl.h"
 #include "ompi/mca/mtl/base/base.h"
 #include "opal/datatype/opal_convertor.h"
+#include "opal/util/show_help.h"
 
 #include <rdma/fabric.h>
 #include <rdma/fi_cm.h>
@@ -61,8 +61,7 @@ __opal_attribute_always_inline__ static inline int
 ompi_mtl_ofi_progress(void)
 {
     ssize_t ret;
-    int count = 0;
-    struct fi_cq_tagged_entry wc = { 0 };
+    int count = 0, i, events_read;
     struct fi_cq_err_entry error = { 0 };
     ompi_mtl_ofi_request_t *ofi_req = NULL;
 
@@ -72,21 +71,26 @@ ompi_mtl_ofi_progress(void)
      * Call the request's callback.
      */
     while (true) {
-        ret = fi_cq_read(ompi_mtl_ofi.cq, (void *)&wc, 1);
+        ret = fi_cq_read(ompi_mtl_ofi.cq, ompi_mtl_ofi.progress_entries,
+                ompi_mtl_ofi.ofi_progress_event_count);
         if (ret > 0) {
-            count++;
-            if (NULL != wc.op_context) {
-                ofi_req = TO_OFI_REQ(wc.op_context);
-                assert(ofi_req);
-                ret = ofi_req->event_callback(&wc, ofi_req);
-                if (OMPI_SUCCESS != ret) {
-                    opal_output(ompi_mtl_base_framework.framework_output,
-                                "Error returned by request event callback: %zd",
-                                ret);
-                    abort();
+            count+= ret;
+            events_read = ret;
+            for (i = 0; i < events_read; i++) {
+                if (NULL != ompi_mtl_ofi.progress_entries[i].op_context) {
+                    ofi_req = TO_OFI_REQ(ompi_mtl_ofi.progress_entries[i].op_context);
+                    assert(ofi_req);
+                    ret = ofi_req->event_callback(&ompi_mtl_ofi.progress_entries[i], ofi_req);
+                    if (OMPI_SUCCESS != ret) {
+                        opal_output(0, "%s:%d: Error returned by request event callback: %zd.\n"
+                                       "*** The Open MPI OFI MTL is aborting the MPI job (via exit(3)).\n",
+                                       __FILE__, __LINE__, ret);
+                        fflush(stderr);
+                        exit(1);
+                    }
                 }
             }
-        } else if (ret == -FI_EAVAIL) {
+        } else if (OPAL_UNLIKELY(ret == -FI_EAVAIL)) {
             /**
              * An error occured and is being reported via the CQ.
              * Read the error and forward it to the upper layer.
@@ -95,9 +99,11 @@ ompi_mtl_ofi_progress(void)
                                 &error,
                                 0);
             if (0 > ret) {
-                opal_output(ompi_mtl_base_framework.framework_output,
-                            "Error returned from fi_cq_readerr: %zd", ret);
-                abort();
+                opal_output(0, "%s:%d: Error returned from fi_cq_readerr: %s(%zd).\n"
+                               "*** The Open MPI OFI MTL is aborting the MPI job (via exit(3)).\n",
+                               __FILE__, __LINE__, fi_strerror(-ret), ret);
+                fflush(stderr);
+                exit(1);
             }
 
             assert(error.op_context);
@@ -105,16 +111,22 @@ ompi_mtl_ofi_progress(void)
             assert(ofi_req);
             ret = ofi_req->error_callback(&error, ofi_req);
             if (OMPI_SUCCESS != ret) {
-                opal_output(ompi_mtl_base_framework.framework_output,
-                        "Error returned by request error callback: %zd",
-                        ret);
-                abort();
+                    opal_output(0, "%s:%d: Error returned by request error callback: %zd.\n"
+                                   "*** The Open MPI OFI MTL is aborting the MPI job (via exit(3)).\n",
+                                   __FILE__, __LINE__, ret);
+                fflush(stderr);
+                exit(1);
             }
         } else {
-            /**
-             * The CQ is empty. Return.
-             */
-            break;
+            if (ret == -FI_EAGAIN || ret == -EINTR) {
+                break;
+            } else {
+                opal_output(0, "%s:%d: Error returned from fi_cq_read: %s(%zd).\n"
+                               "*** The Open MPI OFI MTL is aborting the MPI job (via exit(3)).\n",
+                               __FILE__, __LINE__, fi_strerror(-ret), ret);
+                fflush(stderr);
+                exit(1);
+            }
         }
     }
     return count;

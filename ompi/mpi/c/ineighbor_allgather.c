@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2005 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
@@ -14,7 +14,7 @@
  * Copyright (c) 2012      Oak Rigde National Laboratory. All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
@@ -62,11 +62,7 @@ int MPI_Ineighbor_allgather(const void *sendbuf, int sendcount, MPI_Datatype sen
         memchecker_datatype(recvtype);
         memchecker_comm(comm);
         /* check whether the actual send buffer is defined. */
-        if (MPI_IN_PLACE == sendbuf) {
-            memchecker_call(&opal_memchecker_base_isdefined,
-                            (char *)(recvbuf)+rank*ext,
-                            recvcount, recvtype);
-        } else {
+        if (MPI_IN_PLACE != sendbuf) {
             memchecker_datatype(sendtype);
             memchecker_call(&opal_memchecker_base_isdefined, sendbuf, sendcount, sendtype);
         }
@@ -81,16 +77,17 @@ int MPI_Ineighbor_allgather(const void *sendbuf, int sendcount, MPI_Datatype sen
 
         err = MPI_SUCCESS;
         OMPI_ERR_INIT_FINALIZE(FUNC_NAME);
-        if (ompi_comm_invalid(comm) || !(OMPI_COMM_IS_CART(comm) || OMPI_COMM_IS_GRAPH(comm) ||
-                                         OMPI_COMM_IS_DIST_GRAPH(comm))) {
+        if (ompi_comm_invalid(comm) || OMPI_COMM_IS_INTER(comm)) {
           OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_COMM, FUNC_NAME);
+        } else if (! OMPI_COMM_IS_TOPO(comm)) {
+          OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_TOPOLOGY, FUNC_NAME);
         } else if (MPI_DATATYPE_NULL == recvtype || NULL == recvtype) {
           err = MPI_ERR_TYPE;
         } else if (recvcount < 0) {
           err = MPI_ERR_COUNT;
-        } else if (MPI_IN_PLACE == recvbuf) {
+        } else if (MPI_IN_PLACE == sendbuf || MPI_IN_PLACE == recvbuf) {
           return OMPI_ERRHANDLER_INVOKE(comm, MPI_ERR_ARG, FUNC_NAME);
-        } else if (MPI_IN_PLACE != sendbuf) {
+        } else {
             OMPI_CHECK_DATATYPE_FOR_SEND(err, sendtype, sendcount);
         }
         OMPI_ERRHANDLER_CHECK(err, comm, err, FUNC_NAME);
@@ -118,10 +115,12 @@ int MPI_Ineighbor_allgather(const void *sendbuf, int sendcount, MPI_Datatype sen
         }
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     /* Invoke the coll component to perform the back-end operation */
-    err = comm->c_coll.coll_ineighbor_allgather(sendbuf, sendcount, sendtype, recvbuf,
+    err = comm->c_coll->coll_ineighbor_allgather(sendbuf, sendcount, sendtype, recvbuf,
                                                 recvcount, recvtype, comm, request,
-                                                comm->c_coll.coll_ineighbor_allgather_module);
+                                                comm->c_coll->coll_ineighbor_allgather_module);
 
     OMPI_ERRHANDLER_RETURN(err, comm, err, FUNC_NAME);
 }

@@ -117,7 +117,8 @@ enum shmem_wait_ops {
 #define _SHMEM_BCAST_SYNC_SIZE          (1 + _SHMEM_BARRIER_SYNC_SIZE)
 #define _SHMEM_COLLECT_SYNC_SIZE        (1 + _SHMEM_BCAST_SYNC_SIZE)
 #define _SHMEM_REDUCE_SYNC_SIZE         (1 + _SHMEM_BCAST_SYNC_SIZE)
-#define _SHMEM_ALLTOALL_SYNC_SIZE       (1)
+#define _SHMEM_ALLTOALL_SYNC_SIZE       (_SHMEM_BARRIER_SYNC_SIZE)
+#define _SHMEM_ALLTOALLS_SYNC_SIZE      (_SHMEM_BARRIER_SYNC_SIZE)
 #define _SHMEM_REDUCE_MIN_WRKDATA_SIZE  (1)
 #define _SHMEM_SYNC_VALUE               (-1)
 
@@ -126,6 +127,7 @@ enum shmem_wait_ops {
 #define SHMEM_COLLECT_SYNC_SIZE        _SHMEM_COLLECT_SYNC_SIZE
 #define SHMEM_REDUCE_SYNC_SIZE         _SHMEM_REDUCE_SYNC_SIZE
 #define SHMEM_ALLTOALL_SYNC_SIZE       _SHMEM_ALLTOALL_SYNC_SIZE
+#define SHMEM_ALLTOALLS_SYNC_SIZE      _SHMEM_ALLTOALLS_SYNC_SIZE
 #define SHMEM_REDUCE_MIN_WRKDATA_SIZE  _SHMEM_REDUCE_MIN_WRKDATA_SIZE
 #define SHMEM_SYNC_VALUE               _SHMEM_SYNC_VALUE
 
@@ -298,7 +300,7 @@ OSHMEM_DECLSPEC  long long shmem_longlong_g(const long long* addr, int pe);
 OSHMEM_DECLSPEC  long double shmem_longdouble_g(const long double* addr, int pe);
 #if OSHMEM_HAVE_C11
 #define shmem_g(addr, pe)                                    \
-    _Generic(&*(dst),                                        \
+    _Generic(&*(addr),                                        \
             char*:        shmem_char_g,                      \
             short*:       shmem_short_g,                     \
             int*:         shmem_int_g,                       \
@@ -373,6 +375,7 @@ OSHMEM_DECLSPEC void shmem_iget128(void* target, const void* source, ptrdiff_t t
 /*
  * Nonblocking data get routines
  */
+OSHMEM_DECLSPEC  void shmem_getmem_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void shmem_char_get_nbi(char *target, const char *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void shmem_short_get_nbi(short *target, const short *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void shmem_int_get_nbi(int *target, const int *source, size_t len, int pe);
@@ -399,7 +402,6 @@ OSHMEM_DECLSPEC  void shmem_get16_nbi(void *target, const void *source, size_t l
 OSHMEM_DECLSPEC  void shmem_get32_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void shmem_get64_nbi(void *target, const void *source, size_t len, int pe);
 OSHMEM_DECLSPEC  void shmem_get128_nbi(void *target, const void *source, size_t len, int pe);
-OSHMEM_DECLSPEC  void shmem_getmem_nbi(void *target, const void *source, size_t len, int pe);
 
 /*
  * Atomic operations

@@ -9,7 +9,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2015      Los Alamos National Security, LLC.  All rights reserved.
+ * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -26,6 +26,7 @@
 #include "ompi/communicator/communicator.h"
 #include "ompi/mca/coll/coll.h"
 #include "ompi/mca/coll/base/base.h"
+#include "ompi/mca/coll/base/coll_base_functions.h"
 #include "coll_self.h"
 
 
@@ -62,7 +63,7 @@ mca_coll_self_comm_query(struct ompi_communicator_t *comm,
         if (NULL == module) return NULL;
 
         module->super.coll_module_enable = mca_coll_self_module_enable;
-        module->super.ft_event        = NULL;
+        module->super.ft_event        = mca_coll_self_ft_event;
         module->super.coll_allgather  = mca_coll_self_allgather_intra;
         module->super.coll_allgatherv = mca_coll_self_allgatherv_intra;
         module->super.coll_allreduce  = mca_coll_self_allreduce_intra;
@@ -79,6 +80,8 @@ mca_coll_self_comm_query(struct ompi_communicator_t *comm,
         module->super.coll_scan       = mca_coll_self_scan_intra;
         module->super.coll_scatter    = mca_coll_self_scatter_intra;
         module->super.coll_scatterv   = mca_coll_self_scatterv_intra;
+
+        module->super.coll_reduce_local = mca_coll_base_reduce_local;
 
         return &(module->super);
     }
@@ -97,3 +100,23 @@ mca_coll_self_module_enable(mca_coll_base_module_t *module,
     return OMPI_SUCCESS;
 }
 
+
+int mca_coll_self_ft_event(int state) {
+    if(OPAL_CRS_CHECKPOINT == state) {
+        ;
+    }
+    else if(OPAL_CRS_CONTINUE == state) {
+        ;
+    }
+    else if(OPAL_CRS_RESTART == state) {
+        ;
+    }
+    else if(OPAL_CRS_TERM == state ) {
+        ;
+    }
+    else {
+        ;
+    }
+
+    return OMPI_SUCCESS;
+}

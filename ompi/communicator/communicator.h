@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2013 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -18,6 +18,9 @@
  * Copyright (c) 2012-2013 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2014-2015 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2015      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -68,7 +71,9 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION(ompi_communicator_t);
 #define OMPI_COMM_IS_INVALID(comm) ((comm)->c_flags & OMPI_COMM_INVALID)
 #define OMPI_COMM_IS_PML_ADDED(comm) ((comm)->c_flags & OMPI_COMM_PML_ADDED)
 #define OMPI_COMM_IS_EXTRA_RETAIN(comm) ((comm)->c_flags & OMPI_COMM_EXTRA_RETAIN)
-
+#define OMPI_COMM_IS_TOPO(comm) (OMPI_COMM_IS_CART((comm)) || \
+                                 OMPI_COMM_IS_GRAPH((comm)) || \
+                                 OMPI_COMM_IS_DIST_GRAPH((comm)))
 
 #define OMPI_COMM_SET_DYNAMIC(comm) ((comm)->c_flags |= OMPI_COMM_DYNAMIC)
 #define OMPI_COMM_SET_INVALID(comm) ((comm)->c_flags |= OMPI_COMM_INVALID)
@@ -164,7 +169,7 @@ struct ompi_communicator_t {
     struct mca_pml_comm_t  *c_pml_comm;
 
     /* Collectives module interface and data */
-    mca_coll_base_comm_coll_t c_coll;
+    mca_coll_base_comm_coll_t *c_coll;
 };
 typedef struct ompi_communicator_t ompi_communicator_t;
 
@@ -228,8 +233,30 @@ typedef struct ompi_communicator_t ompi_communicator_t;
  * size so when the bitness changes the size of the handle changes.
  * This is done so we don't end up needing a structure that is
  * incredibly larger than necessary because of the bitness.
+ *
+ * This padding mechanism works as a (likely) compile time check for when the
+ * size of the ompi_communicator_t exceeds the predetermined size of the
+ * ompi_predefined_communicator_t. It also allows us to change the size of
+ * the ompi_communicator_t without impacting the size of the
+ * ompi_predefined_communicator_t structure for some number of additions.
+ *
+ * As an example:
+ * If the size of ompi_communicator_t is less than the size of the _PAD then
+ * the _PAD ensures that the size of the ompi_predefined_communicator_t is
+ * whatever size is defined below in the _PAD macro.
+ * However, if the size of the ompi_communicator_t grows larger than the _PAD
+ * (say by adding a few more function pointers to the structure) then the
+ * 'padding' variable will be initialized to a large number often triggering
+ * a 'array is too large' compile time error. This signals two things:
+ * 1) That the _PAD should be increased.
+ * 2) That users need to be made aware of the size change for the
+ *    ompi_predefined_communicator_t structure.
+ *
+ * Q: So you just made a change to communicator structure, do you need to adjust
+ * the PREDEFINED_COMMUNICATOR_PAD macro?
+ * A: Most likely not, but it would be good to check.
  */
-#define PREDEFINED_COMMUNICATOR_PAD (sizeof(void*) * 192)
+#define PREDEFINED_COMMUNICATOR_PAD (sizeof(void*) * 64)
 
 struct ompi_predefined_communicator_t {
     struct ompi_communicator_t comm;

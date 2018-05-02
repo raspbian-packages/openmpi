@@ -1,3 +1,4 @@
+/* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
  * Copyright (c) 2004-2010 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
@@ -10,12 +11,12 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2007-2008 Sun Microsystems, Inc.  All rights reserved.
- * Copyright (c) 2007-2015 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2007-2016 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2011-2013 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2015      Intel, Inc. All rights reserved.
+ * Copyright (c) 2015-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2017      UT-Battelle, LLC. All rights reserved.
  * $COPYRIGHT$
  *
@@ -65,6 +66,9 @@
 #include "orte/util/show_help.h"
 
 #include "opal/runtime/opal.h"
+#if OPAL_ENABLE_FT_CR == 1
+#include "opal/runtime/opal_cr.h"
+#endif
 #include "orte/runtime/runtime.h"
 
 /******************
@@ -121,6 +125,10 @@ int
 main(int argc, char *argv[])
 {
     int ret = ORTE_SUCCESS;
+#if OPAL_ENABLE_FT_CR == 1
+    char *tmp_env_var;
+#endif
+    char *legacy;
 
     /* This is needed so we can print the help message */
     if (ORTE_SUCCESS != (ret = opal_init_util(&argc, &argv))) {
@@ -130,6 +138,27 @@ main(int argc, char *argv[])
     if (ORTE_SUCCESS != (ret = parse_args(argc, argv))) {
         return ret;
     }
+
+#if OPAL_ENABLE_FT_CR == 1
+    /* Disable the checkpoint notification routine for this
+     * tool. As we will never need to checkpoint this tool.
+     * Note: This must happen before opal_init().
+     */
+    opal_cr_set_enabled(false);
+
+    /* Select the none component, since we don't actually use a checkpointer */
+    (void) mca_base_var_env_name("crs", &tmp_env_var);
+    opal_setenv(tmp_env_var,
+                "none",
+                true, &environ);
+    free(tmp_env_var);
+    tmp_env_var = NULL;
+
+    (void) mca_base_var_env_name("opal_cr_is_tool", &tmp_env_var);
+    opal_setenv(tmp_env_var,
+                "1", true, NULL);
+    free(tmp_env_var);
+#endif
 
     if (ORTE_SUCCESS != (ret = orte_init(&argc, &argv, ORTE_PROC_TOOL))) {
         return ret;
@@ -145,6 +174,18 @@ main(int argc, char *argv[])
                 orte_process_info.top_session_dir);
     }
     opal_os_dirpath_destroy(orte_process_info.top_session_dir, true, NULL);
+
+    /* also get rid of any legacy session directories */
+    asprintf(&legacy, "%s/openmpi-sessions-%d@%s_0",
+             orte_process_info.tmpdir_base,
+             (int)geteuid(), orte_process_info.nodename);
+    opal_os_dirpath_destroy(legacy, true, NULL);
+    free(legacy);
+
+    /* and finally get rid of any lingering pmix-related artifacts */
+    asprintf(&legacy, "rm -rf %s/pmix*", orte_process_info.tmpdir_base);
+    system(legacy);
+    free(legacy);
 
     /* now kill any lingering procs, if we can */
     kill_procs();
@@ -171,7 +212,7 @@ static int parse_args(int argc, char *argv[]) {
      * Initialize list of available command line options.
      */
     opal_cmd_line_create(&cmd_line, cmd_line_opts);
-    ret = opal_cmd_line_parse(&cmd_line, false, argc, argv);
+    ret = opal_cmd_line_parse(&cmd_line, false, false, argc, argv);
 
     if (OPAL_SUCCESS != ret) {
         if (OPAL_ERR_SILENT != ret) {
@@ -387,7 +428,7 @@ void kill_procs(void) {
             }
         }
         free(inputline);
-	free(procname);
+        free(procname);
     }
     free(this_user);
     pclose(psfile);

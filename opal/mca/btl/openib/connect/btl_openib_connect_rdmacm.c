@@ -886,13 +886,11 @@ static int rdmacm_module_start_connect(opal_btl_openib_connect_base_module_t *cp
     return OPAL_SUCCESS;
 
 out:
-    for (item = opal_list_remove_first(&(contents->ids));
-         NULL != item;
-         item = opal_list_remove_first(&(contents->ids))) {
+    while (NULL != (item = opal_list_remove_first (&contents->ids))) {
         OBJ_RELEASE(item);
-   }
+    }
 
-   return rc;
+    return rc;
 }
 
 #if !BTL_OPENIB_RDMACM_IB_ADDR
@@ -1136,7 +1134,7 @@ static void *call_disconnect_callback(int fd, int flags, void *v)
 {
     rdmacm_contents_t *contents = (rdmacm_contents_t *) v;
     void *tmp = NULL;
-    id_context_t *context = (id_context_t*) v;
+    id_context_t *context;
     opal_list_item_t *item;
 
     pthread_mutex_lock (&rdmacm_disconnect_lock);
@@ -1248,6 +1246,7 @@ static void *local_endpoint_cpc_complete(void *context)
 
     OPAL_OUTPUT((-1, "MAIN local_endpoint_cpc_complete to %s",
                  opal_get_proc_hostname(endpoint->endpoint_proc->proc_opal)));
+    OPAL_THREAD_LOCK(&endpoint->endpoint_lock);
     mca_btl_openib_endpoint_cpc_complete(endpoint);
 
     return NULL;
@@ -1328,12 +1327,10 @@ static int rdmacm_disconnected(id_context_t *context)
     /* If this was a client thread, then it *may* still be listed in a
        contents->ids list. */
 
-    context->already_disconnected = true;
-    if (NULL != context) {
-        OPAL_OUTPUT((-1, "SERVICE Releasing context because of DISCONNECT: context %p, id %p",
-                     (void*) context, (void*) context->id));
-        OBJ_RELEASE(context);
-    }
+    OPAL_OUTPUT((-1, "SERVICE Releasing context because of DISCONNECT: context %p, id %p",
+                 (void*) context, (void*) context->id));
+    OBJ_RELEASE(context);
+
     return OPAL_SUCCESS;
 }
 
@@ -2021,7 +2018,8 @@ static int rdmacm_component_query(mca_btl_openib_module_t *openib_btl, opal_btl_
         goto out;
     }
     if (!BTL_OPENIB_QP_TYPE_PP(0)) {
-        BTL_VERBOSE(("rdmacm CPC only supported when the first QP is a PP QP; skipped"));
+        opal_output_verbose(5, opal_btl_base_framework.framework_output,
+                            "rdmacm CPC only supported when the first QP is a PP QP; skipped");
         rc = OPAL_ERR_NOT_SUPPORTED;
         goto out;
     }

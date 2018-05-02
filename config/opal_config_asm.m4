@@ -2,7 +2,7 @@ dnl
 dnl Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
 dnl                         University Research and Technology
 dnl                         Corporation.  All rights reserved.
-dnl Copyright (c) 2004-2005 The University of Tennessee and The University
+dnl Copyright (c) 2004-2015 The University of Tennessee and The University
 dnl                         of Tennessee Research Foundation.  All rights
 dnl                         reserved.
 dnl Copyright (c) 2004-2006 High Performance Computing Center Stuttgart,
@@ -193,9 +193,15 @@ AC_DEFUN([OPAL_CHECK_GCC_BUILTIN_CSWAP_INT128], [
 AC_DEFUN([OPAL_CHECK_GCC_ATOMIC_BUILTINS], [
   AC_MSG_CHECKING([for __atomic builtin atomics])
 
-  AC_TRY_LINK([long tmp, old = 0;], [__atomic_thread_fence(__ATOMIC_SEQ_CST);
+  AC_TRY_LINK([
+#include <stdint.h>
+uint32_t tmp, old = 0;
+uint64_t tmp64, old64 = 0;], [
+__atomic_thread_fence(__ATOMIC_SEQ_CST);
 __atomic_compare_exchange_n(&tmp, &old, 1, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-__atomic_add_fetch(&tmp, 1, __ATOMIC_RELAXED);],
+__atomic_add_fetch(&tmp, 1, __ATOMIC_RELAXED);
+__atomic_compare_exchange_n(&tmp64, &old64, 1, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+__atomic_add_fetch(&tmp64, 1, __ATOMIC_RELAXED);],
     [AC_MSG_RESULT([yes])
      $1],
     [AC_MSG_RESULT([no])
@@ -970,11 +976,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
 
     AC_ARG_ENABLE([builtin-atomics],
       [AC_HELP_STRING([--enable-builtin-atomics],
-         [Enable use of __sync builtin atomics (default: disabled)])])
-
+         [Enable use of __sync builtin atomics (default: disabled)])],
+         [], [enable_builtin_atomics="no"])
     AC_ARG_ENABLE([osx-builtin-atomics],
       [AC_HELP_STRING([--enable-osx-builtin-atomics],
-         [Enable use of OSX builtin atomics (default: disabled)])])
+         [Enable use of OSX builtin atomics (default: disabled)])],
+         [], [enable_osx_builtin_atomics="no"])
 
     opal_cv_asm_builtin="BUILTIN_NO"
     if test "$opal_cv_asm_builtin" = "BUILTIN_NO" && test "$enable_builtin_atomics" = "yes" ; then
@@ -1004,14 +1011,11 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
         OPAL_GCC_INLINE_ASSIGN=""
         OPAL_ASM_SUPPORT_64BIT=0
         case "${host}" in
-	x86_64-*x32)
-	# Note sizeof(long) = 4
-	    opal_cv_asm_arch="X86_64"
-	    OPAL_ASM_SUPPORT_64BIT=1
+        x86_64-*x32)
+            opal_cv_asm_arch="X86_64"
+            OPAL_ASM_SUPPORT_64BIT=1
             OPAL_GCC_INLINE_ASSIGN='"xaddl %1,%0" : "=m"(ret), "+r"(negone) : "m"(ret)'
-            OPAL_CHECK_CMPXCHG16B
             ;;
-	
         i?86-*|x86_64*|amd64*)
             if test "$ac_cv_sizeof_long" = "4" ; then
                 opal_cv_asm_arch="IA32"
@@ -1066,6 +1070,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
             OPAL_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
+        hppa*)
+            opal_cv_asm_arch="HPPA"
+            OPAL_ASM_SUPPORT_64BIT=0
+            OPAL_GCC_INLINE_ASSIGN='"copy 0,%0" : "=&r"(ret)'
+            ;;
+
         mips-*|mips64*)
             # Should really find some way to make sure that we are on
             # a MIPS III machine (r4000 and later)
@@ -1092,6 +1102,9 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
             fi
             OPAL_GCC_INLINE_ASSIGN='"1: li %0,0" : "=&r"(ret)'
             ;;
+        # There is no current difference between s390 and s390x
+        # But use two different defines in case some come later
+        # as s390 is 31bits while s390x is 64bits
         s390-*)
             opal_cv_asm_arch="S390"
             ;;

@@ -14,7 +14,7 @@
  * Copyright (c) 2012-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
- * Copyright (c) 2014-2016 Research Organization for Information Science
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015-2017 Mellanox Technologies. All rights reserved.
  *
@@ -44,6 +44,7 @@
 #include "ompi/datatype/ompi_datatype.h"
 #include "ompi/runtime/mpiruntime.h"
 #include "ompi/runtime/params.h"
+#include "ompi/mca/pml/pml.h"
 
 opal_list_t  ompi_proc_list = {{0}};
 static opal_mutex_t ompi_proc_lock;
@@ -304,6 +305,7 @@ static int ompi_proc_compare_vid (opal_list_item_t **a, opal_list_item_t **b)
  */
 int ompi_proc_complete_init(void)
 {
+    opal_process_name_t wildcard_rank;
     ompi_proc_t *proc;
     int ret, errcode = OMPI_SUCCESS;
     char *val;
@@ -311,8 +313,11 @@ int ompi_proc_complete_init(void)
     opal_mutex_lock (&ompi_proc_lock);
 
     /* Add all local peers first */
+    wildcard_rank.jobid = OMPI_PROC_MY_NAME->jobid;
+    wildcard_rank.vpid = OMPI_NAME_WILDCARD->vpid;
+    /* retrieve the local peers */
     OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_PEERS,
-                          ORTE_PROC_MY_NAME, &val, OPAL_STRING);
+                          &wildcard_rank, &val, OPAL_STRING);
     if (OPAL_SUCCESS == ret && NULL != val) {
         char **peers = opal_argv_split(val, ',');
         int i;
@@ -368,6 +373,7 @@ int ompi_proc_complete_init(void)
     }
 
     opal_list_sort (&ompi_proc_list, ompi_proc_compare_vid);
+
     opal_mutex_unlock (&ompi_proc_lock);
 
     return errcode;
@@ -375,7 +381,7 @@ int ompi_proc_complete_init(void)
 
 int ompi_proc_finalize (void)
 {
-    opal_list_item_t *item;
+    ompi_proc_t *proc;
 
     /* Unregister the local proc from OPAL */
     opal_proc_local_set(NULL);
@@ -399,8 +405,8 @@ int ompi_proc_finalize (void)
      * it is thread safe to do so...though it may not -appear- to be so
      * without walking through the entire list/destructor sequence.
      */
-    while (opal_list_get_end(&ompi_proc_list) != (item = opal_list_get_first(&ompi_proc_list))) {
-        OBJ_RELEASE(item);
+    while ((ompi_proc_t *)opal_list_get_end(&ompi_proc_list) != (proc = (ompi_proc_t *)opal_list_get_first(&ompi_proc_list))) {
+        OBJ_RELEASE(proc);
     }
     /* now destruct the list and thread lock */
     OBJ_DESTRUCT(&ompi_proc_list);
@@ -704,7 +710,6 @@ ompi_proc_find_and_add(const ompi_process_name_t * name, bool* isnew)
      */
     if (NULL == rproc) {
         *isnew = true;
-        rproc = OBJ_NEW(ompi_proc_t);
         ompi_proc_allocate (name->jobid, name->vpid, &rproc);
     }
 
@@ -813,6 +818,8 @@ ompi_proc_unpack(opal_buffer_t* buf,
                 /* Save the hostname */
                 plist[i]->super.proc_hostname = new_hostname;
             }
+        } else if (NULL != new_hostname) {
+            free(new_hostname);
         }
     }
 

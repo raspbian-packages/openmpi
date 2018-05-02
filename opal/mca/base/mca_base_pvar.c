@@ -1,8 +1,12 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2013-2015 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2013-2017 Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2015 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2015      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2015      Bull SAS.  All rights reserved.
+ * Copyright (c) 2015      The University of Tennessee and The University
+ *                         of Tennessee Research Foundation.  All rights
+ *                         reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -298,6 +302,7 @@ int mca_base_pvar_register (const char *project, const char *framework, const ch
                 }
             }
 
+            pvar->pvar_index = pvar_count;
             opal_hash_table_set_value_ptr (&mca_base_pvar_index_hash, pvar->name, strlen (pvar->name),
                                            (void *)(uintptr_t) pvar->pvar_index);
 
@@ -332,7 +337,6 @@ int mca_base_pvar_register (const char *project, const char *framework, const ch
     }
 
     pvar->ctx        = ctx;
-    pvar->pvar_index = pvar_count;
 
     return pvar->pvar_index;
 }
@@ -343,9 +347,8 @@ int mca_base_component_pvar_register (const mca_base_component_t *component, con
                                       int bind, mca_base_pvar_flag_t flags, mca_base_get_value_fn_t get_value,
                                       mca_base_set_value_fn_t set_value, mca_base_notify_fn_t notify, void *ctx)
 {
-    /* XXX -- component_update -- We will stash the project name in the component */
     /* invalidate this variable if the component's group is deregistered */
-    return mca_base_pvar_register(NULL, component->mca_type_name, component->mca_component_name,
+    return mca_base_pvar_register(component->mca_project_name, component->mca_type_name, component->mca_component_name,
                                   name, description, verbosity, var_class, type, enumerator, bind,
                                   flags | MCA_BASE_PVAR_FLAG_IWG, get_value, set_value, notify, ctx);
 }
@@ -706,7 +709,8 @@ int mca_base_pvar_handle_write_value (mca_base_pvar_handle_t *handle, const void
         return OPAL_ERR_PERM;
     }
 
-    /* TODO -- actually write the variable. this will likely require a pvar lock */
+    /* write the value directly from the variable. */
+    ret = handle->pvar->set_value (handle->pvar, value, handle->obj_handle);
 
     ret = mca_base_pvar_handle_update (handle);
     if (OPAL_SUCCESS != ret) {

@@ -14,7 +14,7 @@ dnl Copyright (c) 2006      Los Alamos National Security, LLC.  All rights
 dnl                         reserved.
 dnl Copyright (c) 2007-2009 Sun Microsystems, Inc.  All rights reserved.
 dnl Copyright (c) 2008-2013 Cisco Systems, Inc.  All rights reserved.
-dnl Copyright (c) 2015      Research Organization for Information Science
+dnl Copyright (c) 2015-2016 Research Organization for Information Science
 dnl                         and Technology (RIST). All rights reserved.
 dnl $COPYRIGHT$
 dnl
@@ -59,7 +59,7 @@ AC_DEFUN([OMPI_SETUP_CXX],[
 
     _OMPI_CXX_CHECK_2D_CONST_CAST
 
-    AM_CONDITIONAL(BUILD_MPI_CXX_BINDINGS, [test "$WANT_MPI_CXX_SUPPORT" = 1])
+    AM_CONDITIONAL(OMPI_BUILD_MPI_CXX_BINDINGS, [test "$WANT_MPI_CXX_SUPPORT" = 1])
     AC_DEFINE_UNQUOTED(OMPI_BUILD_CXX_BINDINGS, $WANT_MPI_CXX_SUPPORT,
         [Whether we want MPI C++ support or not])
 ])
@@ -235,7 +235,7 @@ AC_DEFUN([_OMPI_SETUP_CXX_COMPILER_BACKEND],[
     fi
 
     # Make sure we can link with the C compiler
-    if[ test "$ompi_cv_cxx_compiler_vendor" != "microsoft" ]; then
+    if test "$ompi_cv_cxx_compiler_vendor" != "microsoft"; then
       OPAL_LANG_LINK_WITH_C([C++], [],
         [cat <<EOF >&2
 **********************************************************************

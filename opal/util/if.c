@@ -14,6 +14,8 @@
  * Copyright (c) 2010-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2014      Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2015-2016 Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -98,10 +100,6 @@ int opal_ifnametoaddr(const char* if_name, struct sockaddr* addr, int length)
 {
     opal_if_t* intf;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
         intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -123,10 +121,6 @@ int opal_ifnametoindex(const char* if_name)
 {
     opal_if_t* intf;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return -1;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
         intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -143,13 +137,9 @@ int opal_ifnametoindex(const char* if_name)
  *  corresponding kernel index.
  */
 
-int16_t opal_ifnametokindex(const char* if_name)
+int opal_ifnametokindex(const char* if_name)
 {
     opal_if_t* intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return -1;
-    }
 
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
@@ -170,10 +160,6 @@ int16_t opal_ifnametokindex(const char* if_name)
 int opal_ifindextokindex(int if_index)
 {
     opal_if_t* intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return -1;
-    }
 
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
@@ -203,10 +189,6 @@ int opal_ifaddrtoname(const char* if_addr, char* if_name, int length)
          * the node to be non-local
          */
         return OPAL_ERR_NOT_FOUND;
-    }
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
     }
 
     memset(&hints, 0, sizeof(hints));
@@ -264,17 +246,13 @@ int opal_ifaddrtoname(const char* if_addr, char* if_name, int length)
  *  or hostname) and return the kernel index of the interface
  *  on the same network as the specified address
  */
-int16_t opal_ifaddrtokindex(const char* if_addr)
+int opal_ifaddrtokindex(const char* if_addr)
 {
     opal_if_t* intf;
     int error;
     struct addrinfo hints, *res = NULL, *r;
     int if_kernel_index;
     size_t len;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = PF_UNSPEC;
@@ -327,10 +305,6 @@ int16_t opal_ifaddrtokindex(const char* if_addr)
 
 int opal_ifcount(void)
 {
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return 0;
-    }
-
     return opal_list_get_size(&opal_if_list);
 }
 
@@ -343,10 +317,6 @@ int opal_ifcount(void)
 int opal_ifbegin(void)
 {
     opal_if_t *intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return -1;
-    }
 
     intf = (opal_if_t*)opal_list_get_first(&opal_if_list);
     if (NULL != intf)
@@ -364,10 +334,6 @@ int opal_ifbegin(void)
 int opal_ifnext(int if_index)
 {
     opal_if_t *intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return -1;
-    }
 
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
@@ -397,10 +363,6 @@ int opal_ifindextoaddr(int if_index, struct sockaddr* if_addr, unsigned int leng
 {
     opal_if_t* intf;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
          intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
          intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -420,10 +382,6 @@ int opal_ifindextoaddr(int if_index, struct sockaddr* if_addr, unsigned int leng
 int opal_ifkindextoaddr(int if_kindex, struct sockaddr* if_addr, unsigned int length)
 {
     opal_if_t* intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
 
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
          intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
@@ -445,10 +403,6 @@ int opal_ifkindextoaddr(int if_kindex, struct sockaddr* if_addr, unsigned int le
 int opal_ifindextomask(int if_index, uint32_t* if_mask, int length)
 {
     opal_if_t* intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
 
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
@@ -510,10 +464,6 @@ int opal_ifindextoflags(int if_index, uint32_t* if_flags)
 {
     opal_if_t* intf;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
         intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -536,10 +486,6 @@ int opal_ifindextoname(int if_index, char* if_name, int length)
 {
     opal_if_t *intf;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
         intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -560,10 +506,6 @@ int opal_ifindextoname(int if_index, char* if_name, int length)
 int opal_ifkindextoname(int if_kindex, char* if_name, int length)
 {
     opal_if_t *intf;
-
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
 
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
@@ -595,7 +537,7 @@ opal_ifislocal(const char *hostname)
     return false;
 }
 
-static uint32_t parse_ipv4_dots(const char *addr, uint32_t* net, int* dots)
+static int parse_ipv4_dots(const char *addr, uint32_t* net, int* dots)
 {
     const char *start = addr, *end;
     uint32_t n[]={0,0,0,0};
@@ -697,10 +639,6 @@ bool opal_ifisloopback(int if_index)
 {
     opal_if_t* intf;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return OPAL_ERROR;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
         intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -777,10 +715,6 @@ void opal_ifgetaliases(char ***aliases)
     /* set default answer */
     *aliases = NULL;
 
-    if (OPAL_SUCCESS != mca_base_framework_open(&opal_if_base_framework, 0)) {
-        return;
-    }
-
     for (intf =  (opal_if_t*)opal_list_get_first(&opal_if_list);
         intf != (opal_if_t*)opal_list_get_end(&opal_if_list);
         intf =  (opal_if_t*)opal_list_get_next(intf)) {
@@ -828,7 +762,7 @@ opal_ifnametoindex(const char* if_name)
     return OPAL_ERR_NOT_SUPPORTED;
 }
 
-int16_t
+int
 opal_ifnametokindex(const char* if_name)
 {
     return OPAL_ERR_NOT_SUPPORTED;

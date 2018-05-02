@@ -10,7 +10,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2010      IBM Corporation.  All rights reserved.
+ * Copyright (c) 2010-2017 IBM Corporation.  All rights reserved.
  * Copyright (c) 2015-2016 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * $COPYRIGHT$
@@ -36,9 +36,8 @@
 
 #define MB()  __asm__ __volatile__ ("sync" : : : "memory")
 #define RMB() __asm__ __volatile__ ("lwsync" : : : "memory")
-#define WMB() __asm__ __volatile__ ("eieio" : : : "memory")
-#define SMP_SYNC  "sync \n\t"
-#define SMP_ISYNC "\n\tisync"
+#define WMB() __asm__ __volatile__ ("lwsync" : : : "memory")
+#define ISYNC() __asm__ __volatile__ ("isync" : : : "memory")
 
 
 /**********************************************************************
@@ -94,6 +93,12 @@ void opal_atomic_wmb(void)
     WMB();
 }
 
+static inline
+void opal_atomic_isync(void)
+{
+    ISYNC();
+}
+
 #elif OPAL_XLC_INLINE_ASSEMBLY /* end OPAL_GCC_INLINE_ASSEMBLY */
 
 /* Yeah, I don't know who thought this was a reasonable syntax for
@@ -111,7 +116,7 @@ void opal_atomic_wmb(void)
 #pragma mc_func opal_atomic_rmb { "7c2004ac" }         /* lwsync  */
 #pragma reg_killed_by opal_atomic_rmb                  /* none */
 
-#pragma mc_func opal_atomic_wmb { "7c0006ac" }         /* eieio */
+#pragma mc_func opal_atomic_wmb { "7c2004ac" }         /* lwsync */
 #pragma reg_killed_by opal_atomic_wmb                  /* none */
 
 #endif

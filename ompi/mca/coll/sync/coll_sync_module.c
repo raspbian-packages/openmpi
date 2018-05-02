@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2007 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2006 The University of Tennessee and The University
+ * Copyright (c) 2004-2017 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -10,6 +10,8 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2009      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2016      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -93,20 +95,22 @@ mca_coll_sync_comm_query(struct ompi_communicator_t *comm,
 {
     mca_coll_sync_module_t *sync_module;
 
-    sync_module = OBJ_NEW(mca_coll_sync_module_t);
-    if (NULL == sync_module) {
-        return NULL;
-    }
-
     /* If both MCA params are 0, then disqualify us */
     if (0 == mca_coll_sync_component.barrier_before_nops &&
         0 == mca_coll_sync_component.barrier_after_nops) {
         return NULL;
     }
+
+    sync_module = OBJ_NEW(mca_coll_sync_module_t);
+    if (NULL == sync_module) {
+        return NULL;
+    }
+
     *priority = mca_coll_sync_component.priority;
 
     /* Choose whether to use [intra|inter] */
     sync_module->super.coll_module_enable = mca_coll_sync_module_enable;
+    sync_module->super.ft_event = mca_coll_sync_ft_event;
 
     /* The "all" versions are already synchronous.  So no need for an
        additional barrier there. */
@@ -142,14 +146,14 @@ int mca_coll_sync_module_enable(mca_coll_base_module_t *module,
     mca_coll_sync_module_t *s = (mca_coll_sync_module_t*) module;
 
     /* Save the prior layer of coll functions */
-    s->c_coll = comm->c_coll;
+    s->c_coll = *comm->c_coll;
 
-#define CHECK_AND_RETAIN(name) \
-    if (NULL == s->c_coll.coll_ ## name ## _module) { \
-        good = false; \
-        msg = #name; \
-    } else if (good) { \
-        OBJ_RETAIN(s->c_coll.coll_ ## name ## _module); \
+#define CHECK_AND_RETAIN(name)                           \
+    if (NULL == s->c_coll.coll_ ## name ## _module) {    \
+        good = false;                                    \
+        msg = #name;                                     \
+    } else if (good) {                                   \
+        OBJ_RETAIN(s->c_coll.coll_ ## name ## _module);  \
     }
 
     CHECK_AND_RETAIN(bcast);
@@ -168,11 +172,31 @@ int mca_coll_sync_module_enable(mca_coll_base_module_t *module,
     /* All done */
     if (good) {
         return OMPI_SUCCESS;
-    } else {
-        orte_show_help("help-coll-sync.txt", "missing collective", true,
-                       orte_process_info.nodename,
-                       mca_coll_sync_component.priority, msg);
-        return OMPI_ERR_NOT_FOUND;
     }
+    orte_show_help("help-coll-sync.txt", "missing collective", true,
+                   orte_process_info.nodename,
+                   mca_coll_sync_component.priority, msg);
+    return OMPI_ERR_NOT_FOUND;
 }
 
+
+int mca_coll_sync_ft_event(int state)
+{
+    if (OPAL_CRS_CHECKPOINT == state) {
+        ;
+    }
+    else if (OPAL_CRS_CONTINUE == state) {
+        ;
+    }
+    else if (OPAL_CRS_RESTART == state) {
+        ;
+    }
+    else if (OPAL_CRS_TERM == state ) {
+        ;
+    }
+    else {
+        ;
+    }
+
+    return OMPI_SUCCESS;
+}

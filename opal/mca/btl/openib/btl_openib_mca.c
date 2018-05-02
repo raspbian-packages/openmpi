@@ -10,14 +10,14 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006-2017 Cisco Systems, Inc.  All rights reserved
+ * Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2006-2009 Mellanox Technologies. All rights reserved.
  * Copyright (c) 2006-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2006-2007 Voltaire All rights reserved.
  * Copyright (c) 2009-2010 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2013-2015 NVIDIA Corporation.  All rights reserved.
- * Copyright (c) 2014-2015 Research Organization for Information Science
+ * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2014      Intel, Inc. All rights reserved.
  * $COPYRIGHT$
@@ -366,7 +366,7 @@ int btl_openib_register_mca_params(void)
         /* Don't try to recover from this */
         return OPAL_ERR_OUT_OF_RESOURCE;
     }
-    mca_btl_openib_component.ib_mtu = IBV_MTU_1024;
+    mca_btl_openib_component.ib_mtu = 0;
     (void) mca_base_var_enum_create("btl_openib_mtus", ib_mtu_values, &new_enum);
     tmp = mca_base_component_var_register(&mca_btl_openib_component.super.btl_version,
                                           "mtu", msg, MCA_BASE_VAR_TYPE_INT, new_enum,
@@ -640,6 +640,9 @@ int btl_openib_register_mca_params(void)
     if (NULL == default_qps) {
         /* Don't try to recover from this */
         return OPAL_ERR_OUT_OF_RESOURCE;
+    }
+    if (NULL != mca_btl_openib_component.default_recv_qps) {
+        free(mca_btl_openib_component.default_recv_qps);
     }
     mca_btl_openib_component.default_recv_qps = default_qps;
     CHECK(reg_string("receive_queues", NULL,

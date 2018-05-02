@@ -10,7 +10,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2012-2013 Los Alamos National Security, LLC.  All rights
  *                         reserved.
@@ -26,8 +26,11 @@
 #include "ompi_config.h"
 #include <stdio.h>
 
+#include "opal/util/show_help.h"
+
 #include "ompi/mpi/c/bindings.h"
 #include "ompi/runtime/params.h"
+#include "ompi/runtime/mpiruntime.h"
 #include "ompi/communicator/communicator.h"
 #include "ompi/errhandler/errhandler.h"
 #include "ompi/info/info.h"
@@ -130,6 +133,10 @@ int MPI_Comm_spawn_multiple(int count, char *array_of_commands[], char **array_o
         }
     }
 
+    if (!ompi_mpi_dynamics_is_enabled(FUNC_NAME)) {
+        return OMPI_ERRHANDLER_INVOKE(comm, OMPI_ERR_NOT_SUPPORTED, FUNC_NAME);
+    }
+
     if (rank == root) {
         if (MPI_INFO_NULL == array_of_info[0]) {
             non_mpi = false;
@@ -145,6 +152,7 @@ int MPI_Comm_spawn_multiple(int count, char *array_of_commands[], char **array_o
     /* initialize the port name to avoid problems */
     memset(port_name, 0, MPI_MAX_PORT_NAME);
 
+    OPAL_CR_ENTER_LIBRARY();
 
     if ( rank == root ) {
         if (!non_mpi) {
@@ -172,11 +180,20 @@ int MPI_Comm_spawn_multiple(int count, char *array_of_commands[], char **array_o
     }
 
 error:
+    if (OPAL_ERR_NOT_SUPPORTED == rc) {
+        opal_show_help("help-mpi-api.txt",
+                       "MPI function not supported",
+                       true,
+                       FUNC_NAME,
+                       "Underlying runtime environment does not support spawn functionality");
+    }
 
     /* close the port */
     if (rank == root && !non_mpi) {
         ompi_dpm_close_port(port_name);
     }
+
+    OPAL_CR_EXIT_LIBRARY();
 
     /* set array of errorcodes */
     if (MPI_ERRCODES_IGNORE != array_of_errcodes) {

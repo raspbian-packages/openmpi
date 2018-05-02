@@ -55,6 +55,8 @@ int MPI_Type_set_attr (MPI_Datatype type,
         }
     }
 
+    OPAL_CR_ENTER_LIBRARY();
+
     ret = ompi_attr_set_c(TYPE_ATTR, type, &type->d_keyhash,
                           type_keyval, attribute_val, false);
 

@@ -20,13 +20,28 @@ int MPI_Comm_spawn(const char *\fIcommand\fP, char *\fIargv\fP[], int \fImaxproc
 .fi
 .SH Fortran Syntax
 .nf
-INCLUDE 'mpif.h'
+USE MPI
+! or the older form: INCLUDE 'mpif.h'
 MPI_COMM_SPAWN(\fICOMMAND, ARGV, MAXPROCS, INFO, ROOT, COMM,
 	INTERCOMM, ARRAY_OF_ERRCODES, IERROR\fP)
 
 	CHARACTER*(*) \fICOMMAND, ARGV(*)\fP
 	INTEGER	\fIINFO, MAXPROCS, ROOT, COMM, INTERCOMM,
 	ARRAY_OF_ERRCODES(*), IERROR\fP
+
+.fi
+.SH Fortran 2008 Syntax
+.nf
+USE mpi_f08
+MPI_Comm_spawn(\fIcommand\fP, \fIargv\fP, \fImaxprocs\fP, \fIinfo\fP, \fIroot\fP, \fIcomm\fP, \fIintercomm\fP,
+		\fIarray_of_errcodes\fP, \fIierror\fP)
+	CHARACTER(LEN=*), INTENT(IN) :: \fIcommand\fP, \fIargv(*)\fP
+	INTEGER, INTENT(IN) :: \fImaxprocs\fP, \fIroot\fP
+	TYPE(MPI_Info), INTENT(IN) :: \fIinfo\fP
+	TYPE(MPI_Comm), INTENT(IN) :: \fIcomm\fP
+	TYPE(MPI_Comm), INTENT(OUT) :: \fIintercomm\fP
+	INTEGER :: \fIarray_of_errcodes(*)\fP
+	INTEGER, OPTIONAL, INTENT(OUT) :: \fIierror\fP
 
 .fi
 .SH C++ Syntax
@@ -158,7 +173,7 @@ ompi_preload_files     char *   A comma-separated list of files that
                                 \fIompi_preload_binary\fP - files can
                                 be moved to the target even if an
                                 executable is not moved.
-ompi_stdin_target   char* Comma-delimited list of ranks to
+ompi_stdin_target      char *   Comma-delimited list of ranks to
                                 receive stdin when forwarded.
 ompi_non_mpi           bool     If set to true, launching a non-MPI
                                 application; the returned communicator
@@ -171,25 +186,25 @@ ompi_param             char *   Pass an OMPI MCA parameter to the
                                 exists in the environment, the value
                                 will be overwritten by the provided
                                 value.
-mapper                    char*  Mapper to be used for this job
-map_by                    char*  Mapping directive indicating how
+mapper                 char *   Mapper to be used for this job
+map_by                 char *   Mapping directive indicating how
                                 processes are to be mapped (slot,
                                 node, socket, etc.).
-rank_by                   char *  Ranking directive indicating how
+rank_by                char *   Ranking directive indicating how
                                 processes are to be ranked (slot,
                                 node, socket, etc.).
-bind_to                    char *  Binding directive indicating how
+bind_to                char *   Binding directive indicating how
                                 processes are to be bound (core, slot,
                                 node, socket, etc.).
-path                         char*  List of directories to search for
+path                   char *   List of directories to search for
                                 the executable
-npernode                 char* Number of processes to spawn on
+npernode               char *   Number of processes to spawn on
                                 each node of the allocation
-pernode                   bool  Equivalent to npernode of 1
-ppr                          char* Spawn specified number of processes
-                               on each of the identified object type
-env                         char*  Newline-delimited list of envars to
-                               be passed to the spawned procs
+pernode                bool     Equivalent to npernode of 1
+ppr                    char *   Spawn specified number of processes
+                                on each of the identified object type
+env                    char *   Newline-delimited list of envars to
+                                be passed to the spawned procs
 .fi
 
 \fIbool\fP info keys are actually strings but are evaluated as

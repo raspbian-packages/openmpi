@@ -10,7 +10,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2013      Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2014-2015 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      IBM Corporation.  All rights reserved.
@@ -24,6 +24,7 @@
 #include "orte_config.h"
 
 #include <string.h>
+#include <ctype.h>
 
 #include "orte/constants.h"
 #include "orte/types.h"
@@ -56,9 +57,9 @@ int orte_util_add_dash_host_nodes(opal_list_t *nodes,
     orte_node_t *node, *nd;
     opal_list_t adds;
     bool found;
-    int slots;
+    int slots=0;
     bool slots_given;
-    char *cptr;
+    char *cptr, *ptr;
 
     OPAL_OUTPUT_VERBOSE((1, orte_ras_base_framework.framework_output,
                          "%s dashhost: parsing args %s",
@@ -194,12 +195,14 @@ int orte_util_add_dash_host_nodes(opal_list_t *nodes,
         if (NULL != (cptr = strchr(mini_map[i], ':'))) {
             *cptr = '\0';
             ++cptr;
-            if ('*' == *cptr) {
-                slots = 0;
+            if ('*' == *cptr || 0 == strcmp(cptr, "auto")) {
+                /* auto-detect #slots */
+                slots = -1;
+                slots_given = false;
             } else {
                 slots = strtol(cptr, NULL, 10);
+                slots_given = true;
             }
-            slots_given = true;
         }
 
         /* check for local name */
@@ -211,12 +214,14 @@ int orte_util_add_dash_host_nodes(opal_list_t *nodes,
 
         // Strip off the FQDN if present, ignore IP addresses
         if( !orte_keep_fqdn_hostnames && !opal_net_isaddr(ndname) ) {
-            char *ptr;
             if (NULL != (ptr = strchr(ndname, '.'))) {
                 *ptr = '\0';
             }
         }
-
+        /* remove any modifier */
+        if (NULL != (ptr = strchr(ndname, ':'))) {
+            *ptr = '\0';
+        }
         /* see if the node is already on the list */
         found = false;
         OPAL_LIST_FOREACH(node, &adds, orte_node_t) {
@@ -247,8 +252,8 @@ int orte_util_add_dash_host_nodes(opal_list_t *nodes,
             }
             node->name = strdup(ndname);
             OPAL_OUTPUT_VERBOSE((1, orte_ras_base_framework.framework_output,
-                                 "%s dashhost: added node %s to list",
-                                 ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), node->name));
+                                 "%s dashhost: added node %s to list - slots %d",
+                                 ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), node->name, slots));
             node->state = ORTE_NODE_STATE_UP;
             node->slots_inuse = 0;
             node->slots_max = 0;
@@ -257,6 +262,9 @@ int orte_util_add_dash_host_nodes(opal_list_t *nodes,
                 if (0 < slots) {
                     ORTE_FLAG_SET(node, ORTE_NODE_FLAG_SLOTS_GIVEN);
                 }
+            } else if (slots < 0) {
+                node->slots = 0;
+                ORTE_FLAG_UNSET(node, ORTE_NODE_FLAG_SLOTS_GIVEN);
             } else {
                 node->slots = 1;
                 ORTE_FLAG_SET(node, ORTE_NODE_FLAG_SLOTS_GIVEN);
@@ -277,11 +285,11 @@ int orte_util_add_dash_host_nodes(opal_list_t *nodes,
             if (0 == strcmp(nd->name, node->name)) {
                 found = true;
                 OPAL_OUTPUT_VERBOSE((1, orte_ras_base_framework.framework_output,
-                                     "%s dashhost: found existing node %s on input list - ignoring",
+                                     "%s dashhost: found existing node %s on input list - adding slots",
                                      ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), node->name));
-                /* transfer across the number of slots */
-                node->slots = nd->slots;
                 if (ORTE_FLAG_TEST(nd, ORTE_NODE_FLAG_SLOTS_GIVEN)) {
+                    /* transfer across the number of slots */
+                    node->slots = nd->slots;
                     ORTE_FLAG_SET(node, ORTE_NODE_FLAG_SLOTS_GIVEN);
                 }
                 break;
@@ -417,13 +425,14 @@ int orte_util_filter_dash_host_nodes(opal_list_t *nodes,
     opal_list_item_t* item;
     opal_list_item_t *next;
     orte_std_cntr_t i, j, len_mapped_node=0;
-    int rc;
+    int rc, test;
     char **mapped_nodes = NULL;
     orte_node_t *node;
     int num_empty=0;
     opal_list_t keep;
     bool want_all_empty=false;
     char *cptr;
+    size_t lst, lmn;
 
     /* if the incoming node list is empty, then there
      * is nothing to filter!
@@ -500,19 +509,42 @@ int orte_util_filter_dash_host_nodes(opal_list_t *nodes,
                 item = next;
             }
         } else {
+            /* remove any modifier */
+            if (NULL != (cptr = strchr(mapped_nodes[i], ':'))) {
+                *cptr = '\0';
+            }
             /* we are looking for a specific node on the list. The
              * parser will have substituted our local name for any
-             * alias, so we only have to do a strcmp here */
+             * alias, so we only have to do a strcmp here. */
+            cptr = NULL;
+            lmn = strtoul(mapped_nodes[i], &cptr, 10);
             item = opal_list_get_first(nodes);
             while (item != opal_list_get_end(nodes)) {
                 next = opal_list_get_next(item);  /* save this position */
                 node = (orte_node_t*)item;
-                /* remove any modifier */
-                if (NULL != (cptr = strchr(mapped_nodes[i], ':'))) {
-                    *cptr = '\0';
-                }
                 /* search -host list to see if this one is found */
-                if (0 == strcmp(node->name, mapped_nodes[i])) {
+                if (orte_managed_allocation &&
+                    (NULL == cptr || 0 == strlen(cptr))) {
+                    /* if we are only given a number, then we test the
+                     * value against the number in the node name. This allows support for
+                     * launch_id-based environments. For example, a hostname
+                     * of "nid0015" can be referenced by "--host 15" */
+                    for (j=strlen(node->name)-1; 0 < j; j--) {
+                        if (!isdigit(node->name[j])) {
+                            j++;
+                            break;
+                        }
+                    }
+                    if (j >= (int)(strlen(node->name) - 1)) {
+                        test = 0;
+                    } else {
+                        lst = strtoul(&node->name[j], NULL, 10);
+                        test = (lmn == lst) ? 0 : 1;
+                    }
+                } else {
+                    test = strcmp(node->name, mapped_nodes[i]);
+                }
+                if (0 == test) {
                     if (remove) {
                         /* remove item from list */
                         opal_list_remove_item(nodes, item);

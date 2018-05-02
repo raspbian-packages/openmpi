@@ -12,9 +12,10 @@
  *                         All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2015      Intel, Inc. All rights reserved.
+ * Copyright (c) 2015-2016 Intel, Inc. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015      Cisco Systems, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -26,6 +27,7 @@
 
 #include "opal/class/opal_list.h"
 #include "opal/mca/pmix/pmix.h"
+#include "opal/util/show_help.h"
 
 #include "ompi/mpi/c/bindings.h"
 #include "ompi/runtime/params.h"
@@ -68,6 +70,19 @@ int MPI_Lookup_name(const char *service_name, MPI_Info info, char *port_name)
         }
     }
 
+    if (NULL == opal_pmix.lookup) {
+        opal_show_help("help-mpi-api.txt",
+                       "MPI function not supported",
+                       true,
+                       FUNC_NAME,
+                       "Underlying runtime environment does not support name lookup functionality");
+        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD,
+                                      OMPI_ERR_NOT_SUPPORTED,
+                                      FUNC_NAME);
+    }
+
+    OPAL_CR_ENTER_LIBRARY();
+
     OBJ_CONSTRUCT(&pinfo, opal_list_t);
 
     /* OMPI supports info keys to pass the range to
@@ -79,17 +94,18 @@ int MPI_Lookup_name(const char *service_name, MPI_Info info, char *port_name)
                 rng = OBJ_NEW(opal_value_t);
                 rng->key = strdup(OPAL_PMIX_RANGE);
                 rng->type = OPAL_INT;
-                rng->data.integer = OPAL_PMIX_NAMESPACE;  // share only with procs in same nspace
+                rng->data.integer = OPAL_PMIX_RANGE_NAMESPACE;  // share only with procs in same nspace
                 opal_list_append(&pinfo, &rng->super);
             } else if (0 == strcmp(range, "session")) {
                 rng = OBJ_NEW(opal_value_t);
                 rng->key = strdup(OPAL_PMIX_RANGE);
                 rng->type = OPAL_INT;
-                rng->data.integer = OPAL_PMIX_SESSION; // share only with procs in same session
+                rng->data.integer = OPAL_PMIX_RANGE_SESSION; // share only with procs in same session
                 opal_list_append(&pinfo, &rng->super);
             } else {
                 /* unrecognized scope */
                 OPAL_LIST_DESTRUCT(&pinfo);
+                OPAL_CR_EXIT_LIBRARY();
                 return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_ARG,
                                             FUNC_NAME);
             }
@@ -107,12 +123,24 @@ int MPI_Lookup_name(const char *service_name, MPI_Info info, char *port_name)
     if (OPAL_SUCCESS != ret ||
         OPAL_STRING != pdat->value.type ||
         NULL == pdat->value.data.string) {
-        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, MPI_ERR_NAME,
-                                      FUNC_NAME);
+        if (OPAL_ERR_NOT_SUPPORTED == ret) {
+            ret = OMPI_ERR_NOT_SUPPORTED;
+            opal_show_help("help-mpi-api.txt",
+                           "MPI function not supported",
+                           true,
+                           FUNC_NAME,
+                           "Underlying runtime environment does not support name lookup functionality");
+        } else {
+            ret = MPI_ERR_NAME;
+        }
+
+        OPAL_CR_EXIT_LIBRARY();
+        return OMPI_ERRHANDLER_INVOKE(MPI_COMM_WORLD, ret, FUNC_NAME);
     }
 
     strncpy ( port_name, pdat->value.data.string, MPI_MAX_PORT_NAME );
     OPAL_LIST_DESTRUCT(&results);
 
+    OPAL_CR_EXIT_LIBRARY();
     return MPI_SUCCESS;
 }

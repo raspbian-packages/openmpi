@@ -38,6 +38,8 @@ static const char FUNC_NAME[] = "MPI_Errhandler_free";
 int MPI_Errhandler_free(MPI_Errhandler *errhandler)
 {
 
+    OPAL_CR_NOOP_PROGRESS();
+
   /* Error checking */
 
   if (MPI_PARAM_CHECK) {

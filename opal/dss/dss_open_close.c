@@ -11,7 +11,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2012-2013 Los Alamos National Security, Inc.  All rights reserved.
- * Copyright (c) 2014      Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -38,7 +38,7 @@ int opal_dss_initial_size = -1;
 int opal_dss_threshold_size = -1;
 opal_pointer_array_t opal_dss_types = {{0}};
 opal_data_type_t opal_dss_num_reg_types = {0};
-opal_dss_buffer_type_t default_buf_type = OPAL_DSS_BUFFER_NON_DESC;
+static opal_dss_buffer_type_t default_buf_type = OPAL_DSS_BUFFER_NON_DESC;
 
 /* variable group id */
 static int opal_dss_group_id = -1;
@@ -156,6 +156,7 @@ static void opal_pstat_construct(opal_pstats_t *obj)
     obj->time.tv_usec = 0;
     obj->priority = -1;
     obj->num_threads = -1;
+    obj->pss = 0.0;
     obj->vsize = 0.0;
     obj->rss = 0.0;
     obj->peak_vsize = 0.0;
@@ -611,6 +612,17 @@ int opal_dss_open(void)
         return rc;
     }
 
+
+    tmp = OPAL_STATUS;
+    if (OPAL_SUCCESS != (rc = opal_dss.register_type(opal_dss_pack_status,
+                                          opal_dss_unpack_status,
+                                          (opal_dss_copy_fn_t)opal_dss_std_copy,
+                                          (opal_dss_compare_fn_t)opal_dss_compare_status,
+                                          (opal_dss_print_fn_t)opal_dss_print_status,
+                                          OPAL_DSS_UNSTRUCTURED,
+                                          "OPAL_STATUS", &tmp))) {
+        return rc;
+    }
     /* All done */
 
     opal_dss_initialized = true;
