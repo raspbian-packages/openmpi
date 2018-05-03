@@ -1,0 +1,26 @@
+Description: Turn Big-Endian PPC from ERROR to WARN
+ See https://github.com/open-mpi/ompi/issues/4349
+ PPC works with -O3 (enabled in debian/rules)
+Author: Alastair McKinstry <mckinstry@debian.org>
+Last-Updated: 2018-04-09
+Forwarded: no
+
+Index: openmpi-3.0.1/configure.ac
+===================================================================
+--- openmpi-3.0.1.orig/configure.ac
++++ openmpi-3.0.1/configure.ac
+@@ -87,12 +87,12 @@ AS_IF([test "$host" != "$target"],
+ # Check for architectures that we explicitly no longer support
+ case "${host}" in
+     powerpc-*|powerpc64-*|ppc-*)
+-        AC_MSG_ERROR([Big endian PPC is no longer supported.])
++        AC_MSG_WARN([Big endian PPC is no longer offically supported.])
+         ;;
+ esac
+ case "${target}" in
+     powerpc-*|powerpc64-*|ppc-*)
+-        AC_MSG_ERROR([Big endian PPC is no longer supported.])
++        AC_MSG_WARN([Big endian PPC is no longer officially supported.])
+         ;;
+ esac
+ 
