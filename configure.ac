@@ -87,12 +87,12 @@ AS_IF([test "$host" != "$target"],
 # Check for architectures that we explicitly no longer support
 case "${host}" in
     powerpc-*|powerpc64-*|ppc-*)
-        AC_MSG_ERROR([Big endian PPC is no longer supported.])
+        AC_MSG_WARN([Big endian PPC is no longer offically supported.])
         ;;
 esac
 case "${target}" in
     powerpc-*|powerpc64-*|ppc-*)
-        AC_MSG_ERROR([Big endian PPC is no longer supported.])
+        AC_MSG_WARN([Big endian PPC is no longer officially supported.])
         ;;
 esac
 
