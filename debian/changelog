@@ -1,4 +1,4 @@
-openmpi (3.0.1-9+rpi1) buster-staging; urgency=medium
+openmpi (3.0.1.real-3+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
@@ -6,7 +6,32 @@ openmpi (3.0.1-9+rpi1) buster-staging; urgency=medium
   * replace dmb with MCR p15, 0, r0, c7, c10, 5 in opal/asm/base/ARM.asm
     as suggested at http://www.open-mpi.org/community/lists/devel/2012/02/10626.php
 
- -- Raspbian forward porter <root@raspbian.org>  Wed, 02 May 2018 05:51:02 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 10 May 2018 15:11:26 +0000
+
+openmpi (3.0.1.real-3) unstable; urgency=medium
+
+  * Add kfreebsd, sh4 to the non-Java list (no openjdk-9 support).
+    Closes: #897452
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 03 May 2018 04:49:34 +0100
+
+openmpi (3.0.1.real-2) unstable; urgency=medium
+
+  * Builds against openjdk-9 as openjdk-19 (now default) doesn't ship
+    javah, which we need for java bindings. Closes: #897417
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 02 May 2018 15:33:57 +0100
+
+openmpi (3.0.1.real-1) unstable; urgency=medium
+
+  * Upgrade from 3.0.1rc5 to real 3.0.1 release. Closes: #896105
+  * Works on kfreebsd*. Closes: #846635, #873450
+  * Enable extra debugging on dh_auto_build failure for random FTBFS
+  * Drop --enable-mpi-thread-multiple as obsolete
+  * Enable dh --no-parallel
+  * Depend on pmix >= 2.1.1rc1-4 for full extern support
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 01 May 2018 06:33:35 +0100
 
 openmpi (3.0.1-9) unstable; urgency=medium
 

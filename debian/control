@@ -11,13 +11,13 @@ Build-Depends: dpkg-dev (>= 1.16.1~),
  gfortran, gcc (>= 4:5.2.1), 
  chrpath, 
  libhwloc-dev,
- libpmix-dev (>= 2.1.0~rc1-2) [!sh4 !x32 !riscv64 !powerpcspe !m68k !hurd-i386],
+ libpmix-dev (>= 2.1.0~rc1-4), 
  pkg-config,
  libibverbs-dev (>= 1.1.7) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
  libfabric-dev [amd64 i386],
  libpsm-infinipath1-dev [amd64 i386],
  libnuma-dev [amd64 i386 ia64 mips mipsel mipsn32 mipsn32el mips64 mips64el ppc64el],
- default-jdk [!hppa !hurd-i386 !ia64 !riscv64] <!stage1>,
+ openjdk-9-jdk [!sh4 !kfreebsd-i386 !kfreebsd-amd64 !hppa !hurd-i386 !ia64 !riscv64] <!stage1>,
  flex
 Build-Conflicts: libmpich-dev, libopenmpi-dev
 Standards-Version: 4.1.4

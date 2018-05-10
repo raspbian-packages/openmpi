@@ -24,14 +24,14 @@ release=1
 # requirement is that it must be entirely printable ASCII characters
 # and have no white space.
 
-greek=rc5
+greek=
 
 # If repo_rev is empty, then the repository version number will be
 # obtained during "make dist" via the "git describe --tags --always"
 # command, or with the date (if "git describe" fails) in the form of
 # "date<date>".
 
-repo_rev=
+repo_rev=v3.0.1
 
 # If tarball_version is not empty, it is used as the version string in
 # the tarball filename, regardless of all other versions listed in
@@ -41,11 +41,11 @@ repo_rev=
 # tarball_version is not empty, the tarball filename will be of the
 # form openmpi-<tarball_version>.tar.*.
 
-tarball_version=gitclone
+tarball_version=
 
 # The date when this release was created
 
-date="Unreleased developer copy"
+date="Mar 29, 2018"
 
 # The shared library version of each of Open MPI's public libraries.
 # These versions are maintained in accordance with the "Library
