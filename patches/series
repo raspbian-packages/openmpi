@@ -1,0 +1,12 @@
+manpage_macros
+powerpc.patch
+build_hurd
+link-libfabric.patch
+arm64.patch
+libdir.patch
+hurd-maxhostnamelen.patch
+hppa.patch
+opal_fifo.patch
+verbose-ompi-rules.patch
+# drop-javah.patch
+openjdk10.patch
