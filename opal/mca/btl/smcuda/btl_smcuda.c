@@ -12,11 +12,11 @@
  *                         All rights reserved.
  * Copyright (c) 2006-2007 Voltaire. All rights reserved.
  * Copyright (c) 2009-2012 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2010-2016 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2010-2017 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * Copyright (c) 2012-2015 NVIDIA Corporation.  All rights reserved.
  * Copyright (c) 2012      Oracle and/or its affiliates.  All rights reserved.
- * Copyright (c) 2014      Research Organization for Information Science
+ * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2015-2016 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
@@ -296,7 +296,6 @@ smcuda_btl_first_time_init(mca_btl_smcuda_t *smcuda_btl,
             num_mem_nodes > 0 && NULL != opal_process_info.cpuset) {
             int numa=0, w;
             unsigned n_bound=0;
-            hwloc_cpuset_t avail;
             hwloc_obj_t obj;
 
             /* count the number of NUMA nodes to which we are bound */
@@ -306,10 +305,8 @@ smcuda_btl_first_time_init(mca_btl_smcuda_t *smcuda_btl,
                                                                    OPAL_HWLOC_AVAILABLE))) {
                     continue;
                 }
-                /* get that NUMA node's available cpus */
-                avail = opal_hwloc_base_get_available_cpus(opal_hwloc_topology, obj);
-                /* see if we intersect */
-                if (hwloc_bitmap_intersects(avail, opal_hwloc_my_cpuset)) {
+                /* see if we intersect with that NUMA node's cpus */
+                if (hwloc_bitmap_intersects(obj->cpuset, opal_hwloc_my_cpuset)) {
                     n_bound++;
                     numa = w;
                 }
@@ -1266,17 +1263,13 @@ void mca_btl_smcuda_dump(struct mca_btl_base_module_t* btl,
                      struct mca_btl_base_endpoint_t* endpoint,
                      int verbose)
 {
-    opal_list_item_t *item;
     mca_btl_smcuda_frag_t* frag;
 
     mca_btl_base_err("BTL SM %p endpoint %p [smp_rank %d] [peer_rank %d]\n",
                      (void*) btl, (void*) endpoint,
                      endpoint->my_smp_rank, endpoint->peer_smp_rank);
     if( NULL != endpoint ) {
-        for(item =  opal_list_get_first(&endpoint->pending_sends);
-            item != opal_list_get_end(&endpoint->pending_sends);
-            item = opal_list_get_next(item)) {
-            frag = (mca_btl_smcuda_frag_t*)item;
+        OPAL_LIST_FOREACH(frag, &endpoint->pending_sends, mca_btl_smcuda_frag_t) {
             mca_btl_base_err(" |  frag %p size %lu (hdr frag %p len %lu rank %d tag %d)\n",
                              (void*) frag, frag->size, (void*) frag->hdr->frag,
                              frag->hdr->len, frag->hdr->my_smp_rank,

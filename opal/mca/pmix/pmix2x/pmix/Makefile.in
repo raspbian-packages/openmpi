@@ -27,7 +27,7 @@
 #                         All rights reserved.
 # Copyright (c) 2006-2016 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2012-2013 Los Alamos National Security, Inc.  All rights reserved.
-# Copyright (c) 2013-2016 Intel, Inc. All rights reserved
+# Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -173,7 +173,8 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h
+CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h \
+	$(top_builddir)/include/pmix_common.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -262,7 +263,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = config contrib include src man . test examples
+DIST_SUBDIRS = config contrib include src etc man . test examples
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/./config/ar-lib \
 	$(top_srcdir)/./config/compile \
 	$(top_srcdir)/./config/config.guess \
@@ -378,6 +379,20 @@ MCA_pmix_FRAMEWORK_COMPONENT_ALL_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_ALL_SUB
 MCA_pmix_FRAMEWORK_COMPONENT_DSO_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_DSO_SUBDIRS@
 MCA_pmix_FRAMEWORK_COMPONENT_STATIC_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_STATIC_SUBDIRS@
 MCA_pmix_FRAMEWORK_LIBS = @MCA_pmix_FRAMEWORK_LIBS@
+MCA_pmix_bfrops_ALL_COMPONENTS = @MCA_pmix_bfrops_ALL_COMPONENTS@
+MCA_pmix_bfrops_ALL_SUBDIRS = @MCA_pmix_bfrops_ALL_SUBDIRS@
+MCA_pmix_bfrops_DSO_COMPONENTS = @MCA_pmix_bfrops_DSO_COMPONENTS@
+MCA_pmix_bfrops_DSO_SUBDIRS = @MCA_pmix_bfrops_DSO_SUBDIRS@
+MCA_pmix_bfrops_STATIC_COMPONENTS = @MCA_pmix_bfrops_STATIC_COMPONENTS@
+MCA_pmix_bfrops_STATIC_LTLIBS = @MCA_pmix_bfrops_STATIC_LTLIBS@
+MCA_pmix_bfrops_STATIC_SUBDIRS = @MCA_pmix_bfrops_STATIC_SUBDIRS@
+MCA_pmix_gds_ALL_COMPONENTS = @MCA_pmix_gds_ALL_COMPONENTS@
+MCA_pmix_gds_ALL_SUBDIRS = @MCA_pmix_gds_ALL_SUBDIRS@
+MCA_pmix_gds_DSO_COMPONENTS = @MCA_pmix_gds_DSO_COMPONENTS@
+MCA_pmix_gds_DSO_SUBDIRS = @MCA_pmix_gds_DSO_SUBDIRS@
+MCA_pmix_gds_STATIC_COMPONENTS = @MCA_pmix_gds_STATIC_COMPONENTS@
+MCA_pmix_gds_STATIC_LTLIBS = @MCA_pmix_gds_STATIC_LTLIBS@
+MCA_pmix_gds_STATIC_SUBDIRS = @MCA_pmix_gds_STATIC_SUBDIRS@
 MCA_pmix_pdl_ALL_COMPONENTS = @MCA_pmix_pdl_ALL_COMPONENTS@
 MCA_pmix_pdl_ALL_SUBDIRS = @MCA_pmix_pdl_ALL_SUBDIRS@
 MCA_pmix_pdl_DSO_COMPONENTS = @MCA_pmix_pdl_DSO_COMPONENTS@
@@ -406,6 +421,13 @@ MCA_pmix_pnet_DSO_SUBDIRS = @MCA_pmix_pnet_DSO_SUBDIRS@
 MCA_pmix_pnet_STATIC_COMPONENTS = @MCA_pmix_pnet_STATIC_COMPONENTS@
 MCA_pmix_pnet_STATIC_LTLIBS = @MCA_pmix_pnet_STATIC_LTLIBS@
 MCA_pmix_pnet_STATIC_SUBDIRS = @MCA_pmix_pnet_STATIC_SUBDIRS@
+MCA_pmix_preg_ALL_COMPONENTS = @MCA_pmix_preg_ALL_COMPONENTS@
+MCA_pmix_preg_ALL_SUBDIRS = @MCA_pmix_preg_ALL_SUBDIRS@
+MCA_pmix_preg_DSO_COMPONENTS = @MCA_pmix_preg_DSO_COMPONENTS@
+MCA_pmix_preg_DSO_SUBDIRS = @MCA_pmix_preg_DSO_SUBDIRS@
+MCA_pmix_preg_STATIC_COMPONENTS = @MCA_pmix_preg_STATIC_COMPONENTS@
+MCA_pmix_preg_STATIC_LTLIBS = @MCA_pmix_preg_STATIC_LTLIBS@
+MCA_pmix_preg_STATIC_SUBDIRS = @MCA_pmix_preg_STATIC_SUBDIRS@
 MCA_pmix_psec_ALL_COMPONENTS = @MCA_pmix_psec_ALL_COMPONENTS@
 MCA_pmix_psec_ALL_SUBDIRS = @MCA_pmix_psec_ALL_SUBDIRS@
 MCA_pmix_psec_DSO_COMPONENTS = @MCA_pmix_psec_DSO_COMPONENTS@
@@ -420,6 +442,13 @@ MCA_pmix_psensor_DSO_SUBDIRS = @MCA_pmix_psensor_DSO_SUBDIRS@
 MCA_pmix_psensor_STATIC_COMPONENTS = @MCA_pmix_psensor_STATIC_COMPONENTS@
 MCA_pmix_psensor_STATIC_LTLIBS = @MCA_pmix_psensor_STATIC_LTLIBS@
 MCA_pmix_psensor_STATIC_SUBDIRS = @MCA_pmix_psensor_STATIC_SUBDIRS@
+MCA_pmix_pshmem_ALL_COMPONENTS = @MCA_pmix_pshmem_ALL_COMPONENTS@
+MCA_pmix_pshmem_ALL_SUBDIRS = @MCA_pmix_pshmem_ALL_SUBDIRS@
+MCA_pmix_pshmem_DSO_COMPONENTS = @MCA_pmix_pshmem_DSO_COMPONENTS@
+MCA_pmix_pshmem_DSO_SUBDIRS = @MCA_pmix_pshmem_DSO_SUBDIRS@
+MCA_pmix_pshmem_STATIC_COMPONENTS = @MCA_pmix_pshmem_STATIC_COMPONENTS@
+MCA_pmix_pshmem_STATIC_LTLIBS = @MCA_pmix_pshmem_STATIC_LTLIBS@
+MCA_pmix_pshmem_STATIC_SUBDIRS = @MCA_pmix_pshmem_STATIC_SUBDIRS@
 MCA_pmix_ptl_ALL_COMPONENTS = @MCA_pmix_ptl_ALL_COMPONENTS@
 MCA_pmix_ptl_ALL_SUBDIRS = @MCA_pmix_ptl_ALL_SUBDIRS@
 MCA_pmix_ptl_DSO_COMPONENTS = @MCA_pmix_ptl_DSO_COMPONENTS@
@@ -466,6 +495,8 @@ PMIX_MINOR_VERSION = @PMIX_MINOR_VERSION@
 PMIX_RELEASE_DATE = @PMIX_RELEASE_DATE@
 PMIX_RELEASE_VERSION = @PMIX_RELEASE_VERSION@
 PMIX_RENAME = @PMIX_RENAME@
+PMIX_TOP_BUILDDIR = @PMIX_TOP_BUILDDIR@
+PMIX_TOP_SRCDIR = @PMIX_TOP_SRCDIR@
 PMIX_VERSION = @PMIX_VERSION@
 PMIX_top_builddir = @PMIX_top_builddir@
 PMIX_top_srcdir = @PMIX_top_srcdir@
@@ -512,6 +543,8 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libpmi2_so_version = @libpmi2_so_version@
+libpmi_so_version = @libpmi_so_version@
 libpmix_so_version = @libpmix_so_version@
 localedir = @localedir@
 localstatedir = @localstatedir@
@@ -555,7 +588,8 @@ top_srcdir = @top_srcdir@
 # Note that the -I directory must *exactly* match what was specified
 # via AC_CONFIG_MACRO_DIR in configure.ac.
 ACLOCAL_AMFLAGS = -I ./config
-SUBDIRS = config contrib include src $(am__append_2) $(am__append_3)
+SUBDIRS = config contrib include src etc $(am__append_2) \
+	$(am__append_3)
 headers = 
 sources = 
 nodist_headers = 

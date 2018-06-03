@@ -13,7 +13,7 @@
  *                         reserved.
  * Copyright (c) 2007-2012 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2007-2008 Sun Microsystems, Inc.  All rights reserved.
- * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  *
@@ -37,6 +37,7 @@
 #include "opal/util/error.h"
 #include "opal/util/output.h"
 #include "opal/util/proc.h"
+#include "opal/util/timings.h"
 #include "opal/runtime/opal.h"
 #include "opal/threads/threads.h"
 
@@ -47,7 +48,6 @@
 #include "orte/mca/schizo/base/base.h"
 #include "orte/util/listener.h"
 #include "orte/util/name_fns.h"
-#include "orte/util/nidmap.h"
 #include "orte/util/proc_info.h"
 #include "orte/util/error_strings.h"
 #include "orte/orted/pmix/pmix_server.h"
@@ -134,6 +134,7 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
 {
     int ret;
     char *error = NULL;
+    OPAL_TIMING_ENV_INIT(tmng);
 
     if (0 < orte_initialized) {
         /* track number of times we have been called */
@@ -152,11 +153,15 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
     opal_snprintf_jobid = orte_util_snprintf_jobid;
     opal_convert_string_to_jobid = _convert_string_to_jobid;
 
+    OPAL_TIMING_ENV_NEXT(tmng, "initializations");
+
     /* initialize the opal layer */
     if (ORTE_SUCCESS != (ret = opal_init(pargc, pargv))) {
         error = "opal_init";
         goto error;
     }
+
+    OPAL_TIMING_ENV_NEXT(tmng, "opal_init");
 
     /* ensure we know the type of proc for when we finalize */
     orte_process_info.proc_type = flags;
@@ -167,11 +172,15 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
         goto error;
     }
 
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_locks_init");
+
     /* Register all MCA Params */
     if (ORTE_SUCCESS != (ret = orte_register_params())) {
         error = "orte_register_params";
         goto error;
     }
+
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_register_params");
 
     /* setup the orte_show_help system */
     if (ORTE_SUCCESS != (ret = orte_show_help_init())) {
@@ -179,14 +188,20 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
         goto error;
     }
 
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_show_help_init");
+
     /* register handler for errnum -> string conversion */
     opal_error_register("ORTE", ORTE_ERR_BASE, ORTE_ERR_MAX, orte_err2str);
+
+    OPAL_TIMING_ENV_NEXT(tmng, "opal_error_register");
 
     /* Ensure the rest of the process info structure is initialized */
     if (ORTE_SUCCESS != (ret = orte_proc_info())) {
         error = "orte_proc_info";
         goto error;
     }
+
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_proc_info");
 
     /* we may have modified the local nodename according to
      * request to retain/strip the FQDN and prefix, so update
@@ -201,7 +216,7 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
     if (ORTE_PROC_IS_DAEMON || ORTE_PROC_IS_HNP) {
         /* let the pmix server register params */
         pmix_server_register_params();
-        orte_util_nidmap_init();
+        OPAL_TIMING_ENV_NEXT(tmng, "pmix_server_register_params");
     }
 
     /* open the SCHIZO framework as everyone needs it, and the
@@ -212,14 +227,19 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
         goto error;
     }
 
+    OPAL_TIMING_ENV_NEXT(tmng, "framework_open(schizo)");
+
     if (ORTE_SUCCESS != (ret = orte_schizo_base_select())) {
         error = "orte_schizo_base_select";
         goto error;
     }
 
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_schizo_base_select");
+
     /* if we are an app, let SCHIZO help us determine our environment */
     if (ORTE_PROC_IS_APP) {
         (void)orte_schizo.check_launch_environment();
+        OPAL_TIMING_ENV_NEXT(tmng, "orte_schizo.check_launch_environment");
     }
 
     /* open the ESS and select the correct module for this environment */
@@ -229,10 +249,14 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
         goto error;
     }
 
+    OPAL_TIMING_ENV_NEXT(tmng, "framework_open(ess)");
+
     if (ORTE_SUCCESS != (ret = orte_ess_base_select())) {
         error = "orte_ess_base_select";
         goto error;
     }
+
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_ess_base_select");
 
     if (!ORTE_PROC_IS_APP) {
         /* ORTE tools "block" in their own loop over the event
@@ -248,6 +272,8 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
         error = "orte_ess_init";
         goto error;
     }
+
+    OPAL_TIMING_ENV_NEXT(tmng, "orte_ess.init");
 
     /* set the remaining opal_process_info fields. Note that
      * the OPAL layer will have initialized these to NULL, and
@@ -269,6 +295,7 @@ int orte_init(int* pargc, char*** pargv, orte_proc_type_t flags)
         }
     }
 
+    OPAL_TIMING_ENV_NEXT(tmng, "finalize");
     /* All done */
     return ORTE_SUCCESS;
 

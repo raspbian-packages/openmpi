@@ -47,7 +47,10 @@ typedef struct {
     struct sockaddr_storage connection;
     char *session_filename;
     char *system_filename;
-    pid_t tool_pid;
+    int wait_to_connect;
+    int max_retries;
+    char *report_uri;
+    bool remote_connections;
 } pmix_ptl_tcp_component_t;
 
 extern pmix_ptl_tcp_component_t mca_ptl_tcp_component;

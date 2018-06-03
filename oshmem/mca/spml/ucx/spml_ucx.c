@@ -64,6 +64,7 @@ mca_spml_ucx_t mca_spml_ucx = {
                                every spml */
         mca_spml_ucx_rmkey_unpack,
         mca_spml_ucx_rmkey_free,
+        mca_spml_ucx_rmkey_ptr,
         mca_spml_ucx_memuse_hook,
         (void*)&mca_spml_ucx
     },
@@ -353,6 +354,23 @@ void mca_spml_ucx_rmkey_free(sshmem_mkey_t *mkey)
     ucp_rkey_destroy(ucx_mkey->rkey);
 }
 
+void *mca_spml_ucx_rmkey_ptr(const void *dst_addr, sshmem_mkey_t *mkey, int pe)
+{
+#if (((UCP_API_MAJOR >= 1) && (UCP_API_MINOR >= 3)) || (UCP_API_MAJOR >= 2))
+    void *rva;
+    ucs_status_t err;
+    spml_ucx_mkey_t *ucx_mkey = (spml_ucx_mkey_t *)(mkey->spml_context);
+
+    err = ucp_rkey_ptr(ucx_mkey->rkey, (uint64_t)dst_addr, &rva);
+    if (UCS_OK != err) {
+        return NULL;
+    }
+    return rva;
+#else
+    return NULL;
+#endif
+}
+
 static void mca_spml_ucx_cache_mkey(sshmem_mkey_t *mkey, uint32_t segno, int dst_pe)
 {
     ucp_peer_t *peer;
@@ -510,12 +528,13 @@ int mca_spml_ucx_deregister(sshmem_mkey_t *mkeys)
     if (!mkeys[0].spml_context) 
         return OSHMEM_SUCCESS;
 
-    mem_seg = memheap_find_va(mkeys[0].va_base);
+    mem_seg  = memheap_find_va(mkeys[0].va_base);
+    ucx_mkey = (spml_ucx_mkey_t*)mkeys[0].spml_context;
     
     if (MAP_SEGMENT_ALLOC_UCX != mem_seg->type) {
-        ucx_mkey = (spml_ucx_mkey_t *)mkeys[0].spml_context;
         ucp_mem_unmap(mca_spml_ucx.ucp_context, ucx_mkey->mem_h);
     }
+    ucp_rkey_destroy(ucx_mkey->rkey);
 
     if (0 < mkeys[0].len) {
         ucp_rkey_buffer_release(mkeys[0].u.data);

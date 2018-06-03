@@ -263,6 +263,8 @@ typedef struct {
     orte_process_name_t server;
     opal_list_t notifications;
     bool pubsub_init;
+    bool session_server;
+    bool system_server;
     bool legacy;
 } pmix_server_globals_t;
 

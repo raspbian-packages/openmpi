@@ -5,6 +5,7 @@
  *                         reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  *
+ * Copyright (c) 2017      Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -34,7 +35,7 @@ const char *opal_event_external_component_version_string =
 static int event_external_open(void);
 static int event_external_register (void);
 
-char *event_module_include = NULL;
+char *ompi_event_module_include = NULL;
 
 /*
  * Instantiate the public struct with all of our public information
@@ -81,12 +82,12 @@ static int event_external_register (void) {
     all_available_eventops = event_get_supported_methods();
 
 #ifdef __APPLE__
-    event_module_include ="select";
+    ompi_event_module_include ="select";
 #else
-    event_module_include = "poll";
+    ompi_event_module_include = "poll";
 #endif
 
-    avail = opal_argv_join(all_available_eventops, ',');
+    avail = opal_argv_join((char**)all_available_eventops, ',');
     asprintf( &help_msg,
               "Comma-delimited list of libevent subsystems "
               "to use (%s -- available on your platform)",
@@ -98,7 +99,7 @@ static int event_external_register (void) {
                                            MCA_BASE_VAR_FLAG_SETTABLE,
                                            OPAL_INFO_LVL_3,
                                            MCA_BASE_VAR_SCOPE_LOCAL,
-                                           &event_module_include);
+                                           &ompi_event_module_include);
     free(help_msg);  /* release the help message */
     free(avail);
     avail = NULL;

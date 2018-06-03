@@ -226,6 +226,30 @@
 #                         University of Stuttgart.  All rights reserved.
 # Copyright (c) 2004-2005 The Regents of the University of California.
 #                         All rights reserved.
+# Copyright (c) 2008      Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2016      IBM Corporation.  All rights reserved.
+# Copyright (c) 2017      Intel, Inc. All rights reserved.
+# $COPYRIGHT$
+#
+# Additional copyrights may follow
+#
+# $HEADER$
+#
+
+# This makefile.am does not stand on its own - it is included from ompi/Makefile.am
+
+# -*- makefile -*-
+#
+# Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+#                         University Research and Technology
+#                         Corporation.  All rights reserved.
+# Copyright (c) 2004-2005 The University of Tennessee and The University
+#                         of Tennessee Research Foundation.  All rights
+#                         reserved.
+# Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
+#                         University of Stuttgart.  All rights reserved.
+# Copyright (c) 2004-2005 The Regents of the University of California.
+#                         All rights reserved.
 # Copyright (c) 2011      Sandia National Laboratories. All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
@@ -483,6 +507,16 @@
 
 # This makefile.am does not stand on its own - it is included from opal/Makefile.am
 
+# -*- makefile -*-
+#
+# Copyright (c) 2017      Mellanox Technologies Ltd. All rights reserved.
+# $COPYRIGHT$
+#
+# Additional copyrights may follow
+#
+# $HEADER$
+#
+
 
 
 VPATH = @srcdir@
@@ -650,9 +684,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -718,7 +752,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -772,6 +806,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -801,6 +836,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -812,16 +848,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -837,10 +874,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -920,15 +960,15 @@ am__lib@OMPI_LIBMPI_NAME@_la_SOURCES_DIST = class/ompi_seq_tracker.h \
 	communicator/comm_request.h dpm/dpm.h errhandler/errcode.h \
 	errhandler/errcode-internal.h errhandler/errhandler.h \
 	errhandler/errhandler_predefined.h file/file.h group/group.h \
-	group/group_dbg.h info/info.h message/message.h op/op.h \
-	peruse/peruse-internal.h proc/proc.h request/grequest.h \
-	request/request_default.h request/request.h \
+	group/group_dbg.h info/info.h interlib/interlib.h \
+	message/message.h op/op.h peruse/peruse-internal.h proc/proc.h \
+	request/grequest.h request/request_default.h request/request.h \
 	request/request_dbg.h runtime/mpiruntime.h runtime/ompi_cr.h \
 	runtime/params.h runtime/ompi_info_support.h win/win.h \
 	mpiext/mpiext.h patterns/net/netpatterns.h \
 	patterns/net/netpatterns_knomial_tree.h \
 	patterns/net/coll_ops.h patterns/comm/coll_ops.h \
-	patterns/comm/commpatterns.h mca/mca.h \
+	patterns/comm/commpatterns.h mca/mca.h util/timings.h \
 	class/ompi_seq_tracker.c attribute/attribute.c \
 	attribute/attribute_predefined.c communicator/comm_init.c \
 	communicator/comm.c communicator/comm_cid.c \
@@ -938,15 +978,15 @@ am__lib@OMPI_LIBMPI_NAME@_la_SOURCES_DIST = class/ompi_seq_tracker.h \
 	errhandler/errcode-internal.c file/file.c group/group.c \
 	group/group_init.c group/group_set_rank.c group/group_plist.c \
 	group/group_sporadic.c group/group_strided.c \
-	group/group_bitmap.c info/info.c message/message.c op/op.c \
-	peruse/peruse.c peruse/peruse_module.c proc/proc.c \
-	request/grequest.c request/request.c request/req_test.c \
-	request/req_wait.c runtime/ompi_mpi_abort.c \
-	runtime/ompi_mpi_dynamics.c runtime/ompi_mpi_init.c \
-	runtime/ompi_mpi_finalize.c runtime/ompi_mpi_params.c \
-	runtime/ompi_mpi_preconnect.c runtime/ompi_cr.c \
-	runtime/ompi_info_support.c win/win.c mpiext/mpiext.c \
-	patterns/net/netpatterns_base.c \
+	group/group_bitmap.c info/info.c interlib/interlib.c \
+	message/message.c op/op.c peruse/peruse.c \
+	peruse/peruse_module.c proc/proc.c request/grequest.c \
+	request/request.c request/req_test.c request/req_wait.c \
+	runtime/ompi_mpi_abort.c runtime/ompi_mpi_dynamics.c \
+	runtime/ompi_mpi_init.c runtime/ompi_mpi_finalize.c \
+	runtime/ompi_mpi_params.c runtime/ompi_mpi_preconnect.c \
+	runtime/ompi_cr.c runtime/ompi_info_support.c win/win.c \
+	mpiext/mpiext.c patterns/net/netpatterns_base.c \
 	patterns/net/netpatterns_multinomial_tree.c \
 	patterns/net/netpatterns_nary_tree.c \
 	patterns/net/netpatterns_knomial_tree.c \
@@ -967,14 +1007,14 @@ am_lib@OMPI_LIBMPI_NAME@_la_OBJECTS = $(am__objects_1) \
 	group/group_init.lo group/group_set_rank.lo \
 	group/group_plist.lo group/group_sporadic.lo \
 	group/group_strided.lo group/group_bitmap.lo info/info.lo \
-	message/message.lo op/op.lo $(am__objects_2) proc/proc.lo \
-	request/grequest.lo request/request.lo request/req_test.lo \
-	request/req_wait.lo runtime/ompi_mpi_abort.lo \
-	runtime/ompi_mpi_dynamics.lo runtime/ompi_mpi_init.lo \
-	runtime/ompi_mpi_finalize.lo runtime/ompi_mpi_params.lo \
-	runtime/ompi_mpi_preconnect.lo runtime/ompi_cr.lo \
-	runtime/ompi_info_support.lo win/win.lo mpiext/mpiext.lo \
-	patterns/net/netpatterns_base.lo \
+	interlib/interlib.lo message/message.lo op/op.lo \
+	$(am__objects_2) proc/proc.lo request/grequest.lo \
+	request/request.lo request/req_test.lo request/req_wait.lo \
+	runtime/ompi_mpi_abort.lo runtime/ompi_mpi_dynamics.lo \
+	runtime/ompi_mpi_init.lo runtime/ompi_mpi_finalize.lo \
+	runtime/ompi_mpi_params.lo runtime/ompi_mpi_preconnect.lo \
+	runtime/ompi_cr.lo runtime/ompi_info_support.lo win/win.lo \
+	mpiext/mpiext.lo patterns/net/netpatterns_base.lo \
 	patterns/net/netpatterns_multinomial_tree.lo \
 	patterns/net/netpatterns_nary_tree.lo \
 	patterns/net/netpatterns_knomial_tree.lo \
@@ -1049,15 +1089,15 @@ am__nobase_ompi_HEADERS_DIST = class/ompi_seq_tracker.h \
 	communicator/comm_request.h dpm/dpm.h errhandler/errcode.h \
 	errhandler/errcode-internal.h errhandler/errhandler.h \
 	errhandler/errhandler_predefined.h file/file.h group/group.h \
-	group/group_dbg.h info/info.h message/message.h op/op.h \
-	peruse/peruse-internal.h proc/proc.h request/grequest.h \
-	request/request_default.h request/request.h \
+	group/group_dbg.h info/info.h interlib/interlib.h \
+	message/message.h op/op.h peruse/peruse-internal.h proc/proc.h \
+	request/grequest.h request/request_default.h request/request.h \
 	request/request_dbg.h runtime/mpiruntime.h runtime/ompi_cr.h \
 	runtime/params.h runtime/ompi_info_support.h win/win.h \
 	mpiext/mpiext.h patterns/net/netpatterns.h \
 	patterns/net/netpatterns_knomial_tree.h \
 	patterns/net/coll_ops.h patterns/comm/coll_ops.h \
-	patterns/comm/commpatterns.h mca/mca.h
+	patterns/comm/commpatterns.h mca/mca.h util/timings.h
 HEADERS = $(include_HEADERS) $(nobase_ompi_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
@@ -1091,16 +1131,17 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(srcdir)/communicator/Makefile.am $(srcdir)/dpm/Makefile.am \
 	$(srcdir)/errhandler/Makefile.am $(srcdir)/file/Makefile.am \
 	$(srcdir)/group/Makefile.am $(srcdir)/info/Makefile.am \
-	$(srcdir)/mca/Makefile.am $(srcdir)/message/Makefile.am \
-	$(srcdir)/mpi/Makefile.am \
+	$(srcdir)/interlib/Makefile.am $(srcdir)/mca/Makefile.am \
+	$(srcdir)/message/Makefile.am $(srcdir)/mpi/Makefile.am \
 	$(srcdir)/mpi/man/man3/Makefile.extra \
 	$(srcdir)/mpiext/Makefile.am $(srcdir)/op/Makefile.am \
 	$(srcdir)/patterns/comm/Makefile.am \
 	$(srcdir)/patterns/net/Makefile.am \
 	$(srcdir)/peruse/Makefile.am $(srcdir)/proc/Makefile.am \
 	$(srcdir)/request/Makefile.am $(srcdir)/runtime/Makefile.am \
-	$(srcdir)/tools/Makefile.am $(srcdir)/win/Makefile.am \
-	$(top_srcdir)/Makefile.ompi-rules $(top_srcdir)/config/depcomp
+	$(srcdir)/tools/Makefile.am $(srcdir)/util/Makefile.am \
+	$(srcdir)/win/Makefile.am $(top_srcdir)/Makefile.ompi-rules \
+	$(top_srcdir)/config/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -1238,6 +1279,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -1520,6 +1562,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1624,6 +1673,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -1854,8 +1910,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -1863,7 +1917,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -1910,7 +1963,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -2128,9 +2180,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -2179,9 +2232,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -2215,6 +2268,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -2228,6 +2284,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -2389,14 +2448,15 @@ lib@OMPI_LIBMPI_NAME@_la_SOURCES = $(headers) class/ompi_seq_tracker.c \
 	errhandler/errcode-internal.c file/file.c group/group.c \
 	group/group_init.c group/group_set_rank.c group/group_plist.c \
 	group/group_sporadic.c group/group_strided.c \
-	group/group_bitmap.c info/info.c message/message.c op/op.c \
-	$(am__append_4) proc/proc.c request/grequest.c \
-	request/request.c request/req_test.c request/req_wait.c \
-	runtime/ompi_mpi_abort.c runtime/ompi_mpi_dynamics.c \
-	runtime/ompi_mpi_init.c runtime/ompi_mpi_finalize.c \
-	runtime/ompi_mpi_params.c runtime/ompi_mpi_preconnect.c \
-	runtime/ompi_cr.c runtime/ompi_info_support.c win/win.c \
-	mpiext/mpiext.c patterns/net/netpatterns_base.c \
+	group/group_bitmap.c info/info.c interlib/interlib.c \
+	message/message.c op/op.c $(am__append_4) proc/proc.c \
+	request/grequest.c request/request.c request/req_test.c \
+	request/req_wait.c runtime/ompi_mpi_abort.c \
+	runtime/ompi_mpi_dynamics.c runtime/ompi_mpi_init.c \
+	runtime/ompi_mpi_finalize.c runtime/ompi_mpi_params.c \
+	runtime/ompi_mpi_preconnect.c runtime/ompi_cr.c \
+	runtime/ompi_info_support.c win/win.c mpiext/mpiext.c \
+	patterns/net/netpatterns_base.c \
 	patterns/net/netpatterns_multinomial_tree.c \
 	patterns/net/netpatterns_nary_tree.c \
 	patterns/net/netpatterns_knomial_tree.c \
@@ -2418,19 +2478,22 @@ lib@OMPI_LIBMPI_NAME@_la_LDFLAGS = \
 # included subdirectory Makefile.am's and appended-to variables
 
 # Source code files
+
+# Source code files
 headers = class/ompi_seq_tracker.h attribute/attribute.h \
 	communicator/communicator.h communicator/comm_request.h \
 	dpm/dpm.h errhandler/errcode.h errhandler/errcode-internal.h \
 	errhandler/errhandler.h errhandler/errhandler_predefined.h \
 	file/file.h group/group.h group/group_dbg.h info/info.h \
-	message/message.h op/op.h peruse/peruse-internal.h proc/proc.h \
-	request/grequest.h request/request_default.h request/request.h \
+	interlib/interlib.h message/message.h op/op.h \
+	peruse/peruse-internal.h proc/proc.h request/grequest.h \
+	request/request_default.h request/request.h \
 	request/request_dbg.h runtime/mpiruntime.h runtime/ompi_cr.h \
 	runtime/params.h runtime/ompi_info_support.h win/win.h \
 	mpiext/mpiext.h patterns/net/netpatterns.h \
 	patterns/net/netpatterns_knomial_tree.h \
 	patterns/net/coll_ops.h patterns/comm/coll_ops.h \
-	patterns/comm/commpatterns.h mca/mca.h
+	patterns/comm/commpatterns.h mca/mca.h util/timings.h
 noinst_LTLIBRARIES = 
 include_HEADERS = $(am__append_3)
 dist_ompidata_DATA = errhandler/help-mpi-errors.txt \
@@ -2884,7 +2947,7 @@ all: all-recursive
 
 .SUFFIXES:
 .SUFFIXES: .1 .1in .3 .3in .7 .7in .c .lo .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/class/Makefile.am $(srcdir)/attribute/Makefile.am $(srcdir)/communicator/Makefile.am $(srcdir)/dpm/Makefile.am $(srcdir)/errhandler/Makefile.am $(srcdir)/file/Makefile.am $(srcdir)/group/Makefile.am $(srcdir)/info/Makefile.am $(srcdir)/message/Makefile.am $(srcdir)/op/Makefile.am $(srcdir)/peruse/Makefile.am $(srcdir)/proc/Makefile.am $(srcdir)/request/Makefile.am $(srcdir)/runtime/Makefile.am $(srcdir)/win/Makefile.am $(srcdir)/tools/Makefile.am $(srcdir)/mpi/Makefile.am $(srcdir)/mpi/man/man3/Makefile.extra $(top_srcdir)/Makefile.ompi-rules $(srcdir)/mpiext/Makefile.am $(srcdir)/patterns/net/Makefile.am $(srcdir)/patterns/comm/Makefile.am $(srcdir)/mca/Makefile.am $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(srcdir)/class/Makefile.am $(srcdir)/attribute/Makefile.am $(srcdir)/communicator/Makefile.am $(srcdir)/dpm/Makefile.am $(srcdir)/errhandler/Makefile.am $(srcdir)/file/Makefile.am $(srcdir)/group/Makefile.am $(srcdir)/info/Makefile.am $(srcdir)/interlib/Makefile.am $(srcdir)/message/Makefile.am $(srcdir)/op/Makefile.am $(srcdir)/peruse/Makefile.am $(srcdir)/proc/Makefile.am $(srcdir)/request/Makefile.am $(srcdir)/runtime/Makefile.am $(srcdir)/win/Makefile.am $(srcdir)/tools/Makefile.am $(srcdir)/mpi/Makefile.am $(srcdir)/mpi/man/man3/Makefile.extra $(top_srcdir)/Makefile.ompi-rules $(srcdir)/mpiext/Makefile.am $(srcdir)/patterns/net/Makefile.am $(srcdir)/patterns/comm/Makefile.am $(srcdir)/mca/Makefile.am $(srcdir)/util/Makefile.am $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -2904,7 +2967,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
 	esac;
-$(srcdir)/class/Makefile.am $(srcdir)/attribute/Makefile.am $(srcdir)/communicator/Makefile.am $(srcdir)/dpm/Makefile.am $(srcdir)/errhandler/Makefile.am $(srcdir)/file/Makefile.am $(srcdir)/group/Makefile.am $(srcdir)/info/Makefile.am $(srcdir)/message/Makefile.am $(srcdir)/op/Makefile.am $(srcdir)/peruse/Makefile.am $(srcdir)/proc/Makefile.am $(srcdir)/request/Makefile.am $(srcdir)/runtime/Makefile.am $(srcdir)/win/Makefile.am $(srcdir)/tools/Makefile.am $(srcdir)/mpi/Makefile.am $(srcdir)/mpi/man/man3/Makefile.extra $(top_srcdir)/Makefile.ompi-rules $(srcdir)/mpiext/Makefile.am $(srcdir)/patterns/net/Makefile.am $(srcdir)/patterns/comm/Makefile.am $(srcdir)/mca/Makefile.am $(am__empty):
+$(srcdir)/class/Makefile.am $(srcdir)/attribute/Makefile.am $(srcdir)/communicator/Makefile.am $(srcdir)/dpm/Makefile.am $(srcdir)/errhandler/Makefile.am $(srcdir)/file/Makefile.am $(srcdir)/group/Makefile.am $(srcdir)/info/Makefile.am $(srcdir)/interlib/Makefile.am $(srcdir)/message/Makefile.am $(srcdir)/op/Makefile.am $(srcdir)/peruse/Makefile.am $(srcdir)/proc/Makefile.am $(srcdir)/request/Makefile.am $(srcdir)/runtime/Makefile.am $(srcdir)/win/Makefile.am $(srcdir)/tools/Makefile.am $(srcdir)/mpi/Makefile.am $(srcdir)/mpi/man/man3/Makefile.extra $(top_srcdir)/Makefile.ompi-rules $(srcdir)/mpiext/Makefile.am $(srcdir)/patterns/net/Makefile.am $(srcdir)/patterns/comm/Makefile.am $(srcdir)/mca/Makefile.am $(srcdir)/util/Makefile.am $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
@@ -3048,6 +3111,14 @@ info/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) info/$(DEPDIR)
 	@: > info/$(DEPDIR)/$(am__dirstamp)
 info/info.lo: info/$(am__dirstamp) info/$(DEPDIR)/$(am__dirstamp)
+interlib/$(am__dirstamp):
+	@$(MKDIR_P) interlib
+	@: > interlib/$(am__dirstamp)
+interlib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) interlib/$(DEPDIR)
+	@: > interlib/$(DEPDIR)/$(am__dirstamp)
+interlib/interlib.lo: interlib/$(am__dirstamp) \
+	interlib/$(DEPDIR)/$(am__dirstamp)
 message/$(am__dirstamp):
 	@$(MKDIR_P) message
 	@: > message/$(am__dirstamp)
@@ -3181,6 +3252,8 @@ mostlyclean-compile:
 	-rm -f group/*.lo
 	-rm -f info/*.$(OBJEXT)
 	-rm -f info/*.lo
+	-rm -f interlib/*.$(OBJEXT)
+	-rm -f interlib/*.lo
 	-rm -f message/*.$(OBJEXT)
 	-rm -f message/*.lo
 	-rm -f mpiext/*.$(OBJEXT)
@@ -3227,6 +3300,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@group/$(DEPDIR)/group_sporadic.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@group/$(DEPDIR)/group_strided.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@info/$(DEPDIR)/info.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@interlib/$(DEPDIR)/interlib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@message/$(DEPDIR)/message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@mpiext/$(DEPDIR)/mpiext.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@op/$(DEPDIR)/op.Plo@am__quote@
@@ -3291,6 +3365,7 @@ clean-libtool:
 	-rm -rf file/.libs file/_libs
 	-rm -rf group/.libs group/_libs
 	-rm -rf info/.libs info/_libs
+	-rm -rf interlib/.libs interlib/_libs
 	-rm -rf message/.libs message/_libs
 	-rm -rf mpiext/.libs mpiext/_libs
 	-rm -rf op/.libs op/_libs
@@ -3616,6 +3691,8 @@ distclean-generic:
 	-rm -f group/$(am__dirstamp)
 	-rm -f info/$(DEPDIR)/$(am__dirstamp)
 	-rm -f info/$(am__dirstamp)
+	-rm -f interlib/$(DEPDIR)/$(am__dirstamp)
+	-rm -f interlib/$(am__dirstamp)
 	-rm -f message/$(DEPDIR)/$(am__dirstamp)
 	-rm -f message/$(am__dirstamp)
 	-rm -f mpiext/$(DEPDIR)/$(am__dirstamp)
@@ -3646,7 +3723,7 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf attribute/$(DEPDIR) class/$(DEPDIR) communicator/$(DEPDIR) dpm/$(DEPDIR) errhandler/$(DEPDIR) file/$(DEPDIR) group/$(DEPDIR) info/$(DEPDIR) message/$(DEPDIR) mpiext/$(DEPDIR) op/$(DEPDIR) patterns/comm/$(DEPDIR) patterns/net/$(DEPDIR) peruse/$(DEPDIR) proc/$(DEPDIR) request/$(DEPDIR) runtime/$(DEPDIR) win/$(DEPDIR)
+	-rm -rf attribute/$(DEPDIR) class/$(DEPDIR) communicator/$(DEPDIR) dpm/$(DEPDIR) errhandler/$(DEPDIR) file/$(DEPDIR) group/$(DEPDIR) info/$(DEPDIR) interlib/$(DEPDIR) message/$(DEPDIR) mpiext/$(DEPDIR) op/$(DEPDIR) patterns/comm/$(DEPDIR) patterns/net/$(DEPDIR) peruse/$(DEPDIR) proc/$(DEPDIR) request/$(DEPDIR) runtime/$(DEPDIR) win/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-local distclean-tags
@@ -3693,7 +3770,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf attribute/$(DEPDIR) class/$(DEPDIR) communicator/$(DEPDIR) dpm/$(DEPDIR) errhandler/$(DEPDIR) file/$(DEPDIR) group/$(DEPDIR) info/$(DEPDIR) message/$(DEPDIR) mpiext/$(DEPDIR) op/$(DEPDIR) patterns/comm/$(DEPDIR) patterns/net/$(DEPDIR) peruse/$(DEPDIR) proc/$(DEPDIR) request/$(DEPDIR) runtime/$(DEPDIR) win/$(DEPDIR)
+	-rm -rf attribute/$(DEPDIR) class/$(DEPDIR) communicator/$(DEPDIR) dpm/$(DEPDIR) errhandler/$(DEPDIR) file/$(DEPDIR) group/$(DEPDIR) info/$(DEPDIR) interlib/$(DEPDIR) message/$(DEPDIR) mpiext/$(DEPDIR) op/$(DEPDIR) patterns/comm/$(DEPDIR) patterns/net/$(DEPDIR) peruse/$(DEPDIR) proc/$(DEPDIR) request/$(DEPDIR) runtime/$(DEPDIR) win/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

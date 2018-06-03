@@ -57,6 +57,7 @@
 #include "opal/mca/event/event.h"
 #include "opal/mca/installdirs/installdirs.h"
 #include "opal/mca/base/base.h"
+#include "opal/mca/pmix/pmix.h"
 #include "opal/util/argv.h"
 #include "opal/util/output.h"
 #include "opal/util/basename.h"
@@ -77,6 +78,7 @@
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/grpcomm/grpcomm.h"
 #include "orte/mca/odls/odls.h"
+#include "orte/mca/oob/base/base.h"
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/rml/base/rml_contact.h"
 #include "orte/mca/state/state.h"
@@ -99,11 +101,13 @@ static bool want_prefix_by_default = (bool) ORTE_WANT_ORTERUN_PREFIX_BY_DEFAULT;
 static struct {
     bool help;
     bool version;
-    char *report_uri;
     char *prefix;
     bool run_as_root;
     bool set_sid;
     bool daemonize;
+    bool system_server;
+    char *report_uri;
+    bool remote_connections;
 } myglobals;
 
 static opal_cmd_line_init_t cmd_line_init[] = {
@@ -114,10 +118,6 @@ static opal_cmd_line_init_t cmd_line_init[] = {
     { NULL, 'V', NULL, "version", 0,
       &myglobals.version, OPAL_CMD_LINE_TYPE_BOOL,
       "Print version and exit" },
-
-    { NULL, '\0', "report-uri", "report-uri", 1,
-      &myglobals.report_uri, OPAL_CMD_LINE_TYPE_STRING,
-      "Printout URI on stdout [-], stderr [+], or a file [anything else]" },
 
     { NULL, '\0', "prefix", "prefix", 1,
       &myglobals.prefix, OPAL_CMD_LINE_TYPE_STRING,
@@ -168,12 +168,23 @@ static opal_cmd_line_init_t cmd_line_init[] = {
       NULL, OPAL_CMD_LINE_TYPE_STRING,
       "List of hosts to invoke processes on" },
 
+    { NULL, '\0', "system-server", "system-server", 0,
+      &myglobals.system_server, OPAL_CMD_LINE_TYPE_BOOL,
+      "Provide a system-level server connection point - only one allowed per node" },
+
+    { NULL, '\0', "report-uri", "report-uri", 1,
+      &myglobals.report_uri, OPAL_CMD_LINE_TYPE_STRING,
+      "Printout URI on stdout [-], stderr [+], or a file [anything else]",
+      OPAL_CMD_LINE_OTYPE_DEBUG },
+
+    { NULL, '\0', "remote-tools", "remote-tools", 0,
+      &myglobals.remote_connections, OPAL_CMD_LINE_TYPE_BOOL,
+      "Enable connections from remote tools" },
+
     /* End of list */
     { NULL, '\0', NULL, NULL, 0,
       NULL, OPAL_CMD_LINE_TYPE_NULL, NULL }
 };
-
-static void notify_requestor(int sd, short args, void *cbdata);
 
 int main(int argc, char *argv[])
 {
@@ -182,7 +193,6 @@ int main(int argc, char *argv[])
     char *param, *value;
     orte_job_t *jdata=NULL;
     orte_app_context_t *app;
-    char *uri, *ptr;
 
     /* Setup and parse the command line */
     memset(&myglobals, 0, sizeof(myglobals));
@@ -284,6 +294,20 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+    if (myglobals.system_server) {
+        /* we should act as system-level PMIx server */
+        opal_setenv(OPAL_MCA_PREFIX"pmix_system_server", "1", true, &environ);
+    }
+    /* always act as session-level PMIx server */
+    opal_setenv(OPAL_MCA_PREFIX"pmix_session_server", "1", true, &environ);
+    /* if we were asked to report a uri, set the MCA param to do so */
+    if (NULL != myglobals.report_uri) {
+        opal_setenv("PMIX_MCA_ptl_tcp_report_uri", myglobals.report_uri, true, &environ);
+    }
+    if (myglobals.remote_connections) {
+        opal_setenv("PMIX_MCA_ptl_tcp_remote_connections", "1", true, &environ);
+    }
+
     /* Setup MCA params */
     orte_register_params();
 
@@ -323,43 +347,7 @@ int main(int argc, char *argv[])
      */
     opal_finalize();
 
-    /* check for request to report uri */
-    uri = orte_rml.get_contact_info();
-    if (NULL != myglobals.report_uri) {
-        FILE *fp;
-        if (0 == strcmp(myglobals.report_uri, "-")) {
-            /* if '-', then output to stdout */
-            printf("VMURI: %s\n", uri);
-        } else if (0 == strcmp(myglobals.report_uri, "+")) {
-            /* if '+', output to stderr */
-            fprintf(stderr, "VMURI: %s\n", uri);
-        } else if (0 == strncasecmp(myglobals.report_uri, "file:", strlen("file:"))) {
-            ptr = strchr(myglobals.report_uri, ':');
-            ++ptr;
-            fp = fopen(ptr, "w");
-            if (NULL == fp) {
-                orte_show_help("help-orterun.txt", "orterun:write_file", false,
-                               orte_basename, "pid", ptr);
-                exit(0);
-            }
-            fprintf(fp, "%s\n", uri);
-            fclose(fp);
-        } else {
-            fp = fopen(myglobals.report_uri, "w");
-            if (NULL == fp) {
-                orte_show_help("help-orterun.txt", "orterun:write_file", false,
-                               orte_basename, "pid", myglobals.report_uri);
-                exit(0);
-            }
-            fprintf(fp, "%s\n", uri);
-            fclose(fp);
-        }
-        free(uri);
-    } else {
-        printf("VMURI: %s\n", uri);
-    }
-
-    /* get the daemon job object - was created by ess/hnp component */
+     /* get the daemon job object - was created by ess/hnp component */
     if (NULL == (jdata = orte_get_job_data_object(ORTE_PROC_MY_NAME->jobid))) {
         orte_show_help("help-orterun.txt", "bad-job-object", true,
                        orte_basename);
@@ -474,15 +462,6 @@ int main(int argc, char *argv[])
     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DAEMON,
                             ORTE_RML_PERSISTENT, orte_daemon_recv, NULL);
 
-    /* override the notify_completed state so we can send a message
-     * back to anyone who submits a job to us telling them the job
-     * completed */
-    if (ORTE_SUCCESS != (rc = orte_state.set_job_state_callback(ORTE_JOB_STATE_NOTIFY_COMPLETED, notify_requestor))) {
-        ORTE_ERROR_LOG(rc);
-        ORTE_UPDATE_EXIT_STATUS(rc);
-        exit(orte_exit_status);
-    }
-
     /* spawn the DVM - we skip the initial steps as this
      * isn't a user-level application */
     ORTE_ACTIVATE_JOB_STATE(jdata, ORTE_JOB_STATE_ALLOCATE);
@@ -500,88 +479,4 @@ int main(int argc, char *argv[])
         fprintf(stderr, "exiting with status %d\n", orte_exit_status);
     }
     exit(orte_exit_status);
-}
-
-static void send_callback(int status, orte_process_name_t *peer,
-                          opal_buffer_t* buffer, orte_rml_tag_t tag,
-                          void* cbdata)
-
-{
-    orte_job_t *jdata = (orte_job_t*)cbdata;
-
-    OBJ_RELEASE(buffer);
-    /* cleanup the job object */
-    opal_hash_table_set_value_uint32(orte_job_data, jdata->jobid, NULL);
-    OBJ_RELEASE(jdata);
-}
-
-static void notify_requestor(int sd, short args, void *cbdata)
-{
-    orte_state_caddy_t *caddy = (orte_state_caddy_t*)cbdata;
-    orte_job_t *jdata = caddy->jdata;
-    orte_proc_t *pptr;
-    int ret, id, *idptr;
-    opal_buffer_t *reply;
-    orte_daemon_cmd_flag_t command;
-    orte_grpcomm_signature_t *sig;
-
-    /* notify the requestor */
-    reply = OBJ_NEW(opal_buffer_t);
-
-    /* see if there was any problem */
-    if (orte_get_attribute(&jdata->attributes, ORTE_JOB_ABORTED_PROC, (void**)&pptr, OPAL_PTR) && NULL != pptr) {
-        ret = pptr->exit_code;
-    /* or whether we got cancelled by the user */
-    } else if (orte_get_attribute(&jdata->attributes, ORTE_JOB_CANCELLED, NULL, OPAL_BOOL)) {
-        ret = ORTE_ERR_JOB_CANCELLED;
-    } else {
-        ret = 0;
-    }
-    /* return the completion status */
-    opal_dss.pack(reply, &ret, 1, OPAL_INT);
-
-    /* pack the jobid to be returned */
-    opal_dss.pack(reply, &jdata->jobid, 1, ORTE_JOBID);
-
-    /* return the tracker ID */
-    idptr = &id;
-    if (orte_get_attribute(&jdata->attributes, ORTE_JOB_ROOM_NUM, (void**)&idptr, OPAL_INT)) {
-        /* pack the sender's index to the tracking object */
-        opal_dss.pack(reply, idptr, 1, OPAL_INT);
-    }
-
-    /* if there was a problem, we need to send the requestor more info about what happened */
-    if (0 < ret) {
-        opal_dss.pack(reply, &jdata->state, 1, ORTE_JOB_STATE_T);
-        opal_dss.pack(reply, &pptr, 1, ORTE_PROC);
-        opal_dss.pack(reply, &pptr->node, 1, ORTE_NODE);
-    }
-
-    orte_rml.send_buffer_nb(orte_mgmt_conduit,
-                            &jdata->originator, reply,
-                            ORTE_RML_TAG_NOTIFY_COMPLETE,
-                            send_callback, jdata);
-
-    /* now ensure that _all_ daemons know that this job has terminated so even
-     * those that did not participate in it will know to cleanup the resources
-     * they assigned to the job. This is necessary now that the mapping function
-     * has been moved to the backend daemons - otherwise, non-participating daemons
-     * retain the slot assignments on the participating daemons, and then incorrectly
-     * map subsequent jobs thinking those nodes are still "busy" */
-    reply = OBJ_NEW(opal_buffer_t);
-    command = ORTE_DAEMON_DVM_CLEANUP_JOB_CMD;
-    opal_dss.pack(reply, &command, 1, ORTE_DAEMON_CMD);
-    opal_dss.pack(reply, &jdata->jobid, 1, ORTE_JOBID);
-    sig = OBJ_NEW(orte_grpcomm_signature_t);
-    sig->signature = (orte_process_name_t*)malloc(sizeof(orte_process_name_t));
-    sig->signature[0].jobid = ORTE_PROC_MY_NAME->jobid;
-    sig->signature[0].vpid = ORTE_VPID_WILDCARD;
-    orte_grpcomm.xcast(sig, ORTE_RML_TAG_DAEMON, reply);
-    OBJ_RELEASE(reply);
-    OBJ_RELEASE(sig);
-
-    /* we cannot cleanup the job object as we might
-     * hit an error during transmission, so clean it
-     * up in the send callback */
-    OBJ_RELEASE(caddy);
 }

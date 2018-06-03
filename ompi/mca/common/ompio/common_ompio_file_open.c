@@ -13,6 +13,7 @@
  * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2017      IBM Corporation. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -43,7 +44,7 @@
 int mca_common_ompio_file_open (ompi_communicator_t *comm,
                               const char *filename,
                               int amode,
-                              ompi_info_t *info,
+                              opal_info_t *info,
                               mca_io_ompio_file_t *ompio_fh, bool use_sharedfp)
 {
     int ret = OMPI_SUCCESS;
@@ -111,10 +112,13 @@ int mca_common_ompio_file_open (ompi_communicator_t *comm,
 
     /* This fix is needed for data seiving to work with
        two-phase collective I/O */
-     if ((amode & MPI_MODE_WRONLY)){
-       amode -= MPI_MODE_WRONLY;
-       amode += MPI_MODE_RDWR;
-     }
+    if ( !(amode & MPI_MODE_SEQUENTIAL) ) {
+        if ((amode & MPI_MODE_WRONLY)){
+            amode -= MPI_MODE_WRONLY;
+            amode += MPI_MODE_RDWR;
+        }
+    }
+
      /*--------------------------------------------------*/
 
 
@@ -129,11 +133,6 @@ int mca_common_ompio_file_open (ompi_communicator_t *comm,
         goto fn_fail;
     }
 
-    if (OMPI_SUCCESS != (ret = mca_fcoll_base_file_select (ompio_fh,
-                                                           NULL))) {
-        opal_output(1, "mca_fcoll_base_file_select() failed\n");
-        goto fn_fail;
-    }
 
     ompio_fh->f_sharedfp_component = NULL; /*component*/
     ompio_fh->f_sharedfp           = NULL; /*module*/
@@ -164,6 +163,12 @@ int mca_common_ompio_file_open (ompi_communicator_t *comm,
 #ifdef OMPIO_DEBUG
         opal_output(1, "fs_file failed, error code %d\n", ret);
 #endif
+        goto fn_fail;
+    }
+
+    if (OMPI_SUCCESS != (ret = mca_fcoll_base_file_select (ompio_fh,
+                                                           NULL))) {
+        opal_output(1, "mca_fcoll_base_file_select() failed\n");
         goto fn_fail;
     }
 
@@ -276,7 +281,7 @@ int mca_common_ompio_file_close (mca_io_ompio_file_t *ompio_fh)
 	ret = ompio_fh->f_fs->fs_file_close (ompio_fh);
     }
     if ( delete_flag && 0 == ompio_fh->f_rank ) {
-        mca_io_ompio_file_delete ( ompio_fh->f_filename, MPI_INFO_NULL );
+        mca_io_ompio_file_delete ( ompio_fh->f_filename, &(MPI_INFO_NULL->super) );
     }
 
     if ( NULL != ompio_fh->f_fs ) {
@@ -422,7 +427,7 @@ int mca_common_ompio_set_file_defaults (mca_io_ompio_file_t *fh)
 
         /* Default file View */
         fh->f_iov_type = MPI_DATATYPE_NULL;
-        fh->f_stripe_size = mca_io_ompio_bytes_per_agg;
+        fh->f_stripe_size = 0;
 	/*Decoded iovec of the file-view*/
 	fh->f_decoded_iov = NULL;
         fh->f_etype = NULL;

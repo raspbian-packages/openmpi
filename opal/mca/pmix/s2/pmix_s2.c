@@ -3,9 +3,9 @@
  * Copyright (c) 2007      The Trustees of Indiana University.
  *                         All rights reserved.
  * Copyright (c) 2011-2016 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2011-2013 Los Alamos National Security, LLC. All
+ * Copyright (c) 2011-2017 Los Alamos National Security, LLC. All
  *                         rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -175,6 +175,7 @@ static int s2_init(opal_list_t *ilist)
     opal_process_name_t wildcard_rank;
 
     if (0 < pmix_init_count) {
+        ++pmix_init_count;
         return OPAL_SUCCESS;
     }
 
@@ -194,6 +195,7 @@ static int s2_init(opal_list_t *ilist)
     }
     if( size < 0 || rank < 0 ){
         opal_show_help("help-pmix-base.txt", "pmix2-init-returned-bad-values", true);
+        ret = OPAL_ERR_BAD_PARAM;
         goto err_exit;
     }
 
@@ -217,6 +219,7 @@ static int s2_init(opal_list_t *ilist)
     if( PMI2_SUCCESS != rc ) {
         OPAL_PMI_ERROR(rc, "PMI2_Job_GetId");
         free(pmix_kvs_name);
+        ret = OPAL_ERR_BAD_PARAM;
         goto err_exit;
     }
 
@@ -227,7 +230,7 @@ static int s2_init(opal_list_t *ilist)
     s2_pname.jobid = strtoul(pmix_kvs_name, &str, 10);
     s2_pname.jobid = (s2_pname.jobid << 16) & 0xffff0000;
     if (NULL != str) {
-        stepid = strtoul(str, NULL, 10);
+        stepid = strtoul(str+1, NULL, 10);
         s2_pname.jobid |= (stepid & 0x0000ffff);
     }
     s2_pname.vpid = s2_rank;
@@ -261,8 +264,8 @@ static int s2_init(opal_list_t *ilist)
     kv.key = strdup(OPAL_PMIX_JOB_SIZE);
     kv.type = OPAL_UINT32;
     kv.data.uint32 = size;
-    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&wildcard_rank, &kv))) {
-        OPAL_ERROR_LOG(rc);
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&wildcard_rank, &kv))) {
+        OPAL_ERROR_LOG(ret);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
     }
@@ -283,6 +286,7 @@ static int s2_init(opal_list_t *ilist)
     rc = PMI2_Info_GetJobAttr("universeSize", buf, 16, &found);
     if( PMI2_SUCCESS != rc ) {
         OPAL_PMI_ERROR(rc, "PMI_Get_universe_size");
+        ret = OPAL_ERR_BAD_PARAM;
         goto err_exit;
     }
     /* save it */
@@ -290,8 +294,8 @@ static int s2_init(opal_list_t *ilist)
     kv.key = strdup(OPAL_PMIX_UNIV_SIZE);
     kv.type = OPAL_UINT32;
     kv.data.uint32 = atoi(buf);
-    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&wildcard_rank, &kv))) {
-        OPAL_ERROR_LOG(rc);
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&wildcard_rank, &kv))) {
+        OPAL_ERROR_LOG(ret);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
     }
@@ -310,22 +314,23 @@ static int s2_init(opal_list_t *ilist)
 
     char *pmapping = (char*)malloc(PMI2_MAX_VALLEN);
     if( pmapping == NULL ){
-        rc = OPAL_ERR_OUT_OF_RESOURCE;
-        OPAL_ERROR_LOG(rc);
-        return rc;
+        ret = OPAL_ERR_OUT_OF_RESOURCE;
+        OPAL_ERROR_LOG(ret);
+        goto err_exit;
     }
 
     rc = PMI2_Info_GetJobAttr("PMI_process_mapping", pmapping, PMI2_MAX_VALLEN, &found);
     if( !found || PMI2_SUCCESS != rc ) {
         OPAL_PMI_ERROR(rc,"PMI2_Info_GetJobAttr");
-        return OPAL_ERROR;
+        ret = OPAL_ERR_BAD_PARAM;
+        goto err_exit;
     }
 
     s2_lranks = mca_common_pmi2_parse_pmap(pmapping, s2_pname.vpid, &my_node, &s2_nlranks);
     if (NULL == s2_lranks) {
-        rc = OPAL_ERR_OUT_OF_RESOURCE;
-        OPAL_ERROR_LOG(rc);
-        return rc;
+        ret = OPAL_ERR_OUT_OF_RESOURCE;
+        OPAL_ERROR_LOG(ret);
+        goto err_exit;
     }
 
     free(pmapping);
@@ -335,8 +340,8 @@ static int s2_init(opal_list_t *ilist)
     kv.key = strdup(OPAL_PMIX_LOCAL_SIZE);
     kv.type = OPAL_UINT32;
     kv.data.uint32 = s2_nlranks;
-    if (OPAL_SUCCESS != (rc = opal_pmix_base_store(&wildcard_rank, &kv))) {
-        OPAL_ERROR_LOG(rc);
+    if (OPAL_SUCCESS != (ret = opal_pmix_base_store(&wildcard_rank, &kv))) {
+        OPAL_ERROR_LOG(ret);
         OBJ_DESTRUCT(&kv);
         goto err_exit;
     }
@@ -425,13 +430,13 @@ static int s2_fini(void) {
 
     if (0 == --pmix_init_count) {
         PMI2_Finalize();
-    }
-    if (NULL != pmix_kvs_name) {
-        free(pmix_kvs_name);
-        pmix_kvs_name = NULL;
-    }
-    if (NULL != s2_lranks) {
-        free(s2_lranks);
+        if (NULL != pmix_kvs_name) {
+            free(pmix_kvs_name);
+            pmix_kvs_name = NULL;
+        }
+        if (NULL != s2_lranks) {
+            free(s2_lranks);
+        }
     }
     return OPAL_SUCCESS;
 }

@@ -165,7 +165,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h
+CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h \
+	$(top_builddir)/include/pmix_common.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -197,7 +198,8 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(mcacomponentdir)"
 LTLIBRARIES = $(mcacomponent_LTLIBRARIES) $(noinst_LTLIBRARIES)
-libmca_psec_munge_la_LIBADD =
+am__DEPENDENCIES_1 =
+libmca_psec_munge_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__libmca_psec_munge_la_SOURCES_DIST = psec_munge.h \
 	psec_munge_component.c psec_munge.c
 am__objects_1 =
@@ -215,7 +217,7 @@ libmca_psec_munge_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_CFLAGS) $(CFLAGS) $(libmca_psec_munge_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
 @MCA_BUILD_pmix_psec_munge_DSO_FALSE@am_libmca_psec_munge_la_rpath =
-mca_psec_munge_la_LIBADD =
+mca_psec_munge_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__mca_psec_munge_la_SOURCES_DIST = psec_munge.h \
 	psec_munge_component.c psec_munge.c
 @MCA_BUILD_pmix_psec_munge_DSO_TRUE@am__objects_4 = $(am__objects_1) \
@@ -240,7 +242,7 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/include
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/include -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/./config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -353,6 +355,20 @@ MCA_pmix_FRAMEWORK_COMPONENT_ALL_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_ALL_SUB
 MCA_pmix_FRAMEWORK_COMPONENT_DSO_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_DSO_SUBDIRS@
 MCA_pmix_FRAMEWORK_COMPONENT_STATIC_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_STATIC_SUBDIRS@
 MCA_pmix_FRAMEWORK_LIBS = @MCA_pmix_FRAMEWORK_LIBS@
+MCA_pmix_bfrops_ALL_COMPONENTS = @MCA_pmix_bfrops_ALL_COMPONENTS@
+MCA_pmix_bfrops_ALL_SUBDIRS = @MCA_pmix_bfrops_ALL_SUBDIRS@
+MCA_pmix_bfrops_DSO_COMPONENTS = @MCA_pmix_bfrops_DSO_COMPONENTS@
+MCA_pmix_bfrops_DSO_SUBDIRS = @MCA_pmix_bfrops_DSO_SUBDIRS@
+MCA_pmix_bfrops_STATIC_COMPONENTS = @MCA_pmix_bfrops_STATIC_COMPONENTS@
+MCA_pmix_bfrops_STATIC_LTLIBS = @MCA_pmix_bfrops_STATIC_LTLIBS@
+MCA_pmix_bfrops_STATIC_SUBDIRS = @MCA_pmix_bfrops_STATIC_SUBDIRS@
+MCA_pmix_gds_ALL_COMPONENTS = @MCA_pmix_gds_ALL_COMPONENTS@
+MCA_pmix_gds_ALL_SUBDIRS = @MCA_pmix_gds_ALL_SUBDIRS@
+MCA_pmix_gds_DSO_COMPONENTS = @MCA_pmix_gds_DSO_COMPONENTS@
+MCA_pmix_gds_DSO_SUBDIRS = @MCA_pmix_gds_DSO_SUBDIRS@
+MCA_pmix_gds_STATIC_COMPONENTS = @MCA_pmix_gds_STATIC_COMPONENTS@
+MCA_pmix_gds_STATIC_LTLIBS = @MCA_pmix_gds_STATIC_LTLIBS@
+MCA_pmix_gds_STATIC_SUBDIRS = @MCA_pmix_gds_STATIC_SUBDIRS@
 MCA_pmix_pdl_ALL_COMPONENTS = @MCA_pmix_pdl_ALL_COMPONENTS@
 MCA_pmix_pdl_ALL_SUBDIRS = @MCA_pmix_pdl_ALL_SUBDIRS@
 MCA_pmix_pdl_DSO_COMPONENTS = @MCA_pmix_pdl_DSO_COMPONENTS@
@@ -381,6 +397,13 @@ MCA_pmix_pnet_DSO_SUBDIRS = @MCA_pmix_pnet_DSO_SUBDIRS@
 MCA_pmix_pnet_STATIC_COMPONENTS = @MCA_pmix_pnet_STATIC_COMPONENTS@
 MCA_pmix_pnet_STATIC_LTLIBS = @MCA_pmix_pnet_STATIC_LTLIBS@
 MCA_pmix_pnet_STATIC_SUBDIRS = @MCA_pmix_pnet_STATIC_SUBDIRS@
+MCA_pmix_preg_ALL_COMPONENTS = @MCA_pmix_preg_ALL_COMPONENTS@
+MCA_pmix_preg_ALL_SUBDIRS = @MCA_pmix_preg_ALL_SUBDIRS@
+MCA_pmix_preg_DSO_COMPONENTS = @MCA_pmix_preg_DSO_COMPONENTS@
+MCA_pmix_preg_DSO_SUBDIRS = @MCA_pmix_preg_DSO_SUBDIRS@
+MCA_pmix_preg_STATIC_COMPONENTS = @MCA_pmix_preg_STATIC_COMPONENTS@
+MCA_pmix_preg_STATIC_LTLIBS = @MCA_pmix_preg_STATIC_LTLIBS@
+MCA_pmix_preg_STATIC_SUBDIRS = @MCA_pmix_preg_STATIC_SUBDIRS@
 MCA_pmix_psec_ALL_COMPONENTS = @MCA_pmix_psec_ALL_COMPONENTS@
 MCA_pmix_psec_ALL_SUBDIRS = @MCA_pmix_psec_ALL_SUBDIRS@
 MCA_pmix_psec_DSO_COMPONENTS = @MCA_pmix_psec_DSO_COMPONENTS@
@@ -395,6 +418,13 @@ MCA_pmix_psensor_DSO_SUBDIRS = @MCA_pmix_psensor_DSO_SUBDIRS@
 MCA_pmix_psensor_STATIC_COMPONENTS = @MCA_pmix_psensor_STATIC_COMPONENTS@
 MCA_pmix_psensor_STATIC_LTLIBS = @MCA_pmix_psensor_STATIC_LTLIBS@
 MCA_pmix_psensor_STATIC_SUBDIRS = @MCA_pmix_psensor_STATIC_SUBDIRS@
+MCA_pmix_pshmem_ALL_COMPONENTS = @MCA_pmix_pshmem_ALL_COMPONENTS@
+MCA_pmix_pshmem_ALL_SUBDIRS = @MCA_pmix_pshmem_ALL_SUBDIRS@
+MCA_pmix_pshmem_DSO_COMPONENTS = @MCA_pmix_pshmem_DSO_COMPONENTS@
+MCA_pmix_pshmem_DSO_SUBDIRS = @MCA_pmix_pshmem_DSO_SUBDIRS@
+MCA_pmix_pshmem_STATIC_COMPONENTS = @MCA_pmix_pshmem_STATIC_COMPONENTS@
+MCA_pmix_pshmem_STATIC_LTLIBS = @MCA_pmix_pshmem_STATIC_LTLIBS@
+MCA_pmix_pshmem_STATIC_SUBDIRS = @MCA_pmix_pshmem_STATIC_SUBDIRS@
 MCA_pmix_ptl_ALL_COMPONENTS = @MCA_pmix_ptl_ALL_COMPONENTS@
 MCA_pmix_ptl_ALL_SUBDIRS = @MCA_pmix_ptl_ALL_SUBDIRS@
 MCA_pmix_ptl_DSO_COMPONENTS = @MCA_pmix_ptl_DSO_COMPONENTS@
@@ -441,6 +471,8 @@ PMIX_MINOR_VERSION = @PMIX_MINOR_VERSION@
 PMIX_RELEASE_DATE = @PMIX_RELEASE_DATE@
 PMIX_RELEASE_VERSION = @PMIX_RELEASE_VERSION@
 PMIX_RENAME = @PMIX_RENAME@
+PMIX_TOP_BUILDDIR = @PMIX_TOP_BUILDDIR@
+PMIX_TOP_SRCDIR = @PMIX_TOP_SRCDIR@
 PMIX_VERSION = @PMIX_VERSION@
 PMIX_top_builddir = @PMIX_top_builddir@
 PMIX_top_srcdir = @PMIX_top_srcdir@
@@ -487,6 +519,8 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libpmi2_so_version = @libpmi2_so_version@
+libpmi_so_version = @libpmi_so_version@
 libpmix_so_version = @libpmix_so_version@
 localedir = @localedir@
 localstatedir = @localstatedir@
@@ -526,6 +560,7 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AM_CPPFLAGS = $(psec_munge_CPPFLAGS)
 headers = psec_munge.h
 sources = \
         psec_munge_component.c \
@@ -546,10 +581,12 @@ sources = \
 mcacomponentdir = $(pmixlibdir)
 mcacomponent_LTLIBRARIES = $(component)
 mca_psec_munge_la_SOURCES = $(component_sources)
-mca_psec_munge_la_LDFLAGS = -module -avoid-version
+mca_psec_munge_la_LDFLAGS = -module -avoid-version $(psec_munge_LDFLAGS)
+mca_psec_munge_la_LIBADD = $(psec_munge_LIBS)
 noinst_LTLIBRARIES = $(lib)
 libmca_psec_munge_la_SOURCES = $(lib_sources)
-libmca_psec_munge_la_LDFLAGS = -module -avoid-version
+libmca_psec_munge_la_LDFLAGS = -module -avoid-version $(psec_munge_LDFLAGS)
+libmca_psec_munge_la_LIBADD = $(psec_munge_LIBS)
 all: all-am
 
 .SUFFIXES:

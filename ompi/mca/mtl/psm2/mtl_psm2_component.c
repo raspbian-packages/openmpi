@@ -85,8 +85,26 @@ mca_mtl_psm2_component_t mca_mtl_psm2_component = {
 };
 
 static int
+get_num_total_procs(int *out_ntp)
+{
+  *out_ntp = (int)ompi_process_info.num_procs;
+  return OMPI_SUCCESS;
+}
+
+static int
+get_num_local_procs(int *out_nlp)
+{
+    /* num_local_peers does not include us in
+     * its calculation, so adjust for that */
+    *out_nlp = (int)(1 + ompi_process_info.num_local_peers);
+    return OMPI_SUCCESS;
+}
+
+static int
 ompi_mtl_psm2_component_register(void)
 {
+    int num_local_procs, num_total_procs;
+
     ompi_mtl_psm2.connect_timeout = 180;
     (void) mca_base_component_var_register(&mca_mtl_psm2_component.super.mtl_version,
                                            "connect_timeout",
@@ -96,8 +114,19 @@ ompi_mtl_psm2_component_register(void)
                                            MCA_BASE_VAR_SCOPE_READONLY,
                                            &ompi_mtl_psm2.connect_timeout);
 
+
+    (void) get_num_local_procs(&num_local_procs);
+    (void) get_num_total_procs(&num_total_procs);
+
     /* set priority high enough to beat ob1's default (also set higher than psm) */
-    param_priority = 40;
+    if (num_local_procs == num_total_procs) {
+        /* disable hfi if all processes are local */
+        setenv("PSM2_DEVICES", "self,shm", 0);
+        /* ob1 is much faster than psm2 with shared memory */
+        param_priority = 10;
+    } else {
+        param_priority = 40;
+    }
 
     (void) mca_base_component_var_register (&mca_mtl_psm2_component.super.mtl_version,
                                             "priority", "Priority of the PSM2 MTL component",
@@ -105,6 +134,8 @@ ompi_mtl_psm2_component_register(void)
                                             OPAL_INFO_LVL_9,
                                             MCA_BASE_VAR_SCOPE_READONLY,
                                             &param_priority);
+
+    ompi_mtl_psm2_register_pvars();
 
     return OMPI_SUCCESS;
 }
@@ -185,22 +216,6 @@ ompi_mtl_psm2_component_close(void)
 }
 
 static int
-get_num_total_procs(int *out_ntp)
-{
-  *out_ntp = (int)ompi_process_info.num_procs;
-  return OMPI_SUCCESS;
-}
-
-static int
-get_num_local_procs(int *out_nlp)
-{
-    /* num_local_peers does not include us in
-     * its calculation, so adjust for that */
-    *out_nlp = (int)(1 + ompi_process_info.num_local_peers);
-    return OMPI_SUCCESS;
-}
-
-static int
 get_local_rank(int *out_rank)
 {
     ompi_node_rank_t my_node_rank;
@@ -223,7 +238,6 @@ ompi_mtl_psm2_component_init(bool enable_progress_threads,
     int	verno_major = PSM2_VERNO_MAJOR;
     int verno_minor = PSM2_VERNO_MINOR;
     int local_rank = -1, num_local_procs = 0;
-    int num_total_procs = 0;
 #if OPAL_CUDA_SUPPORT
     int ret;
     char *cuda_env;
@@ -243,11 +257,6 @@ ompi_mtl_psm2_component_init(bool enable_progress_threads,
         opal_output(0, "Cannot determine local rank. Cannot continue.\n");
         return NULL;
     }
-    if (OMPI_SUCCESS != get_num_total_procs(&num_total_procs)) {
-        opal_output(0, "Cannot determine total number of processes. "
-                    "Cannot continue.\n");
-        return NULL;
-    }
 
     err = psm2_error_register_handler(NULL /* no ep */,
 			             PSM2_ERRHANDLER_NOP);
@@ -255,10 +264,6 @@ ompi_mtl_psm2_component_init(bool enable_progress_threads,
         opal_output(0, "Error in psm2_error_register_handler (error %s)\n",
 		    psm2_error_get_string(err));
 	return NULL;
-    }
-
-    if (num_local_procs == num_total_procs) {
-      setenv("PSM2_DEVICES", "self,shm", 0);
     }
 
 #if OPAL_CUDA_SUPPORT

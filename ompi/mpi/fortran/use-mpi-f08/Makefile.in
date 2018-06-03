@@ -127,131 +127,7 @@ target_triplet = @target@
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	sizeof_f08.h \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	sizeof_f08.f90 \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psizeof_f08.f90
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__append_5 = \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_call_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_close_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_create_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_delete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_amode_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_atomicity_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_byte_offset_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_position_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_position_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_type_extent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_view_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_open_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_preallocate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_ordered_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_ordered_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_ordered_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_seek_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_seek_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_atomicity_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_view_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_sync_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_ordered_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_ordered_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_ordered_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        register_datarep_f08.F90
-
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__append_6 = \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_call_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_close_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_create_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_delete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_amode_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_atomicity_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_byte_offset_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_position_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_position_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_type_extent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_get_view_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iread_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iread_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iread_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iread_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iread_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iwrite_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iwrite_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iwrite_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iwrite_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_iwrite_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_open_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_preallocate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_at_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_at_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_ordered_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_ordered_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_ordered_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_read_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_seek_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_seek_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_set_atomicity_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_set_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_set_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_set_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_set_view_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_sync_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_at_all_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_at_all_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_at_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_at_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_ordered_begin_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_ordered_end_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_ordered_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pfile_write_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        profile/pregister_datarep_f08.F90
-
-@BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__append_7 = \
+@BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__append_5 = \
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        sizeof_f08.h \
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        sizeof_f08.f90 \
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/psizeof_f08.f90
@@ -330,9 +206,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -398,7 +274,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -452,6 +328,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -481,6 +358,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -492,16 +370,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -517,10 +396,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -619,7 +501,37 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	dist_graph_neighbors_f08.F90 dims_create_f08.F90 \
 	errhandler_free_f08.F90 error_class_f08.F90 \
 	error_string_f08.F90 exscan_f08.F90 f_sync_reg_f08.F90 \
-	fetch_and_op_f08.F90 finalized_f08.F90 finalize_f08.F90 \
+	fetch_and_op_f08.F90 file_call_errhandler_f08.F90 \
+	file_close_f08.F90 file_create_errhandler_f08.F90 \
+	file_delete_f08.F90 file_get_amode_f08.F90 \
+	file_get_atomicity_f08.F90 file_get_byte_offset_f08.F90 \
+	file_get_errhandler_f08.F90 file_get_group_f08.F90 \
+	file_get_info_f08.F90 file_get_position_f08.F90 \
+	file_get_position_shared_f08.F90 file_get_size_f08.F90 \
+	file_get_type_extent_f08.F90 file_get_view_f08.F90 \
+	file_iread_at_f08.F90 file_iread_f08.F90 \
+	file_iread_at_all_f08.F90 file_iread_all_f08.F90 \
+	file_iread_shared_f08.F90 file_iwrite_at_f08.F90 \
+	file_iwrite_f08.F90 file_iwrite_at_all_f08.F90 \
+	file_iwrite_all_f08.F90 file_iwrite_shared_f08.F90 \
+	file_open_f08.F90 file_preallocate_f08.F90 \
+	file_read_all_begin_f08.F90 file_read_all_end_f08.F90 \
+	file_read_all_f08.F90 file_read_at_all_begin_f08.F90 \
+	file_read_at_all_end_f08.F90 file_read_at_all_f08.F90 \
+	file_read_at_f08.F90 file_read_f08.F90 \
+	file_read_ordered_begin_f08.F90 file_read_ordered_end_f08.F90 \
+	file_read_ordered_f08.F90 file_read_shared_f08.F90 \
+	file_seek_f08.F90 file_seek_shared_f08.F90 \
+	file_set_atomicity_f08.F90 file_set_errhandler_f08.F90 \
+	file_set_info_f08.F90 file_set_size_f08.F90 \
+	file_set_view_f08.F90 file_sync_f08.F90 \
+	file_write_all_begin_f08.F90 file_write_all_end_f08.F90 \
+	file_write_all_f08.F90 file_write_at_all_begin_f08.F90 \
+	file_write_at_all_end_f08.F90 file_write_at_all_f08.F90 \
+	file_write_at_f08.F90 file_write_f08.F90 \
+	file_write_ordered_begin_f08.F90 \
+	file_write_ordered_end_f08.F90 file_write_ordered_f08.F90 \
+	file_write_shared_f08.F90 finalized_f08.F90 finalize_f08.F90 \
 	free_mem_f08.F90 gather_f08.F90 gatherv_f08.F90 \
 	get_accumulate_f08.F90 get_address_f08.F90 get_count_f08.F90 \
 	get_elements_f08.F90 get_elements_x_f08.F90 get_f08.F90 \
@@ -660,8 +572,8 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	put_f08.F90 query_thread_f08.F90 raccumulate_f08.F90 \
 	recv_f08.F90 recv_init_f08.F90 reduce_f08.F90 \
 	reduce_local_f08.F90 reduce_scatter_f08.F90 \
-	reduce_scatter_block_f08.F90 request_free_f08.F90 \
-	request_get_status_f08.F90 rget_f08.F90 \
+	reduce_scatter_block_f08.F90 register_datarep_f08.F90 \
+	request_free_f08.F90 request_get_status_f08.F90 rget_f08.F90 \
 	rget_accumulate_f08.F90 rput_f08.F90 rsend_f08.F90 \
 	rsend_init_f08.F90 scan_f08.F90 scatter_f08.F90 \
 	scatterv_f08.F90 send_f08.F90 send_init_f08.F90 \
@@ -704,36 +616,6 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	win_set_name_f08.F90 win_shared_query_f08.F90 \
 	win_start_f08.F90 win_sync_f08.F90 win_test_f08.F90 \
 	win_unlock_f08.F90 win_unlock_all_f08.F90 win_wait_f08.F90 \
-	file_call_errhandler_f08.F90 file_close_f08.F90 \
-	file_create_errhandler_f08.F90 file_delete_f08.F90 \
-	file_get_amode_f08.F90 file_get_atomicity_f08.F90 \
-	file_get_byte_offset_f08.F90 file_get_errhandler_f08.F90 \
-	file_get_group_f08.F90 file_get_info_f08.F90 \
-	file_get_position_f08.F90 file_get_position_shared_f08.F90 \
-	file_get_size_f08.F90 file_get_type_extent_f08.F90 \
-	file_get_view_f08.F90 file_iread_at_f08.F90 file_iread_f08.F90 \
-	file_iread_at_all_f08.F90 file_iread_all_f08.F90 \
-	file_iread_shared_f08.F90 file_iwrite_at_f08.F90 \
-	file_iwrite_f08.F90 file_iwrite_at_all_f08.F90 \
-	file_iwrite_all_f08.F90 file_iwrite_shared_f08.F90 \
-	file_open_f08.F90 file_preallocate_f08.F90 \
-	file_read_all_begin_f08.F90 file_read_all_end_f08.F90 \
-	file_read_all_f08.F90 file_read_at_all_begin_f08.F90 \
-	file_read_at_all_end_f08.F90 file_read_at_all_f08.F90 \
-	file_read_at_f08.F90 file_read_f08.F90 \
-	file_read_ordered_begin_f08.F90 file_read_ordered_end_f08.F90 \
-	file_read_ordered_f08.F90 file_read_shared_f08.F90 \
-	file_seek_f08.F90 file_seek_shared_f08.F90 \
-	file_set_atomicity_f08.F90 file_set_errhandler_f08.F90 \
-	file_set_info_f08.F90 file_set_size_f08.F90 \
-	file_set_view_f08.F90 file_sync_f08.F90 \
-	file_write_all_begin_f08.F90 file_write_all_end_f08.F90 \
-	file_write_all_f08.F90 file_write_at_all_begin_f08.F90 \
-	file_write_at_all_end_f08.F90 file_write_at_all_f08.F90 \
-	file_write_at_f08.F90 file_write_f08.F90 \
-	file_write_ordered_begin_f08.F90 \
-	file_write_ordered_end_f08.F90 file_write_ordered_f08.F90 \
-	file_write_shared_f08.F90 register_datarep_f08.F90 \
 	profile/pabort_f08.F90 profile/paccumulate_f08.F90 \
 	profile/padd_error_class_f08.F90 \
 	profile/padd_error_code_f08.F90 \
@@ -783,12 +665,60 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	profile/perrhandler_free_f08.F90 profile/perror_class_f08.F90 \
 	profile/perror_string_f08.F90 profile/pexscan_f08.F90 \
 	profile/pf_sync_reg_f08.F90 profile/pfetch_and_op_f08.F90 \
-	profile/pfinalized_f08.F90 profile/pfinalize_f08.F90 \
-	profile/pfree_mem_f08.F90 profile/pgather_f08.F90 \
-	profile/pgatherv_f08.F90 profile/pget_accumulate_f08.F90 \
-	profile/pget_address_f08.F90 profile/pget_count_f08.F90 \
-	profile/pget_elements_f08.F90 profile/pget_elements_x_f08.F90 \
-	profile/pget_f08.F90 profile/pget_library_version_f08.F90 \
+	profile/pfile_call_errhandler_f08.F90 \
+	profile/pfile_close_f08.F90 \
+	profile/pfile_create_errhandler_f08.F90 \
+	profile/pfile_delete_f08.F90 profile/pfile_get_amode_f08.F90 \
+	profile/pfile_get_atomicity_f08.F90 \
+	profile/pfile_get_byte_offset_f08.F90 \
+	profile/pfile_get_errhandler_f08.F90 \
+	profile/pfile_get_group_f08.F90 profile/pfile_get_info_f08.F90 \
+	profile/pfile_get_position_f08.F90 \
+	profile/pfile_get_position_shared_f08.F90 \
+	profile/pfile_get_size_f08.F90 \
+	profile/pfile_get_type_extent_f08.F90 \
+	profile/pfile_get_view_f08.F90 profile/pfile_iread_at_f08.F90 \
+	profile/pfile_iread_f08.F90 profile/pfile_iread_at_all_f08.F90 \
+	profile/pfile_iread_all_f08.F90 \
+	profile/pfile_iread_shared_f08.F90 \
+	profile/pfile_iwrite_at_f08.F90 profile/pfile_iwrite_f08.F90 \
+	profile/pfile_iwrite_at_all_f08.F90 \
+	profile/pfile_iwrite_all_f08.F90 \
+	profile/pfile_iwrite_shared_f08.F90 profile/pfile_open_f08.F90 \
+	profile/pfile_preallocate_f08.F90 \
+	profile/pfile_read_all_begin_f08.F90 \
+	profile/pfile_read_all_end_f08.F90 \
+	profile/pfile_read_all_f08.F90 \
+	profile/pfile_read_at_all_begin_f08.F90 \
+	profile/pfile_read_at_all_end_f08.F90 \
+	profile/pfile_read_at_all_f08.F90 \
+	profile/pfile_read_at_f08.F90 profile/pfile_read_f08.F90 \
+	profile/pfile_read_ordered_begin_f08.F90 \
+	profile/pfile_read_ordered_end_f08.F90 \
+	profile/pfile_read_ordered_f08.F90 \
+	profile/pfile_read_shared_f08.F90 profile/pfile_seek_f08.F90 \
+	profile/pfile_seek_shared_f08.F90 \
+	profile/pfile_set_atomicity_f08.F90 \
+	profile/pfile_set_errhandler_f08.F90 \
+	profile/pfile_set_info_f08.F90 profile/pfile_set_size_f08.F90 \
+	profile/pfile_set_view_f08.F90 profile/pfile_sync_f08.F90 \
+	profile/pfile_write_all_begin_f08.F90 \
+	profile/pfile_write_all_end_f08.F90 \
+	profile/pfile_write_all_f08.F90 \
+	profile/pfile_write_at_all_begin_f08.F90 \
+	profile/pfile_write_at_all_end_f08.F90 \
+	profile/pfile_write_at_all_f08.F90 \
+	profile/pfile_write_at_f08.F90 profile/pfile_write_f08.F90 \
+	profile/pfile_write_ordered_begin_f08.F90 \
+	profile/pfile_write_ordered_end_f08.F90 \
+	profile/pfile_write_ordered_f08.F90 \
+	profile/pfile_write_shared_f08.F90 profile/pfinalized_f08.F90 \
+	profile/pfinalize_f08.F90 profile/pfree_mem_f08.F90 \
+	profile/pgather_f08.F90 profile/pgatherv_f08.F90 \
+	profile/pget_accumulate_f08.F90 profile/pget_address_f08.F90 \
+	profile/pget_count_f08.F90 profile/pget_elements_f08.F90 \
+	profile/pget_elements_x_f08.F90 profile/pget_f08.F90 \
+	profile/pget_library_version_f08.F90 \
 	profile/pget_processor_name_f08.F90 \
 	profile/pget_version_f08.F90 profile/pgraph_create_f08.F90 \
 	profile/pgraphdims_get_f08.F90 profile/pgraph_get_f08.F90 \
@@ -847,6 +777,7 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	profile/precv_init_f08.F90 profile/preduce_f08.F90 \
 	profile/preduce_local_f08.F90 profile/preduce_scatter_f08.F90 \
 	profile/preduce_scatter_block_f08.F90 \
+	profile/pregister_datarep_f08.F90 \
 	profile/prequest_free_f08.F90 \
 	profile/prequest_get_status_f08.F90 profile/prget_f08.F90 \
 	profile/prget_accumulate_f08.F90 profile/prput_f08.F90 \
@@ -916,119 +847,10 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	profile/pwin_shared_query_f08.F90 profile/pwin_start_f08.F90 \
 	profile/pwin_sync_f08.F90 profile/pwin_test_f08.F90 \
 	profile/pwin_unlock_f08.F90 profile/pwin_unlock_all_f08.F90 \
-	profile/pwin_wait_f08.F90 \
-	profile/pfile_call_errhandler_f08.F90 \
-	profile/pfile_close_f08.F90 \
-	profile/pfile_create_errhandler_f08.F90 \
-	profile/pfile_delete_f08.F90 profile/pfile_get_amode_f08.F90 \
-	profile/pfile_get_atomicity_f08.F90 \
-	profile/pfile_get_byte_offset_f08.F90 \
-	profile/pfile_get_errhandler_f08.F90 \
-	profile/pfile_get_group_f08.F90 profile/pfile_get_info_f08.F90 \
-	profile/pfile_get_position_f08.F90 \
-	profile/pfile_get_position_shared_f08.F90 \
-	profile/pfile_get_size_f08.F90 \
-	profile/pfile_get_type_extent_f08.F90 \
-	profile/pfile_get_view_f08.F90 profile/pfile_iread_at_f08.F90 \
-	profile/pfile_iread_f08.F90 profile/pfile_iread_at_all_f08.F90 \
-	profile/pfile_iread_all_f08.F90 \
-	profile/pfile_iread_shared_f08.F90 \
-	profile/pfile_iwrite_at_f08.F90 profile/pfile_iwrite_f08.F90 \
-	profile/pfile_iwrite_at_all_f08.F90 \
-	profile/pfile_iwrite_all_f08.F90 \
-	profile/pfile_iwrite_shared_f08.F90 profile/pfile_open_f08.F90 \
-	profile/pfile_preallocate_f08.F90 \
-	profile/pfile_read_all_begin_f08.F90 \
-	profile/pfile_read_all_end_f08.F90 \
-	profile/pfile_read_all_f08.F90 \
-	profile/pfile_read_at_all_begin_f08.F90 \
-	profile/pfile_read_at_all_end_f08.F90 \
-	profile/pfile_read_at_all_f08.F90 \
-	profile/pfile_read_at_f08.F90 profile/pfile_read_f08.F90 \
-	profile/pfile_read_ordered_begin_f08.F90 \
-	profile/pfile_read_ordered_end_f08.F90 \
-	profile/pfile_read_ordered_f08.F90 \
-	profile/pfile_read_shared_f08.F90 profile/pfile_seek_f08.F90 \
-	profile/pfile_seek_shared_f08.F90 \
-	profile/pfile_set_atomicity_f08.F90 \
-	profile/pfile_set_errhandler_f08.F90 \
-	profile/pfile_set_info_f08.F90 profile/pfile_set_size_f08.F90 \
-	profile/pfile_set_view_f08.F90 profile/pfile_sync_f08.F90 \
-	profile/pfile_write_all_begin_f08.F90 \
-	profile/pfile_write_all_end_f08.F90 \
-	profile/pfile_write_all_f08.F90 \
-	profile/pfile_write_at_all_begin_f08.F90 \
-	profile/pfile_write_at_all_end_f08.F90 \
-	profile/pfile_write_at_all_f08.F90 \
-	profile/pfile_write_at_f08.F90 profile/pfile_write_f08.F90 \
-	profile/pfile_write_ordered_begin_f08.F90 \
-	profile/pfile_write_ordered_end_f08.F90 \
-	profile/pfile_write_ordered_f08.F90 \
-	profile/pfile_write_shared_f08.F90 \
-	profile/pregister_datarep_f08.F90 mpi-f-interfaces-bind.h \
+	profile/pwin_wait_f08.F90 mpi-f-interfaces-bind.h \
 	pmpi-f-interfaces-bind.h mpi-f08.F90 buffer_detach.c \
 	constants.h constants.c
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__objects_1 = file_call_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_close_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_create_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_delete_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_amode_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_atomicity_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_byte_offset_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_group_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_info_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_position_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_position_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_size_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_type_extent_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_view_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_open_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_preallocate_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_ordered_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_ordered_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_ordered_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_seek_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_seek_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_atomicity_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_info_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_size_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_view_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_sync_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_ordered_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_ordered_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_ordered_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	register_datarep_f08.lo
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_2 =  \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_1 =  \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	abort_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	accumulate_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	add_error_class_f08.lo \
@@ -1106,6 +928,65 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	exscan_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	f_sync_reg_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	fetch_and_op_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_call_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_close_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_create_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_delete_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_amode_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_atomicity_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_byte_offset_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_group_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_info_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_position_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_position_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_size_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_type_extent_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_get_view_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iread_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iread_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iread_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iread_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iread_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iwrite_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iwrite_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iwrite_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iwrite_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_iwrite_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_open_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_preallocate_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_at_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_at_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_ordered_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_ordered_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_ordered_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_read_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_seek_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_seek_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_set_atomicity_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_set_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_set_info_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_set_size_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_set_view_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_sync_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_at_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_at_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_ordered_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_ordered_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_ordered_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	file_write_shared_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	finalized_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	finalize_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	free_mem_f08.lo \
@@ -1213,6 +1094,7 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_local_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_scatter_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_scatter_block_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	register_datarep_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	request_free_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	request_get_status_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	rget_f08.lo \
@@ -1316,70 +1198,9 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_test_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_unlock_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_unlock_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_wait_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_1)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_wait_f08.lo
 am__dirstamp = $(am__leading_dot)dirstamp
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__objects_3 = profile/pfile_call_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_close_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_create_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_delete_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_amode_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_atomicity_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_byte_offset_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_group_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_info_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_position_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_position_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_size_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_type_extent_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_get_view_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iread_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iread_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iread_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iread_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iread_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iwrite_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iwrite_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iwrite_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iwrite_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_iwrite_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_open_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_preallocate_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_at_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_at_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_ordered_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_ordered_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_ordered_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_read_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_seek_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_seek_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_set_atomicity_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_set_errhandler_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_set_info_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_set_size_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_set_view_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_sync_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_at_all_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_at_all_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_at_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_at_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_ordered_begin_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_ordered_end_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_ordered_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pfile_write_shared_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	profile/pregister_datarep_f08.lo
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_4 = profile/pabort_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_2 = profile/pabort_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/paccumulate_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/padd_error_class_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/padd_error_code_f08.lo \
@@ -1456,6 +1277,65 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pexscan_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pf_sync_reg_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfetch_and_op_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_call_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_close_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_create_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_delete_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_amode_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_atomicity_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_byte_offset_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_group_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_info_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_position_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_position_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_size_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_type_extent_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_get_view_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iread_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iread_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iread_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iread_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iread_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iwrite_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iwrite_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iwrite_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iwrite_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_iwrite_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_open_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_preallocate_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_at_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_at_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_ordered_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_ordered_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_ordered_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_read_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_seek_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_seek_shared_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_set_atomicity_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_set_errhandler_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_set_info_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_set_size_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_set_view_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_sync_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_at_all_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_at_all_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_at_all_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_at_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_ordered_begin_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_ordered_end_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_ordered_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfile_write_shared_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfinalized_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfinalize_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfree_mem_f08.lo \
@@ -1563,6 +1443,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_local_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_scatter_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_scatter_block_f08.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pregister_datarep_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prequest_free_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prequest_get_status_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prget_f08.lo \
@@ -1666,18 +1547,17 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_test_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_unlock_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_unlock_all_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_wait_f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_3)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_wait_f08.lo
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am_lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS =  \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_1) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_2) \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_4) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	mpi-f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	buffer_detach.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	constants.lo
-@BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_5 = sizeof_f08.lo \
+@BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_3 = sizeof_f08.lo \
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psizeof_f08.lo
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@nodist_lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS =  \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_5)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_3)
 lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS =  \
 	$(am_lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS) \
 	$(nodist_lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS)
@@ -1873,6 +1753,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -2155,6 +2036,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -2259,6 +2147,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -2489,8 +2384,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -2498,7 +2391,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -2545,7 +2437,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -2763,9 +2654,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -2814,9 +2706,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -2850,6 +2742,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -2863,6 +2758,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -2985,590 +2883,711 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 # configure tests.
 #
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@sizeof_pl = $(top_srcdir)/ompi/mpi/fortran/base/gen-mpi-sizeof.pl
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@mpi_api_files =  \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	abort_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	accumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	add_error_class_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	add_error_code_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	add_error_string_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	aint_add_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	aint_diff_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	allgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	allgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	alloc_mem_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	allreduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	alltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	alltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	alltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	barrier_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	bcast_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	bsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	bsend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	buffer_attach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	buffer_detach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cancel_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_coords_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cartdim_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_map_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_rank_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_shift_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	cart_sub_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	close_port_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_accept_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_call_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_compare_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_connect_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_create_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_create_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_create_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_delete_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_disconnect_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_dup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_dup_with_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_idup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_free_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_get_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_get_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_get_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_get_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_get_parent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_join_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_rank_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_remote_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_remote_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_set_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_set_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_set_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_set_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_spawn_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_spawn_multiple_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_split_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_split_type_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	comm_test_inter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	compare_and_swap_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	dist_graph_create_adjacent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	dist_graph_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	dist_graph_neighbors_count_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	dist_graph_neighbors_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	dims_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	errhandler_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	error_class_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	error_string_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	exscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	f_sync_reg_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	fetch_and_op_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	finalized_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	finalize_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	free_mem_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	gather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	gatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_accumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_address_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_count_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_elements_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_elements_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_library_version_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_processor_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	get_version_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	graph_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	graphdims_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	graph_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	graph_map_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	graph_neighbors_count_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	graph_neighbors_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	grequest_complete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	grequest_start_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_compare_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_difference_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_excl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_incl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_intersection_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_range_excl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_range_incl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_rank_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_translate_ranks_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	group_union_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iallgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iallgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iallreduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ialltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ialltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ialltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ibarrier_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ibcast_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ibsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iexscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	igather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	igatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	improbe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	imrecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ineighbor_allgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ineighbor_allgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ineighbor_alltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ineighbor_alltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ineighbor_alltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_delete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_dup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_get_nkeys_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_get_nthkey_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_get_valuelen_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	info_set_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	initialized_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	init_thread_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	intercomm_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	intercomm_merge_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iprobe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	irecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ireduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ireduce_scatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ireduce_scatter_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	irsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iscatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	iscatterv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	isend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	issend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	is_thread_main_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	lookup_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	mprobe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	mrecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	neighbor_allgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	neighbor_allgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	neighbor_alltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	neighbor_alltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	neighbor_alltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	op_commutative_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	op_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	open_port_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	op_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	pack_external_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	pack_external_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	pack_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	pack_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	pcontrol_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	probe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	publish_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	put_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	query_thread_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	raccumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	recv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	recv_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_local_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_scatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	reduce_scatter_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	request_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	request_get_status_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	rget_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	rget_accumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	rput_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	rsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	rsend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	scan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	scatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	scatterv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	send_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	send_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	sendrecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	sendrecv_replace_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ssend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	ssend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	startall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	start_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	status_set_cancelled_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	status_set_elements_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	status_set_elements_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	testall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	testany_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	test_cancelled_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	test_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	testsome_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	topo_test_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_commit_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_contiguous_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_darray_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_f90_complex_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_f90_integer_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_f90_real_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_hindexed_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_hvector_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_indexed_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_hindexed_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_resized_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_struct_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_create_subarray_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_delete_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_dup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_free_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_contents_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_envelope_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_extent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_extent_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_true_extent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_get_true_extent_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_indexed_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_match_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_set_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_set_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_size_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	type_vector_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	unpack_external_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	unpack_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	unpublish_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	waitall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	waitany_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	wait_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	waitsome_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_allocate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_allocate_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_attach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_call_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_complete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_create_dynamic_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_create_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_create_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_delete_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_detach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_fence_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_flush_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_flush_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_flush_local_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_flush_local_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_free_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_get_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_get_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_get_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_get_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_get_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_lock_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_lock_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_post_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_set_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_set_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_set_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_set_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_shared_query_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_start_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_sync_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_test_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_unlock_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_unlock_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	win_wait_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__append_5)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@mpi_api_files = \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        abort_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        accumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        add_error_class_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        add_error_code_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        add_error_string_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        aint_add_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        aint_diff_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        allgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        allgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        alloc_mem_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        allreduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        alltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        alltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        alltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        barrier_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        bcast_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        bsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        bsend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        buffer_attach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        buffer_detach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cancel_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_coords_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cartdim_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_map_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_rank_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_shift_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        cart_sub_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        close_port_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_accept_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_call_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_compare_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_connect_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_create_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_create_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_create_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_delete_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_disconnect_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_dup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_dup_with_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_idup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_free_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_get_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_get_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_get_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_get_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_get_parent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_join_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_rank_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_remote_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_remote_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_set_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_set_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_set_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_set_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_spawn_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_spawn_multiple_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_split_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_split_type_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        comm_test_inter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        compare_and_swap_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        dist_graph_create_adjacent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        dist_graph_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        dist_graph_neighbors_count_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        dist_graph_neighbors_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        dims_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        errhandler_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        error_class_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        error_string_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        exscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        f_sync_reg_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        fetch_and_op_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_call_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_close_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_create_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_delete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_amode_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_atomicity_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_byte_offset_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_position_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_position_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_type_extent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_get_view_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iread_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iread_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iread_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iread_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iread_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iwrite_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iwrite_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iwrite_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iwrite_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_iwrite_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_open_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_preallocate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_at_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_at_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_ordered_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_ordered_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_ordered_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_read_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_seek_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_seek_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_set_atomicity_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_set_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_set_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_set_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_set_view_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_sync_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_at_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_at_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_ordered_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_ordered_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_ordered_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        file_write_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        finalized_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        finalize_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        free_mem_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        gather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        gatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_accumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_address_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_count_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_elements_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_elements_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_library_version_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_processor_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        get_version_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        graph_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        graphdims_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        graph_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        graph_map_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        graph_neighbors_count_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        graph_neighbors_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        grequest_complete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        grequest_start_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_compare_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_difference_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_excl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_incl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_intersection_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_range_excl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_range_incl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_rank_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_translate_ranks_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        group_union_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iallgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iallgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iallreduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ialltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ialltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ialltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ibarrier_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ibcast_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ibsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iexscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        igather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        igatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        improbe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        imrecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ineighbor_allgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ineighbor_allgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ineighbor_alltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ineighbor_alltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ineighbor_alltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_delete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_dup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_get_nkeys_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_get_nthkey_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_get_valuelen_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        info_set_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        initialized_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        init_thread_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        intercomm_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        intercomm_merge_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iprobe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        irecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ireduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ireduce_scatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ireduce_scatter_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        irsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iscatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        iscatterv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        isend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        issend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        is_thread_main_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        lookup_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        mprobe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        mrecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        neighbor_allgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        neighbor_allgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        neighbor_alltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        neighbor_alltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        neighbor_alltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        op_commutative_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        op_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        open_port_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        op_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        pack_external_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        pack_external_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        pack_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        pack_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        pcontrol_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        probe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        publish_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        put_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        query_thread_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        raccumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        recv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        recv_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        reduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        reduce_local_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        reduce_scatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        reduce_scatter_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        register_datarep_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        request_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        request_get_status_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        rget_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        rget_accumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        rput_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        rsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        rsend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        scan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        scatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        scatterv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        send_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        send_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        sendrecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        sendrecv_replace_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ssend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        ssend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        startall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        start_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        status_set_cancelled_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        status_set_elements_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        status_set_elements_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        testall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        testany_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        test_cancelled_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        test_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        testsome_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        topo_test_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_commit_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_contiguous_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_darray_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_f90_complex_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_f90_integer_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_f90_real_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_hindexed_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_hvector_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_indexed_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_hindexed_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_resized_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_struct_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_create_subarray_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_delete_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_dup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_free_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_contents_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_envelope_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_extent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_extent_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_true_extent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_get_true_extent_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_indexed_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_match_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_set_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_set_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_size_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        type_vector_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        unpack_external_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        unpack_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        unpublish_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        waitall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        waitany_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        wait_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        waitsome_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_allocate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_allocate_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_attach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_call_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_complete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_create_dynamic_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_create_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_create_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_delete_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_detach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_fence_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_flush_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_flush_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_flush_local_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_flush_local_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_free_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_get_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_get_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_get_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_get_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_get_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_lock_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_lock_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_post_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_set_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_set_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_set_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_set_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_shared_query_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_start_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_sync_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_test_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_unlock_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_unlock_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        win_wait_f08.F90
+
 
 # JMS Somehow this variable substitution isn't quite working, and I
 # don't have time to figure it out.  So just wholesale copy the file
 # list.  :-(
 #pmpi_api_files = $(mpi_api_files:%=profile/p%)
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@pmpi_api_files = profile/pabort_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/paccumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/padd_error_class_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/padd_error_code_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/padd_error_string_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/paint_add_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/paint_diff_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pallgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pallgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/palloc_mem_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pallreduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/palltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/palltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/palltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pbarrier_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pbcast_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pbsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pbsend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pbuffer_attach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pbuffer_detach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcancel_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_coords_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcartdim_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_map_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_rank_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_shift_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcart_sub_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pclose_port_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_accept_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_call_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_compare_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_connect_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_create_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_create_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_create_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_delete_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_disconnect_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_dup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_dup_with_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_idup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_free_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_get_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_get_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_get_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_get_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_get_parent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_join_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_rank_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_remote_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_remote_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_set_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_set_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_set_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_set_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_spawn_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_spawn_multiple_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_split_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_split_type_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcomm_test_inter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pcompare_and_swap_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pdims_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pdist_graph_create_adjacent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pdist_graph_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pdist_graph_neighbors_count_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pdist_graph_neighbors_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/perrhandler_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/perror_class_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/perror_string_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pexscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pf_sync_reg_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfetch_and_op_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfinalized_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfinalize_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pfree_mem_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_accumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_address_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_count_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_elements_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_elements_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_library_version_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_processor_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pget_version_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgraph_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgraphdims_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgraph_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgraph_map_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgraph_neighbors_count_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgraph_neighbors_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgrequest_complete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgrequest_start_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_compare_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_difference_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_excl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_incl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_intersection_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_range_excl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_range_incl_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_rank_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_translate_ranks_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pgroup_union_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piallgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piallgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piallreduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pialltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pialltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pialltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pibarrier_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pibcast_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pibsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pigather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pigatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piexscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pimprobe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pimrecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pineighbor_allgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pineighbor_allgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pineighbor_alltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pineighbor_alltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pineighbor_alltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_delete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_dup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_get_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_get_nkeys_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_get_nthkey_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_get_valuelen_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinfo_set_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinit_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinitialized_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pinit_thread_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pintercomm_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pintercomm_merge_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piprobe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pirecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pireduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pireduce_scatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pireduce_scatter_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pirsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piscatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/piscatterv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pisend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pissend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pis_thread_main_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/plookup_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pmprobe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pmrecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pneighbor_allgather_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pneighbor_allgatherv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pneighbor_alltoall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pneighbor_alltoallv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pneighbor_alltoallw_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pop_commutative_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pop_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/popen_port_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pop_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ppack_external_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ppack_external_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ppack_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ppack_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ppcontrol_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pprobe_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ppublish_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pput_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pquery_thread_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/praccumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/precv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/precv_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_local_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_scatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/preduce_scatter_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prequest_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prequest_get_status_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prget_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prget_accumulate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prput_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prsend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/prsend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pscan_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pscatter_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pscatterv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psendrecv_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psendrecv_replace_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pssend_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pssend_init_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pstartall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pstart_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pstatus_set_cancelled_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pstatus_set_elements_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pstatus_set_elements_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptestall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptestany_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptest_cancelled_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptest_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptestsome_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptopo_test_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_commit_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_contiguous_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_darray_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_f90_complex_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_f90_integer_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_f90_real_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_hindexed_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_hvector_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_indexed_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_hindexed_block_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_resized_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_struct_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_create_subarray_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_delete_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_dup_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_free_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_contents_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_envelope_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_extent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_extent_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_true_extent_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_get_true_extent_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_indexed_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_match_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_set_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_set_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_size_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_size_x_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/ptype_vector_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/punpack_external_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/punpack_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/punpublish_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwaitall_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwaitany_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwait_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwaitsome_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_allocate_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_allocate_shared_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_attach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_call_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_complete_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_create_dynamic_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_create_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_create_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_create_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_delete_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_detach_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_fence_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_flush_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_flush_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_flush_local_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_flush_local_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_free_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_free_keyval_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_get_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_get_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_get_group_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_get_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_get_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_lock_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_lock_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_post_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_set_attr_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_set_errhandler_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_set_info_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_set_name_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_shared_query_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_start_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_sync_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_test_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_unlock_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_unlock_all_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/pwin_wait_f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__append_6)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@pmpi_api_files = \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pabort_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/paccumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/padd_error_class_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/padd_error_code_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/padd_error_string_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/paint_add_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/paint_diff_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pallgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pallgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/palloc_mem_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pallreduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/palltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/palltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/palltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pbarrier_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pbcast_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pbsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pbsend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pbuffer_attach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pbuffer_detach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcancel_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_coords_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcartdim_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_map_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_rank_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_shift_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcart_sub_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pclose_port_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_accept_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_call_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_compare_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_connect_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_create_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_create_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_create_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_delete_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_disconnect_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_dup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_dup_with_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_idup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_free_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_get_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_get_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_get_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_get_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_get_parent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_join_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_rank_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_remote_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_remote_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_set_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_set_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_set_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_set_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_spawn_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_spawn_multiple_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_split_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_split_type_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcomm_test_inter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pcompare_and_swap_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pdims_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pdist_graph_create_adjacent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pdist_graph_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pdist_graph_neighbors_count_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pdist_graph_neighbors_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/perrhandler_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/perror_class_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/perror_string_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pexscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pf_sync_reg_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfetch_and_op_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_call_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_close_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_create_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_delete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_amode_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_atomicity_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_byte_offset_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_position_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_position_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_type_extent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_get_view_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iread_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iread_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iread_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iread_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iread_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iwrite_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iwrite_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iwrite_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iwrite_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_iwrite_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_open_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_preallocate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_at_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_at_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_ordered_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_ordered_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_ordered_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_read_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_seek_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_seek_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_set_atomicity_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_set_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_set_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_set_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_set_view_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_sync_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_at_all_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_at_all_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_at_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_at_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_ordered_begin_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_ordered_end_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_ordered_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfile_write_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfinalized_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfinalize_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pfree_mem_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_accumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_address_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_count_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_elements_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_elements_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_library_version_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_processor_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pget_version_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgraph_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgraphdims_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgraph_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgraph_map_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgraph_neighbors_count_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgraph_neighbors_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgrequest_complete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgrequest_start_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_compare_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_difference_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_excl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_incl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_intersection_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_range_excl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_range_incl_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_rank_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_translate_ranks_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pgroup_union_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piallgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piallgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piallreduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pialltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pialltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pialltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pibarrier_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pibcast_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pibsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pigather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pigatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piexscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pimprobe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pimrecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pineighbor_allgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pineighbor_allgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pineighbor_alltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pineighbor_alltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pineighbor_alltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_delete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_dup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_get_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_get_nkeys_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_get_nthkey_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_get_valuelen_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinfo_set_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinit_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinitialized_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pinit_thread_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pintercomm_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pintercomm_merge_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piprobe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pirecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pireduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pireduce_scatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pireduce_scatter_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pirsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piscatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/piscatterv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pisend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pissend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pis_thread_main_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/plookup_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pmprobe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pmrecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pneighbor_allgather_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pneighbor_allgatherv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pneighbor_alltoall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pneighbor_alltoallv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pneighbor_alltoallw_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pop_commutative_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pop_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/popen_port_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pop_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ppack_external_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ppack_external_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ppack_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ppack_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ppcontrol_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pprobe_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ppublish_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pput_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pquery_thread_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/praccumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/precv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/precv_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/preduce_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/preduce_local_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/preduce_scatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/preduce_scatter_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pregister_datarep_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prequest_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prequest_get_status_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prget_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prget_accumulate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prput_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prsend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/prsend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pscan_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pscatter_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pscatterv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/psend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/psend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/psendrecv_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/psendrecv_replace_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pssend_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pssend_init_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pstartall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pstart_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pstatus_set_cancelled_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pstatus_set_elements_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pstatus_set_elements_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptestall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptestany_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptest_cancelled_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptest_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptestsome_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptopo_test_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_commit_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_contiguous_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_darray_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_f90_complex_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_f90_integer_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_f90_real_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_hindexed_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_hvector_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_indexed_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_hindexed_block_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_resized_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_struct_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_create_subarray_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_delete_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_dup_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_free_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_contents_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_envelope_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_extent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_extent_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_true_extent_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_get_true_extent_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_indexed_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_match_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_set_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_set_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_size_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_size_x_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/ptype_vector_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/punpack_external_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/punpack_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/punpublish_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwaitall_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwaitany_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwait_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwaitsome_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_allocate_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_allocate_shared_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_attach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_call_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_complete_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_create_dynamic_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_create_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_create_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_create_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_delete_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_detach_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_fence_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_flush_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_flush_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_flush_local_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_flush_local_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_free_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_free_keyval_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_get_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_get_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_get_group_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_get_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_get_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_lock_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_lock_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_post_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_set_attr_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_set_errhandler_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_set_info_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_set_name_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_shared_query_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_start_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_sync_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_test_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_unlock_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_unlock_all_f08.F90 \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        profile/pwin_wait_f08.F90
+
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES = \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(mpi_api_files) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(pmpi_api_files) \
@@ -3582,7 +3601,7 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 
 # These are generated; do not ship them
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@nodist_lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES =  \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__append_7)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__append_5)
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@SIZEOF_H = sizeof_f08.h
 
 #
@@ -3832,6 +3851,124 @@ profile/pf_sync_reg_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
 profile/pfetch_and_op_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_call_errhandler_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_close_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_create_errhandler_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_delete_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_amode_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_atomicity_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_byte_offset_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_errhandler_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_group_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_info_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_position_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_position_shared_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_size_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_type_extent_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_get_view_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iread_at_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iread_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iread_at_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iread_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iread_shared_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iwrite_at_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iwrite_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iwrite_at_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iwrite_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_iwrite_shared_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_open_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_preallocate_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_all_begin_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_all_end_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_at_all_begin_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_at_all_end_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_at_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_at_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_ordered_begin_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_ordered_end_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_ordered_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_read_shared_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_seek_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_seek_shared_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_set_atomicity_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_set_errhandler_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_set_info_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_set_size_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_set_view_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_sync_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_all_begin_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_all_end_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_at_all_begin_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_at_all_end_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_at_all_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_at_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_ordered_begin_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_ordered_end_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_ordered_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pfile_write_shared_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
 profile/pfinalized_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
 profile/pfinalize_f08.lo: profile/$(am__dirstamp) \
@@ -4046,6 +4183,8 @@ profile/preduce_scatter_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
 profile/preduce_scatter_block_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
+profile/pregister_datarep_f08.lo: profile/$(am__dirstamp) \
+	profile/$(DEPDIR)/$(am__dirstamp)
 profile/prequest_free_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
 profile/prequest_get_status_f08.lo: profile/$(am__dirstamp) \
@@ -4253,126 +4392,6 @@ profile/pwin_unlock_f08.lo: profile/$(am__dirstamp) \
 profile/pwin_unlock_all_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
 profile/pwin_wait_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_call_errhandler_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_close_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_create_errhandler_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_delete_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_amode_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_atomicity_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_byte_offset_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_errhandler_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_group_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_info_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_position_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_position_shared_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_size_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_type_extent_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_get_view_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iread_at_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iread_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iread_at_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iread_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iread_shared_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iwrite_at_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iwrite_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iwrite_at_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iwrite_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_iwrite_shared_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_open_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_preallocate_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_all_begin_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_all_end_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_at_all_begin_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_at_all_end_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_at_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_at_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_ordered_begin_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_ordered_end_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_ordered_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_read_shared_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_seek_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_seek_shared_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_set_atomicity_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_set_errhandler_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_set_info_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_set_size_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_set_view_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_sync_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_all_begin_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_all_end_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_at_all_begin_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_at_all_end_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_at_all_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_at_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_ordered_begin_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_ordered_end_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_ordered_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pfile_write_shared_f08.lo: profile/$(am__dirstamp) \
-	profile/$(DEPDIR)/$(am__dirstamp)
-profile/pregister_datarep_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)
 profile/psizeof_f08.lo: profile/$(am__dirstamp) \
 	profile/$(DEPDIR)/$(am__dirstamp)

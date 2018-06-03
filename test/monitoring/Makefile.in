@@ -15,20 +15,20 @@
 @SET_MAKE@
 
 #
-# Copyright (c) 2013-2015 The University of Tennessee and The University
+# Copyright (c) 2013-2017 The University of Tennessee and The University
 #                         of Tennessee Research Foundation.  All rights
 #                         reserved.
-# Copyright (c) 2013-2015 Inria.  All rights reserved.
-# Copyright (c) 2015      Research Organization for Information Science
+# Copyright (c) 2013-2017 Inria.  All rights reserved.
+# Copyright (c) 2015-2017 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
+# Copyright (c) 2016      Cisco Systems, Inc.  All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
 #
 # $HEADER$
 #
-
 
 VPATH = @srcdir@
 am__is_gnu_make = { \
@@ -105,7 +105,11 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@PROJECT_OMPI_TRUE@noinst_PROGRAMS = monitoring_test$(EXEEXT)
+@PROJECT_OMPI_TRUE@noinst_PROGRAMS = monitoring_test$(EXEEXT) \
+@PROJECT_OMPI_TRUE@	test_pvar_access$(EXEEXT) \
+@PROJECT_OMPI_TRUE@	test_overhead$(EXEEXT) \
+@PROJECT_OMPI_TRUE@	check_monitoring$(EXEEXT) \
+@PROJECT_OMPI_TRUE@	example_reduce_count$(EXEEXT)
 subdir = test/monitoring
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -180,9 +184,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -248,7 +252,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -302,6 +306,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -331,6 +336,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -342,16 +348,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -367,10 +374,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -407,60 +417,58 @@ CONFIG_HEADER = $(top_builddir)/opal/include/opal_config.h \
 	$(top_builddir)/ompi/mpiext/cuda/c/mpiext_cuda_c.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-am__installdirs = "$(DESTDIR)$(libdir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@monitoring_prof_la_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/libopen-pal.la
-am__monitoring_prof_la_SOURCES_DIST = monitoring_prof.c
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@am_monitoring_prof_la_OBJECTS = monitoring_prof.lo
-monitoring_prof_la_OBJECTS = $(am_monitoring_prof_la_OBJECTS)
+PROGRAMS = $(noinst_PROGRAMS)
+am__check_monitoring_SOURCES_DIST = check_monitoring.c
+@PROJECT_OMPI_TRUE@am_check_monitoring_OBJECTS =  \
+@PROJECT_OMPI_TRUE@	check_monitoring.$(OBJEXT)
+check_monitoring_OBJECTS = $(am_check_monitoring_OBJECTS)
+@PROJECT_OMPI_TRUE@check_monitoring_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-monitoring_prof_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+check_monitoring_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(monitoring_prof_la_LDFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS) $(check_monitoring_LDFLAGS) $(LDFLAGS) \
+	-o $@
+am__example_reduce_count_SOURCES_DIST = example_reduce_count.c
+@PROJECT_OMPI_TRUE@am_example_reduce_count_OBJECTS =  \
+@PROJECT_OMPI_TRUE@	example_reduce_count.$(OBJEXT)
+example_reduce_count_OBJECTS = $(am_example_reduce_count_OBJECTS)
+@PROJECT_OMPI_TRUE@example_reduce_count_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+example_reduce_count_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(example_reduce_count_LDFLAGS) \
 	$(LDFLAGS) -o $@
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@am_monitoring_prof_la_rpath = -rpath \
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@	$(libdir)
-PROGRAMS = $(noinst_PROGRAMS)
 am__monitoring_test_SOURCES_DIST = monitoring_test.c
 @PROJECT_OMPI_TRUE@am_monitoring_test_OBJECTS =  \
 @PROJECT_OMPI_TRUE@	monitoring_test.$(OBJEXT)
 monitoring_test_OBJECTS = $(am_monitoring_test_OBJECTS)
 @PROJECT_OMPI_TRUE@monitoring_test_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
-@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/libopen-pal.la
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
 monitoring_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(monitoring_test_LDFLAGS) $(LDFLAGS) \
+	-o $@
+am__test_overhead_SOURCES_DIST = test_overhead.c
+@PROJECT_OMPI_TRUE@am_test_overhead_OBJECTS = test_overhead.$(OBJEXT)
+test_overhead_OBJECTS = $(am_test_overhead_OBJECTS)
+@PROJECT_OMPI_TRUE@test_overhead_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+test_overhead_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(test_overhead_LDFLAGS) $(LDFLAGS) -o $@
+am__test_pvar_access_SOURCES_DIST = test_pvar_access.c
+@PROJECT_OMPI_TRUE@am_test_pvar_access_OBJECTS =  \
+@PROJECT_OMPI_TRUE@	test_pvar_access.$(OBJEXT)
+test_pvar_access_OBJECTS = $(am_test_pvar_access_OBJECTS)
+@PROJECT_OMPI_TRUE@test_pvar_access_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+test_pvar_access_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(test_pvar_access_LDFLAGS) $(LDFLAGS) \
 	-o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -496,9 +504,14 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(monitoring_prof_la_SOURCES) $(monitoring_test_SOURCES)
-DIST_SOURCES = $(am__monitoring_prof_la_SOURCES_DIST) \
-	$(am__monitoring_test_SOURCES_DIST)
+SOURCES = $(check_monitoring_SOURCES) $(example_reduce_count_SOURCES) \
+	$(monitoring_test_SOURCES) $(test_overhead_SOURCES) \
+	$(test_pvar_access_SOURCES)
+DIST_SOURCES = $(am__check_monitoring_SOURCES_DIST) \
+	$(am__example_reduce_count_SOURCES_DIST) \
+	$(am__monitoring_test_SOURCES_DIST) \
+	$(am__test_overhead_SOURCES_DIST) \
+	$(am__test_pvar_access_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -636,6 +649,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -918,6 +932,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1022,6 +1043,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -1252,8 +1280,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -1261,7 +1287,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -1308,7 +1333,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -1526,9 +1550,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -1577,9 +1602,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -1613,6 +1638,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -1626,6 +1654,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -1714,12 +1745,35 @@ ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
 @PROJECT_OMPI_TRUE@monitoring_test_SOURCES = monitoring_test.c
-@PROJECT_OMPI_TRUE@monitoring_test_LDFLAGS = $(WRAPPER_EXTRA_LDFLAGS)
-@PROJECT_OMPI_TRUE@monitoring_test_LDADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la $(top_builddir)/opal/libopen-pal.la
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@lib_LTLIBRARIES = monitoring_prof.la
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@monitoring_prof_la_SOURCES = monitoring_prof.c
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@monitoring_prof_la_LDFLAGS = -module -avoid-version -shared $(WRAPPER_EXTRA_LDFLAGS)
-@MCA_BUILD_ompi_pml_monitoring_DSO_TRUE@@PROJECT_OMPI_TRUE@monitoring_prof_la_LIBADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la $(top_builddir)/opal/libopen-pal.la
+@PROJECT_OMPI_TRUE@monitoring_test_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+@PROJECT_OMPI_TRUE@monitoring_test_LDADD = \
+@PROJECT_OMPI_TRUE@        $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@        $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
+@PROJECT_OMPI_TRUE@test_pvar_access_SOURCES = test_pvar_access.c
+@PROJECT_OMPI_TRUE@test_pvar_access_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+@PROJECT_OMPI_TRUE@test_pvar_access_LDADD = \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
+@PROJECT_OMPI_TRUE@test_overhead_SOURCES = test_overhead.c
+@PROJECT_OMPI_TRUE@test_overhead_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+@PROJECT_OMPI_TRUE@test_overhead_LDADD = \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
+@PROJECT_OMPI_TRUE@check_monitoring_SOURCES = check_monitoring.c
+@PROJECT_OMPI_TRUE@check_monitoring_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+@PROJECT_OMPI_TRUE@check_monitoring_LDADD = \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
+@PROJECT_OMPI_TRUE@example_reduce_count_SOURCES = example_reduce_count.c
+@PROJECT_OMPI_TRUE@example_reduce_count_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+@PROJECT_OMPI_TRUE@example_reduce_count_LDADD = \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@PROJECT_OMPI_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
 all: all-am
 
 .SUFFIXES:
@@ -1754,44 +1808,6 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	list2=; for p in $$list; do \
-	  if test -f $$p; then \
-	    list2="$$list2 $$p"; \
-	  else :; fi; \
-	done; \
-	test -z "$$list2" || { \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
-	}
-
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
-	for p in $$list; do \
-	  $(am__strip_dir) \
-	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
-	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
-	done
-
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; \
-	locs=`for p in $$list; do echo $$p; done | \
-	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
-	      sort -u`; \
-	test -z "$$locs" || { \
-	  echo rm -f $${locs}; \
-	  rm -f $${locs}; \
-	}
-
-monitoring_prof.la: $(monitoring_prof_la_OBJECTS) $(monitoring_prof_la_DEPENDENCIES) $(EXTRA_monitoring_prof_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(monitoring_prof_la_LINK) $(am_monitoring_prof_la_rpath) $(monitoring_prof_la_OBJECTS) $(monitoring_prof_la_LIBADD) $(LIBS)
-
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
 	echo " rm -f" $$list; \
@@ -1801,9 +1817,25 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+check_monitoring$(EXEEXT): $(check_monitoring_OBJECTS) $(check_monitoring_DEPENDENCIES) $(EXTRA_check_monitoring_DEPENDENCIES) 
+	@rm -f check_monitoring$(EXEEXT)
+	$(AM_V_CCLD)$(check_monitoring_LINK) $(check_monitoring_OBJECTS) $(check_monitoring_LDADD) $(LIBS)
+
+example_reduce_count$(EXEEXT): $(example_reduce_count_OBJECTS) $(example_reduce_count_DEPENDENCIES) $(EXTRA_example_reduce_count_DEPENDENCIES) 
+	@rm -f example_reduce_count$(EXEEXT)
+	$(AM_V_CCLD)$(example_reduce_count_LINK) $(example_reduce_count_OBJECTS) $(example_reduce_count_LDADD) $(LIBS)
+
 monitoring_test$(EXEEXT): $(monitoring_test_OBJECTS) $(monitoring_test_DEPENDENCIES) $(EXTRA_monitoring_test_DEPENDENCIES) 
 	@rm -f monitoring_test$(EXEEXT)
 	$(AM_V_CCLD)$(monitoring_test_LINK) $(monitoring_test_OBJECTS) $(monitoring_test_LDADD) $(LIBS)
+
+test_overhead$(EXEEXT): $(test_overhead_OBJECTS) $(test_overhead_DEPENDENCIES) $(EXTRA_test_overhead_DEPENDENCIES) 
+	@rm -f test_overhead$(EXEEXT)
+	$(AM_V_CCLD)$(test_overhead_LINK) $(test_overhead_OBJECTS) $(test_overhead_LDADD) $(LIBS)
+
+test_pvar_access$(EXEEXT): $(test_pvar_access_OBJECTS) $(test_pvar_access_DEPENDENCIES) $(EXTRA_test_pvar_access_DEPENDENCIES) 
+	@rm -f test_pvar_access$(EXEEXT)
+	$(AM_V_CCLD)$(test_pvar_access_LINK) $(test_pvar_access_OBJECTS) $(test_pvar_access_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -1811,8 +1843,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monitoring_prof.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/check_monitoring.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/example_reduce_count.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monitoring_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_overhead.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pvar_access.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1928,11 +1963,8 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+all-am: Makefile $(PROGRAMS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)"; do \
-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
-	done
 install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
@@ -1966,8 +1998,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
-	clean-noinstPROGRAMS mostlyclean-am
+clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
+	mostlyclean-am
 
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1990,7 +2022,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am:
 
 install-html: install-html-am
 
@@ -2030,30 +2062,29 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am:
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool clean-noinstPROGRAMS \
-	cscopelist-am ctags ctags-am distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-libLTLIBRARIES
+	clean-libtool clean-noinstPROGRAMS cscopelist-am ctags \
+	ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am
 
 .PRECIOUS: Makefile
 
 
 distclean:
-	rm -rf *.dSYM .deps .libs *.la *.lo monitoring_test *.log *.o *.trs Makefile
+	rm -rf *.dSYM .deps .libs *.la *.lo monitoring_test test_pvar_access test_overhead check_monitoring example_reduce_count prof *.log *.o *.trs Makefile
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

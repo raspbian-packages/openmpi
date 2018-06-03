@@ -380,6 +380,7 @@ static int mindist_map(orte_job_t *jdata)
                             ORTE_FLAG_SET(node, ORTE_NODE_FLAG_MAPPED);
                             OBJ_RETAIN(node);  /* maintain accounting on object */
                             jdata->map->num_nodes++;
+                            opal_pointer_array_add(jdata->map->nodes, node);
                         }
                         opal_output_verbose(2, orte_rmaps_base_framework.framework_output,
                                 "mca:rmaps:mindist: assigned %d procs to node %s",

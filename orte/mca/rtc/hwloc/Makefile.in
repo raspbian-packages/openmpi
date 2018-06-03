@@ -15,7 +15,7 @@
 @SET_MAKE@
 
 #
-# Copyright (c) 2014      Intel, Inc. All rights reserved
+# Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
 # Copyright (c) 2017      IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
 #
@@ -23,6 +23,7 @@
 #
 # $HEADER$
 #
+
 
 VPATH = @srcdir@
 am__is_gnu_make = { \
@@ -173,9 +174,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -241,7 +242,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -295,6 +296,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -324,6 +326,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -335,16 +338,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -360,10 +364,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -390,7 +397,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am $(dist_ortedata_DATA) \
+	$(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/opal/include/opal_config.h \
 	$(top_builddir)/ompi/include/mpi.h \
@@ -427,7 +435,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(mcacomponentdir)"
+am__installdirs = "$(DESTDIR)$(mcacomponentdir)" \
+	"$(DESTDIR)$(ortedatadir)"
 LTLIBRARIES = $(mcacomponent_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libmca_rtc_hwloc_la_LIBADD =
 am__objects_1 = rtc_hwloc.lo rtc_hwloc_component.lo
@@ -494,6 +503,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(dist_ortedata_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -626,6 +636,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -908,6 +919,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1012,6 +1030,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -1242,8 +1267,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -1251,7 +1274,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -1298,7 +1320,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -1516,9 +1537,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -1567,9 +1589,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -1603,6 +1625,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -1616,6 +1641,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -1703,6 +1731,7 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
+dist_ortedata_DATA = help-orte-rtc-hwloc.txt
 sources = \
         rtc_hwloc.c \
         rtc_hwloc.h \
@@ -1848,6 +1877,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-dist_ortedataDATA: $(dist_ortedata_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_ortedata_DATA)'; test -n "$(ortedatadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(ortedatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(ortedatadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(ortedatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(ortedatadir)" || exit $$?; \
+	done
+
+uninstall-dist_ortedataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_ortedata_DATA)'; test -n "$(ortedatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(ortedatadir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1933,9 +1983,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(LTLIBRARIES) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(mcacomponentdir)"; do \
+	for dir in "$(DESTDIR)$(mcacomponentdir)" "$(DESTDIR)$(ortedatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1992,7 +2042,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-mcacomponentLTLIBRARIES
+install-data-am: install-dist_ortedataDATA \
+	install-mcacomponentLTLIBRARIES
 
 install-dvi: install-dvi-am
 
@@ -2038,7 +2089,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-mcacomponentLTLIBRARIES
+uninstall-am: uninstall-dist_ortedataDATA \
+	uninstall-mcacomponentLTLIBRARIES
 
 .MAKE: install-am install-strip
 
@@ -2047,16 +2099,17 @@ uninstall-am: uninstall-mcacomponentLTLIBRARIES
 	clean-noinstLTLIBRARIES cscopelist-am ctags ctags-am distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
+	install install-am install-data install-data-am \
+	install-dist_ortedataDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man \
 	install-mcacomponentLTLIBRARIES install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am \
-	uninstall-mcacomponentLTLIBRARIES
+	uninstall-dist_ortedataDATA uninstall-mcacomponentLTLIBRARIES
 
 .PRECIOUS: Makefile
 

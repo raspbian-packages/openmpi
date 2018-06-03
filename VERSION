@@ -4,6 +4,8 @@
 # Copyright (c) 2013      Mellanox Technologies, Inc.
 #                         All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
+# Copyright (c) 2017      Los Alamos National Security, LLC.  All rights
+#                         reserved.
 
 # This is the VERSION file for Open MPI, describing the precise
 # version of Open MPI in this distribution.  The various components of
@@ -14,8 +16,8 @@
 # <major>.<minor>.<release>.
 
 major=3
-minor=0
-release=1
+minor=1
+release=0
 
 # greek is generally used for alpha or beta release tags.  If it is
 # non-empty, it will be appended to the version number.  It does not
@@ -31,7 +33,7 @@ greek=
 # command, or with the date (if "git describe" fails) in the form of
 # "date<date>".
 
-repo_rev=v3.0.1
+repo_rev=v3.1.0
 
 # If tarball_version is not empty, it is used as the version string in
 # the tarball filename, regardless of all other versions listed in
@@ -45,7 +47,7 @@ tarball_version=
 
 # The date when this release was created
 
-date="Mar 29, 2018"
+date="May 07, 2018"
 
 # The shared library version of each of Open MPI's public libraries.
 # These versions are maintained in accordance with the "Library
@@ -82,17 +84,17 @@ date="Mar 29, 2018"
 # Version numbers are described in the Libtool current:revision:age
 # format.
 
-libmpi_so_version=40:1:0
-libmpi_cxx_so_version=40:0:0
-libmpi_mpifh_so_version=40:0:0
-libmpi_usempi_tkr_so_version=40:0:0
-libmpi_usempi_ignore_tkr_so_version=40:0:0
-libmpi_usempif08_so_version=40:0:0
-libopen_rte_so_version=40:1:0
-libopen_pal_so_version=41:0:1
-libmpi_java_so_version=40:0:0
-liboshmem_so_version=41:0:1
-libompitrace_so_version=40:0:0
+libmpi_so_version=50:0:10
+libmpi_cxx_so_version=50:0:10
+libmpi_mpifh_so_version=50:0:10
+libmpi_usempi_tkr_so_version=50:0:10
+libmpi_usempi_ignore_tkr_so_version=50:0:10
+libmpi_usempif08_so_version=50:0:10
+libopen_rte_so_version=50:0:10
+libopen_pal_so_version=50:0:10
+libmpi_java_so_version=50:0:10
+liboshmem_so_version=50:0:10
+libompitrace_so_version=50:0:10
 
 # "Common" components install standalone libraries that are run-time
 # linked by one or more components.  So they need to be versioned as
@@ -100,14 +102,15 @@ libompitrace_so_version=40:0:0
 # components-don't-affect-the-build-system abstraction.
 
 # OMPI layer
-libmca_ompi_common_ompio_so_version=41:0:0
+libmca_ompi_common_ompio_so_version=50:0:9
+libmca_ompi_common_monitoring_so_version=50:0:0
 
 # ORTE layer
-libmca_orte_common_alps_so_version=40:0:0
+libmca_orte_common_alps_so_version=50:0:10
 
 # OPAL layer
-libmca_opal_common_cuda_so_version=40:0:0
-libmca_opal_common_libfabric_so_version=40:0:0
-libmca_opal_common_sm_so_version=40:0:0
-libmca_opal_common_ugni_so_version=40:0:0
-libmca_opal_common_verbs_so_version=40:0:0
+libmca_opal_common_cuda_so_version=50:0:10
+libmca_opal_common_ofi_so_version=50:0:10
+libmca_opal_common_sm_so_version=50:0:10
+libmca_opal_common_ugni_so_version=50:0:10
+libmca_opal_common_verbs_so_version=50:0:10

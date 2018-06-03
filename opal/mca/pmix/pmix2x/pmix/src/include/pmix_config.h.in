@@ -531,9 +531,6 @@
 /* Whether we want to enable dlopen support */
 #undef PMIX_ENABLE_DLOPEN_SUPPORT
 
-/* if want shared memory dstore feature */
-#undef PMIX_ENABLE_DSTORE
-
 /* Whether we should enable thread support within the PMIX code base */
 #undef PMIX_ENABLE_MULTI_THREADS
 
@@ -571,6 +568,9 @@
 /* Whether your compiler has __attribute__ destructor or not */
 #undef PMIX_HAVE_ATTRIBUTE_DESTRUCTOR
 
+/* Whether your compiler has __attribute__ extension or not */
+#undef PMIX_HAVE_ATTRIBUTE_EXTENSION
+
 /* Whether your compiler has __attribute__ format or not */
 #undef PMIX_HAVE_ATTRIBUTE_FORMAT
 
@@ -599,6 +599,9 @@
 
 /* Whether your compiler has __attribute__ no_instrument_function or not */
 #undef PMIX_HAVE_ATTRIBUTE_NO_INSTRUMENT_FUNCTION
+
+/* Whether your compiler has __attribute__ optnone or not */
+#undef PMIX_HAVE_ATTRIBUTE_OPTNONE
 
 /* Whether your compiler has __attribute__ packed or not */
 #undef PMIX_HAVE_ATTRIBUTE_PACKED
@@ -698,6 +701,9 @@
 
 /* The library release version is always available, contrary to VERSION */
 #undef PMIX_RELEASE_VERSION
+
+/* Default value for mca_base_component_show_load_errors MCA variable */
+#undef PMIX_SHOW_LOAD_ERRORS_DEFAULT
 
 /* The pmix symbol rename include directive */
 #undef PMIX_SYMBOL_RENAME

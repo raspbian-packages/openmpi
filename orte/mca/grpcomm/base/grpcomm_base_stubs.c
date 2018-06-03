@@ -12,7 +12,7 @@
  *                         All rights reserved.
  * Copyright (c) 2011-2016 Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2016-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2016-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2017      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -43,7 +43,6 @@
 #include "orte/mca/routed/routed.h"
 #include "orte/mca/state/state.h"
 #include "orte/util/name_fns.h"
-#include "orte/util/nidmap.h"
 #include "orte/util/threads.h"
 #include "orte/runtime/orte_globals.h"
 
@@ -178,6 +177,11 @@ static void allgather_stub(int fd, short args, void *cbdata)
         return;
     }
     coll = orte_grpcomm_base_get_tracker(cd->sig, true);
+    if (NULL == coll) {
+        OBJ_RELEASE(cd->sig);
+        OBJ_RELEASE(cd);
+        return;
+    }
     OBJ_RELEASE(cd->sig);
     coll->cbfunc = cd->cbfunc;
     coll->cbdata = cd->cbdata;

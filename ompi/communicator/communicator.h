@@ -10,8 +10,8 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006-2012 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2006-2010 University of Houston.  All rights reserved.
+ * Copyright (c) 2006-2017 Cisco Systems, Inc.  All rights reserved
+ * Copyright (c) 2006-2017 University of Houston.  All rights reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2011-2013 Inria.  All rights reserved.
  * Copyright (c) 2011-2013 Universite Bordeaux 1
@@ -20,7 +20,7 @@
  * Copyright (c) 2014-2015 Intel, Inc.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2017      IBM Corporation.  All rights reserved.
+ * Copyright (c) 2016-2017 IBM Corporation. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -33,6 +33,8 @@
 
 #include "ompi_config.h"
 #include "opal/class/opal_object.h"
+#include "opal/class/opal_hash_table.h"
+#include "opal/util/info_subscriber.h"
 #include "ompi/errhandler/errhandler.h"
 #include "opal/threads/mutex.h"
 #include "ompi/communicator/comm_request.h"
@@ -58,6 +60,7 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION(ompi_communicator_t);
 #define OMPI_COMM_DIST_GRAPH   0x00000400
 #define OMPI_COMM_PML_ADDED    0x00001000
 #define OMPI_COMM_EXTRA_RETAIN 0x00004000
+#define OMPI_COMM_MAPBY_NODE   0x00008000
 
 /* some utility #defines */
 #define OMPI_COMM_IS_INTER(comm) ((comm)->c_flags & OMPI_COMM_INTER)
@@ -74,12 +77,14 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION(ompi_communicator_t);
 #define OMPI_COMM_IS_TOPO(comm) (OMPI_COMM_IS_CART((comm)) || \
                                  OMPI_COMM_IS_GRAPH((comm)) || \
                                  OMPI_COMM_IS_DIST_GRAPH((comm)))
+#define OMPI_COMM_IS_MAPBY_NODE(comm) ((comm)->c_flags & OMPI_COMM_MAPBY_NODE)
 
 #define OMPI_COMM_SET_DYNAMIC(comm) ((comm)->c_flags |= OMPI_COMM_DYNAMIC)
 #define OMPI_COMM_SET_INVALID(comm) ((comm)->c_flags |= OMPI_COMM_INVALID)
 
 #define OMPI_COMM_SET_PML_ADDED(comm) ((comm)->c_flags |= OMPI_COMM_PML_ADDED)
 #define OMPI_COMM_SET_EXTRA_RETAIN(comm) ((comm)->c_flags |= OMPI_COMM_EXTRA_RETAIN)
+#define OMPI_COMM_SET_MAPBY_NODE(comm) ((comm)->c_flags |= OMPI_COMM_MAPBY_NODE)
 
 /* a set of special tags: */
 
@@ -87,6 +92,17 @@ OMPI_DECLSPEC OBJ_CLASS_DECLARATION(ompi_communicator_t);
 #define OMPI_COMM_ALLGATHER_TAG -31078
 #define OMPI_COMM_BARRIER_TAG   -31079
 #define OMPI_COMM_ALLREDUCE_TAG -31080
+
+#define OMPI_COMM_ASSERT_NO_ANY_TAG     0x00000001
+#define OMPI_COMM_ASSERT_NO_ANY_SOURCE  0x00000002
+#define OMPI_COMM_ASSERT_EXACT_LENGTH   0x00000004
+#define OMPI_COMM_ASSERT_ALLOW_OVERTAKE 0x00000008
+
+#define OMPI_COMM_CHECK_ASSERT(comm, flag) !!((comm)->c_assertions & flag)
+#define OMPI_COMM_CHECK_ASSERT_NO_ANY_TAG(comm)     OMPI_COMM_CHECK_ASSERT(comm, OMPI_COMM_ASSERT_NO_ANY_TAG)
+#define OMPI_COMM_CHECK_ASSERT_NO_ANY_SOURCE(comm)  OMPI_COMM_CHECK_ASSERT(comm, OMPI_COMM_ASSERT_NO_ANY_SOURCE)
+#define OMPI_COMM_CHECK_ASSERT_EXACT_LENGTH(comm)   OMPI_COMM_CHECK_ASSERT(comm, OMPI_COMM_ASSERT_EXACT_LENGTH)
+#define OMPI_COMM_CHECK_ASSERT_ALLOW_OVERTAKE(comm) OMPI_COMM_CHECK_ASSERT(comm, OMPI_COMM_ASSERT_ALLOW_OVERTAKE)
 
 /**
  * Modes required for acquiring the new comm-id.
@@ -116,7 +132,7 @@ OMPI_DECLSPEC extern opal_pointer_array_t ompi_mpi_communicators;
 OMPI_DECLSPEC extern opal_pointer_array_t ompi_comm_f_to_c_table;
 
 struct ompi_communicator_t {
-    opal_object_t              c_base;
+    opal_infosubscriber_t      super;
     opal_mutex_t               c_lock; /* mutex for name and potentially
                                           attributes */
     char  c_name[MPI_MAX_OBJECT_NAME];
@@ -124,6 +140,7 @@ struct ompi_communicator_t {
     int                     c_my_rank;
     uint32_t                  c_flags; /* flags, e.g. intercomm,
                                           topology, etc. */
+    uint32_t                  c_assertions; /* info assertions */
 
     int c_id_available; /* the currently available Cid for allocation
                to a child*/
@@ -240,6 +257,15 @@ typedef struct ompi_communicator_t ompi_communicator_t;
  * the ompi_communicator_t without impacting the size of the
  * ompi_predefined_communicator_t structure for some number of additions.
  *
+ * Note: we used to define the PAD as a multiple of sizeof(void*).
+ * However, this makes a different size PAD, depending on
+ * sizeof(void*).  In some cases
+ * (https://github.com/open-mpi/ompi/issues/3610), 32 bit builds can
+ * run out of space when 64 bit builds are still ok.  So we changed to
+ * use just a naked byte size.  As a rule of thumb, however, the size
+ * should probably still be a multiple of 8 so that it has the
+ * possibility of being nicely aligned.
+ *
  * As an example:
  * If the size of ompi_communicator_t is less than the size of the _PAD then
  * the _PAD ensures that the size of the ompi_predefined_communicator_t is
@@ -256,7 +282,7 @@ typedef struct ompi_communicator_t ompi_communicator_t;
  * the PREDEFINED_COMMUNICATOR_PAD macro?
  * A: Most likely not, but it would be good to check.
  */
-#define PREDEFINED_COMMUNICATOR_PAD (sizeof(void*) * 64)
+#define PREDEFINED_COMMUNICATOR_PAD 512
 
 struct ompi_predefined_communicator_t {
     struct ompi_communicator_t comm;
@@ -442,7 +468,7 @@ OMPI_DECLSPEC int ompi_comm_split (ompi_communicator_t *comm, int color, int key
  */
 OMPI_DECLSPEC int ompi_comm_split_type(ompi_communicator_t *comm,
                                        int split_type, int key,
-                                       struct ompi_info_t *info,
+                                       struct opal_info_t *info,
                                        ompi_communicator_t** newcomm);
 
 /**
@@ -473,7 +499,7 @@ OMPI_DECLSPEC int ompi_comm_idup (ompi_communicator_t *comm, ompi_communicator_t
  * @param comm:      input communicator
  * @param newcomm:   the new communicator or MPI_COMM_NULL if any error is detected.
  */
-OMPI_DECLSPEC int ompi_comm_dup_with_info (ompi_communicator_t *comm, ompi_info_t *info, ompi_communicator_t **newcomm);
+OMPI_DECLSPEC int ompi_comm_dup_with_info (ompi_communicator_t *comm, opal_info_t *info, ompi_communicator_t **newcomm);
 
 /**
  * dup a communicator (non-blocking) with info.
@@ -483,7 +509,7 @@ OMPI_DECLSPEC int ompi_comm_dup_with_info (ompi_communicator_t *comm, ompi_info_
  * @param comm:      input communicator
  * @param newcomm:   the new communicator or MPI_COMM_NULL if any error is detected.
  */
-OMPI_DECLSPEC int ompi_comm_idup_with_info (ompi_communicator_t *comm, ompi_info_t *info, ompi_communicator_t **newcomm, ompi_request_t **req);
+OMPI_DECLSPEC int ompi_comm_idup_with_info (ompi_communicator_t *comm, opal_info_t *info, ompi_communicator_t **newcomm, ompi_request_t **req);
 
 /**
  * compare two communicators.
@@ -685,6 +711,8 @@ extern int ompi_comm_num_dyncomm;
 */
 OMPI_DECLSPEC int ompi_comm_cid_init ( void );
 
+
+void ompi_comm_assert_subscribe (ompi_communicator_t *comm, int32_t assert_flag);
 
 END_C_DECLS
 

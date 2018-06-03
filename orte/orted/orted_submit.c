@@ -92,6 +92,7 @@
 
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/grpcomm/grpcomm.h"
+#include "orte/mca/oob/base/base.h"
 #include "orte/mca/plm/base/plm_private.h"
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/rml/base/rml_contact.h"
@@ -363,12 +364,15 @@ int orte_submit_init(int argc, char *argv[],
         exit(0);
     }
 
+    /* if they already set our proc type, then leave it alone */
+    if (ORTE_PROC_TYPE_NONE == orte_process_info.proc_type) {
    /* set the flags - if they gave us a -hnp option, then
-     * we are a tool. If not, then we are an HNP */
-    if (NULL == orte_cmd_options.hnp) {
-        orte_process_info.proc_type = ORTE_PROC_HNP;
-    } else {
-        orte_process_info.proc_type = ORTE_PROC_TOOL;
+         * we are a tool. If not, then we are an HNP */
+        if (NULL == orte_cmd_options.hnp) {
+            orte_process_info.proc_type = ORTE_PROC_HNP;
+        } else {
+            orte_process_info.proc_type = ORTE_PROC_TOOL;
+        }
     }
     if (ORTE_PROC_IS_TOOL) {
         if (0 == strncasecmp(orte_cmd_options.hnp, "file", strlen("file"))) {
@@ -534,13 +538,29 @@ int orte_submit_init(int argc, char *argv[],
     opal_finalize();
 
     if (ORTE_PROC_IS_TOOL) {
-        /* set the info in our contact table */
-        orte_rml.set_contact_info(orte_process_info.my_hnp_uri);
+        opal_value_t val;
         /* extract the name */
         if (ORTE_SUCCESS != orte_rml_base_parse_uris(orte_process_info.my_hnp_uri, ORTE_PROC_MY_HNP, NULL)) {
             orte_show_help("help-orte-top.txt", "orte-top:hnp-uri-bad", true, orte_process_info.my_hnp_uri);
             exit(1);
         }
+        /* set the info in our contact table */
+        OBJ_CONSTRUCT(&val, opal_value_t);
+        val.key = OPAL_PMIX_PROC_URI;
+        val.type = OPAL_STRING;
+        val.data.string = orte_process_info.my_hnp_uri;
+        if (OPAL_SUCCESS != opal_pmix.store_local(ORTE_PROC_MY_HNP, &val)) {
+            val.key = NULL;
+            val.data.string = NULL;
+            OBJ_DESTRUCT(&val);
+            orte_show_help("help-orte-top.txt", "orte-top:hnp-uri-bad", true, orte_process_info.my_hnp_uri);
+            orte_finalize();
+            exit(1);
+        }
+        val.key = NULL;
+        val.data.string = NULL;
+        OBJ_DESTRUCT(&val);
+
         /* set the route to be direct */
         if (ORTE_SUCCESS != orte_routed.update_route(NULL, ORTE_PROC_MY_HNP, ORTE_PROC_MY_HNP)) {
             orte_show_help("help-orte-top.txt", "orte-top:hnp-uri-bad", true, orte_process_info.my_hnp_uri);
@@ -812,7 +832,6 @@ int orte_submit_job(char *argv[], int *index,
         orte_set_attribute(&jdata->attributes, ORTE_JOB_MERGE_STDERR_STDOUT, ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
     }
 
-
     /* check what user wants us to do with stdin */
     if (NULL != orte_cmd_options.stdin_target) {
         if (0 == strcmp(orte_cmd_options.stdin_target, "all")) {
@@ -894,7 +913,7 @@ int orte_submit_job(char *argv[], int *index,
         ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_USE_LOCAL);
     }
     if (orte_cmd_options.no_oversubscribe) {
-        ORTE_UNSET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_OVERSUBSCRIBE);
+        ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_OVERSUBSCRIBE);
     }
     if (orte_cmd_options.oversubscribe) {
         ORTE_UNSET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_OVERSUBSCRIBE);
@@ -1005,7 +1024,7 @@ int orte_submit_job(char *argv[], int *index,
         if (NULL != orte_cmd_options.report_uri) {
             FILE *fp;
             char *rml_uri;
-            rml_uri = orte_rml.get_contact_info();
+            orte_oob_base_get_addr(&rml_uri);
             if (0 == strcmp(orte_cmd_options.report_uri, "-")) {
                 /* if '-', then output to stdout */
                 printf("%s\n",  (NULL == rml_uri) ? "NULL" : rml_uri);
@@ -1649,7 +1668,7 @@ static int create_app(int argc, char* argv[],
             orte_set_attribute(&app->attributes, ORTE_APP_SSNDIR_CWD, ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
             orte_set_attribute(&app->attributes, ORTE_APP_PRELOAD_BIN, ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
             /* no harm in setting this attribute twice as the function will simply ignore it */
-            orte_set_attribute(&app->attributes, ORTE_APP_SSNDIR_CWD, ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
+            orte_set_attribute(&app->attributes, ORTE_APP_USER_CWD, ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
         }
     }
     if (NULL != orte_cmd_options.preload_files) {

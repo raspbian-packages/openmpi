@@ -378,17 +378,23 @@ void mca_pml_ob1_recv_frag_callback_match(mca_btl_base_module_t* btl,
      */
     OB1_MATCHING_LOCK(&comm->matching_lock);
 
-    if(OPAL_UNLIKELY(((uint16_t) hdr->hdr_seq) != ((uint16_t) proc->expected_sequence))) {
-        mca_pml_ob1_recv_frag_t* frag;
-        MCA_PML_OB1_RECV_FRAG_ALLOC(frag);
-        MCA_PML_OB1_RECV_FRAG_INIT(frag, hdr, segments, num_segments, btl);
-        append_frag_to_ordered_list(&proc->frags_cant_match, frag, proc->expected_sequence);
-        OB1_MATCHING_UNLOCK(&comm->matching_lock);
-        return;
-    }
+    if (!OMPI_COMM_CHECK_ASSERT_ALLOW_OVERTAKE(comm_ptr)) {
+        /* get sequence number of next message that can be processed.
+         * If this frag is out of sequence, queue it up in the list
+         * now as we still have the lock.
+         */
+        if(OPAL_UNLIKELY(((uint16_t) hdr->hdr_seq) != ((uint16_t) proc->expected_sequence))) {
+            mca_pml_ob1_recv_frag_t* frag;
+            MCA_PML_OB1_RECV_FRAG_ALLOC(frag);
+            MCA_PML_OB1_RECV_FRAG_INIT(frag, hdr, segments, num_segments, btl);
+            append_frag_to_ordered_list(&proc->frags_cant_match, frag, proc->expected_sequence);
+            OB1_MATCHING_UNLOCK(&comm->matching_lock);
+            return;
+        }
 
-    /* We're now expecting the next sequence number. */
-    proc->expected_sequence++;
+        /* We're now expecting the next sequence number. */
+        proc->expected_sequence++;
+    }
 
     /* We generate the SEARCH_POSTED_QUEUE only when the message is
      * received in the correct sequence. Otherwise, we delay the event
@@ -743,6 +749,27 @@ static mca_pml_ob1_recv_request_t *match_incomming(
     return NULL;
 }
 
+static mca_pml_ob1_recv_request_t *match_incomming_no_any_source (
+        mca_pml_ob1_match_hdr_t *hdr, mca_pml_ob1_comm_t *comm,
+        mca_pml_ob1_comm_proc_t *proc)
+{
+    mca_pml_ob1_recv_request_t *recv_req;
+    int tag = hdr->hdr_tag;
+
+    OPAL_LIST_FOREACH(recv_req, &proc->specific_receives, mca_pml_ob1_recv_request_t) {
+        int req_tag = recv_req->req_recv.req_base.req_tag;
+
+        if (req_tag == tag || (req_tag == OMPI_ANY_TAG && tag >= 0)) {
+            opal_list_remove_item (&proc->specific_receives, (opal_list_item_t *) recv_req);
+            PERUSE_TRACE_COMM_EVENT(PERUSE_COMM_REQ_REMOVE_FROM_POSTED_Q,
+                    &(recv_req->req_recv.req_base), PERUSE_RECV);
+            return recv_req;
+        }
+    }
+
+    return NULL;
+}
+
 static mca_pml_ob1_recv_request_t*
 match_one(mca_btl_base_module_t *btl,
           mca_pml_ob1_match_hdr_t *hdr, mca_btl_base_segment_t* segments,
@@ -754,7 +781,11 @@ match_one(mca_btl_base_module_t *btl,
     mca_pml_ob1_comm_t *comm = (mca_pml_ob1_comm_t *)comm_ptr->c_pml_comm;
 
     do {
-        match = match_incomming(hdr, comm, proc);
+        if (!OMPI_COMM_CHECK_ASSERT_NO_ANY_SOURCE (comm_ptr)) {
+            match = match_incomming(hdr, comm, proc);
+        } else {
+            match = match_incomming_no_any_source (hdr, comm, proc);
+        }
 
         /* if match found, process data */
         if(OPAL_LIKELY(NULL != match)) {

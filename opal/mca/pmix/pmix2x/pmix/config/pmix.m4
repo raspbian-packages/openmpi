@@ -34,7 +34,14 @@ AC_DEFUN([PMIX_SETUP_CORE],[
 
     AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])
     AC_REQUIRE([AC_CANONICAL_TARGET])
-    AC_REQUIRE([AC_PROG_CC])
+
+    # AM_PROG_CC_C_O AC_REQUIREs AC_PROG_CC, so we have to be a little
+    # careful about ordering here, and AC_REQUIRE these things so that
+    # they get stamped out in the right order.
+    AC_REQUIRE([_PMIX_START_SETUP_CC])
+    AC_REQUIRE([_PMIX_PROG_CC])
+    AC_REQUIRE([AM_PROG_CC_C_O])
+
 
     # If no prefix was defined, set a good value
     m4_ifval([$1],
@@ -698,6 +705,32 @@ AC_DEFUN([PMIX_SETUP_CORE],[
 
     pmix_show_title "Modular Component Architecture (MCA) setup"
 
+    #
+    # Do we want to show component load error messages by default?
+    #
+
+    AC_MSG_CHECKING([for default value of mca_base_component_show_load_errors])
+    AC_ARG_ENABLE([show-load-errors-by-default],
+                  [AC_HELP_STRING([--enable-show-load-errors-by-default],
+                                  [Set the default value for the MCA parameter
+                                   mca_base_component_show_load_errors (but can be
+                                   overridden at run time by the usual
+                                   MCA-variable-setting mechansism).  This MCA variable
+                                   controls whether warnings are displayed when an MCA
+                                   component fails to load at run time due to an error.
+                                   (default: enabled, meaning that
+                                   mca_base_component_show_load_errors is enabled
+                                   by default])])
+    if test "$enable_show_load_errors_by_default" = "no" ; then
+        PMIX_SHOW_LOAD_ERRORS_DEFAULT=0
+        AC_MSG_RESULT([disabled by default])
+    else
+        PMIX_SHOW_LOAD_ERRORS_DEFAULT=1
+        AC_MSG_RESULT([enabled by default])
+    fi
+    AC_DEFINE_UNQUOTED(PMIX_SHOW_LOAD_ERRORS_DEFAULT, $PMIX_SHOW_LOAD_ERRORS_DEFAULT,
+                       [Default value for mca_base_component_show_load_errors MCA variable])
+
     AC_MSG_CHECKING([for subdir args])
     PMIX_CONFIG_SUBDIR_ARGS([pmix_subdir_args])
     AC_MSG_RESULT([$pmix_subdir_args])
@@ -753,9 +786,12 @@ AC_DEFUN([PMIX_SETUP_CORE],[
 
     pmix_show_subtitle "Final output"
 
+    AC_CONFIG_HEADERS(pmix_config_prefix[include/pmix_common.h])
+
     AC_CONFIG_FILES(
         pmix_config_prefix[Makefile]
         pmix_config_prefix[config/Makefile]
+        pmix_config_prefix[etc/Makefile]
         pmix_config_prefix[include/Makefile]
         pmix_config_prefix[src/Makefile]
         pmix_config_prefix[src/util/keyval/Makefile]
@@ -936,25 +972,6 @@ AC_DEFINE_UNQUOTED([PMIX_WANT_PRETTY_PRINT_STACKTRACE],
                    [$WANT_PRETTY_PRINT_STACKTRACE],
                    [if want pretty-print stack trace feature])
 
-# Do we want the shared memory datastore usage?
-#
-
-AC_MSG_CHECKING([if want shared memory datastore])
-AC_ARG_ENABLE([dstore],
-              [AC_HELP_STRING([--disable-dstore],
-                              [Using shared memory datastore (default: enabled)])])
-if test "$enable_dstore" = "no" ; then
-    AC_MSG_RESULT([no])
-    WANT_DSTORE=0
-else
-    AC_MSG_RESULT([yes])
-    WANT_DSTORE=1
-fi
-AC_DEFINE_UNQUOTED([PMIX_ENABLE_DSTORE],
-                 [$WANT_DSTORE],
-                 [if want shared memory dstore feature])
-
-#
 #
 # Use pthread-based locking
 #
@@ -962,7 +979,7 @@ DSTORE_PTHREAD_LOCK="1"
 AC_MSG_CHECKING([if want dstore pthread-based locking])
 AC_ARG_ENABLE([dstore-pthlck],
               [AC_HELP_STRING([--disable-dstore-pthlck],
-                              [Disable pthread-based lockig in dstor (default: enabled)])])
+                              [Disable pthread-based locking in dstor (default: enabled)])])
 if test "$enable_dstore_pthlck" = "no" ; then
     AC_MSG_RESULT([no])
     DSTORE_PTHREAD_LOCK="0"

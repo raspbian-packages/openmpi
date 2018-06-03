@@ -288,6 +288,10 @@
    don't. */
 #undef HAVE_DECL_STRTOULL
 
+/* Define to 1 if you have the declaration of `ucp_tag_send_nbr', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCP_TAG_SEND_NBR
+
 /* Define to 1 if you have the declaration of `_putenv', and to 0 if you
    don't. */
 #undef HAVE_DECL__PUTENV
@@ -608,6 +612,9 @@
 
 /* Define to 1 if you have the <netinet/tcp.h> header file. */
 #undef HAVE_NETINET_TCP_H
+
+/* Define to 1 if you have the <netlink/version.h> header file. */
+#undef HAVE_NETLINK_VERSION_H
 
 /* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
@@ -1023,6 +1030,9 @@
 
 /* Define to 1 if you have the <ucp/api/ucp.h> header file. */
 #undef HAVE_UCP_API_UCP_H
+
+/* have ucp_tag_send_nbr() */
+#undef HAVE_UCP_TAG_SEND_NBR
 
 /* Define to 1 if the system has the type `uint128_t'. */
 #undef HAVE_UINT128_T
@@ -1881,8 +1891,8 @@
 /* Index into endpoint array for PORTALS4 */
 #undef OMPI_PROC_ENDPOINT_TAG_PORTALS4
 
-/* Whether OMPI should provide MPI File interface */
-#undef OMPI_PROVIDE_MPI_FILE_INTERFACE
+/* Index into endpoint array for UCX */
+#undef OMPI_PROC_ENDPOINT_TAG_UCX
 
 /* Whether Fortran REAL*16 matches the bit format of the equivalent C type */
 #undef OMPI_REAL16_MATCHES_C
@@ -2183,9 +2193,6 @@
 /* Use #pragma ident strings for C++ files */
 #undef OPAL_CXX_USE_PRAGMA_IDENT
 
-/* Whether C compiler supports DEC style inline assembly */
-#undef OPAL_C_DEC_INLINE_ASSEMBLY
-
 /* Whether C compiler supports GCC style inline assembly */
 #undef OPAL_C_GCC_INLINE_ASSEMBLY
 
@@ -2200,9 +2207,6 @@
 
 /* Whether C compiler supports symbol visibility or not */
 #undef OPAL_C_HAVE_VISIBILITY
-
-/* Whether C compiler supports XLC style inline assembly */
-#undef OPAL_C_XLC_INLINE_ASSEMBLY
 
 /* Whether we have lt_dladvise or not */
 #undef OPAL_DL_LIBLTDL_HAVE_LT_DLADVISE
@@ -2258,9 +2262,6 @@
 
 /* Greek - alpha, beta, etc - release number of Open Portable Access Layer */
 #undef OPAL_GREEK_VERSION
-
-/* Whether there is an atomic assembly file available */
-#undef OPAL_HAVE_ASM_FILE
 
 /* Whether your compiler has __attribute__ or not */
 #undef OPAL_HAVE_ATTRIBUTE

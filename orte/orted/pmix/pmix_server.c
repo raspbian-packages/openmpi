@@ -70,6 +70,7 @@
 #include "orte/util/show_help.h"
 #include "orte/util/threads.h"
 #include "orte/runtime/orte_globals.h"
+#include "orte/runtime/orte_data_server.h"
 
 #include "pmix_server.h"
 #include "pmix_server_internal.h"
@@ -154,6 +155,22 @@ void pmix_server_register_params(void)
                                   MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
                                   OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
                                   &orte_pmix_server_globals.legacy);
+
+    /* whether or not to drop a session-level tool rendezvous point */
+    orte_pmix_server_globals.session_server = false;
+    (void) mca_base_var_register ("orte", "pmix", NULL, "session_server",
+                                  "Whether or not to drop a session-level tool rendezvous point",
+                                  MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
+                                  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
+                                  &orte_pmix_server_globals.session_server);
+
+    /* whether or not to drop a system-level tool rendezvous point */
+    orte_pmix_server_globals.system_server = false;
+    (void) mca_base_var_register ("orte", "pmix", NULL, "system_server",
+                                  "Whether or not to drop a system-level tool rendezvous point",
+                                  MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
+                                  OPAL_INFO_LVL_9, MCA_BASE_VAR_SCOPE_ALL,
+                                  &orte_pmix_server_globals.system_server);
 }
 
 static void eviction_cbfunc(struct opal_hotel_t *hotel,
@@ -231,47 +248,10 @@ int pmix_server_init(void)
     OBJ_CONSTRUCT(&orte_pmix_server_globals.notifications, opal_list_t);
     orte_pmix_server_globals.server = *ORTE_NAME_INVALID;
 
-   /* setup recv for direct modex requests */
-    orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX,
-                            ORTE_RML_PERSISTENT, pmix_server_dmdx_recv, NULL);
-
-    /* setup recv for replies to direct modex requests */
-    orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX_RESP,
-                            ORTE_RML_PERSISTENT, pmix_server_dmdx_resp, NULL);
-
-    /* setup recv for replies to proxy launch requests */
-    orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_LAUNCH_RESP,
-                            ORTE_RML_PERSISTENT, pmix_server_launch_resp, NULL);
-
-    /* setup recv for replies from data server */
-    orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DATA_CLIENT,
-                            ORTE_RML_PERSISTENT, pmix_server_keyval_client, NULL);
-
-    /* setup recv for notifications */
-    orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_NOTIFICATION,
-                            ORTE_RML_PERSISTENT, pmix_server_notify, NULL);
-
     /* ensure the PMIx server uses the proper rendezvous directory */
     opal_setenv("PMIX_SERVER_TMPDIR", orte_process_info.proc_session_dir, true, &environ);
 
-    /* pass the server the local topology - we do this so the procs won't read the
-     * topology themselves as this could overwhelm the local
-     * system on large-scale SMPs */
     OBJ_CONSTRUCT(&info, opal_list_t);
-    if (NULL != opal_hwloc_topology) {
-        char *xmlbuffer=NULL;
-        int len;
-        kv = OBJ_NEW(opal_value_t);
-        kv->key = strdup(OPAL_PMIX_LOCAL_TOPO);
-        if (0 != hwloc_topology_export_xmlbuffer(opal_hwloc_topology, &xmlbuffer, &len)) {
-            OBJ_RELEASE(kv);
-            OBJ_DESTRUCT(&info);
-            return ORTE_ERROR;
-        }
-        kv->data.string = xmlbuffer;
-        kv->type = OPAL_STRING;
-        opal_list_append(&info, &kv->super);
-    }
     /* tell the server our temp directory */
     kv = OBJ_NEW(opal_value_t);
     kv->key = strdup(OPAL_PMIX_SERVER_TMPDIR);
@@ -292,6 +272,27 @@ int pmix_server_init(void)
     kv->type = OPAL_BOOL;
     kv->data.flag = true;
     opal_list_append(&info, &kv->super);
+    /* if requested, tell the server to drop a session-level
+     * PMIx connection point */
+    if (orte_pmix_server_globals.session_server) {
+        kv = OBJ_NEW(opal_value_t);
+        kv->key = strdup(OPAL_PMIX_SERVER_TOOL_SUPPORT);
+        kv->type = OPAL_BOOL;
+        kv->data.flag = true;
+        opal_list_append(&info, &kv->super);
+    }
+
+    /* if requested, tell the server to drop a system-level
+     * PMIx connection point - only do this for the HNP as, in
+     * at least one case, a daemon can be colocated with the
+     * HNP and would overwrite the server rendezvous file */
+    if (orte_pmix_server_globals.system_server && ORTE_PROC_IS_HNP) {
+        kv = OBJ_NEW(opal_value_t);
+        kv->key = strdup(OPAL_PMIX_SERVER_SYSTEM_SUPPORT);
+        kv->type = OPAL_BOOL;
+        kv->data.flag = true;
+        opal_list_append(&info, &kv->super);
+    }
 
     /* setup the local server */
     if (ORTE_SUCCESS != (rc = opal_pmix.server_init(&pmix_server, &info))) {
@@ -301,6 +302,32 @@ int pmix_server_init(void)
     OPAL_LIST_DESTRUCT(&info);
 
     return rc;
+}
+
+void pmix_server_start(void)
+{
+    /* setup our local data server */
+    orte_data_server_init();
+
+    /* setup recv for direct modex requests */
+     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX,
+                             ORTE_RML_PERSISTENT, pmix_server_dmdx_recv, NULL);
+
+     /* setup recv for replies to direct modex requests */
+     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DIRECT_MODEX_RESP,
+                             ORTE_RML_PERSISTENT, pmix_server_dmdx_resp, NULL);
+
+     /* setup recv for replies to proxy launch requests */
+     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_LAUNCH_RESP,
+                             ORTE_RML_PERSISTENT, pmix_server_launch_resp, NULL);
+
+     /* setup recv for replies from data server */
+     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DATA_CLIENT,
+                             ORTE_RML_PERSISTENT, pmix_server_keyval_client, NULL);
+
+     /* setup recv for notifications */
+     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_NOTIFICATION,
+                             ORTE_RML_PERSISTENT, pmix_server_notify, NULL);
 }
 
 void pmix_server_finalize(void)
@@ -319,6 +346,9 @@ void pmix_server_finalize(void)
     orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_LAUNCH_RESP);
     orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_DATA_CLIENT);
     orte_rml.recv_cancel(ORTE_NAME_WILDCARD, ORTE_RML_TAG_NOTIFICATION);
+
+    /* finalize our local data server */
+    orte_data_server_finalize();
 
     /* shutdown the local server */
     opal_pmix.server_finalize();

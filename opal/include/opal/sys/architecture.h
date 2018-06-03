@@ -46,7 +46,6 @@
 #define OPAL_S390           0110
 #define OPAL_S390X          0111
 #define OPAL_BUILTIN_SYNC   0200
-#define OPAL_BUILTIN_OSX    0201
 #define OPAL_BUILTIN_GCC    0202
 #define OPAL_BUILTIN_NO     0203
 

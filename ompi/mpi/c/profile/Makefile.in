@@ -32,7 +32,7 @@
 # Copyright (c) 2012-2013 Inria.  All rights reserved.
 # Copyright (c) 2013      Los Alamos National Security, LLC. All rights
 #                         reserved.
-# Copyright (c) 2015      Research Organization for Information Science
+# Copyright (c) 2015-2017 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # $COPYRIGHT$
 #
@@ -129,70 +129,6 @@ target_triplet = @target@
 @MAN_PAGE_BUILD_MPI_CXX_BINDINGS_FALSE@am__append_1 = --nocxx
 @MAN_PAGE_BUILD_MPIFH_BINDINGS_FALSE@am__append_2 = --nofortran
 @MAN_PAGE_BUILD_USEMPIF08_BINDINGS_FALSE@am__append_3 = --nof08
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__append_4 = \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_c2f.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_call_errhandler.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_close.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_create_errhandler.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_delete.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_f2c.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_amode.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_atomicity.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_byte_offset.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_errhandler.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_group.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_info.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_position.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_position_shared.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_size.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_type_extent.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_get_view.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iread_at.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iread.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iread_at_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iread_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iread_shared.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iwrite_at.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iwrite.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iwrite_at_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iwrite_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_iwrite_shared.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_open.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_preallocate.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_all_begin.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_all_end.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_at_all_begin.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_at_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_at_all_end.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_at.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_ordered_begin.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_ordered.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_ordered_end.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_read_shared.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_seek.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_seek_shared.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_set_atomicity.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_set_errhandler.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_set_info.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_set_size.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_set_view.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_sync.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_all_begin.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_all_end.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_at_all_begin.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_at_all.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_at_all_end.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_at.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_ordered_begin.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_ordered.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_ordered_end.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pfile_write_shared.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        pregister_datarep.c
-
 subdir = ompi/mpi/c/profile
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -267,9 +203,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -335,7 +271,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -389,6 +325,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -418,6 +355,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -429,16 +367,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -454,10 +393,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -496,68 +438,6 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libmpi_c_pmpi_la_LIBADD =
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__objects_1 = pfile_c2f.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_call_errhandler.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_close.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_create_errhandler.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_delete.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_f2c.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_amode.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_atomicity.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_byte_offset.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_errhandler.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_group.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_info.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_position.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_position_shared.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_size.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_type_extent.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_get_view.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iread_at.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iread.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iread_at_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iread_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iread_shared.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iwrite_at.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iwrite.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iwrite_at_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iwrite_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_iwrite_shared.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_open.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_preallocate.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_all_begin.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_all_end.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_at_all_begin.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_at_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_at_all_end.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_at.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_ordered_begin.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_ordered.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_ordered_end.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_read_shared.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_seek.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_seek_shared.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_set_atomicity.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_set_errhandler.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_set_info.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_set_size.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_set_view.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_sync.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_all_begin.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_all_end.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_at_all_begin.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_at_all.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_at_all_end.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_at.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_ordered_begin.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_ordered.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_ordered_end.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pfile_write_shared.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	pregister_datarep.lo
 nodist_libmpi_c_pmpi_la_OBJECTS = pabort.lo padd_error_class.lo \
 	padd_error_code.lo padd_error_string.lo paddress.lo \
 	pallgather.lo piallgather.lo pallgatherv.lo piallgatherv.lo \
@@ -587,10 +467,34 @@ nodist_libmpi_c_pmpi_la_OBJECTS = pabort.lo padd_error_class.lo \
 	perrhandler_c2f.lo perrhandler_create.lo perrhandler_f2c.lo \
 	perrhandler_free.lo perrhandler_get.lo perrhandler_set.lo \
 	perror_class.lo perror_string.lo pexscan.lo pfetch_and_op.lo \
-	piexscan.lo pfinalize.lo pfinalized.lo pfree_mem.lo pgather.lo \
-	pigather.lo pgatherv.lo pigatherv.lo pget_address.lo \
-	pget_count.lo pget_elements.lo pget_elements_x.lo \
-	pget_accumulate.lo pget_library_version.lo \
+	piexscan.lo pfile_c2f.lo pfile_call_errhandler.lo \
+	pfile_close.lo pfile_create_errhandler.lo pfile_delete.lo \
+	pfile_f2c.lo pfile_get_amode.lo pfile_get_atomicity.lo \
+	pfile_get_byte_offset.lo pfile_get_errhandler.lo \
+	pfile_get_group.lo pfile_get_info.lo pfile_get_position.lo \
+	pfile_get_position_shared.lo pfile_get_size.lo \
+	pfile_get_type_extent.lo pfile_get_view.lo pfile_iread_at.lo \
+	pfile_iread.lo pfile_iread_at_all.lo pfile_iread_all.lo \
+	pfile_iread_shared.lo pfile_iwrite_at.lo pfile_iwrite.lo \
+	pfile_iwrite_at_all.lo pfile_iwrite_all.lo \
+	pfile_iwrite_shared.lo pfile_open.lo pfile_preallocate.lo \
+	pfile_read_all_begin.lo pfile_read_all.lo \
+	pfile_read_all_end.lo pfile_read_at_all_begin.lo \
+	pfile_read_at_all.lo pfile_read_at_all_end.lo pfile_read_at.lo \
+	pfile_read.lo pfile_read_ordered_begin.lo \
+	pfile_read_ordered.lo pfile_read_ordered_end.lo \
+	pfile_read_shared.lo pfile_seek.lo pfile_seek_shared.lo \
+	pfile_set_atomicity.lo pfile_set_errhandler.lo \
+	pfile_set_info.lo pfile_set_size.lo pfile_set_view.lo \
+	pfile_sync.lo pfile_write_all_begin.lo pfile_write_all.lo \
+	pfile_write_all_end.lo pfile_write_at_all_begin.lo \
+	pfile_write_at_all.lo pfile_write_at_all_end.lo \
+	pfile_write_at.lo pfile_write.lo pfile_write_ordered_begin.lo \
+	pfile_write_ordered.lo pfile_write_ordered_end.lo \
+	pfile_write_shared.lo pfinalize.lo pfinalized.lo pfree_mem.lo \
+	pgather.lo pigather.lo pgatherv.lo pigatherv.lo \
+	pget_address.lo pget_count.lo pget_elements.lo \
+	pget_elements_x.lo pget_accumulate.lo pget_library_version.lo \
 	pget_processor_name.lo pget_version.lo pgraph_create.lo \
 	pgraph_get.lo pgraph_map.lo pgraph_neighbors_count.lo \
 	pgraph_neighbors.lo pgraphdims_get.lo pgrequest_complete.lo \
@@ -616,28 +520,29 @@ nodist_libmpi_c_pmpi_la_OBJECTS = pabort.lo padd_error_class.lo \
 	popen_port.lo ppack_external.lo ppack_external_size.lo \
 	ppack.lo ppack_size.lo ppcontrol.lo pprobe.lo ppublish_name.lo \
 	pquery_thread.lo praccumulate.lo precv_init.lo precv.lo \
-	preduce.lo pireduce.lo preduce_local.lo preduce_scatter.lo \
-	pireduce_scatter.lo preduce_scatter_block.lo \
-	pireduce_scatter_block.lo prequest_c2f.lo prequest_f2c.lo \
-	prequest_free.lo prequest_get_status.lo prget.lo \
-	prget_accumulate.lo prput.lo prsend_init.lo prsend.lo pscan.lo \
-	piscan.lo pscatter.lo piscatter.lo pscatterv.lo piscatterv.lo \
-	psend.lo psend_init.lo psendrecv.lo psendrecv_replace.lo \
-	pssend_init.lo pssend.lo pstart.lo pstartall.lo pstatus_c2f.lo \
-	pstatus_f2c.lo pstatus_set_cancelled.lo \
-	pstatus_set_elements.lo pstatus_set_elements_x.lo ptestall.lo \
-	ptestany.lo ptest.lo ptest_cancelled.lo ptestsome.lo \
-	ptopo_test.lo ptype_c2f.lo ptype_commit.lo ptype_contiguous.lo \
-	ptype_create_darray.lo ptype_create_f90_complex.lo \
-	ptype_create_f90_integer.lo ptype_create_f90_real.lo \
-	ptype_create_hindexed.lo ptype_create_hvector.lo \
-	ptype_create_indexed_block.lo ptype_create_hindexed_block.lo \
-	ptype_create_keyval.lo ptype_create_resized.lo \
-	ptype_create_struct.lo ptype_create_subarray.lo \
-	ptype_delete_attr.lo ptype_dup.lo ptype_extent.lo ptype_f2c.lo \
-	ptype_free.lo ptype_free_keyval.lo ptype_get_attr.lo \
-	ptype_get_contents.lo ptype_get_envelope.lo \
-	ptype_get_extent.lo ptype_get_extent_x.lo ptype_get_name.lo \
+	preduce.lo pregister_datarep.lo pireduce.lo preduce_local.lo \
+	preduce_scatter.lo pireduce_scatter.lo \
+	preduce_scatter_block.lo pireduce_scatter_block.lo \
+	prequest_c2f.lo prequest_f2c.lo prequest_free.lo \
+	prequest_get_status.lo prget.lo prget_accumulate.lo prput.lo \
+	prsend_init.lo prsend.lo pscan.lo piscan.lo pscatter.lo \
+	piscatter.lo pscatterv.lo piscatterv.lo psend.lo psend_init.lo \
+	psendrecv.lo psendrecv_replace.lo pssend_init.lo pssend.lo \
+	pstart.lo pstartall.lo pstatus_c2f.lo pstatus_f2c.lo \
+	pstatus_set_cancelled.lo pstatus_set_elements.lo \
+	pstatus_set_elements_x.lo ptestall.lo ptestany.lo ptest.lo \
+	ptest_cancelled.lo ptestsome.lo ptopo_test.lo ptype_c2f.lo \
+	ptype_commit.lo ptype_contiguous.lo ptype_create_darray.lo \
+	ptype_create_f90_complex.lo ptype_create_f90_integer.lo \
+	ptype_create_f90_real.lo ptype_create_hindexed.lo \
+	ptype_create_hvector.lo ptype_create_indexed_block.lo \
+	ptype_create_hindexed_block.lo ptype_create_keyval.lo \
+	ptype_create_resized.lo ptype_create_struct.lo \
+	ptype_create_subarray.lo ptype_delete_attr.lo ptype_dup.lo \
+	ptype_extent.lo ptype_f2c.lo ptype_free.lo \
+	ptype_free_keyval.lo ptype_get_attr.lo ptype_get_contents.lo \
+	ptype_get_envelope.lo ptype_get_extent.lo \
+	ptype_get_extent_x.lo ptype_get_name.lo \
 	ptype_get_true_extent.lo ptype_get_true_extent_x.lo \
 	ptype_hindexed.lo ptype_hvector.lo ptype_indexed.lo \
 	ptype_lb.lo ptype_match_size.lo ptype_set_attr.lo \
@@ -658,7 +563,7 @@ nodist_libmpi_c_pmpi_la_OBJECTS = pabort.lo padd_error_class.lo \
 	pwin_set_attr.lo pwin_set_errhandler.lo pwin_set_info.lo \
 	pwin_set_name.lo pwin_shared_query.lo pwin_start.lo \
 	pwin_sync.lo pwin_test.lo pwin_unlock.lo pwin_unlock_all.lo \
-	pwin_wait.lo $(am__objects_1)
+	pwin_wait.lo
 libmpi_c_pmpi_la_OBJECTS = $(nodist_libmpi_c_pmpi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -838,6 +743,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -1120,6 +1026,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1224,6 +1137,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -1454,8 +1374,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -1463,7 +1381,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -1510,7 +1427,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -1728,9 +1644,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -1779,9 +1696,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -1815,6 +1732,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -1828,6 +1748,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -1941,101 +1864,392 @@ AM_CPPFLAGS = -DOMPI_BUILD_MPI_PROFILING=1
 # Further, this build HAS to go through if profiling is required.
 #
 noinst_LTLIBRARIES = libmpi_c_pmpi.la
-nodist_libmpi_c_pmpi_la_SOURCES = pabort.c padd_error_class.c \
-	padd_error_code.c padd_error_string.c paddress.c pallgather.c \
-	piallgather.c pallgatherv.c piallgatherv.c palloc_mem.c \
-	pallreduce.c piallreduce.c palltoall.c pialltoall.c \
-	palltoallv.c pialltoallv.c palltoallw.c pialltoallw.c \
-	pattr_delete.c pattr_get.c pattr_put.c pbarrier.c pibarrier.c \
-	pbcast.c pibcast.c pbsend.c pbsend_init.c pbuffer_attach.c \
-	pbuffer_detach.c pcancel.c pcart_coords.c pcart_create.c \
-	pcartdim_get.c pcart_get.c pcart_map.c pcart_rank.c \
-	pcart_shift.c pcart_sub.c pclose_port.c pcomm_accept.c \
-	pcomm_c2f.c pcomm_call_errhandler.c pcomm_compare.c \
-	pcomm_connect.c pcomm_create.c pcomm_create_errhandler.c \
-	pcomm_create_group.c pcomm_create_keyval.c pcomm_delete_attr.c \
-	pcomm_disconnect.c pcomm_dup.c pcomm_dup_with_info.c \
-	pcomm_idup.c pcomm_f2c.c pcomm_free.c pcomm_free_keyval.c \
-	pcomm_get_attr.c pcomm_get_errhandler.c pcomm_get_info.c \
-	pcomm_get_name.c pcomm_get_parent.c pcomm_group.c pcomm_join.c \
-	pcomm_rank.c pcomm_remote_group.c pcomm_remote_size.c \
-	pcomm_set_attr.c pcomm_set_info.c pdist_graph_create.c \
-	pdist_graph_create_adjacent.c pdist_graph_neighbors.c \
-	pdist_graph_neighbors_count.c pcomm_set_errhandler.c \
-	pcomm_set_name.c pcomm_size.c pcomm_spawn.c \
-	pcomm_spawn_multiple.c pcomm_split.c pcomm_split_type.c \
-	pcomm_test_inter.c pcompare_and_swap.c pdims_create.c \
-	perrhandler_c2f.c perrhandler_create.c perrhandler_f2c.c \
-	perrhandler_free.c perrhandler_get.c perrhandler_set.c \
-	perror_class.c perror_string.c pexscan.c pfetch_and_op.c \
-	piexscan.c pfinalize.c pfinalized.c pfree_mem.c pgather.c \
-	pigather.c pgatherv.c pigatherv.c pget_address.c pget_count.c \
-	pget_elements.c pget_elements_x.c pget_accumulate.c \
-	pget_library_version.c pget_processor_name.c pget_version.c \
-	pgraph_create.c pgraph_get.c pgraph_map.c \
-	pgraph_neighbors_count.c pgraph_neighbors.c pgraphdims_get.c \
-	pgrequest_complete.c pgrequest_start.c pgroup_c2f.c \
-	pgroup_compare.c pgroup_difference.c pgroup_excl.c \
-	pgroup_f2c.c pgroup_free.c pgroup_incl.c pgroup_intersection.c \
-	pgroup_range_excl.c pgroup_range_incl.c pgroup_rank.c \
-	pgroup_size.c pgroup_translate_ranks.c pgroup_union.c \
-	pibsend.c pimprobe.c pimrecv.c pinfo_c2f.c pinfo_create.c \
-	pinfo_delete.c pinfo_dup.c pinfo_f2c.c pinfo_free.c \
-	pinfo_get.c pinfo_get_nkeys.c pinfo_get_nthkey.c \
-	pinfo_get_valuelen.c pinfo_set.c pinit.c pinit_thread.c \
-	pinitialized.c pintercomm_create.c pintercomm_merge.c \
-	piprobe.c pirecv.c pirsend.c pis_thread_main.c pisend.c \
-	pissend.c pkeyval_create.c pkeyval_free.c plookup_name.c \
-	pmessage_f2c.c pmessage_c2f.c pmprobe.c pmrecv.c \
-	pneighbor_allgather.c pineighbor_allgather.c \
-	pneighbor_allgatherv.c pineighbor_allgatherv.c \
-	pneighbor_alltoall.c pineighbor_alltoall.c \
-	pneighbor_alltoallv.c pineighbor_alltoallv.c \
-	pneighbor_alltoallw.c pineighbor_alltoallw.c pop_c2f.c \
-	pop_create.c pop_commutative.c pop_f2c.c pop_free.c \
-	popen_port.c ppack_external.c ppack_external_size.c ppack.c \
-	ppack_size.c ppcontrol.c pprobe.c ppublish_name.c \
-	pquery_thread.c praccumulate.c precv_init.c precv.c preduce.c \
-	pireduce.c preduce_local.c preduce_scatter.c \
-	pireduce_scatter.c preduce_scatter_block.c \
-	pireduce_scatter_block.c prequest_c2f.c prequest_f2c.c \
-	prequest_free.c prequest_get_status.c prget.c \
-	prget_accumulate.c prput.c prsend_init.c prsend.c pscan.c \
-	piscan.c pscatter.c piscatter.c pscatterv.c piscatterv.c \
-	psend.c psend_init.c psendrecv.c psendrecv_replace.c \
-	pssend_init.c pssend.c pstart.c pstartall.c pstatus_c2f.c \
-	pstatus_f2c.c pstatus_set_cancelled.c pstatus_set_elements.c \
-	pstatus_set_elements_x.c ptestall.c ptestany.c ptest.c \
-	ptest_cancelled.c ptestsome.c ptopo_test.c ptype_c2f.c \
-	ptype_commit.c ptype_contiguous.c ptype_create_darray.c \
-	ptype_create_f90_complex.c ptype_create_f90_integer.c \
-	ptype_create_f90_real.c ptype_create_hindexed.c \
-	ptype_create_hvector.c ptype_create_indexed_block.c \
-	ptype_create_hindexed_block.c ptype_create_keyval.c \
-	ptype_create_resized.c ptype_create_struct.c \
-	ptype_create_subarray.c ptype_delete_attr.c ptype_dup.c \
-	ptype_extent.c ptype_f2c.c ptype_free.c ptype_free_keyval.c \
-	ptype_get_attr.c ptype_get_contents.c ptype_get_envelope.c \
-	ptype_get_extent.c ptype_get_extent_x.c ptype_get_name.c \
-	ptype_get_true_extent.c ptype_get_true_extent_x.c \
-	ptype_hindexed.c ptype_hvector.c ptype_indexed.c ptype_lb.c \
-	ptype_match_size.c ptype_set_attr.c ptype_set_name.c \
-	ptype_size.c ptype_size_x.c ptype_struct.c ptype_ub.c \
-	ptype_vector.c punpack_external.c punpack.c punpublish_name.c \
-	pwait.c pwaitall.c pwaitany.c pwaitsome.c pwtime.c pwtick.c \
-	paccumulate.c pget.c pput.c pwin_allocate.c \
-	pwin_allocate_shared.c pwin_attach.c pwin_c2f.c \
-	pwin_call_errhandler.c pwin_complete.c \
-	pwin_create_errhandler.c pwin_create_keyval.c pwin_create.c \
-	pwin_create_dynamic.c pwin_delete_attr.c pwin_detach.c \
-	pwin_f2c.c pwin_fence.c pwin_flush.c pwin_flush_all.c \
-	pwin_flush_local.c pwin_flush_local_all.c pwin_free_keyval.c \
-	pwin_free.c pwin_get_attr.c pwin_get_errhandler.c \
-	pwin_get_group.c pwin_get_info.c pwin_get_name.c pwin_lock.c \
-	pwin_lock_all.c pwin_post.c pwin_set_attr.c \
-	pwin_set_errhandler.c pwin_set_info.c pwin_set_name.c \
-	pwin_shared_query.c pwin_start.c pwin_sync.c pwin_test.c \
-	pwin_unlock.c pwin_unlock_all.c pwin_wait.c $(am__append_4)
+nodist_libmpi_c_pmpi_la_SOURCES = \
+        pabort.c \
+        padd_error_class.c \
+        padd_error_code.c \
+        padd_error_string.c \
+        paddress.c \
+        pallgather.c \
+        piallgather.c \
+        pallgatherv.c \
+        piallgatherv.c \
+        palloc_mem.c \
+        pallreduce.c \
+        piallreduce.c \
+        palltoall.c \
+        pialltoall.c \
+        palltoallv.c \
+        pialltoallv.c \
+        palltoallw.c \
+        pialltoallw.c \
+        pattr_delete.c \
+        pattr_get.c \
+        pattr_put.c \
+        pbarrier.c \
+        pibarrier.c \
+        pbcast.c \
+        pibcast.c \
+        pbsend.c \
+        pbsend_init.c \
+        pbuffer_attach.c \
+        pbuffer_detach.c \
+        pcancel.c \
+        pcart_coords.c \
+        pcart_create.c \
+        pcartdim_get.c \
+        pcart_get.c \
+        pcart_map.c \
+        pcart_rank.c \
+        pcart_shift.c \
+        pcart_sub.c \
+        pclose_port.c \
+        pcomm_accept.c \
+        pcomm_c2f.c \
+        pcomm_call_errhandler.c \
+        pcomm_compare.c \
+        pcomm_connect.c \
+        pcomm_create.c \
+        pcomm_create_errhandler.c \
+        pcomm_create_group.c \
+        pcomm_create_keyval.c \
+        pcomm_delete_attr.c \
+        pcomm_disconnect.c \
+        pcomm_dup.c \
+        pcomm_dup_with_info.c \
+        pcomm_idup.c \
+        pcomm_f2c.c \
+        pcomm_free.c \
+        pcomm_free_keyval.c \
+        pcomm_get_attr.c \
+        pcomm_get_errhandler.c \
+        pcomm_get_info.c \
+        pcomm_get_name.c \
+        pcomm_get_parent.c \
+        pcomm_group.c \
+        pcomm_join.c \
+        pcomm_rank.c \
+        pcomm_remote_group.c \
+        pcomm_remote_size.c \
+        pcomm_set_attr.c \
+        pcomm_set_info.c \
+        pdist_graph_create.c \
+        pdist_graph_create_adjacent.c \
+        pdist_graph_neighbors.c \
+        pdist_graph_neighbors_count.c \
+        pcomm_set_errhandler.c \
+        pcomm_set_name.c \
+        pcomm_size.c \
+        pcomm_spawn.c \
+        pcomm_spawn_multiple.c \
+        pcomm_split.c \
+        pcomm_split_type.c \
+        pcomm_test_inter.c \
+	pcompare_and_swap.c \
+        pdims_create.c \
+        perrhandler_c2f.c \
+        perrhandler_create.c \
+        perrhandler_f2c.c \
+        perrhandler_free.c \
+        perrhandler_get.c \
+        perrhandler_set.c \
+        perror_class.c \
+        perror_string.c \
+        pexscan.c \
+	pfetch_and_op.c \
+        piexscan.c \
+        pfile_c2f.c \
+        pfile_call_errhandler.c \
+        pfile_close.c \
+        pfile_create_errhandler.c \
+        pfile_delete.c \
+        pfile_f2c.c \
+        pfile_get_amode.c \
+        pfile_get_atomicity.c \
+        pfile_get_byte_offset.c \
+        pfile_get_errhandler.c \
+        pfile_get_group.c \
+        pfile_get_info.c \
+        pfile_get_position.c \
+        pfile_get_position_shared.c \
+        pfile_get_size.c \
+        pfile_get_type_extent.c \
+        pfile_get_view.c \
+        pfile_iread_at.c \
+        pfile_iread.c \
+        pfile_iread_at_all.c \
+        pfile_iread_all.c \
+        pfile_iread_shared.c \
+        pfile_iwrite_at.c \
+        pfile_iwrite.c \
+        pfile_iwrite_at_all.c \
+        pfile_iwrite_all.c \
+        pfile_iwrite_shared.c \
+        pfile_open.c \
+        pfile_preallocate.c \
+        pfile_read_all_begin.c \
+        pfile_read_all.c \
+        pfile_read_all_end.c \
+        pfile_read_at_all_begin.c \
+        pfile_read_at_all.c \
+        pfile_read_at_all_end.c \
+        pfile_read_at.c \
+        pfile_read.c \
+        pfile_read_ordered_begin.c \
+        pfile_read_ordered.c \
+        pfile_read_ordered_end.c \
+        pfile_read_shared.c \
+        pfile_seek.c \
+        pfile_seek_shared.c \
+        pfile_set_atomicity.c \
+        pfile_set_errhandler.c \
+        pfile_set_info.c \
+        pfile_set_size.c \
+        pfile_set_view.c \
+        pfile_sync.c \
+        pfile_write_all_begin.c \
+        pfile_write_all.c \
+        pfile_write_all_end.c \
+        pfile_write_at_all_begin.c \
+        pfile_write_at_all.c \
+        pfile_write_at_all_end.c \
+        pfile_write_at.c \
+        pfile_write.c \
+        pfile_write_ordered_begin.c \
+        pfile_write_ordered.c \
+        pfile_write_ordered_end.c \
+        pfile_write_shared.c \
+        pfinalize.c \
+        pfinalized.c \
+        pfree_mem.c \
+        pgather.c \
+        pigather.c \
+        pgatherv.c \
+        pigatherv.c \
+        pget_address.c \
+        pget_count.c \
+        pget_elements.c \
+        pget_elements_x.c \
+	pget_accumulate.c \
+        pget_library_version.c \
+        pget_processor_name.c \
+        pget_version.c \
+        pgraph_create.c \
+        pgraph_get.c \
+        pgraph_map.c \
+        pgraph_neighbors_count.c \
+        pgraph_neighbors.c \
+        pgraphdims_get.c \
+        pgrequest_complete.c \
+        pgrequest_start.c \
+        pgroup_c2f.c \
+        pgroup_compare.c \
+        pgroup_difference.c \
+        pgroup_excl.c \
+        pgroup_f2c.c \
+        pgroup_free.c \
+        pgroup_incl.c \
+        pgroup_intersection.c \
+        pgroup_range_excl.c \
+        pgroup_range_incl.c \
+        pgroup_rank.c \
+        pgroup_size.c \
+        pgroup_translate_ranks.c \
+        pgroup_union.c \
+        pibsend.c \
+	pimprobe.c \
+	pimrecv.c \
+        pinfo_c2f.c \
+        pinfo_create.c \
+        pinfo_delete.c \
+        pinfo_dup.c \
+        pinfo_f2c.c \
+        pinfo_free.c \
+        pinfo_get.c \
+        pinfo_get_nkeys.c \
+        pinfo_get_nthkey.c \
+        pinfo_get_valuelen.c \
+        pinfo_set.c \
+        pinit.c \
+        pinit_thread.c \
+        pinitialized.c \
+        pintercomm_create.c \
+        pintercomm_merge.c \
+        piprobe.c \
+        pirecv.c \
+        pirsend.c \
+        pis_thread_main.c \
+        pisend.c \
+        pissend.c \
+        pkeyval_create.c \
+        pkeyval_free.c \
+        plookup_name.c \
+        pmessage_f2c.c \
+        pmessage_c2f.c \
+        pmprobe.c \
+        pmrecv.c \
+        pneighbor_allgather.c \
+        pineighbor_allgather.c \
+        pneighbor_allgatherv.c \
+        pineighbor_allgatherv.c \
+        pneighbor_alltoall.c \
+        pineighbor_alltoall.c \
+        pneighbor_alltoallv.c \
+        pineighbor_alltoallv.c \
+        pneighbor_alltoallw.c \
+        pineighbor_alltoallw.c \
+        pop_c2f.c \
+        pop_create.c \
+        pop_commutative.c \
+        pop_f2c.c \
+        pop_free.c \
+        popen_port.c \
+        ppack_external.c \
+        ppack_external_size.c \
+        ppack.c \
+        ppack_size.c \
+        ppcontrol.c \
+        pprobe.c \
+        ppublish_name.c \
+        pquery_thread.c \
+	praccumulate.c \
+        precv_init.c \
+        precv.c \
+        preduce.c \
+        pregister_datarep.c \
+        pireduce.c \
+        preduce_local.c \
+        preduce_scatter.c \
+        pireduce_scatter.c \
+        preduce_scatter_block.c \
+        pireduce_scatter_block.c \
+        prequest_c2f.c \
+        prequest_f2c.c \
+        prequest_free.c \
+        prequest_get_status.c \
+	prget.c \
+	prget_accumulate.c \
+	prput.c \
+        prsend_init.c \
+        prsend.c \
+        pscan.c \
+        piscan.c \
+        pscatter.c \
+        piscatter.c \
+        pscatterv.c \
+        piscatterv.c \
+        psend.c \
+        psend_init.c \
+        psendrecv.c \
+        psendrecv_replace.c \
+        pssend_init.c \
+        pssend.c \
+        pstart.c \
+        pstartall.c \
+        pstatus_c2f.c \
+        pstatus_f2c.c \
+        pstatus_set_cancelled.c \
+        pstatus_set_elements.c \
+        pstatus_set_elements_x.c \
+        ptestall.c \
+        ptestany.c \
+        ptest.c \
+        ptest_cancelled.c \
+        ptestsome.c \
+        ptopo_test.c \
+        ptype_c2f.c \
+        ptype_commit.c \
+        ptype_contiguous.c \
+        ptype_create_darray.c \
+        ptype_create_f90_complex.c \
+        ptype_create_f90_integer.c \
+        ptype_create_f90_real.c \
+        ptype_create_hindexed.c \
+        ptype_create_hvector.c \
+        ptype_create_indexed_block.c \
+        ptype_create_hindexed_block.c \
+        ptype_create_keyval.c \
+        ptype_create_resized.c \
+        ptype_create_struct.c \
+        ptype_create_subarray.c \
+        ptype_delete_attr.c \
+        ptype_dup.c \
+        ptype_extent.c \
+        ptype_f2c.c \
+        ptype_free.c \
+        ptype_free_keyval.c \
+        ptype_get_attr.c \
+        ptype_get_contents.c \
+        ptype_get_envelope.c \
+        ptype_get_extent.c \
+        ptype_get_extent_x.c \
+        ptype_get_name.c \
+        ptype_get_true_extent.c \
+        ptype_get_true_extent_x.c \
+        ptype_hindexed.c \
+        ptype_hvector.c \
+        ptype_indexed.c \
+        ptype_lb.c \
+        ptype_match_size.c \
+        ptype_set_attr.c \
+        ptype_set_name.c \
+        ptype_size.c \
+        ptype_size_x.c \
+        ptype_struct.c \
+        ptype_ub.c \
+        ptype_vector.c  \
+        punpack_external.c \
+        punpack.c \
+        punpublish_name.c \
+        pwait.c \
+        pwaitall.c \
+        pwaitany.c \
+        pwaitsome.c \
+	pwtime.c \
+	pwtick.c \
+        paccumulate.c \
+        pget.c \
+        pput.c \
+	pwin_allocate.c \
+	pwin_allocate_shared.c \
+	pwin_attach.c \
+        pwin_c2f.c \
+        pwin_call_errhandler.c \
+        pwin_complete.c  \
+        pwin_create_errhandler.c \
+        pwin_create_keyval.c \
+        pwin_create.c \
+	pwin_create_dynamic.c \
+        pwin_delete_attr.c \
+	pwin_detach.c \
+        pwin_f2c.c \
+        pwin_fence.c \
+	pwin_flush.c \
+	pwin_flush_all.c \
+	pwin_flush_local.c \
+	pwin_flush_local_all.c \
+        pwin_free_keyval.c \
+        pwin_free.c \
+        pwin_get_attr.c \
+        pwin_get_errhandler.c \
+        pwin_get_group.c \
+        pwin_get_info.c  \
+        pwin_get_name.c  \
+        pwin_lock.c \
+	pwin_lock_all.c \
+        pwin_post.c \
+        pwin_set_attr.c \
+        pwin_set_errhandler.c \
+        pwin_set_info.c \
+        pwin_set_name.c \
+	pwin_shared_query.c \
+        pwin_start.c \
+	pwin_sync.c \
+        pwin_test.c \
+        pwin_unlock.c \
+	pwin_unlock_all.c \
+        pwin_wait.c
+
 
 # Conditionally install the header files
 @WANT_INSTALL_HEADERS_TRUE@ompidir = $(ompiincludedir)/$(subdir)

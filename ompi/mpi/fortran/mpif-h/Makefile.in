@@ -30,7 +30,7 @@
 # Copyright (c) 2011-2013 Universite Bordeaux 1
 # Copyright (c) 2013-2014 Los Alamos National Security, LLC. All rights
 #                         reserved.
-# Copyright (c) 2015      Research Organization for Information Science
+# Copyright (c) 2015-2017 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
@@ -221,6 +221,65 @@ target_triplet = @target@
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        error_string_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        exscan_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        f_sync_reg_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_call_errhandler_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_close_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_create_errhandler_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_delete_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_amode_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_atomicity_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_byte_offset_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_errhandler_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_group_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_info_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_position_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_position_shared_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_size_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_type_extent_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_get_view_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iread_at_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iread_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iread_at_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iread_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iread_shared_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iwrite_at_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iwrite_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iwrite_at_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iwrite_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_iwrite_shared_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_open_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_preallocate_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_all_begin_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_all_end_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_at_all_begin_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_at_all_end_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_at_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_at_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_ordered_begin_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_ordered_end_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_ordered_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_read_shared_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_seek_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_seek_shared_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_set_atomicity_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_set_errhandler_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_set_info_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_set_size_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_set_view_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_sync_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_all_begin_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_all_end_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_at_all_begin_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_at_all_end_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_at_all_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_at_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_ordered_begin_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_ordered_end_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_ordered_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        file_write_shared_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        finalized_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        finalize_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        free_mem_f.c \
@@ -326,6 +385,7 @@ target_triplet = @target@
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        reduce_local_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        reduce_scatter_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        reduce_scatter_block_f.c \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        register_datarep_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        request_free_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        request_get_status_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        rsend_f.c \
@@ -446,68 +506,6 @@ target_triplet = @target@
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        win_flush_local_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@        win_flush_local_all_f.c
 
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__append_9 = \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_call_errhandler_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_close_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_create_errhandler_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_delete_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_amode_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_atomicity_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_byte_offset_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_errhandler_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_group_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_info_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_position_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_position_shared_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_size_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_type_extent_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_get_view_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_at_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_at_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iread_shared_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_at_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_at_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_iwrite_shared_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_open_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_preallocate_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_all_begin_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_all_end_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_all_begin_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_all_end_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_at_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_ordered_begin_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_ordered_end_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_ordered_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_read_shared_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_seek_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_seek_shared_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_atomicity_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_errhandler_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_info_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_size_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_set_view_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_sync_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_all_begin_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_all_end_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_all_begin_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_all_end_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_all_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_at_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_ordered_begin_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_ordered_end_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_ordered_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        file_write_shared_f.c \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        register_datarep_f.c
-
 subdir = ompi/mpi/fortran/mpif-h
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -582,9 +580,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -650,7 +648,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -704,6 +702,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -733,6 +732,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -744,16 +744,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -769,10 +770,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -870,10 +874,33 @@ am__lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES_DIST = abort_f.c \
 	dist_graph_neighbors_f.c dist_graph_neighbors_count_f.c \
 	dims_create_f.c errhandler_create_f.c errhandler_free_f.c \
 	errhandler_get_f.c errhandler_set_f.c error_class_f.c \
-	error_string_f.c exscan_f.c f_sync_reg_f.c finalized_f.c \
-	finalize_f.c free_mem_f.c gather_f.c gatherv_f.c \
-	get_address_f.c get_count_f.c get_elements_f.c \
-	get_elements_x_f.c get_library_version_f.c \
+	error_string_f.c exscan_f.c f_sync_reg_f.c \
+	file_call_errhandler_f.c file_close_f.c \
+	file_create_errhandler_f.c file_delete_f.c file_get_amode_f.c \
+	file_get_atomicity_f.c file_get_byte_offset_f.c \
+	file_get_errhandler_f.c file_get_group_f.c file_get_info_f.c \
+	file_get_position_f.c file_get_position_shared_f.c \
+	file_get_size_f.c file_get_type_extent_f.c file_get_view_f.c \
+	file_iread_at_f.c file_iread_f.c file_iread_at_all_f.c \
+	file_iread_all_f.c file_iread_shared_f.c file_iwrite_at_f.c \
+	file_iwrite_f.c file_iwrite_at_all_f.c file_iwrite_all_f.c \
+	file_iwrite_shared_f.c file_open_f.c file_preallocate_f.c \
+	file_read_all_begin_f.c file_read_all_end_f.c \
+	file_read_all_f.c file_read_at_all_begin_f.c \
+	file_read_at_all_end_f.c file_read_at_all_f.c file_read_at_f.c \
+	file_read_f.c file_read_ordered_begin_f.c \
+	file_read_ordered_end_f.c file_read_ordered_f.c \
+	file_read_shared_f.c file_seek_f.c file_seek_shared_f.c \
+	file_set_atomicity_f.c file_set_errhandler_f.c \
+	file_set_info_f.c file_set_size_f.c file_set_view_f.c \
+	file_sync_f.c file_write_all_begin_f.c file_write_all_end_f.c \
+	file_write_all_f.c file_write_at_all_begin_f.c \
+	file_write_at_all_end_f.c file_write_at_all_f.c \
+	file_write_at_f.c file_write_f.c file_write_ordered_begin_f.c \
+	file_write_ordered_end_f.c file_write_ordered_f.c \
+	file_write_shared_f.c finalized_f.c finalize_f.c free_mem_f.c \
+	gather_f.c gatherv_f.c get_address_f.c get_count_f.c \
+	get_elements_f.c get_elements_x_f.c get_library_version_f.c \
 	get_processor_name_f.c get_version_f.c graph_create_f.c \
 	graphdims_get_f.c graph_get_f.c graph_map_f.c \
 	graph_neighbors_count_f.c graph_neighbors_f.c \
@@ -903,22 +930,22 @@ am__lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES_DIST = abort_f.c \
 	pack_size_f.c pcontrol_f.c probe_f.c publish_name_f.c \
 	query_thread_f.c recv_f.c recv_init_f.c reduce_f.c \
 	reduce_local_f.c reduce_scatter_f.c reduce_scatter_block_f.c \
-	request_free_f.c request_get_status_f.c rsend_f.c \
-	rsend_init_f.c scan_f.c scatter_f.c scatterv_f.c send_f.c \
-	send_init_f.c sendrecv_f.c sendrecv_replace_f.c ssend_f.c \
-	ssend_init_f.c startall_f.c start_f.c status_set_cancelled_f.c \
-	status_set_elements_f.c status_set_elements_x_f.c testall_f.c \
-	testany_f.c test_cancelled_f.c test_f.c testsome_f.c \
-	topo_test_f.c type_commit_f.c type_contiguous_f.c \
-	type_create_darray_f.c type_create_f90_complex_f.c \
-	type_create_f90_integer_f.c type_create_f90_real_f.c \
-	type_create_hindexed_f.c type_create_hvector_f.c \
-	type_create_indexed_block_f.c type_create_hindexed_block_f.c \
-	type_create_keyval_f.c type_create_resized_f.c \
-	type_create_struct_f.c type_create_subarray_f.c \
-	type_delete_attr_f.c type_dup_f.c type_extent_f.c \
-	type_free_f.c type_free_keyval_f.c type_get_attr_f.c \
-	type_get_contents_f.c type_get_envelope_f.c \
+	register_datarep_f.c request_free_f.c request_get_status_f.c \
+	rsend_f.c rsend_init_f.c scan_f.c scatter_f.c scatterv_f.c \
+	send_f.c send_init_f.c sendrecv_f.c sendrecv_replace_f.c \
+	ssend_f.c ssend_init_f.c startall_f.c start_f.c \
+	status_set_cancelled_f.c status_set_elements_f.c \
+	status_set_elements_x_f.c testall_f.c testany_f.c \
+	test_cancelled_f.c test_f.c testsome_f.c topo_test_f.c \
+	type_commit_f.c type_contiguous_f.c type_create_darray_f.c \
+	type_create_f90_complex_f.c type_create_f90_integer_f.c \
+	type_create_f90_real_f.c type_create_hindexed_f.c \
+	type_create_hvector_f.c type_create_indexed_block_f.c \
+	type_create_hindexed_block_f.c type_create_keyval_f.c \
+	type_create_resized_f.c type_create_struct_f.c \
+	type_create_subarray_f.c type_delete_attr_f.c type_dup_f.c \
+	type_extent_f.c type_free_f.c type_free_keyval_f.c \
+	type_get_attr_f.c type_get_contents_f.c type_get_envelope_f.c \
 	type_get_extent_f.c type_get_extent_x_f.c type_get_name_f.c \
 	type_get_true_extent_f.c type_get_true_extent_x_f.c \
 	type_hindexed_f.c type_hvector_f.c type_indexed_f.c \
@@ -940,31 +967,7 @@ am__lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES_DIST = abort_f.c \
 	win_set_errhandler_f.c win_set_info_f.c win_set_name_f.c \
 	win_shared_query_f.c win_start_f.c win_sync_f.c win_test_f.c \
 	win_unlock_f.c win_unlock_all_f.c win_wait_f.c win_flush_f.c \
-	win_flush_all_f.c win_flush_local_f.c win_flush_local_all_f.c \
-	file_call_errhandler_f.c file_close_f.c \
-	file_create_errhandler_f.c file_delete_f.c file_get_amode_f.c \
-	file_get_atomicity_f.c file_get_byte_offset_f.c \
-	file_get_errhandler_f.c file_get_group_f.c file_get_info_f.c \
-	file_get_position_f.c file_get_position_shared_f.c \
-	file_get_size_f.c file_get_type_extent_f.c file_get_view_f.c \
-	file_iread_at_f.c file_iread_f.c file_iread_at_all_f.c \
-	file_iread_all_f.c file_iread_shared_f.c file_iwrite_at_f.c \
-	file_iwrite_f.c file_iwrite_at_all_f.c file_iwrite_all_f.c \
-	file_iwrite_shared_f.c file_open_f.c file_preallocate_f.c \
-	file_read_all_begin_f.c file_read_all_end_f.c \
-	file_read_all_f.c file_read_at_all_begin_f.c \
-	file_read_at_all_end_f.c file_read_at_all_f.c file_read_at_f.c \
-	file_read_f.c file_read_ordered_begin_f.c \
-	file_read_ordered_end_f.c file_read_ordered_f.c \
-	file_read_shared_f.c file_seek_f.c file_seek_shared_f.c \
-	file_set_atomicity_f.c file_set_errhandler_f.c \
-	file_set_info_f.c file_set_size_f.c file_set_view_f.c \
-	file_sync_f.c file_write_all_begin_f.c file_write_all_end_f.c \
-	file_write_all_f.c file_write_at_all_begin_f.c \
-	file_write_at_all_end_f.c file_write_at_all_f.c \
-	file_write_at_f.c file_write_f.c file_write_ordered_begin_f.c \
-	file_write_ordered_end_f.c file_write_ordered_f.c \
-	file_write_shared_f.c register_datarep_f.c
+	win_flush_all_f.c win_flush_local_f.c win_flush_local_all_f.c
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@am__objects_1 =  \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	abort_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	add_error_class_f.lo \
@@ -1047,6 +1050,65 @@ am__lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES_DIST = abort_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	error_string_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	exscan_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	f_sync_reg_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_call_errhandler_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_close_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_create_errhandler_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_delete_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_amode_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_atomicity_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_byte_offset_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_errhandler_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_group_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_info_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_position_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_position_shared_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_size_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_type_extent_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_get_view_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iread_at_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iread_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iread_at_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iread_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iread_shared_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iwrite_at_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iwrite_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iwrite_at_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iwrite_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_iwrite_shared_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_open_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_preallocate_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_all_begin_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_all_end_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_at_all_begin_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_at_all_end_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_at_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_at_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_ordered_begin_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_ordered_end_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_ordered_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_read_shared_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_seek_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_seek_shared_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_set_atomicity_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_set_errhandler_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_set_info_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_set_size_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_set_view_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_sync_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_all_begin_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_all_end_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_at_all_begin_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_at_all_end_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_at_all_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_at_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_ordered_begin_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_ordered_end_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_ordered_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	file_write_shared_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	finalized_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	finalize_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	free_mem_f.lo \
@@ -1152,6 +1214,7 @@ am__lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES_DIST = abort_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	reduce_local_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	reduce_scatter_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	reduce_scatter_block_f.lo \
+@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	register_datarep_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	request_free_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	request_get_status_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	rsend_f.lo \
@@ -1271,68 +1334,7 @@ am__lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES_DIST = abort_f.c \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	win_flush_all_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	win_flush_local_f.lo \
 @BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@	win_flush_local_all_f.lo
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__objects_2 = file_call_errhandler_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_close_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_create_errhandler_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_delete_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_amode_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_atomicity_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_byte_offset_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_errhandler_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_group_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_info_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_position_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_position_shared_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_size_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_type_extent_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_get_view_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_at_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_at_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iread_shared_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_at_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_at_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_iwrite_shared_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_open_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_preallocate_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_all_begin_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_all_end_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_all_begin_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_all_end_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_at_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_ordered_begin_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_ordered_end_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_ordered_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_read_shared_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_seek_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_seek_shared_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_atomicity_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_errhandler_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_info_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_size_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_set_view_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_sync_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_all_begin_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_all_end_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_all_begin_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_all_end_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_all_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_at_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_ordered_begin_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_ordered_end_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_ordered_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	file_write_shared_f.lo \
-@BUILD_MPI_FORTRAN_MPIFH_BINDINGS_LAYER_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	register_datarep_f.lo
-am_lib@OMPI_LIBMPI_NAME@_mpifh_la_OBJECTS = $(am__objects_1) \
-	$(am__objects_2)
+am_lib@OMPI_LIBMPI_NAME@_mpifh_la_OBJECTS = $(am__objects_1)
 lib@OMPI_LIBMPI_NAME@_mpifh_la_OBJECTS =  \
 	$(am_lib@OMPI_LIBMPI_NAME@_mpifh_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -1588,6 +1590,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -1870,6 +1873,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1974,6 +1984,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -2204,8 +2221,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -2213,7 +2228,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -2260,7 +2274,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -2478,9 +2491,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -2529,9 +2543,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -2565,6 +2579,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -2578,6 +2595,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -2717,8 +2737,7 @@ headers = \
 #
 # These files are only built and added to libmpi_mpifh.la in certain cases.
 #
-lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES = $(am__append_8) \
-	$(am__append_9)
+lib@OMPI_LIBMPI_NAME@_mpifh_la_SOURCES = $(am__append_8)
 
 # If we're building the MPI_SIZEOF interfaces, generate the source
 # code in sizeof_f.f90 (via a perl script).  Normally, we'd just add

@@ -1,12 +1,63 @@
-openmpi (3.0.1.real-3+rpi1) buster-staging; urgency=medium
+openmpi (3.1.0-6+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
-  * replace dmb with MCR p15, 0, r0, c7, c10, 5 in opal/asm/base/ARM.asm
-    as suggested at http://www.open-mpi.org/community/lists/devel/2012/02/10626.php
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 10 May 2018 15:11:26 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sun, 03 Jun 2018 23:43:50 +0000
+
+openmpi (3.1.0-6) unstable; urgency=medium
+
+  * Dump libtool on FTBFS for debugging
+  * Remove -rpath from compiler wrappers,too: Closes: #900069
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 28 May 2018 19:46:30 +0100
+
+openmpi (3.1.0-5) unstable; urgency=medium
+
+  * Fix overly strong dependencies on openmpi-bin causing upgrade issues.
+    Closes: #899388
+  * Remove -rpath flags from pkgconfig files. Closes: #899391
+  * Add --with-package-string to configure for reproducibility
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 25 May 2018 10:15:38 +0100
+
+openmpi (3.1.0-4) unstable; urgency=medium
+
+  * Patch to fix underlinking. Closes: #899104
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 23 May 2018 15:47:13 +0100
+
+openmpi (3.1.0-3) unstable; urgency=medium
+
+  * libmca_common_ofi, monitoring: handle with being arch-dependent.
+    Closes: 899169
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 20 May 2018 20:08:01 +0100
+
+openmpi (3.1.0-2) unstable; urgency=medium
+
+  * Include new libs libmca_common_monitoring, ofi. Closes: #899077
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 19 May 2018 08:20:20 +0100
+
+openmpi (3.1.0-1) unstable; urgency=medium
+
+  * New upstream release
+   - Java support re-enabled; 
+   - PPC patch no longer needed
+  * Update soversions: all now 40.10.0
+  * Need to drop --disable-wrapper-rpath
+  * Drop --disable-vt; removed in OpenMPI 2.0
+  * Use simply '--with-libltdl', no args needed
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 16 May 2018 17:44:34 +0100
+
+openmpi (3.0.1.real-4) unstable; urgency=medium
+
+  * Add patch to support OpenJDK 10
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 09 May 2018 15:40:07 +0100
 
 openmpi (3.0.1.real-3) unstable; urgency=medium
 

@@ -16,10 +16,11 @@
  * Copyright (c) 2006      University of Houston. All rights reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2011      Sandia National Laboratories. All rights reserved.
- * Copyright (c) 2014-2016 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2016      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  *
+ * Copyright (c) 2016-2017 IBM Corporation. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -91,7 +92,6 @@
 #include "ompi/runtime/ompi_cr.h"
 
 extern bool ompi_enable_timing;
-extern bool ompi_enable_timing_ext;
 
 static void fence_cbfunc(int status, void *cbdata)
 {
@@ -108,8 +108,8 @@ int ompi_mpi_finalize(void)
     volatile bool active;
     uint32_t key;
     ompi_datatype_t * datatype;
-    OPAL_TIMING_DECLARE(tm);
-    OPAL_TIMING_INIT_EXT(&tm, OPAL_TIMING_GET_TIME_OF_DAY);
+    //OPAL_TIMING_DECLARE(tm);
+    //OPAL_TIMING_INIT_EXT(&tm, OPAL_TIMING_GET_TIME_OF_DAY);
 
     ompi_hook_base_mpi_finalize_top();
 
@@ -176,7 +176,7 @@ int ompi_mpi_finalize(void)
     opal_progress_event_users_increment();
 
     /* check to see if we want timing information */
-    OPAL_TIMING_MSTART((&tm,"time to execute finalize barrier"));
+    //OPAL_TIMING_MSTART((&tm,"time to execute finalize barrier"));
 
     /* NOTE: MPI-2.1 requires that MPI_FINALIZE is "collective" across
        *all* connected processes.  This only means that all processes
@@ -279,10 +279,7 @@ int ompi_mpi_finalize(void)
 
     /* check for timing request - get stop time and report elapsed
      time if so */
-    OPAL_TIMING_MSTOP(&tm);
-    OPAL_TIMING_DELTAS(ompi_enable_timing, &tm);
-    OPAL_TIMING_REPORT(ompi_enable_timing_ext, &tm);
-    OPAL_TIMING_RELEASE(&tm);
+    //OPAL_TIMING_DELTAS(ompi_enable_timing, &tm);
 
     /*
      * Shutdown the Checkpoint/Restart Mech.
@@ -427,7 +424,7 @@ int ompi_mpi_finalize(void)
     }
 
     /* free info resources */
-    if (OMPI_SUCCESS != (ret = ompi_info_finalize())) {
+    if (OMPI_SUCCESS != (ret = ompi_mpiinfo_finalize())) {
         goto done;
     }
 

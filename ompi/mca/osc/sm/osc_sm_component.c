@@ -10,6 +10,7 @@
  * Copyright (c) 2017      The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
+ * Copyright (c) 2016-2017 IBM Corporation. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -25,6 +26,7 @@
 #include "ompi/request/request.h"
 #include "opal/util/sys_limits.h"
 #include "opal/include/opal/align.h"
+#include "opal/util/info_subscriber.h"
 
 #include "osc_sm.h"
 
@@ -32,11 +34,13 @@ static int component_open(void);
 static int component_init(bool enable_progress_threads, bool enable_mpi_threads);
 static int component_finalize(void);
 static int component_query(struct ompi_win_t *win, void **base, size_t size, int disp_unit,
-                           struct ompi_communicator_t *comm, struct ompi_info_t *info,
+                           struct ompi_communicator_t *comm, struct opal_info_t *info,
                            int flavor);
 static int component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit,
-                            struct ompi_communicator_t *comm, struct ompi_info_t *info,
+                            struct ompi_communicator_t *comm, struct opal_info_t *info,
                             int flavor, int *model);
+static char* component_set_blocking_fence_info(opal_infosubscriber_t *obj, char *key, char *val);
+static char* component_set_alloc_shared_noncontig_info(opal_infosubscriber_t *obj, char *key, char *val);
 
 
 ompi_osc_sm_component_t mca_osc_sm_component = {
@@ -98,9 +102,6 @@ ompi_osc_sm_module_t ompi_osc_sm_module_template = {
         .osc_flush_all = ompi_osc_sm_flush_all,
         .osc_flush_local = ompi_osc_sm_flush_local,
         .osc_flush_local_all = ompi_osc_sm_flush_local_all,
-
-        .osc_set_info = ompi_osc_sm_set_info,
-        .osc_get_info = ompi_osc_sm_get_info
     }
 };
 
@@ -146,7 +147,7 @@ check_win_ok(ompi_communicator_t *comm, int flavor)
 
 static int
 component_query(struct ompi_win_t *win, void **base, size_t size, int disp_unit,
-                struct ompi_communicator_t *comm, struct ompi_info_t *info,
+                struct ompi_communicator_t *comm, struct opal_info_t *info,
                 int flavor)
 {
     int ret;
@@ -163,7 +164,7 @@ component_query(struct ompi_win_t *win, void **base, size_t size, int disp_unit,
 
 static int
 component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit,
-                 struct ompi_communicator_t *comm, struct ompi_info_t *info,
+                 struct ompi_communicator_t *comm, struct opal_info_t *info,
                  int flavor, int *model)
 {
     ompi_osc_sm_module_t *module = NULL;
@@ -179,7 +180,13 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
         calloc(1, sizeof(ompi_osc_sm_module_t));
     if (NULL == module) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
 
+    win->w_osc_module = &module->super;
+
     OBJ_CONSTRUCT(&module->lock, opal_mutex_t);
+
+    ret = opal_infosubscribe_subscribe(&(win->super), "alloc_shared_contig", "false", component_set_alloc_shared_noncontig_info);
+
+    if (OPAL_SUCCESS != ret) goto error;
 
     /* fill in the function pointer part */
     memcpy(module, &ompi_osc_sm_module_template,
@@ -207,9 +214,9 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
         if (NULL == module->global_state) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
         module->node_states = malloc(sizeof(ompi_osc_sm_node_state_t));
         if (NULL == module->node_states) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
-        module->posts = calloc (1, sizeof(module->posts[0]) + sizeof (uint64_t));
+        module->posts = calloc (1, sizeof(module->posts[0]) + sizeof (module->posts[0][0]));
         if (NULL == module->posts) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
-        module->posts[0] = (uint64_t *) (module->posts + 1);
+        module->posts[0] = (osc_sm_post_type_t *) (module->posts + 1);
     } else {
         unsigned long total, *rbuf;
         int i, flag;
@@ -227,7 +234,7 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
         if (NULL == rbuf) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
 
         module->noncontig = false;
-        if (OMPI_SUCCESS != ompi_info_get_bool(info, "alloc_shared_noncontig",
+        if (OMPI_SUCCESS != opal_info_get_bool(info, "alloc_shared_noncontig",
                                                &module->noncontig, &flag)) {
             goto error;
         }
@@ -251,7 +258,7 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
 	/* user opal/shmem directly to create a shared memory segment */
 	state_size = sizeof(ompi_osc_sm_global_state_t) + sizeof(ompi_osc_sm_node_state_t) * comm_size;
         state_size += OPAL_ALIGN_PAD_AMOUNT(state_size, 64);
-        posts_size = comm_size * post_size * sizeof (uint64_t);
+        posts_size = comm_size * post_size * sizeof (module->posts[0][0]);
         posts_size += OPAL_ALIGN_PAD_AMOUNT(posts_size, 64);
         if (0 == ompi_comm_rank (module->comm)) {
             char *data_file;
@@ -288,7 +295,7 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
         if (NULL == module->posts) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
 
         /* set module->posts[0] first to ensure 64-bit alignment */
-        module->posts[0] = (uint64_t *) (module->segment_base);
+        module->posts[0] = (osc_sm_post_type_t *) (module->segment_base);
         module->global_state = (ompi_osc_sm_global_state_t *) (module->posts[0] + comm_size * post_size);
         module->node_states = (ompi_osc_sm_node_state_t *) (module->global_state + 1);
 
@@ -315,7 +322,7 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
 
     *base = module->bases[ompi_comm_rank(module->comm)];
 
-    opal_atomic_init(&module->my_node_state->accumulate_lock, OPAL_ATOMIC_UNLOCKED);
+    opal_atomic_lock_init(&module->my_node_state->accumulate_lock, OPAL_ATOMIC_LOCK_UNLOCKED);
 
     /* share everyone's displacement units. */
     module->disp_units = malloc(sizeof(int) * comm_size);
@@ -344,7 +351,7 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
         bool blocking_fence=false;
         int flag;
 
-        if (OMPI_SUCCESS != ompi_info_get_bool(info, "blocking_fence",
+        if (OMPI_SUCCESS != opal_info_get_bool(info, "blocking_fence",
                                                &blocking_fence, &flag)) {
             goto error;
         }
@@ -378,18 +385,20 @@ component_select(struct ompi_win_t *win, void **base, size_t size, int disp_unit
 #endif
     }
 
+    ret = opal_infosubscribe_subscribe(&(win->super), "blocking_fence", "false",
+        component_set_blocking_fence_info);
+
+    if (OPAL_SUCCESS != ret) goto error;
+
     ret = module->comm->c_coll->coll_barrier(module->comm,
                                             module->comm->c_coll->coll_barrier_module);
     if (OMPI_SUCCESS != ret) goto error;
 
     *model = MPI_WIN_UNIFIED;
 
-    win->w_osc_module = &module->super;
-
     return OMPI_SUCCESS;
 
  error:
-    win->w_osc_module = &module->super;
     ompi_osc_sm_free (win);
 
     return ret;
@@ -499,7 +508,7 @@ ompi_osc_sm_free(struct ompi_win_t *win)
 
 
 int
-ompi_osc_sm_set_info(struct ompi_win_t *win, struct ompi_info_t *info)
+ompi_osc_sm_set_info(struct ompi_win_t *win, struct opal_info_t *info)
 {
     ompi_osc_sm_module_t *module =
         (ompi_osc_sm_module_t*) win->w_osc_module;
@@ -510,19 +519,42 @@ ompi_osc_sm_set_info(struct ompi_win_t *win, struct ompi_info_t *info)
 }
 
 
+static char*
+component_set_blocking_fence_info(opal_infosubscriber_t *obj, char *key, char *val)
+{
+    ompi_osc_sm_module_t *module = (ompi_osc_sm_module_t*) ((struct ompi_win_t*) obj)->w_osc_module;
+/*
+ * Assuming that you can't change the default.  
+ */
+    return module->global_state->use_barrier_for_fence ? "true" : "false";
+}
+
+
+static char*
+component_set_alloc_shared_noncontig_info(opal_infosubscriber_t *obj, char *key, char *val)
+{
+
+    ompi_osc_sm_module_t *module = (ompi_osc_sm_module_t*) ((struct ompi_win_t*) obj)->w_osc_module;
+/*
+ * Assuming that you can't change the default.  
+ */
+    return module->noncontig ? "true" : "false";
+}
+
+
 int
-ompi_osc_sm_get_info(struct ompi_win_t *win, struct ompi_info_t **info_used)
+ompi_osc_sm_get_info(struct ompi_win_t *win, struct opal_info_t **info_used)
 {
     ompi_osc_sm_module_t *module =
         (ompi_osc_sm_module_t*) win->w_osc_module;
 
-    ompi_info_t *info = OBJ_NEW(ompi_info_t);
+    opal_info_t *info = OBJ_NEW(opal_info_t);
     if (NULL == info) return OMPI_ERR_TEMP_OUT_OF_RESOURCE;
 
     if (module->flavor == MPI_WIN_FLAVOR_SHARED) {
-        ompi_info_set(info, "blocking_fence",
+        opal_info_set(info, "blocking_fence",
                       (1 == module->global_state->use_barrier_for_fence) ? "true" : "false");
-        ompi_info_set(info, "alloc_shared_noncontig",
+        opal_info_set(info, "alloc_shared_noncontig",
                       (module->noncontig) ? "true" : "false");
     }
 

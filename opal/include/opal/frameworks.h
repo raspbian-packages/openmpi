@@ -24,6 +24,7 @@ extern mca_base_framework_t opal_patcher_base_framework;
 extern mca_base_framework_t opal_pmix_base_framework;
 extern mca_base_framework_t opal_pstat_base_framework;
 extern mca_base_framework_t opal_rcache_base_framework;
+extern mca_base_framework_t opal_reachable_base_framework;
 extern mca_base_framework_t opal_shmem_base_framework;
 extern mca_base_framework_t opal_timer_base_framework;
 
@@ -46,6 +47,7 @@ static mca_base_framework_t *opal_frameworks[] = {
     &opal_pmix_base_framework,
     &opal_pstat_base_framework,
     &opal_rcache_base_framework,
+    &opal_reachable_base_framework,
     &opal_shmem_base_framework,
     &opal_timer_base_framework,
     NULL

@@ -14,7 +14,7 @@
  * Copyright (c) 2011-2014 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011-2017 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2017      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -67,6 +67,7 @@
 #include "orte/mca/grpcomm/base/base.h"
 #include "orte/mca/iof/base/base.h"
 #include "orte/mca/ras/base/base.h"
+#include "orte/mca/regx/base/base.h"
 #include "orte/mca/plm/base/base.h"
 #include "orte/mca/plm/plm.h"
 #include "orte/mca/odls/base/base.h"
@@ -96,7 +97,6 @@
 #include "orte/runtime/orte_quit.h"
 #include "orte/runtime/orte_cr.h"
 #include "orte/runtime/orte_locks.h"
-#include "orte/runtime/orte_data_server.h"
 
 #include "orte/mca/ess/ess.h"
 #include "orte/mca/ess/base/base.h"
@@ -313,6 +313,31 @@ static int rte_init(void)
         }
     }
 
+    /* setup the PMIx framework - ensure it skips all non-PMIx components, but
+     * do not override anything we were given */
+    opal_setenv("OMPI_MCA_pmix", "^s1,s2,cray,isolated", false, &environ);
+    if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_pmix_base_framework, 0))) {
+        ORTE_ERROR_LOG(ret);
+        error = "orte_pmix_base_open";
+        goto error;
+    }
+    if (ORTE_SUCCESS != (ret = opal_pmix_base_select())) {
+        ORTE_ERROR_LOG(ret);
+        error = "opal_pmix_base_select";
+        goto error;
+    }
+    /* set the event base */
+    opal_pmix_base_set_evbase(orte_event_base);
+    /* setup the PMIx server - we need this here in case the
+     * communications infrastructure wants to register
+     * information */
+    if (ORTE_SUCCESS != (ret = pmix_server_init())) {
+        /* the server code already barked, so let's be quiet */
+        ret = ORTE_ERR_SILENT;
+        error = "pmix_server_init";
+        goto error;
+    }
+
     /* Setup the communication infrastructure */
     /*
      * Routed system
@@ -371,6 +396,9 @@ static int rte_init(void)
         goto error;
     }
     OPAL_LIST_DESTRUCT(&transports);
+
+    /* it is now safe to start the pmix server */
+    pmix_server_start();
 
     /*
      * Group communications
@@ -443,7 +471,10 @@ static int rte_init(void)
     proc->name.jobid = ORTE_PROC_MY_NAME->jobid;
     proc->name.vpid = ORTE_PROC_MY_NAME->vpid;
     proc->pid = orte_process_info.pid;
-    proc->rml_uri = orte_rml.get_contact_info();
+    orte_oob_base_get_addr(&proc->rml_uri);
+    orte_process_info.my_hnp_uri = strdup(proc->rml_uri);
+    /* we are also officially a daemon, so better update that field too */
+    orte_process_info.my_daemon_uri = strdup(proc->rml_uri);
     proc->state = ORTE_PROC_STATE_RUNNING;
     OBJ_RETAIN(node);  /* keep accounting straight */
     proc->node = node;
@@ -509,6 +540,16 @@ static int rte_init(void)
     if (ORTE_SUCCESS != (ret = orte_rmaps_base_select())) {
         ORTE_ERROR_LOG(ret);
         error = "orte_rmaps_base_find_available";
+        goto error;
+    }
+    if (ORTE_SUCCESS != (ret = mca_base_framework_open(&orte_regx_base_framework, 0))) {
+        ORTE_ERROR_LOG(ret);
+        error = "orte_regx_base_open";
+        goto error;
+    }
+    if (ORTE_SUCCESS != (ret = orte_regx_base_select())) {
+        ORTE_ERROR_LOG(ret);
+        error = "orte_regx_base_select";
         goto error;
     }
 
@@ -587,25 +628,9 @@ static int rte_init(void)
         goto error;
     }
 
-    /* we are an hnp, so update the contact info field for later use */
-    orte_process_info.my_hnp_uri = orte_rml.get_contact_info();
-    if (NULL != proc->rml_uri) {
-        free(proc->rml_uri);
-    }
-    proc->rml_uri = strdup(orte_process_info.my_hnp_uri);
-
-    /* we are also officially a daemon, so better update that field too */
-    orte_process_info.my_daemon_uri = strdup(orte_process_info.my_hnp_uri);
     /* setup the orte_show_help system to recv remote output */
     orte_rml.recv_buffer_nb(ORTE_NAME_WILDCARD, ORTE_RML_TAG_SHOW_HELP,
                             ORTE_RML_PERSISTENT, orte_show_help_recv, NULL);
-
-    /* setup the data server */
-    if (ORTE_SUCCESS != (ret = orte_data_server_init())) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_data_server_init";
-        goto error;
-    }
 
     if (orte_create_session_dirs) {
         /* set the opal_output hnp file location to be in the
@@ -635,30 +660,6 @@ static int rte_init(void)
                                  ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
         }
         free(contact_path);
-    }
-
-    /* setup the PMIx framework - ensure it skips all non-PMIx components, but
-     * do not override anything we were given */
-    opal_setenv("OMPI_MCA_pmix", "^s1,s2,cray,isolated", false, &environ);
-    if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_pmix_base_framework, 0))) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_pmix_base_open";
-        goto error;
-    }
-    if (ORTE_SUCCESS != (ret = opal_pmix_base_select())) {
-        ORTE_ERROR_LOG(ret);
-        error = "opal_pmix_base_select";
-        goto error;
-    }
-    /* set the event base */
-    opal_pmix_base_set_evbase(orte_event_base);
-
-    /* setup the PMIx server */
-    if (ORTE_SUCCESS != (ret = pmix_server_init())) {
-        /* the server code already barked, so let's be quiet */
-        ret = ORTE_ERR_SILENT;
-        error = "pmix_server_init";
-        goto error;
     }
 
     /* setup I/O forwarding system - must come after we init routes */
@@ -819,9 +820,6 @@ static int rte_finalize(void)
     /* shutdown the pmix server */
     pmix_server_finalize();
     (void) mca_base_framework_close(&opal_pmix_base_framework);
-    /* cleanup our data server */
-    orte_data_server_finalize();
-
     (void) mca_base_framework_close(&orte_dfs_base_framework);
     (void) mca_base_framework_close(&orte_filem_base_framework);
     /* output any lingering stdout/err data */
@@ -923,8 +921,8 @@ static void clean_abort(int fd, short flags, void *arg)
             orte_odls.kill_local_procs(NULL);
             /* whack any lingering session directory files from our jobs */
             orte_session_dir_cleanup(ORTE_JOBID_WILDCARD);
-            /* cleanup our data server */
-            orte_data_server_finalize();
+            /* cleanup our pmix server */
+            opal_pmix.finalize();
             /* exit with a non-zero status */
             exit(ORTE_ERROR_DEFAULT_EXIT_CODE);
         }
@@ -943,10 +941,6 @@ static void clean_abort(int fd, short flags, void *arg)
      * so need to tell them that!
      */
     orte_execute_quiet = true;
-    if (!orte_never_launched) {
-        /* cleanup our data server */
-        orte_data_server_finalize();
-    }
     /* We are in an event handler; the job completed procedure
        will delete the signal handler that is currently running
        (which is a Bad Thing), so we can't call it directly.

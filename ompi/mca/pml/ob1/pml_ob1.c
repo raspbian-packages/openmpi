@@ -206,6 +206,9 @@ int mca_pml_ob1_add_comm(ompi_communicator_t* comm)
         return OMPI_ERR_OUT_OF_RESOURCE;
     }
 
+    ompi_comm_assert_subscribe (comm, OMPI_COMM_ASSERT_NO_ANY_SOURCE);
+    ompi_comm_assert_subscribe (comm, OMPI_COMM_ASSERT_ALLOW_OVERTAKE);
+
     mca_pml_ob1_comm_init_size(pml_comm, comm->c_remote_group->grp_proc_count);
     comm->c_pml_comm = pml_comm;
 
@@ -239,6 +242,13 @@ int mca_pml_ob1_add_comm(ompi_communicator_t* comm)
          * proc, or into the out-of-order (cant_match) list.
          */
         pml_proc = mca_pml_ob1_peer_lookup(comm, hdr->hdr_src);
+
+        if (OMPI_COMM_CHECK_ASSERT_ALLOW_OVERTAKE(comm)) {
+            opal_list_append( &pml_proc->unexpected_frags, (opal_list_item_t*)frag );
+            PERUSE_TRACE_MSG_EVENT(PERUSE_COMM_MSG_INSERT_IN_UNEX_Q, comm,
+                                   hdr->hdr_src, hdr->hdr_tag, PERUSE_RECV);
+            continue;
+        }
 
         if (((uint16_t)hdr->hdr_seq) == ((uint16_t)pml_proc->expected_sequence) ) {
 

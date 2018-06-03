@@ -7,6 +7,7 @@ libdir.patch
 hurd-maxhostnamelen.patch
 hppa.patch
 opal_fifo.patch
-ppc.patch
 verbose-ompi-rules.patch
+openjdk10.patch
+fix-underlinking.patch
 raspbian.diff

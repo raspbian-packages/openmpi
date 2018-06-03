@@ -11,7 +11,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2012      Los Alamos National Security, Inc.  All rights reserved.
- * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -38,6 +38,7 @@
 #include "src/mca/mca.h"
 #include "src/mca/base/pmix_mca_base_framework.h"
 
+#include "src/include/pmix_globals.h"
 #include "src/mca/ptl/ptl.h"
 
 
@@ -53,7 +54,7 @@ PMIX_EXPORT extern pmix_mca_base_framework_t pmix_ptl_base_framework;
  * Cycle across available components and construct the list
  * of active modules
  */
-pmix_status_t pmix_ptl_base_select(void);
+PMIX_EXPORT pmix_status_t pmix_ptl_base_select(void);
 
 /**
  * Track an active component
@@ -77,27 +78,24 @@ struct pmix_ptl_globals_t {
     int stop_thread[2];
     bool listen_thread_active;
     pmix_list_t listeners;
+    uint32_t current_tag;
+    size_t max_msg_size;
 };
 typedef struct pmix_ptl_globals_t pmix_ptl_globals_t;
 
 PMIX_EXPORT extern pmix_ptl_globals_t pmix_ptl_globals;
 
 /* API stubs */
-PMIX_EXPORT pmix_status_t pmix_ptl_stub_set_notification_cbfunc(pmix_ptl_cbfunc_t cbfunc);
-PMIX_EXPORT char* pmix_ptl_stub_get_available_modules(void);
-PMIX_EXPORT pmix_status_t pmix_ptl_stub_send_recv(struct pmix_peer_t *peer,
-                                                  pmix_buffer_t *bfr,
-                                                  pmix_ptl_cbfunc_t cbfunc,
-                                                  void *cbdata);
-PMIX_EXPORT pmix_status_t pmix_ptl_stub_send_oneway(struct pmix_peer_t *peer,
-                                                    pmix_buffer_t *bfr,
-                                                    pmix_ptl_tag_t tag);
-PMIX_EXPORT pmix_status_t pmix_ptl_stub_connect_to_peer(struct pmix_peer_t *peer,
+PMIX_EXPORT pmix_status_t pmix_ptl_base_set_notification_cbfunc(pmix_ptl_cbfunc_t cbfunc);
+PMIX_EXPORT char* pmix_ptl_base_get_available_modules(void);
+PMIX_EXPORT pmix_ptl_module_t* pmix_ptl_base_assign_module(void);
+PMIX_EXPORT pmix_status_t pmix_ptl_base_connect_to_peer(struct pmix_peer_t *peer,
                                                         pmix_info_t info[], size_t ninfo);
-PMIX_EXPORT pmix_status_t pmix_ptl_stub_register_recv(struct pmix_peer_t *peer,
+
+PMIX_EXPORT pmix_status_t pmix_ptl_base_register_recv(struct pmix_peer_t *peer,
                                                       pmix_ptl_cbfunc_t cbfunc,
                                                       pmix_ptl_tag_t tag);
-PMIX_EXPORT pmix_status_t pmix_ptl_stub_cancel_recv(struct pmix_peer_t *peer,
+PMIX_EXPORT pmix_status_t pmix_ptl_base_cancel_recv(struct pmix_peer_t *peer,
                                                     pmix_ptl_tag_t tag);
 
 PMIX_EXPORT pmix_status_t pmix_ptl_base_start_listening(pmix_info_t *info, size_t ninfo);
@@ -119,6 +117,7 @@ PMIX_EXPORT pmix_status_t pmix_ptl_base_connect(struct sockaddr_storage *addr,
 PMIX_EXPORT void pmix_ptl_base_connection_handler(int sd, short args, void *cbdata);
 PMIX_EXPORT pmix_status_t pmix_ptl_base_send_connect_ack(int sd);
 PMIX_EXPORT pmix_status_t pmix_ptl_base_recv_connect_ack(int sd);
+PMIX_EXPORT void pmix_ptl_base_lost_connection(pmix_peer_t *peer, pmix_status_t err);
 
 
 END_C_DECLS

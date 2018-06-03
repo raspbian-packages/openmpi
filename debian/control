@@ -17,7 +17,7 @@ Build-Depends: dpkg-dev (>= 1.16.1~),
  libfabric-dev [amd64 i386],
  libpsm-infinipath1-dev [amd64 i386],
  libnuma-dev [amd64 i386 ia64 mips mipsel mipsn32 mipsn32el mips64 mips64el ppc64el],
- openjdk-9-jdk [!sh4 !kfreebsd-i386 !kfreebsd-amd64 !hppa !hurd-i386 !ia64 !riscv64] <!stage1>,
+ default-jdk [!hppa !hurd-i386 !ia64 !riscv64] <!stage1>,
  flex
 Build-Conflicts: libmpich-dev, libopenmpi-dev
 Standards-Version: 4.1.4
@@ -28,7 +28,7 @@ Vcs-Git: https://salsa.debian.org/hpc-team/openmpi.git -b debian/master
 Package: openmpi-bin
 Architecture: any
 Multi-Arch: foreign
-Depends: ${shlibs:Depends}, ${misc:Depends}, openmpi-common (= ${source:Version}),
+Depends: ${shlibs:Depends}, ${misc:Depends}, openmpi-common (>= ${source:Version}),
  openssh-client | ssh-client
 Conflicts: openmpi-bin, 
 Breaks: libopenmpi-dev (<< 3.0.1~rc2-2)
@@ -61,7 +61,9 @@ Package: libopenmpi-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: ${shlibs:Depends}, ${misc:Depends}, libopenmpi3 (= ${binary:Version}), openmpi-common (= ${source:Version}), 
+Depends: ${shlibs:Depends}, ${misc:Depends}, 
+ libopenmpi3 (= ${binary:Version}), 
+ openmpi-common (>= ${source:Version}), 
  libibverbs-dev (>= 1.1.7) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], libhwloc-dev,
  openmpi-bin (>= 3.0.0-1)
 Conflicts: libopenmpi-dev

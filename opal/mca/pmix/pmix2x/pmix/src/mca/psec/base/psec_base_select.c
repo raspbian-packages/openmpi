@@ -9,7 +9,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2016      Intel, Inc. All rights reserved.
+ * Copyright (c) 2016-2017 Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -24,6 +24,8 @@
 
 #include "src/mca/mca.h"
 #include "src/mca/base/base.h"
+#include "src/util/error.h"
+#include "src/util/show_help.h"
 
 #include "src/mca/psec/base/base.h"
 
@@ -72,12 +74,21 @@ int pmix_psec_base_select(void)
         if (PMIX_SUCCESS != rc || NULL == module) {
             pmix_output_verbose(5, pmix_psec_base_framework.framework_output,
                                 "mca:psec:select: Skipping component [%s]. Query failed to return a module",
-                                component->pmix_mca_component_name );
+                                component->pmix_mca_component_name);
+            continue;
+        }
+        nmodule = (pmix_psec_module_t*) module;
+
+        /* give the module a chance to init */
+        if (NULL != nmodule->init && PMIX_SUCCESS != nmodule->init()) {
+            /* failed to init, so skip it */
+            pmix_output_verbose(5, pmix_psec_base_framework.framework_output,
+                                "mca:psec:select: Skipping component [%s]. Failed to init",
+                                component->pmix_mca_component_name);
             continue;
         }
 
         /* If we got a module, keep it */
-        nmodule = (pmix_psec_module_t*) module;
         /* add to the list of selected modules */
         newmodule = PMIX_NEW(pmix_psec_base_active_module_t);
         newmodule->pri = priority;
@@ -98,6 +109,12 @@ int pmix_psec_base_select(void)
             /* must be lowest priority - add to end */
             pmix_list_append(&pmix_psec_globals.actives, &newmodule->super);
         }
+    }
+
+    /* if no modules were found, then that's an error as we require at least one */
+    if (0 == pmix_list_get_size(&pmix_psec_globals.actives)) {
+        pmix_show_help("help-pmix-runtime.txt", "no-plugins", true, "PSEC");
+        return PMIX_ERR_SILENT;
     }
 
     if (4 < pmix_output_get_verbosity(pmix_psec_base_framework.framework_output)) {

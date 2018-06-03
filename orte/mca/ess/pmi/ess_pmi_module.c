@@ -12,7 +12,7 @@
  * Copyright (c) 2008-2012 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2012-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2016-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -37,6 +37,9 @@
 #ifdef HAVE_IFADDRS_H
 #include <ifaddrs.h>
 #endif
+#include <sys/mman.h>
+#include <errno.h>
+#include <fcntl.h>
 
 #include "opal/util/opal_environ.h"
 #include "opal/util/output.h"
@@ -57,7 +60,6 @@
 #include "orte/util/show_help.h"
 #include "orte/util/name_fns.h"
 #include "orte/util/pre_condition_transports.h"
-#include "orte/util/regex.h"
 #include "orte/runtime/orte_globals.h"
 #include "orte/runtime/orte_wait.h"
 

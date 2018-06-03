@@ -3,7 +3,7 @@
  * Copyright (c) 2011      Los Alamos National Security, LLC.
  *                         All rights reserved.
  * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -276,6 +276,8 @@ static int ppr_mapper(orte_job_t *jdata)
             /* add the node to the map, if needed */
             if (!ORTE_FLAG_TEST(node, ORTE_NODE_FLAG_MAPPED)) {
                 ORTE_FLAG_SET(node, ORTE_NODE_FLAG_MAPPED);
+                OBJ_RETAIN(node);
+                opal_pointer_array_add(jdata->map->nodes, node);
                 jdata->map->num_nodes++;
             }
             /* if we are mapping solely at the node level, just put
@@ -441,7 +443,7 @@ static void prune(orte_jobid_t jobid,
     hwloc_obj_type_t lvl;
     unsigned cache_level = 0, k;
     int nprocs;
-    hwloc_cpuset_t avail, cpus, childcpus;
+    hwloc_cpuset_t avail;
     int n, limit, nmax, nunder, idx, idxmax = 0;
     orte_proc_t *proc, *pptr, *procmax;
     opal_hwloc_level_t ll;
@@ -492,7 +494,7 @@ static void prune(orte_jobid_t jobid,
                                               lvl, cache_level,
                                               i, OPAL_HWLOC_AVAILABLE);
         /* get the available cpuset */
-        avail = opal_hwloc_base_get_available_cpus(node->topology->topo, obj);
+        avail = obj->cpuset;
 
         /* look at the intersection of this object's cpuset and that
          * of each proc in the job/app - if they intersect, then count this proc
@@ -512,8 +514,7 @@ static void prune(orte_jobid_t jobid,
                 ORTE_ERROR_LOG(ORTE_ERR_NOT_FOUND);
                 return;
             }
-            cpus = opal_hwloc_base_get_available_cpus(node->topology->topo, locale);
-            if (hwloc_bitmap_intersects(avail, cpus)) {
+            if (hwloc_bitmap_intersects(avail, locale->cpuset)) {
                 nprocs++;
             }
         }
@@ -550,7 +551,6 @@ static void prune(orte_jobid_t jobid,
             /* find the child with the most procs underneath it */
             for (k=0; k < top->arity && limit < nprocs; k++) {
                 /* get this object's available cpuset */
-                childcpus = opal_hwloc_base_get_available_cpus(node->topology->topo, top->children[k]);
                 nunder = 0;
                 pptr = NULL;
                 for (n=0; n < node->procs->size; n++) {
@@ -566,8 +566,7 @@ static void prune(orte_jobid_t jobid,
                         ORTE_ERROR_LOG(ORTE_ERR_NOT_FOUND);
                         return;
                     }
-                    cpus = opal_hwloc_base_get_available_cpus(node->topology->topo, locale);
-                    if (hwloc_bitmap_intersects(childcpus, cpus)) {
+                    if (hwloc_bitmap_intersects(top->children[k]->cpuset, locale->cpuset)) {
                         nunder++;
                         if (NULL == pptr) {
                             /* save the location of the first proc under this object */
@@ -623,7 +622,7 @@ static int assign_locations(orte_job_t *jdata)
     orte_node_t *node;
     orte_proc_t *proc;
     orte_app_context_t *app;
-    opal_hwloc_level_t level;
+    hwloc_obj_type_t level;
     hwloc_obj_t obj;
     unsigned int cache_level=0;
     int ppr, cnt, nobjs, nprocs_mapped;
@@ -646,24 +645,24 @@ static int assign_locations(orte_job_t *jdata)
 
     /* pickup the object level */
     if (ORTE_MAPPING_BYNODE == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_NODE_LEVEL;
+        level = HWLOC_OBJ_MACHINE;
     } else if (ORTE_MAPPING_BYHWTHREAD == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_HWTHREAD_LEVEL;
+        level = HWLOC_OBJ_PU;
     } else if (ORTE_MAPPING_BYCORE == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_CORE_LEVEL;
+        level = HWLOC_OBJ_CORE;
     } else if (ORTE_MAPPING_BYSOCKET == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_SOCKET_LEVEL;
+        level = HWLOC_OBJ_SOCKET;
     } else if (ORTE_MAPPING_BYL1CACHE == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_L1CACHE_LEVEL;
+        level = HWLOC_OBJ_L1CACHE;
         cache_level = 1;
     } else if (ORTE_MAPPING_BYL2CACHE == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_L2CACHE_LEVEL;
+        level = HWLOC_OBJ_L2CACHE;
         cache_level = 2;
     } else if (ORTE_MAPPING_BYL3CACHE == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_L3CACHE_LEVEL;
+        level = HWLOC_OBJ_L3CACHE;
         cache_level = 3;
     } else if (ORTE_MAPPING_BYNUMA == ORTE_GET_MAPPING_POLICY(jdata->map->mapping)) {
-        level = OPAL_HWLOC_NUMA_LEVEL;
+        level = HWLOC_OBJ_NUMANODE;
     } else {
         ORTE_ERROR_LOG(ORTE_ERR_NOT_FOUND);
         return ORTE_ERR_TAKE_NEXT_OPTION;
@@ -692,7 +691,7 @@ static int assign_locations(orte_job_t *jdata)
                                true, node->name);
                 return ORTE_ERR_SILENT;
             }
-            if (OPAL_HWLOC_NODE_LEVEL == level) {
+            if (HWLOC_OBJ_MACHINE == level) {
                 obj = hwloc_get_root_obj(node->topology->topo);
                 for (j=0; j < node->procs->size; j++) {
                     if (NULL == (proc = (orte_proc_t*)opal_pointer_array_get_item(node->procs, j))) {

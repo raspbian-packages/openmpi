@@ -12,7 +12,7 @@
  * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2017      Intel, Inc. All rights reserved.
+ * Copyright (c) 2017-2018 Intel, Inc.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -30,8 +30,6 @@
 #include "orte/util/proc_info.h"
 #include "orte/mca/errmgr/base/base.h"
 #include "orte/util/name_fns.h"
-#include "orte/util/nidmap.h"
-#include "orte/util/regex.h"
 #include "orte/runtime/orte_globals.h"
 
 #include "orte/mca/ess/ess.h"
@@ -111,7 +109,7 @@ static int rte_init(void)
 
     if (ORTE_PROC_IS_TOOL) {
         /* otherwise, if I am a tool proc, use that procedure */
-        if (ORTE_SUCCESS != (ret = orte_ess_base_tool_setup())) {
+        if (ORTE_SUCCESS != (ret = orte_ess_base_tool_setup(NULL))) {
             ORTE_ERROR_LOG(ret);
             error = "orte_ess_base_tool_setup";
             goto fn_fail;

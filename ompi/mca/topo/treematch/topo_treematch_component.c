@@ -62,6 +62,11 @@ mca_topo_treematch_component_2_2_0_t mca_topo_treematch_component =
 
 static int init_query(bool enable_progress_threads, bool enable_mpi_threads)
 {
+    /* The first time this function is called is too early in the process and
+     * the HWLOC topology information is not available. Thus we should not check
+     * for the topology here, but instead delay the check until we really need
+     * the topology information.
+     */
     return OMPI_SUCCESS;
 }
 
@@ -95,3 +100,4 @@ static int mca_topo_treematch_component_register(void)
                                           MCA_BASE_VAR_SCOPE_READONLY, &mca_topo_treematch_component.reorder_mode);
     return OMPI_SUCCESS;
 }
+

@@ -72,7 +72,7 @@
 #                         All rights reserved.
 # Copyright (c) 2008      Sun Microsystems, Inc.  All rights reserved.
 # Copyright (c) 2014      Cisco Systems, Inc.  All rights reserved.
-# Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+# Copyright (c) 2014-2018 Intel, Inc.  All rights reserved.
 # Copyright (c) 2016      Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # $COPYRIGHT$
@@ -109,7 +109,7 @@
 # Copyright (c) 2006-2008 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2011-2013 Los Alamos National Security, LLC.  All rights
 #                         reserved.
-# Copyright (c) 2014-2016 Intel, Inc.  All rights reserved.
+# Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -315,6 +315,10 @@ target_triplet = @target@
 @MAN_PAGE_BUILD_MPI_CXX_BINDINGS_FALSE@am__append_1 = --nocxx
 @MAN_PAGE_BUILD_MPIFH_BINDINGS_FALSE@am__append_2 = --nofortran
 @MAN_PAGE_BUILD_USEMPIF08_BINDINGS_FALSE@am__append_3 = --nof08
+@OPAL_WANT_PRUN_TRUE@am__append_4 = \
+@OPAL_WANT_PRUN_TRUE@	tools/prun \
+@OPAL_WANT_PRUN_TRUE@        tools/orte-dvm
+
 subdir = orte
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -389,9 +393,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -457,7 +461,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -511,6 +515,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -540,6 +545,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -551,16 +557,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -576,10 +583,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -666,10 +676,10 @@ am_lib@ORTE_LIB_PREFIX@open_rte_la_OBJECTS = $(am__objects_1) \
 	util/show_help.lo util/context_fns.lo util/parse_options.lo \
 	util/pre_condition_transports.lo util/hnp_contact.lo \
 	util/hostfile/hostfile_lex.lo util/hostfile/hostfile.lo \
-	util/dash_host/dash_host.lo util/comm/comm.lo util/nidmap.lo \
-	util/regex.lo util/attr.lo util/listener.lo util/compress.lo \
-	orted/orted_main.lo orted/orted_comm.lo \
-	orted/pmix/pmix_server.lo orted/pmix/pmix_server_fence.lo \
+	util/dash_host/dash_host.lo util/comm/comm.lo util/attr.lo \
+	util/listener.lo util/compress.lo orted/orted_main.lo \
+	orted/orted_comm.lo orted/pmix/pmix_server.lo \
+	orted/pmix/pmix_server_fence.lo \
 	orted/pmix/pmix_server_register_fns.lo \
 	orted/pmix/pmix_server_dyn.lo orted/pmix/pmix_server_pub.lo \
 	orted/pmix/pmix_server_gen.lo
@@ -764,10 +774,10 @@ am__nobase_orte_HEADERS_DIST = runtime/runtime.h runtime/orte_locks.h \
 	util/parse_options.h util/pre_condition_transports.h \
 	util/hnp_contact.h util/hostfile/hostfile.h \
 	util/hostfile/hostfile_lex.h util/dash_host/dash_host.h \
-	util/comm/comm.h util/nidmap.h util/regex.h util/attr.h \
-	util/listener.h util/compress.h util/threads.h orted/orted.h \
-	orted/orted_submit.h orted/pmix/pmix_server.h \
-	orted/pmix/pmix_server_internal.h mca/mca.h
+	util/comm/comm.h util/attr.h util/listener.h util/compress.h \
+	util/threads.h orted/orted.h orted/orted_submit.h \
+	orted/pmix/pmix_server.h orted/pmix/pmix_server_internal.h \
+	mca/mca.h
 HEADERS = $(nobase_orte_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
@@ -941,6 +951,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -1223,6 +1234,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1327,6 +1345,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -1557,8 +1582,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -1566,7 +1589,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -1613,7 +1635,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -1831,9 +1852,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -1882,9 +1904,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -1918,6 +1940,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -1931,6 +1956,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -2020,17 +2048,15 @@ ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
 SUBDIRS = include $(MCA_orte_FRAMEWORKS_SUBDIRS) \
 	$(MCA_orte_FRAMEWORK_COMPONENT_STATIC_SUBDIRS) etc . \
-	$(MCA_orte_FRAMEWORK_COMPONENT_DSO_SUBDIRS) \
-	tools/orte-checkpoint tools/orte-clean tools/orte-ps \
-	tools/orte-restart tools/orted tools/orterun tools/wrappers \
-	tools/orte-top tools/orte-info tools/orte-migrate \
-	tools/orte-server tools/orte-dvm
+	$(MCA_orte_FRAMEWORK_COMPONENT_DSO_SUBDIRS) tools/orte-clean \
+	tools/orte-ps tools/orted tools/orterun tools/wrappers \
+	tools/orte-top tools/orte-info tools/orte-server \
+	$(am__append_4)
 DIST_SUBDIRS = include etc $(MCA_orte_FRAMEWORKS_SUBDIRS) \
-	$(MCA_orte_FRAMEWORK_COMPONENT_ALL_SUBDIRS) \
-	tools/orte-checkpoint tools/orte-clean tools/orte-ps \
-	tools/orte-restart tools/orted tools/orterun tools/wrappers \
-	tools/orte-top tools/orte-info tools/orte-migrate \
-	tools/orte-server tools/orte-dvm
+	$(MCA_orte_FRAMEWORK_COMPONENT_ALL_SUBDIRS) tools/orte-clean \
+	tools/orte-ps tools/orted tools/orterun tools/wrappers \
+	tools/orte-top tools/orte-info tools/orte-server \
+	tools/orte-dvm tools/prun
 
 # Build the main ORTE library
 lib_LTLIBRARIES = lib@ORTE_LIB_PREFIX@open-rte.la
@@ -2050,9 +2076,9 @@ lib@ORTE_LIB_PREFIX@open_rte_la_SOURCES = $(headers) \
 	util/show_help.c util/context_fns.c util/parse_options.c \
 	util/pre_condition_transports.c util/hnp_contact.c \
 	util/hostfile/hostfile_lex.l util/hostfile/hostfile.c \
-	util/dash_host/dash_host.c util/comm/comm.c util/nidmap.c \
-	util/regex.c util/attr.c util/listener.c util/compress.c \
-	orted/orted_main.c orted/orted_comm.c orted/pmix/pmix_server.c \
+	util/dash_host/dash_host.c util/comm/comm.c util/attr.c \
+	util/listener.c util/compress.c orted/orted_main.c \
+	orted/orted_comm.c orted/pmix/pmix_server.c \
 	orted/pmix/pmix_server_fence.c \
 	orted/pmix/pmix_server_register_fns.c \
 	orted/pmix/pmix_server_dyn.c orted/pmix/pmix_server_pub.c \
@@ -2077,10 +2103,10 @@ headers = runtime/runtime.h runtime/orte_locks.h \
 	util/parse_options.h util/pre_condition_transports.h \
 	util/hnp_contact.h util/hostfile/hostfile.h \
 	util/hostfile/hostfile_lex.h util/dash_host/dash_host.h \
-	util/comm/comm.h util/nidmap.h util/regex.h util/attr.h \
-	util/listener.h util/compress.h util/threads.h orted/orted.h \
-	orted/orted_submit.h orted/pmix/pmix_server.h \
-	orted/pmix/pmix_server_internal.h mca/mca.h
+	util/comm/comm.h util/attr.h util/listener.h util/compress.h \
+	util/threads.h orted/orted.h orted/orted_submit.h \
+	orted/pmix/pmix_server.h orted/pmix/pmix_server_internal.h \
+	mca/mca.h
 
 # The MPIR portion of the library must be built with -g, even if
 # the rest of the library has other optimization flags.
@@ -2311,8 +2337,6 @@ util/comm/$(DEPDIR)/$(am__dirstamp):
 	@: > util/comm/$(DEPDIR)/$(am__dirstamp)
 util/comm/comm.lo: util/comm/$(am__dirstamp) \
 	util/comm/$(DEPDIR)/$(am__dirstamp)
-util/nidmap.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
-util/regex.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
 util/attr.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
 util/listener.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
 util/compress.lo: util/$(am__dirstamp) util/$(DEPDIR)/$(am__dirstamp)
@@ -2406,11 +2430,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/hnp_contact.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/listener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/name_fns.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/nidmap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/parse_options.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/pre_condition_transports.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/proc_info.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/regex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/session_dir.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/$(DEPDIR)/show_help.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@util/comm/$(DEPDIR)/comm.Plo@am__quote@

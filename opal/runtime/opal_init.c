@@ -18,6 +18,8 @@
  * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2017      Amazon.com, Inc. or its affiliates.
+ *                         All Rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -49,6 +51,7 @@
 #include "opal/mca/patcher/base/base.h"
 #include "opal/mca/memcpy/base/base.h"
 #include "opal/mca/hwloc/base/base.h"
+#include "opal/mca/reachable/base/base.h"
 #include "opal/mca/timer/base/base.h"
 #include "opal/mca/memchecker/base/base.h"
 #include "opal/mca/if/base/base.h"
@@ -71,6 +74,7 @@
 #include "opal/util/stacktrace.h"
 #include "opal/util/keyval_parse.h"
 #include "opal/util/sys_limits.h"
+#include "opal/util/timings.h"
 
 #if OPAL_CC_USE_PRAGMA_IDENT
 #pragma ident OPAL_IDENT_STRING
@@ -292,6 +296,15 @@ opal_err2str(int errnum, const char **errmsg)
     case OPAL_ERR_EVENT_REGISTRATION:
         retval = "Event registration";
         break;
+    case OPAL_ERR_HEARTBEAT_ALERT:
+        retval = "Heartbeat not received";
+        break;
+    case OPAL_ERR_FILE_ALERT:
+        retval = "File alert - proc may have stalled";
+        break;
+    case OPAL_ERR_MODEL_DECLARED:
+        retval = "Model declared";
+        break;
     default:
         retval = "UNRECOGNIZED";
     }
@@ -335,6 +348,7 @@ opal_init_util(int* pargc, char*** pargv)
     int ret;
     char *error = NULL;
     char hostname[OPAL_MAXHOSTNAMELEN];
+    OPAL_TIMING_ENV_INIT(otmng);
 
     if( ++opal_util_initialized != 1 ) {
         if( opal_util_initialized < 1 ) {
@@ -357,6 +371,8 @@ opal_init_util(int* pargc, char*** pargv)
     /* initialize the memory allocator */
     opal_malloc_init();
 
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_malloc_init");
+
     /* initialize the output system */
     opal_output_init();
 
@@ -369,6 +385,8 @@ opal_init_util(int* pargc, char*** pargv)
 
     /* initialize the help system */
     opal_show_help_init();
+
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_show_help_init");
 
     /* register handler for errnum -> string converstion */
     if (OPAL_SUCCESS !=
@@ -388,17 +406,22 @@ opal_init_util(int* pargc, char*** pargv)
     // details)
     opal_init_psm();
 
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_init_psm");
+
     /* Setup the parameter system */
     if (OPAL_SUCCESS != (ret = mca_base_var_init())) {
         error = "mca_base_var_init";
         goto return_error;
     }
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_var_init");
 
     /* read any param files that were provided */
     if (OPAL_SUCCESS != (ret = mca_base_var_cache_files(false))) {
         error = "failed to cache files";
         goto return_error;
     }
+
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_var_cache");
 
 
     /* register params for opal */
@@ -411,6 +434,8 @@ opal_init_util(int* pargc, char*** pargv)
         error = "opal_net_init";
         goto return_error;
     }
+
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_net_init");
 
     /* pretty-print stack handlers */
     if (OPAL_SUCCESS != (ret = opal_util_register_stackhandlers())) {
@@ -434,11 +459,15 @@ opal_init_util(int* pargc, char*** pargv)
         goto return_error;
     }
 
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_arch_init");
+
     /* initialize the datatype engine */
     if (OPAL_SUCCESS != (ret = opal_datatype_init ())) {
         error = "opal_datatype_init";
         goto return_error;
     }
+
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_datatype_init");
 
     /* Initialize the data storage service. */
     if (OPAL_SUCCESS != (ret = opal_dss_open())) {
@@ -458,6 +487,8 @@ opal_init_util(int* pargc, char*** pargv)
                 __FILE__, __LINE__, ret);
         return ret;
     }
+
+    OPAL_TIMING_ENV_NEXT(otmng, "opal_if_init");
 
     return OPAL_SUCCESS;
 
@@ -565,6 +596,16 @@ opal_init(int* pargc, char*** pargv)
 
     if (OPAL_SUCCESS != (ret = opal_shmem_base_select())) {
         error = "opal_shmem_base_select";
+        goto return_error;
+    }
+
+    /* Load reachable framework */
+    if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_reachable_base_framework, 0))){
+        error = "opal_reachable_base_framework";
+        goto return_error;
+    }
+    if (OPAL_SUCCESS != (ret = opal_reachable_base_select())) {
+        error = "opal_reachable_base_select";
         goto return_error;
     }
 

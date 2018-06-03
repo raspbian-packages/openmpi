@@ -4,7 +4,7 @@
  * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2014-2016 Intel, Inc.  All rights reserved.
- * Copyright (c) 2014      Mellanox Technologies, Inc.
+ * Copyright (c) 2014-2017 Mellanox Technologies, Inc.
  *                         All rights reserved.
  * Copyright (c) 2016      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2017      Los Alamos National Security, LLC. All rights
@@ -36,6 +36,7 @@
 #include "opal/util/argv.h"
 #include "opal/util/error.h"
 #include "opal/util/output.h"
+#include "opal/util/opal_environ.h"
 #include "opal/util/proc.h"
 #include "opal/util/show_help.h"
 #include "opal/mca/pmix/base/base.h"
@@ -116,18 +117,15 @@ int pmix2x_server_init(opal_pmix_server_module_t *module,
     ++opal_pmix_base.initialized;
 
     /* convert the list to an array of pmix_info_t */
+    sz = 2 + ((NULL==info)?0:opal_list_get_size(info));
+    PMIX_INFO_CREATE(pinfo, sz);
+    n = 0;
     if (NULL != info) {
-        sz = opal_list_get_size(info);
-        PMIX_INFO_CREATE(pinfo, sz);
-        n = 0;
         OPAL_LIST_FOREACH(kv, info, opal_value_t) {
             (void)strncpy(pinfo[n].key, kv->key, PMIX_MAX_KEYLEN);
             pmix2x_value_load(&pinfo[n].value, kv);
             ++n;
         }
-    } else {
-        sz = 0;
-        pinfo = NULL;
     }
 
     /* insert ourselves into our list of jobids - it will be the
@@ -138,6 +136,9 @@ int pmix2x_server_init(opal_pmix_server_module_t *module,
     opal_list_append(&mca_pmix_pmix2x_component.jobids, &job->super);
     OPAL_PMIX_RELEASE_THREAD(&opal_pmix_base.lock);
 
+    /* add our nspace and rank to the array going down to the PMIx server */
+    PMIX_INFO_LOAD(&pinfo[sz-2], PMIX_SERVER_NSPACE, job->nspace, PMIX_STRING);
+    PMIX_INFO_LOAD(&pinfo[sz-1], PMIX_SERVER_RANK, &OPAL_PROC_MY_NAME.vpid, PMIX_PROC_RANK);
     if (PMIX_SUCCESS != (rc = PMIx_server_init(&mymodule, pinfo, sz))) {
         PMIX_INFO_FREE(pinfo, sz);
         return pmix2x_convert_rc(rc);
@@ -264,8 +265,7 @@ int pmix2x_server_register_nspace(opal_jobid_t jobid,
     OPAL_PMIX_RELEASE_THREAD(&opal_pmix_base.lock);
 
     /* convert the list to an array of pmix_info_t */
-    if (NULL != info) {
-        sz = opal_list_get_size(info);
+    if (NULL != info && 0 < (sz = opal_list_get_size(info))) {
         PMIX_INFO_CREATE(pinfo, sz);
         n = 0;
         OPAL_LIST_FOREACH(kv, info, opal_value_t) {
@@ -276,16 +276,18 @@ int pmix2x_server_register_nspace(opal_jobid_t jobid,
                  * that list to another array */
                 pmapinfo = (opal_list_t*)kv->data.ptr;
                 szmap = opal_list_get_size(pmapinfo);
-                PMIX_INFO_CREATE(pmap, szmap);
-                pinfo[n].value.data.darray = (pmix_data_array_t*)calloc(1, sizeof(pmix_data_array_t));
-                pinfo[n].value.data.darray->type = PMIX_INFO;
-                pinfo[n].value.data.darray->array = (struct pmix_info_t*)pmap;
-                pinfo[n].value.data.darray->size = szmap;
-                m = 0;
-                OPAL_LIST_FOREACH(k2, pmapinfo, opal_value_t) {
-                    (void)strncpy(pmap[m].key, k2->key, PMIX_MAX_KEYLEN);
-                    pmix2x_value_load(&pmap[m].value, k2);
-                    ++m;
+                if (0 < szmap) {
+                    PMIX_INFO_CREATE(pmap, szmap);
+                    pinfo[n].value.data.darray = (pmix_data_array_t*)calloc(1, sizeof(pmix_data_array_t));
+                    pinfo[n].value.data.darray->type = PMIX_INFO;
+                    pinfo[n].value.data.darray->array = (struct pmix_info_t*)pmap;
+                    pinfo[n].value.data.darray->size = szmap;
+                    m = 0;
+                    OPAL_LIST_FOREACH(k2, pmapinfo, opal_value_t) {
+                        (void)strncpy(pmap[m].key, k2->key, PMIX_MAX_KEYLEN);
+                        pmix2x_value_load(&pmap[m].value, k2);
+                        ++m;
+                    }
                 }
                 OPAL_LIST_RELEASE(pmapinfo);
             } else {
@@ -341,10 +343,12 @@ void pmix2x_server_deregister_nspace(opal_jobid_t jobid,
         if (jptr->jobid == jobid) {
             /* found it - tell the server to deregister */
             OPAL_PMIX_CONSTRUCT_LOCK(&lock);
+            OPAL_PMIX_RELEASE_THREAD(&opal_pmix_base.lock);
             PMIx_server_deregister_nspace(jptr->nspace, lkcbfunc, (void*)&lock);
             OPAL_PMIX_WAIT_THREAD(&lock);
             OPAL_PMIX_DESTRUCT_LOCK(&lock);
             /* now get rid of it from our list */
+            OPAL_PMIX_ACQUIRE_THREAD(&opal_pmix_base.lock);
             opal_list_remove_item(&mca_pmix_pmix2x_component.jobids, &jptr->super);
             OBJ_RELEASE(jptr);
             break;
@@ -516,8 +520,7 @@ int pmix2x_server_notify_event(int status,
     OPAL_PMIX_RELEASE_THREAD(&opal_pmix_base.lock);
 
     /* convert the list to an array of pmix_info_t */
-    if (NULL != info) {
-        sz = opal_list_get_size(info);
+    if (NULL != info && 0 < (sz = opal_list_get_size(info))) {
         PMIX_INFO_CREATE(pinfo, sz);
         n = 0;
         OPAL_LIST_FOREACH(kv, info, opal_value_t) {

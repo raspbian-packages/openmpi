@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2014-2015 Mellanox Technologies, Inc.
@@ -50,7 +50,7 @@
 
 /* These are functions used by both client and server to
  * access common functions in the embedded PMIx library */
-
+static bool legacy_get(void);
 static const char *pmix2x_get_nspace(opal_jobid_t jobid);
 static void pmix2x_register_jobid(opal_jobid_t jobid, const char *nspace);
 static void register_handler(opal_list_t *event_codes,
@@ -72,6 +72,7 @@ static void pmix2x_log(opal_list_t *info,
                        opal_pmix_op_cbfunc_t cbfunc, void *cbdata);
 
 const opal_pmix_base_module_t opal_pmix_pmix2x_module = {
+    .legacy_get = legacy_get,
     /* client APIs */
     .init = pmix2x_client_init,
     .finalize = pmix2x_client_finalize,
@@ -99,6 +100,8 @@ const opal_pmix_base_module_t opal_pmix_pmix2x_module = {
     .resolve_nodes = pmix2x_resolve_nodes,
     .query = pmix2x_query,
     .log = pmix2x_log,
+    .allocate = pmix2x_allocate,
+    .job_control = pmix2x_job_control,
     /* server APIs */
     .server_init = pmix2x_server_init,
     .server_finalize = pmix2x_server_finalize,
@@ -111,6 +114,9 @@ const opal_pmix_base_module_t opal_pmix_pmix2x_module = {
     .server_setup_fork = pmix2x_server_setup_fork,
     .server_dmodex_request = pmix2x_server_dmodex,
     .server_notify_event = pmix2x_server_notify_event,
+    /* tool APIs */
+    .tool_init = pmix2x_tool_init,
+    .tool_finalize = pmix2x_tool_fini,
     /* utility APIs */
     .get_version = PMIx_Get_version,
     .register_evhandler = register_handler,
@@ -120,6 +126,11 @@ const opal_pmix_base_module_t opal_pmix_pmix2x_module = {
     .get_nspace = pmix2x_get_nspace,
     .register_jobid = pmix2x_register_jobid
 };
+
+static bool legacy_get(void)
+{
+    return mca_pmix_pmix2x_component.legacy_get;
+}
 
 static void opcbfunc(pmix_status_t status, void *cbdata)
 {
@@ -191,17 +202,14 @@ static void return_local_event_hdlr(int status, opal_list_t *results,
     if (NULL != cd->pmixcbfunc) {
         op = OBJ_NEW(pmix2x_opcaddy_t);
 
-        if (NULL != results) {
-        /* convert the list of results to an array of info */
-            op->ninfo = opal_list_get_size(results);
-            if (0 < op->ninfo) {
-                PMIX_INFO_CREATE(op->info, op->ninfo);
-                n=0;
-                OPAL_LIST_FOREACH(kv, cd->info, opal_value_t) {
-                    (void)strncpy(op->info[n].key, kv->key, PMIX_MAX_KEYLEN);
-                    pmix2x_value_load(&op->info[n].value, kv);
-                    ++n;
-                }
+        if (NULL != results && 0 < (op->ninfo = opal_list_get_size(results))) {
+            /* convert the list of results to an array of info */
+            PMIX_INFO_CREATE(op->info, op->ninfo);
+            n=0;
+            OPAL_LIST_FOREACH(kv, cd->info, opal_value_t) {
+                (void)strncpy(op->info[n].key, kv->key, PMIX_MAX_KEYLEN);
+                pmix2x_value_load(&op->info[n].value, kv);
+                ++n;
             }
         }
         /* convert the status */
@@ -265,9 +273,7 @@ void pmix2x_event_hdlr(size_t evhdlr_registration_id,
     } else {
         if (OPAL_SUCCESS != (rc = opal_convert_string_to_jobid(&cd->pname.jobid, source->nspace))) {
             OPAL_ERROR_LOG(rc);
-            OBJ_RELEASE(cd);
-            OPAL_PMIX_RELEASE_THREAD(&opal_pmix_base.lock);
-            return;
+            cd->pname.jobid = OPAL_NAME_INVALID->jobid;
         }
         cd->pname.vpid = pmix2x_convert_rank(source->rank);
     }
@@ -750,7 +756,7 @@ void pmix2x_value_load(pmix_value_t *v,
             break;
         case OPAL_STATUS:
             v->type = PMIX_STATUS;
-            memcpy(&(v->data.status), &kv->data.status, sizeof(pmix_status_t));
+            v->data.status = pmix2x_convert_opalrc(kv->data.status);
             break;
         case OPAL_VPID:
             v->type = PMIX_PROC_RANK;
@@ -770,7 +776,7 @@ void pmix2x_value_load(pmix_value_t *v,
                 }
             }
             if (!found) {
-                (void)opal_snprintf_jobid(v->data.proc->nspace, PMIX_MAX_NSLEN, kv->data.name.vpid);
+                (void)opal_snprintf_jobid(v->data.proc->nspace, PMIX_MAX_NSLEN, kv->data.name.jobid);
             }
             v->data.proc->rank = pmix2x_convert_opalrank(kv->data.name.vpid);
             break;
@@ -812,13 +818,17 @@ void pmix2x_value_load(pmix_value_t *v,
             v->data.darray = (pmix_data_array_t*)malloc(sizeof(pmix_data_array_t));
             v->data.darray->type = PMIX_INFO;
             v->data.darray->size = opal_list_get_size(list);
-            PMIX_INFO_CREATE(info, v->data.darray->size);
-            v->data.darray->array = info;
-            n=0;
-            OPAL_LIST_FOREACH(val, list, opal_value_t) {
-                (void)strncpy(info[n].key, val->key, PMIX_MAX_KEYLEN);
-                pmix2x_value_load(&info[n].value, val);
-                ++n;
+            if (0 < v->data.darray->size) {
+                PMIX_INFO_CREATE(info, v->data.darray->size);
+                v->data.darray->array = info;
+                n=0;
+                OPAL_LIST_FOREACH(val, list, opal_value_t) {
+                    (void)strncpy(info[n].key, val->key, PMIX_MAX_KEYLEN);
+                    pmix2x_value_load(&info[n].value, val);
+                    ++n;
+                }
+            } else {
+                v->data.darray->array = NULL;
             }
             break;
         default:
@@ -921,7 +931,7 @@ int pmix2x_value_unload(opal_value_t *kv,
         break;
     case PMIX_STATUS:
         kv->type = OPAL_STATUS;
-        memcpy(&kv->data.status, &(v->data.status), sizeof(opal_status_t));
+        kv->data.status = pmix2x_convert_rc(v->data.status);
         break;
     case PMIX_PROC_RANK:
         kv->type = OPAL_VPID;
@@ -1063,16 +1073,13 @@ static void register_handler(opal_list_t *event_codes,
     }
 
     /* convert the list of info to an array of pmix_info_t */
-    if (NULL != info) {
-        op->ninfo = opal_list_get_size(info);
-        if (0 < op->ninfo) {
-            PMIX_INFO_CREATE(op->info, op->ninfo);
-            n=0;
-            OPAL_LIST_FOREACH(kv, info, opal_value_t) {
-                (void)strncpy(op->info[n].key, kv->key, PMIX_MAX_KEYLEN);
-                pmix2x_value_load(&op->info[n].value, kv);
-                ++n;
-            }
+    if (NULL != info && 0 < (op->ninfo = opal_list_get_size(info))) {
+        PMIX_INFO_CREATE(op->info, op->ninfo);
+        n=0;
+        OPAL_LIST_FOREACH(kv, info, opal_value_t) {
+            (void)strncpy(op->info[n].key, kv->key, PMIX_MAX_KEYLEN);
+            pmix2x_value_load(&op->info[n].value, kv);
+            ++n;
         }
     }
 
@@ -1154,6 +1161,8 @@ static int notify_event(int status,
     }
 
     op = OBJ_NEW(pmix2x_opcaddy_t);
+    op->opcbfunc = cbfunc;
+    op->cbdata = cbdata;
 
     /* convert the status */
     pstatus = pmix2x_convert_opalrc(status);
@@ -1177,16 +1186,20 @@ static int notify_event(int status,
     prange = pmix2x_convert_opalrange(range);
 
     /* convert the list of info */
-    if (NULL != info) {
-        op->ninfo = opal_list_get_size(info);
-        if (0 < op->ninfo) {
-            PMIX_INFO_CREATE(op->info, op->ninfo);
-            n=0;
-            OPAL_LIST_FOREACH(kv, info, opal_value_t) {
-                (void)strncpy(op->info[n].key, kv->key, PMIX_MAX_KEYLEN);
+    if (NULL != info && 0 < (op->ninfo = opal_list_get_size(info))) {
+        PMIX_INFO_CREATE(op->info, op->ninfo);
+        n=0;
+        OPAL_LIST_FOREACH(kv, info, opal_value_t) {
+            (void)strncpy(op->info[n].key, kv->key, PMIX_MAX_KEYLEN);
+            /* little dicey here as we need to convert a status, if
+             * provided, and it will be an int coming down to us */
+            if (0 == strcmp(kv->key, OPAL_PMIX_JOB_TERM_STATUS)) {
+                op->info[n].value.type = PMIX_STATUS;
+                op->info[n].value.data.status = pmix2x_convert_opalrc(kv->data.integer);
+            } else {
                 pmix2x_value_load(&op->info[n].value, kv);
-                ++n;
             }
+            ++n;
         }
     }
 
@@ -1387,113 +1400,6 @@ opal_pmix_alloc_directive_t pmix2x_convert_allocdir(pmix_alloc_directive_t dir)
         default:
             return OPAL_PMIX_ALLOC_UNDEF;
     }
-}
-
-typedef struct {
-    opal_list_item_t super;
-    char *opalname;
-    char *opalvalue;
-    char *pmixname;
-    char *pmixvalue;
-    bool mismatched;
-} opal_pmix_evar_t;
-static void econ(opal_pmix_evar_t *p)
-{
-    p->opalname = NULL;
-    p->opalvalue = NULL;
-    p->pmixname = NULL;
-    p->pmixvalue = NULL;
-    p->mismatched = false;
-}
-static OBJ_CLASS_INSTANCE(opal_pmix_evar_t,
-                          opal_list_item_t,
-                          econ, NULL);
-struct known_value {
-    char *opalname;
-    char *pmixname;
-};
-
-static struct known_value known_values[] = {
-    {"OPAL_PREFIX", "PMIX_INSTALL_PREFIX"},
-    {"OPAL_EXEC_PREFIX", "PMIX_EXEC_PREFIX"},
-    {"OPAL_BINDIR", "PMIX_BINDIR"},
-    {"OPAL_SBINDIR", "PMIX_SBINDIR"},
-    {"OPAL_LIBEXECDIR", "PMIX_LIBEXECDIR"},
-    {"OPAL_DATAROOTDIR", "PMIX_DATAROOTDIR"},
-    {"OPAL_DATADIR", "PMIX_DATADIR"},
-    {"OPAL_SYSCONFDIR", "PMIX_SYSCONFDIR"},
-    {"OPAL_SHAREDSTATEDIR", "PMIX_SHAREDSTATEDIR"},
-    {"OPAL_LOCALSTATEDIR", "PMIX_LOCALSTATEDIR"},
-    {"OPAL_LIBDIR", "PMIX_LIBDIR"},
-    {"OPAL_INCLUDEDIR", "PMIX_INCLUDEDIR"},
-    {"OPAL_INFODIR", "PMIX_INFODIR"},
-    {"OPAL_MANDIR", "PMIX_MANDIR"},
-    {"OPAL_PKGDATADIR", "PMIX_PKGDATADIR"},
-    {"OPAL_PKGLIBDIR", "PMIX_PKGLIBDIR"},
-    {"OPAL_PKGINCLUDEDIR", "PMIX_PKGINCLUDEDIR"}
-};
-
-
-int opal_pmix_pmix2x_check_evars(void)
-{
-    opal_list_t values;
-    int nvals, i;
-    opal_pmix_evar_t *evar;
-    bool mismatched = false;
-    char *tmp=NULL, *tmp2;
-
-    OBJ_CONSTRUCT(&values, opal_list_t);
-    nvals = sizeof(known_values) / sizeof(struct known_value);
-    for (i=0; i < nvals; i++) {
-        evar = OBJ_NEW(opal_pmix_evar_t);
-        evar->opalname = known_values[i].opalname;
-        evar->opalvalue = getenv(evar->opalname);
-        evar->pmixname = known_values[i].pmixname;
-        evar->pmixvalue = getenv(evar->pmixname);
-        /* if the OPAL value is not set and the PMIx value is,
-         * then that is a problem. Likewise, if both are set
-         * and are different, then that is also a problem. Note that
-         * it is okay for the OPAL value to be set and the PMIx
-         * value to not be set */
-        if ((NULL == evar->opalvalue && NULL != evar->pmixvalue) ||
-            (NULL != evar->opalvalue && NULL != evar->pmixvalue &&
-             0 != strcmp(evar->opalvalue, evar->pmixvalue))) {
-            evar->mismatched = true;
-            mismatched = true;
-        }
-        opal_list_append(&values, &evar->super);
-    }
-    if (!mismatched) {
-        /* transfer any OPAL values that were set - we already verified
-         * that the equivalent PMIx value, if present, matches, so
-         * don't overwrite it */
-        OPAL_LIST_FOREACH(evar, &values, opal_pmix_evar_t) {
-            if (NULL != evar->opalvalue && NULL == evar->pmixvalue) {
-                opal_setenv(evar->pmixname, evar->opalvalue, true, &environ);
-            }
-        }
-        OPAL_LIST_DESTRUCT(&values);
-        return OPAL_SUCCESS;
-    }
-    /* we have at least one mismatch somewhere, so print out the table */
-    OPAL_LIST_FOREACH(evar, &values, opal_pmix_evar_t) {
-        if (evar->mismatched) {
-            if (NULL == tmp) {
-                asprintf(&tmp, "  %s:  %s\n  %s:  %s",
-                         evar->opalname, (NULL == evar->opalvalue) ? "NULL" : evar->opalvalue,
-                         evar->pmixname, (NULL == evar->pmixvalue) ? "NULL" : evar->pmixvalue);
-            } else {
-                asprintf(&tmp2, "%s\n\n  %s:  %s\n  %s:  %s", tmp,
-                         evar->opalname, (NULL == evar->opalvalue) ? "NULL" : evar->opalvalue,
-                         evar->pmixname, (NULL == evar->pmixvalue) ? "NULL" : evar->pmixvalue);
-                free(tmp);
-                tmp = tmp2;
-            }
-        }
-    }
-    opal_show_help("help-pmix-pmix2x.txt", "evars", true, tmp);
-    free(tmp);
-    return OPAL_ERR_SILENT;
 }
 
 /****  INSTANTIATE INTERNAL CLASSES  ****/

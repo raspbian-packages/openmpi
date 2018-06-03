@@ -5,6 +5,7 @@
  *                         reserved.
  * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2016-2017 IBM Corporation. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -16,6 +17,20 @@
 #define OSC_SM_SM_H
 
 #include "opal/mca/shmem/base/base.h"
+
+#if OPAL_HAVE_ATOMIC_MATH_64
+
+typedef uint64_t osc_sm_post_type_t;
+#define OSC_SM_POST_BITS 6
+#define OSC_SM_POST_MASK 0x3f
+
+#else
+
+typedef uint32_t osc_sm_post_type_t;
+#define OSC_SM_POST_BITS 5
+#define OSC_SM_POST_MASK 0x1f
+
+#endif
 
 /* data shared across all peers */
 struct ompi_osc_sm_global_state_t {
@@ -80,7 +95,8 @@ struct ompi_osc_sm_module_t {
     ompi_osc_sm_global_state_t *global_state;
     ompi_osc_sm_node_state_t *my_node_state;
     ompi_osc_sm_node_state_t *node_states;
-    uint64_t **posts;
+
+    osc_sm_post_type_t ** volatile posts;
 
     opal_mutex_t lock;
 };
@@ -235,7 +251,7 @@ int ompi_osc_sm_flush_local(int target,
                                   struct ompi_win_t *win);
 int ompi_osc_sm_flush_local_all(struct ompi_win_t *win);
 
-int ompi_osc_sm_set_info(struct ompi_win_t *win, struct ompi_info_t *info);
-int ompi_osc_sm_get_info(struct ompi_win_t *win, struct ompi_info_t **info_used);
+int ompi_osc_sm_set_info(struct ompi_win_t *win, struct opal_info_t *info);
+int ompi_osc_sm_get_info(struct ompi_win_t *win, struct opal_info_t **info_used);
 
 #endif

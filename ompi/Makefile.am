@@ -179,6 +179,7 @@ include errhandler/Makefile.am
 include file/Makefile.am
 include group/Makefile.am
 include info/Makefile.am
+include interlib/Makefile.am
 include message/Makefile.am
 include op/Makefile.am
 include peruse/Makefile.am
@@ -193,6 +194,7 @@ include mpiext/Makefile.am
 include patterns/net/Makefile.am
 include patterns/comm/Makefile.am
 include mca/Makefile.am
+include util/Makefile.am
 
 # Ensure that the man page directory exists before we try to make man
 # page files (because ompi/mpi/man/man3 has no config.status-generated

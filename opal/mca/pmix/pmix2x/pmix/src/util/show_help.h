@@ -102,7 +102,7 @@ BEGIN_C_DECLS
  *
  * Initialization of show_help subsystem
  */
-int pmix_show_help_init(void);
+PMIX_EXPORT int pmix_show_help_init(void);
 
 
 /**
@@ -110,7 +110,7 @@ int pmix_show_help_init(void);
  *
  * Finalization of show_help subsystem
  */
-int pmix_show_help_finalize(void);
+PMIX_EXPORT int pmix_show_help_finalize(void);
 
 
 /**
@@ -171,7 +171,7 @@ PMIX_EXPORT char* pmix_show_help_vstring(const char *filename,
  * nees to tell show_help how to find its own show_help files - without
  * interfering with the linked ORTE libs when they need to do show_help.
  */
-int pmix_show_help_add_dir(const char *directory);
+PMIX_EXPORT int pmix_show_help_add_dir(const char *directory);
 
 END_C_DECLS
 

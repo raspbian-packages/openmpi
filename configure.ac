@@ -10,9 +10,9 @@
 #                         University of Stuttgart.  All rights reserved.
 # Copyright (c) 2004-2005 The Regents of the University of California.
 #                         All rights reserved.
-# Copyright (c) 2006-2016 Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2006-2018 Cisco Systems, Inc.  All rights reserved
 # Copyright (c) 2006-2008 Sun Microsystems, Inc.  All rights reserved.
-# Copyright (c) 2006-2011 Los Alamos National Security, LLC.  All rights
+# Copyright (c) 2006-2017 Los Alamos National Security, LLC.  All rights
 #                         reserved.
 # Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
 # Copyright (c) 2011-2013 NVIDIA Corporation.  All rights reserved.
@@ -84,17 +84,6 @@ AS_IF([test "$host" != "$target"],
       [AC_MSG_WARN([Cross-compile detected])
        AC_MSG_WARN([Cross-compiling is only partially supported])
        AC_MSG_WARN([Proceed at your own risk!])])
-# Check for architectures that we explicitly no longer support
-case "${host}" in
-    powerpc-*|powerpc64-*|ppc-*)
-        AC_MSG_WARN([Big endian PPC is no longer offically supported.])
-        ;;
-esac
-case "${target}" in
-    powerpc-*|powerpc64-*|ppc-*)
-        AC_MSG_WARN([Big endian PPC is no longer officially supported.])
-        ;;
-esac
 
 # AC_USE_SYSTEM_EXTENSIONS alters CFLAGS (e.g., adds -g -O2)
 OPAL_VAR_SCOPE_PUSH([CFLAGS_save])
@@ -163,13 +152,14 @@ AC_SUBST(libopen_pal_so_version)
 # transparently by adding some intelligence in autogen.pl
 # and/or opal_mca.m4, but I don't have the cycles to do this
 # right now.
-AC_SUBST(libmca_opal_common_libfabric_so_version)
+AC_SUBST(libmca_opal_common_ofi_so_version)
 AC_SUBST(libmca_opal_common_cuda_so_version)
 AC_SUBST(libmca_opal_common_sm_so_version)
 AC_SUBST(libmca_opal_common_ugni_so_version)
 AC_SUBST(libmca_opal_common_verbs_so_version)
 AC_SUBST(libmca_orte_common_alps_so_version)
 AC_SUBST(libmca_ompi_common_ompio_so_version)
+AC_SUBST(libmca_ompi_common_monitoring_so_version)
 
 #
 # Get the versions of the autotools that were used to bootstrap us
@@ -1422,6 +1412,7 @@ AC_CONFIG_FILES([
     test/threads/Makefile
     test/util/Makefile
 ])
+
 m4_ifdef([project_ompi], [AC_CONFIG_FILES([test/monitoring/Makefile])])
 
 AC_CONFIG_FILES([contrib/dist/mofed/debian/rules],

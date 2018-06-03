@@ -5,7 +5,7 @@
  * Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC. All
  *                         rights reserved.
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -23,15 +23,16 @@
 
 #include "opal/dss/dss.h"
 #include "opal/class/opal_list.h"
+#include "opal/mca/pmix/pmix.h"
 
 #include "orte/mca/errmgr/errmgr.h"
+#include "orte/mca/regx/regx.h"
 #include "orte/mca/rml/base/base.h"
 #include "orte/mca/rml/base/rml_contact.h"
 #include "orte/mca/routed/base/base.h"
 #include "orte/mca/state/state.h"
 #include "orte/util/compress.h"
 #include "orte/util/name_fns.h"
-#include "orte/util/nidmap.h"
 #include "orte/util/proc_info.h"
 
 #include "orte/mca/grpcomm/base/base.h"
@@ -273,6 +274,9 @@ static void xcast_recv(int status, orte_process_name_t* sender,
     char *rtmod, *nidmap;
     size_t inlen, cmplen;
     uint8_t *packed_data, *cmpdata;
+    int32_t nvals, i;
+    opal_value_t kv, *kval;
+    orte_process_name_t dmn;
 
     OPAL_OUTPUT_VERBOSE((1, orte_grpcomm_base_framework.framework_output,
                          "%s grpcomm:direct:xcast:recv: with %d bytes",
@@ -412,7 +416,7 @@ static void xcast_recv(int status, orte_process_name_t* sender,
                     goto relay;
                 }
                 if (NULL != nidmap) {
-                    if (ORTE_SUCCESS != (ret = orte_util_nidmap_parse(nidmap))) {
+                    if (ORTE_SUCCESS != (ret = orte_regx.nidmap_parse(nidmap))) {
                         ORTE_ERROR_LOG(ret);
                         goto relay;
                     }
@@ -432,7 +436,7 @@ static void xcast_recv(int status, orte_process_name_t* sender,
                                          "%s grpcomm:direct:xcast updating daemon nidmap",
                                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
 
-                    if (ORTE_SUCCESS != (ret = orte_util_decode_daemon_nodemap(data))) {
+                    if (ORTE_SUCCESS != (ret = orte_regx.decode_daemon_nodemap(data))) {
                         ORTE_ERROR_LOG(ret);
                         goto relay;
                     }
@@ -446,35 +450,73 @@ static void xcast_recv(int status, orte_process_name_t* sender,
                     /* routing is now possible */
                     orte_routed_base.routing_enabled = true;
 
-                    /* see if we have wiring info as well */
+                    /* unpack the byte object */
                     cnt=1;
-                    if (ORTE_SUCCESS != (ret = opal_dss.unpack(data, &flag, &cnt, OPAL_INT8))) {
+                    if (ORTE_SUCCESS != (ret = opal_dss.unpack(data, &bo, &cnt, OPAL_BYTE_OBJECT))) {
                         ORTE_ERROR_LOG(ret);
                         goto relay;
                     }
-
-                    if (0 != flag) {
-                        /* unpack the byte object */
-                        cnt=1;
-                        if (ORTE_SUCCESS != (ret = opal_dss.unpack(data, &bo, &cnt, OPAL_BYTE_OBJECT))) {
-                            ORTE_ERROR_LOG(ret);
-                            goto relay;
-                        }
-                        if (0 < bo->size) {
-                            /* load it into a buffer */
-                            OBJ_CONSTRUCT(&wireup, opal_buffer_t);
-                            opal_dss.load(&wireup, bo->bytes, bo->size);
-                            /* pass it for processing */
-                            if (ORTE_SUCCESS != (ret = orte_rml_base_update_contact_info(&wireup))) {
-                                ORTE_ERROR_LOG(ret);
-                                OBJ_DESTRUCT(&wireup);
-                                goto relay;
+                    if (0 < bo->size) {
+                        /* load it into a buffer */
+                        OBJ_CONSTRUCT(&wireup, opal_buffer_t);
+                        opal_dss.load(&wireup, bo->bytes, bo->size);
+                        /* decode it, pushing the info into our database */
+                        if (opal_pmix.legacy_get()) {
+                            OBJ_CONSTRUCT(&kv, opal_value_t);
+                            kv.key = OPAL_PMIX_PROC_URI;
+                            kv.type = OPAL_STRING;
+                            cnt=1;
+                            while (OPAL_SUCCESS == (ret = opal_dss.unpack(&wireup, &dmn, &cnt, ORTE_NAME))) {
+                                cnt = 1;
+                                if (ORTE_SUCCESS != (ret = opal_dss.unpack(&wireup, &kv.data.string, &cnt, OPAL_STRING))) {
+                                    ORTE_ERROR_LOG(ret);
+                                    break;
+                                }
+                                if (OPAL_SUCCESS != (ret = opal_pmix.store_local(&dmn, &kv))) {
+                                    ORTE_ERROR_LOG(ret);
+                                    free(kv.data.string);
+                                    break;
+                                }
+                                free(kv.data.string);
+                                kv.data.string = NULL;
                             }
-                            /* done with the wireup buffer - dump it */
-                            OBJ_DESTRUCT(&wireup);
+                            if (ORTE_ERR_UNPACK_READ_PAST_END_OF_BUFFER != ret) {
+                                ORTE_ERROR_LOG(ret);
+                            }
+                        } else {
+                           cnt=1;
+                           while (OPAL_SUCCESS == (ret = opal_dss.unpack(&wireup, &dmn, &cnt, ORTE_NAME))) {
+                               cnt = 1;
+                               if (ORTE_SUCCESS != (ret = opal_dss.unpack(&wireup, &nvals, &cnt, OPAL_INT32))) {
+                                   ORTE_ERROR_LOG(ret);
+                                   break;
+                               }
+                               for (i=0; i < nvals; i++) {
+                                cnt = 1;
+                                if (ORTE_SUCCESS != (ret = opal_dss.unpack(&wireup, &kval, &cnt, OPAL_VALUE))) {
+                                    ORTE_ERROR_LOG(ret);
+                                    break;
+                                }
+                                OPAL_OUTPUT_VERBOSE((5, orte_grpcomm_base_framework.framework_output,
+                                                     "%s STORING MODEX DATA FOR PROC %s KEY %s",
+                                                     ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                                                     ORTE_NAME_PRINT(&dmn), kval->key));
+                                if (OPAL_SUCCESS != (ret = opal_pmix.store_local(&dmn, kval))) {
+                                    ORTE_ERROR_LOG(ret);
+                                    OBJ_RELEASE(kval);
+                                    break;
+                                }
+                                OBJ_RELEASE(kval);
+                            }
+                            }
+                            if (ORTE_ERR_UNPACK_READ_PAST_END_OF_BUFFER != ret) {
+                                ORTE_ERROR_LOG(ret);
+                            }
                         }
-                        free(bo);
+                        /* done with the wireup buffer - dump it */
+                        OBJ_DESTRUCT(&wireup);
                     }
+                    free(bo);
                 }
                 /* copy the remainder of the payload - we don't pass wiring info
                  * to the odls */
@@ -499,7 +541,7 @@ static void xcast_recv(int status, orte_process_name_t* sender,
         opal_dss.copy_payload(relay, data);
     }
 
- relay:
+  relay:
     if (!orte_do_not_launch) {
         /* get the list of next recipients from the routed module */
         orte_routed.get_routing_list(rtmod, &coll);

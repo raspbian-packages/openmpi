@@ -7,7 +7,7 @@
  * Copyright (c) 2010-2012 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2015-2016 Research Organization for Information Science
+ * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2016      FUJITSU LIMITED.  All rights reserved.
  * $COPYRIGHT$
@@ -403,7 +403,7 @@ extern const ompi_datatype_t* ompi_datatype_basicDatatypes[OMPI_DATATYPE_MPI_MAX
 
 #define OMPI_DATATYPE_EMPTY_DATA(NAME)                                               \
     .id = OMPI_DATATYPE_MPI_ ## NAME,                                                \
-    .d_f_to_c_index = 0,                                                             \
+    .d_f_to_c_index = -1,                                                            \
     .d_keyhash = NULL,                                                               \
     .args = NULL,                                                                    \
     .packed_description = NULL,                                                      \
@@ -431,6 +431,8 @@ extern const ompi_datatype_t* ompi_datatype_basicDatatypes[OMPI_DATATYPE_MPI_MAX
 #define OMPI_DATATYPE_INIT_PREDEFINED( NAME, FLAGS )                                 \
     OMPI_DATATYPE_INIT_PREDEFINED_BASIC_TYPE( NAME, NAME, FLAGS )
 #define OMPI_DATATYPE_INIT_UNAVAILABLE( NAME, FLAGS )                                \
+    OMPI_DATATYPE_INIT_PREDEFINED_BASIC_TYPE( UNAVAILABLE, NAME, FLAGS )
+#define OMPI_DATATYPE_INIT_UNAVAILABLE_BASIC_TYPE(TYPE, NAME, FLAGS)                 \
     OMPI_DATATYPE_INIT_PREDEFINED_BASIC_TYPE( UNAVAILABLE, NAME, FLAGS )
 
 /*

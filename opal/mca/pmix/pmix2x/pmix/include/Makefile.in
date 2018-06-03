@@ -161,7 +161,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am $(am__include_HEADERS_DIST) \
 	$(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h
+CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h \
+	pmix_common.h
 CONFIG_CLEAN_FILES = pmix_version.h pmix_rename.h
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -183,8 +184,8 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__include_HEADERS_DIST = pmix.h pmix_common.h pmix_server.h \
-	pmix_tool.h pmi.h pmi2.h
+am__include_HEADERS_DIST = pmix.h pmix_server.h pmix_tool.h pmi.h \
+	pmi2.h
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -214,7 +215,8 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"
 HEADERS = $(include_HEADERS) $(nodist_include_HEADERS)
-am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
+am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
+	$(LISP)pmix_common.h.in
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
 # *not* preserved.
@@ -233,8 +235,8 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/pmix_rename.h.in \
-	$(srcdir)/pmix_version.h.in
+am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/pmix_common.h.in \
+	$(srcdir)/pmix_rename.h.in $(srcdir)/pmix_version.h.in
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -298,6 +300,20 @@ MCA_pmix_FRAMEWORK_COMPONENT_ALL_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_ALL_SUB
 MCA_pmix_FRAMEWORK_COMPONENT_DSO_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_DSO_SUBDIRS@
 MCA_pmix_FRAMEWORK_COMPONENT_STATIC_SUBDIRS = @MCA_pmix_FRAMEWORK_COMPONENT_STATIC_SUBDIRS@
 MCA_pmix_FRAMEWORK_LIBS = @MCA_pmix_FRAMEWORK_LIBS@
+MCA_pmix_bfrops_ALL_COMPONENTS = @MCA_pmix_bfrops_ALL_COMPONENTS@
+MCA_pmix_bfrops_ALL_SUBDIRS = @MCA_pmix_bfrops_ALL_SUBDIRS@
+MCA_pmix_bfrops_DSO_COMPONENTS = @MCA_pmix_bfrops_DSO_COMPONENTS@
+MCA_pmix_bfrops_DSO_SUBDIRS = @MCA_pmix_bfrops_DSO_SUBDIRS@
+MCA_pmix_bfrops_STATIC_COMPONENTS = @MCA_pmix_bfrops_STATIC_COMPONENTS@
+MCA_pmix_bfrops_STATIC_LTLIBS = @MCA_pmix_bfrops_STATIC_LTLIBS@
+MCA_pmix_bfrops_STATIC_SUBDIRS = @MCA_pmix_bfrops_STATIC_SUBDIRS@
+MCA_pmix_gds_ALL_COMPONENTS = @MCA_pmix_gds_ALL_COMPONENTS@
+MCA_pmix_gds_ALL_SUBDIRS = @MCA_pmix_gds_ALL_SUBDIRS@
+MCA_pmix_gds_DSO_COMPONENTS = @MCA_pmix_gds_DSO_COMPONENTS@
+MCA_pmix_gds_DSO_SUBDIRS = @MCA_pmix_gds_DSO_SUBDIRS@
+MCA_pmix_gds_STATIC_COMPONENTS = @MCA_pmix_gds_STATIC_COMPONENTS@
+MCA_pmix_gds_STATIC_LTLIBS = @MCA_pmix_gds_STATIC_LTLIBS@
+MCA_pmix_gds_STATIC_SUBDIRS = @MCA_pmix_gds_STATIC_SUBDIRS@
 MCA_pmix_pdl_ALL_COMPONENTS = @MCA_pmix_pdl_ALL_COMPONENTS@
 MCA_pmix_pdl_ALL_SUBDIRS = @MCA_pmix_pdl_ALL_SUBDIRS@
 MCA_pmix_pdl_DSO_COMPONENTS = @MCA_pmix_pdl_DSO_COMPONENTS@
@@ -326,6 +342,13 @@ MCA_pmix_pnet_DSO_SUBDIRS = @MCA_pmix_pnet_DSO_SUBDIRS@
 MCA_pmix_pnet_STATIC_COMPONENTS = @MCA_pmix_pnet_STATIC_COMPONENTS@
 MCA_pmix_pnet_STATIC_LTLIBS = @MCA_pmix_pnet_STATIC_LTLIBS@
 MCA_pmix_pnet_STATIC_SUBDIRS = @MCA_pmix_pnet_STATIC_SUBDIRS@
+MCA_pmix_preg_ALL_COMPONENTS = @MCA_pmix_preg_ALL_COMPONENTS@
+MCA_pmix_preg_ALL_SUBDIRS = @MCA_pmix_preg_ALL_SUBDIRS@
+MCA_pmix_preg_DSO_COMPONENTS = @MCA_pmix_preg_DSO_COMPONENTS@
+MCA_pmix_preg_DSO_SUBDIRS = @MCA_pmix_preg_DSO_SUBDIRS@
+MCA_pmix_preg_STATIC_COMPONENTS = @MCA_pmix_preg_STATIC_COMPONENTS@
+MCA_pmix_preg_STATIC_LTLIBS = @MCA_pmix_preg_STATIC_LTLIBS@
+MCA_pmix_preg_STATIC_SUBDIRS = @MCA_pmix_preg_STATIC_SUBDIRS@
 MCA_pmix_psec_ALL_COMPONENTS = @MCA_pmix_psec_ALL_COMPONENTS@
 MCA_pmix_psec_ALL_SUBDIRS = @MCA_pmix_psec_ALL_SUBDIRS@
 MCA_pmix_psec_DSO_COMPONENTS = @MCA_pmix_psec_DSO_COMPONENTS@
@@ -340,6 +363,13 @@ MCA_pmix_psensor_DSO_SUBDIRS = @MCA_pmix_psensor_DSO_SUBDIRS@
 MCA_pmix_psensor_STATIC_COMPONENTS = @MCA_pmix_psensor_STATIC_COMPONENTS@
 MCA_pmix_psensor_STATIC_LTLIBS = @MCA_pmix_psensor_STATIC_LTLIBS@
 MCA_pmix_psensor_STATIC_SUBDIRS = @MCA_pmix_psensor_STATIC_SUBDIRS@
+MCA_pmix_pshmem_ALL_COMPONENTS = @MCA_pmix_pshmem_ALL_COMPONENTS@
+MCA_pmix_pshmem_ALL_SUBDIRS = @MCA_pmix_pshmem_ALL_SUBDIRS@
+MCA_pmix_pshmem_DSO_COMPONENTS = @MCA_pmix_pshmem_DSO_COMPONENTS@
+MCA_pmix_pshmem_DSO_SUBDIRS = @MCA_pmix_pshmem_DSO_SUBDIRS@
+MCA_pmix_pshmem_STATIC_COMPONENTS = @MCA_pmix_pshmem_STATIC_COMPONENTS@
+MCA_pmix_pshmem_STATIC_LTLIBS = @MCA_pmix_pshmem_STATIC_LTLIBS@
+MCA_pmix_pshmem_STATIC_SUBDIRS = @MCA_pmix_pshmem_STATIC_SUBDIRS@
 MCA_pmix_ptl_ALL_COMPONENTS = @MCA_pmix_ptl_ALL_COMPONENTS@
 MCA_pmix_ptl_ALL_SUBDIRS = @MCA_pmix_ptl_ALL_SUBDIRS@
 MCA_pmix_ptl_DSO_COMPONENTS = @MCA_pmix_ptl_DSO_COMPONENTS@
@@ -386,6 +416,8 @@ PMIX_MINOR_VERSION = @PMIX_MINOR_VERSION@
 PMIX_RELEASE_DATE = @PMIX_RELEASE_DATE@
 PMIX_RELEASE_VERSION = @PMIX_RELEASE_VERSION@
 PMIX_RENAME = @PMIX_RENAME@
+PMIX_TOP_BUILDDIR = @PMIX_TOP_BUILDDIR@
+PMIX_TOP_SRCDIR = @PMIX_TOP_SRCDIR@
 PMIX_VERSION = @PMIX_VERSION@
 PMIX_top_builddir = @PMIX_top_builddir@
 PMIX_top_srcdir = @PMIX_top_srcdir@
@@ -432,6 +464,8 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libpmi2_so_version = @libpmi2_so_version@
+libpmi_so_version = @libpmi_so_version@
 libpmix_so_version = @libpmix_so_version@
 localedir = @localedir@
 localstatedir = @localstatedir@
@@ -471,14 +505,15 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-@WANT_PRIMARY_HEADERS_TRUE@include_HEADERS = pmix.h pmix_common.h \
-@WANT_PRIMARY_HEADERS_TRUE@	pmix_server.h pmix_tool.h \
-@WANT_PRIMARY_HEADERS_TRUE@	$(am__append_1)
+@WANT_PRIMARY_HEADERS_TRUE@include_HEADERS = pmix.h pmix_server.h \
+@WANT_PRIMARY_HEADERS_TRUE@	pmix_tool.h $(am__append_1)
 @WANT_PRIMARY_HEADERS_TRUE@nodist_include_HEADERS = \
+@WANT_PRIMARY_HEADERS_TRUE@    pmix_common.h \
 @WANT_PRIMARY_HEADERS_TRUE@    pmix_version.h \
 @WANT_PRIMARY_HEADERS_TRUE@    pmix_rename.h
 
-all: all-am
+all: pmix_common.h
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -510,6 +545,17 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+
+pmix_common.h: stamp-h2
+	@test -f $@ || rm -f stamp-h2
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) stamp-h2
+
+stamp-h2: $(srcdir)/pmix_common.h.in $(top_builddir)/config.status
+	@rm -f stamp-h2
+	cd $(top_builddir) && $(SHELL) ./config.status include/pmix_common.h
+
+distclean-hdr:
+	-rm -f pmix_common.h stamp-h2
 pmix_version.h: $(top_builddir)/config.status $(srcdir)/pmix_version.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 pmix_rename.h: $(top_builddir)/config.status $(srcdir)/pmix_rename.h.in
@@ -647,7 +693,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(HEADERS)
+all-am: Makefile $(HEADERS) pmix_common.h
 installdirs:
 	for dir in "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -689,7 +735,7 @@ clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-tags
+distclean-am: clean-am distclean-generic distclean-hdr distclean-tags
 
 dvi: dvi-am
 
@@ -749,21 +795,21 @@ ps-am:
 
 uninstall-am: uninstall-includeHEADERS uninstall-nodist_includeHEADERS
 
-.MAKE: install-am install-strip
+.MAKE: all install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
 	clean-libtool cscopelist-am ctags ctags-am distclean \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-includeHEADERS install-info install-info-am \
-	install-man install-nodist_includeHEADERS install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-includeHEADERS \
+	distclean-generic distclean-hdr distclean-libtool \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-man install-nodist_includeHEADERS \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-nodist_includeHEADERS
 
 .PRECIOUS: Makefile

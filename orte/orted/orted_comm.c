@@ -14,7 +14,7 @@
  *                         reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2010-2011 Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2016-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -58,7 +58,6 @@
 #include "orte/util/proc_info.h"
 #include "orte/util/session_dir.h"
 #include "orte/util/name_fns.h"
-#include "orte/util/nidmap.h"
 #include "orte/util/compress.h"
 
 #include "orte/mca/errmgr/errmgr.h"
@@ -68,6 +67,7 @@
 #include "orte/mca/rml/rml_types.h"
 #include "orte/mca/odls/odls.h"
 #include "orte/mca/odls/base/base.h"
+#include "orte/mca/oob/base/base.h"
 #include "orte/mca/plm/plm.h"
 #include "orte/mca/plm/base/plm_private.h"
 #include "orte/mca/rmaps/rmaps_types.h"
@@ -722,7 +722,7 @@ void orte_daemon_recv(int status, orte_process_name_t* sender,
                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME));
         }
         /* send back contact info */
-        contact_info = orte_rml.get_contact_info();
+        orte_oob_base_get_addr(&contact_info);
 
         if (NULL == contact_info) {
             ORTE_ERROR_LOG(ORTE_ERROR);

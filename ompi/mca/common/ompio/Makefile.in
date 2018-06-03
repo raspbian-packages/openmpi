@@ -27,6 +27,8 @@
 #                         All rights reserved.
 # Copyright (c) 2008-2016 University of Houston. All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
+# Copyright (c) 2017      Research Organization for Information Science
+#                         and Technology (RIST). All rights reserved.
 #
 # $COPYRIGHT$
 #
@@ -111,8 +113,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@MCA_BUILD_ompi_common_ompio_DSO_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__append_1 = $(comp_inst)
-@MCA_BUILD_ompi_common_ompio_DSO_FALSE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__append_2 = $(comp_noinst)
+@MCA_BUILD_ompi_common_ompio_DSO_TRUE@am__append_1 = $(comp_inst)
+@MCA_BUILD_ompi_common_ompio_DSO_FALSE@am__append_2 = $(comp_noinst)
 subdir = ompi/mca/common/ompio
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -187,9 +189,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_check_icc.m4 \
 	$(top_srcdir)/config/opal_check_ident.m4 \
 	$(top_srcdir)/config/opal_check_knem.m4 \
-	$(top_srcdir)/config/opal_check_libfabric.m4 \
 	$(top_srcdir)/config/opal_check_libnl.m4 \
 	$(top_srcdir)/config/opal_check_offsetof.m4 \
+	$(top_srcdir)/config/opal_check_ofi.m4 \
 	$(top_srcdir)/config/opal_check_openfabrics.m4 \
 	$(top_srcdir)/config/opal_check_os_flavors.m4 \
 	$(top_srcdir)/config/opal_check_package.m4 \
@@ -255,7 +257,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/libfabric/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
@@ -309,6 +311,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/rcache/gpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/rgpusm/configure.m4 \
 	$(top_srcdir)/opal/mca/rcache/udreg/configure.m4 \
+	$(top_srcdir)/opal/mca/reachable/netlink/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/mmap/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/posix/configure.m4 \
 	$(top_srcdir)/opal/mca/shmem/sysv/configure.m4 \
@@ -338,6 +341,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
+	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -349,16 +353,17 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/configure.m4 \
 	$(top_srcdir)/ompi/mca/hook/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/configure.m4 \
+	$(top_srcdir)/ompi/mca/common/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/common/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/bml/r2/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/cuda/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/fca/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
@@ -374,10 +379,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/rdma/configure.m4 \
+	$(top_srcdir)/ompi/mca/osc/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/crcpw/configure.m4 \
+	$(top_srcdir)/ompi/mca/pml/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ob1/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/ucx/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
@@ -445,19 +453,13 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(ompidir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libmca_common_ompio_la_DEPENDENCIES =
-am__libmca_common_ompio_la_SOURCES_DIST = common_ompio_print_queue.h \
-	common_ompio.h common_ompio_print_queue.c \
-	common_ompio_file_open.c common_ompio_file_view.c \
-	common_ompio_file_read.c common_ompio_file_write.c
 am__objects_1 =
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__objects_2 = libmca_common_ompio_la-common_ompio_print_queue.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	libmca_common_ompio_la-common_ompio_file_open.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	libmca_common_ompio_la-common_ompio_file_view.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	libmca_common_ompio_la-common_ompio_file_read.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	libmca_common_ompio_la-common_ompio_file_write.lo
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am_libmca_common_ompio_la_OBJECTS =  \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(am__objects_1) \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(am__objects_2)
+am__objects_2 = libmca_common_ompio_la-common_ompio_print_queue.lo \
+	libmca_common_ompio_la-common_ompio_file_open.lo \
+	libmca_common_ompio_la-common_ompio_file_view.lo \
+	libmca_common_ompio_la-common_ompio_file_read.lo \
+	libmca_common_ompio_la-common_ompio_file_write.lo
+am_libmca_common_ompio_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libmca_common_ompio_la_OBJECTS = $(am_libmca_common_ompio_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -467,25 +469,17 @@ libmca_common_ompio_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(libmca_common_ompio_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-@MCA_BUILD_ompi_common_ompio_DSO_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am_libmca_common_ompio_la_rpath = -rpath \
-@MCA_BUILD_ompi_common_ompio_DSO_TRUE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(libdir)
+@MCA_BUILD_ompi_common_ompio_DSO_TRUE@am_libmca_common_ompio_la_rpath =  \
+@MCA_BUILD_ompi_common_ompio_DSO_TRUE@	-rpath $(libdir)
 libmca_common_ompio_noinst_la_LIBADD =
-am__libmca_common_ompio_noinst_la_SOURCES_DIST =  \
-	common_ompio_print_queue.h common_ompio.h \
-	common_ompio_print_queue.c common_ompio_file_open.c \
-	common_ompio_file_view.c common_ompio_file_read.c \
-	common_ompio_file_write.c
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am__objects_3 = common_ompio_print_queue.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_open.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_view.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_read.lo \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_write.lo
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am_libmca_common_ompio_noinst_la_OBJECTS =  \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(am__objects_1) \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(am__objects_3)
+am__objects_3 = common_ompio_print_queue.lo common_ompio_file_open.lo \
+	common_ompio_file_view.lo common_ompio_file_read.lo \
+	common_ompio_file_write.lo
+am_libmca_common_ompio_noinst_la_OBJECTS = $(am__objects_1) \
+	$(am__objects_3)
 libmca_common_ompio_noinst_la_OBJECTS =  \
 	$(am_libmca_common_ompio_noinst_la_OBJECTS)
-@MCA_BUILD_ompi_common_ompio_DSO_FALSE@@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@am_libmca_common_ompio_noinst_la_rpath =
+@MCA_BUILD_ompi_common_ompio_DSO_FALSE@am_libmca_common_ompio_noinst_la_rpath =
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -522,8 +516,8 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libmca_common_ompio_la_SOURCES) \
 	$(libmca_common_ompio_noinst_la_SOURCES)
-DIST_SOURCES = $(am__libmca_common_ompio_la_SOURCES_DIST) \
-	$(am__libmca_common_ompio_noinst_la_SOURCES_DIST)
+DIST_SOURCES = $(libmca_common_ompio_la_SOURCES) \
+	$(libmca_common_ompio_noinst_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -663,6 +657,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR = @JAR@
 JAVAC = @JAVAC@
+JAVADOC = @JAVADOC@
 JAVAH = @JAVAH@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
@@ -945,6 +940,13 @@ MCA_opal_rcache_DSO_SUBDIRS = @MCA_opal_rcache_DSO_SUBDIRS@
 MCA_opal_rcache_STATIC_COMPONENTS = @MCA_opal_rcache_STATIC_COMPONENTS@
 MCA_opal_rcache_STATIC_LTLIBS = @MCA_opal_rcache_STATIC_LTLIBS@
 MCA_opal_rcache_STATIC_SUBDIRS = @MCA_opal_rcache_STATIC_SUBDIRS@
+MCA_opal_reachable_ALL_COMPONENTS = @MCA_opal_reachable_ALL_COMPONENTS@
+MCA_opal_reachable_ALL_SUBDIRS = @MCA_opal_reachable_ALL_SUBDIRS@
+MCA_opal_reachable_DSO_COMPONENTS = @MCA_opal_reachable_DSO_COMPONENTS@
+MCA_opal_reachable_DSO_SUBDIRS = @MCA_opal_reachable_DSO_SUBDIRS@
+MCA_opal_reachable_STATIC_COMPONENTS = @MCA_opal_reachable_STATIC_COMPONENTS@
+MCA_opal_reachable_STATIC_LTLIBS = @MCA_opal_reachable_STATIC_LTLIBS@
+MCA_opal_reachable_STATIC_SUBDIRS = @MCA_opal_reachable_STATIC_SUBDIRS@
 MCA_opal_shmem_ALL_COMPONENTS = @MCA_opal_shmem_ALL_COMPONENTS@
 MCA_opal_shmem_ALL_SUBDIRS = @MCA_opal_shmem_ALL_SUBDIRS@
 MCA_opal_shmem_DSO_COMPONENTS = @MCA_opal_shmem_DSO_COMPONENTS@
@@ -1049,6 +1051,13 @@ MCA_orte_ras_DSO_SUBDIRS = @MCA_orte_ras_DSO_SUBDIRS@
 MCA_orte_ras_STATIC_COMPONENTS = @MCA_orte_ras_STATIC_COMPONENTS@
 MCA_orte_ras_STATIC_LTLIBS = @MCA_orte_ras_STATIC_LTLIBS@
 MCA_orte_ras_STATIC_SUBDIRS = @MCA_orte_ras_STATIC_SUBDIRS@
+MCA_orte_regx_ALL_COMPONENTS = @MCA_orte_regx_ALL_COMPONENTS@
+MCA_orte_regx_ALL_SUBDIRS = @MCA_orte_regx_ALL_SUBDIRS@
+MCA_orte_regx_DSO_COMPONENTS = @MCA_orte_regx_DSO_COMPONENTS@
+MCA_orte_regx_DSO_SUBDIRS = @MCA_orte_regx_DSO_SUBDIRS@
+MCA_orte_regx_STATIC_COMPONENTS = @MCA_orte_regx_STATIC_COMPONENTS@
+MCA_orte_regx_STATIC_LTLIBS = @MCA_orte_regx_STATIC_LTLIBS@
+MCA_orte_regx_STATIC_SUBDIRS = @MCA_orte_regx_STATIC_SUBDIRS@
 MCA_orte_rmaps_ALL_COMPONENTS = @MCA_orte_rmaps_ALL_COMPONENTS@
 MCA_orte_rmaps_ALL_SUBDIRS = @MCA_orte_rmaps_ALL_SUBDIRS@
 MCA_orte_rmaps_DSO_COMPONENTS = @MCA_orte_rmaps_DSO_COMPONENTS@
@@ -1279,8 +1288,6 @@ OMPI_MPIEXT_USEMPIF08_DIRS = @OMPI_MPIEXT_USEMPIF08_DIRS@
 OMPI_MPIEXT_USEMPIF08_LIBS = @OMPI_MPIEXT_USEMPIF08_LIBS@
 OMPI_MPIEXT_USEMPI_DIRS = @OMPI_MPIEXT_USEMPI_DIRS@
 OMPI_MPIEXT_USEMPI_LIBS = @OMPI_MPIEXT_USEMPI_LIBS@
-OMPI_MPIF_IO_CONSTANTS_INCLUDE = @OMPI_MPIF_IO_CONSTANTS_INCLUDE@
-OMPI_MPIF_IO_HANDLES_INCLUDE = @OMPI_MPIF_IO_HANDLES_INCLUDE@
 OMPI_MPI_ADDRESS_KIND = @OMPI_MPI_ADDRESS_KIND@
 OMPI_MPI_BIND_PREFIX = @OMPI_MPI_BIND_PREFIX@
 OMPI_MPI_COUNT_KIND = @OMPI_MPI_COUNT_KIND@
@@ -1288,7 +1295,6 @@ OMPI_MPI_INTEGER_KIND = @OMPI_MPI_INTEGER_KIND@
 OMPI_MPI_OFFSET_KIND = @OMPI_MPI_OFFSET_KIND@
 OMPI_MPI_PREFIX = @OMPI_MPI_PREFIX@
 OMPI_PKG_CONFIG_LDFLAGS = @OMPI_PKG_CONFIG_LDFLAGS@
-OMPI_PROVIDE_MPI_FILE_INTERFACE = @OMPI_PROVIDE_MPI_FILE_INTERFACE@
 OMPI_RELEASE_DATE = @OMPI_RELEASE_DATE@
 OMPI_RELEASE_VERSION = @OMPI_RELEASE_VERSION@
 OMPI_REPO_REV = @OMPI_REPO_REV@
@@ -1335,7 +1341,6 @@ OMPI_WRAPPER_EXTRA_LIBS = @OMPI_WRAPPER_EXTRA_LIBS@
 OMPI_WRAPPER_FORTRAN_REQUIRED_FILE = @OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 OMPI_WRAPPER_INCLUDEDIR = @OMPI_WRAPPER_INCLUDEDIR@
 OMPI_WRAPPER_LIBDIR = @OMPI_WRAPPER_LIBDIR@
-OPAL_ASM_FILE = @OPAL_ASM_FILE@
 OPAL_ASM_GSYM = @OPAL_ASM_GSYM@
 OPAL_ASM_LSYM = @OPAL_ASM_LSYM@
 OPAL_ASM_SUPPORT_64BIT = @OPAL_ASM_SUPPORT_64BIT@
@@ -1553,9 +1558,10 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_libfabric_so_version = @libmca_opal_common_libfabric_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
@@ -1604,9 +1610,9 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_libfabric_CPPFLAGS = @opal_common_libfabric_CPPFLAGS@
-opal_common_libfabric_LDFLAGS = @opal_common_libfabric_LDFLAGS@
-opal_common_libfabric_LIBS = @opal_common_libfabric_LIBS@
+opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
+opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
+opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -1640,6 +1646,9 @@ opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
 opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
 opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
 opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
+opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
+opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -1653,6 +1662,9 @@ ortelibdir = @ortelibdir@
 osc_portals4_CPPFLAGS = @osc_portals4_CPPFLAGS@
 osc_portals4_LDFLAGS = @osc_portals4_LDFLAGS@
 osc_portals4_LIBS = @osc_portals4_LIBS@
+osc_ucx_CPPFLAGS = @osc_ucx_CPPFLAGS@
+osc_ucx_LDFLAGS = @osc_ucx_LDFLAGS@
+osc_ucx_LIBS = @osc_ucx_LIBS@
 oshmem_verbs_CFLAGS = @oshmem_verbs_CFLAGS@
 oshmem_verbs_CPPFLAGS = @oshmem_verbs_CPPFLAGS@
 oshmem_verbs_LDFLAGS = @oshmem_verbs_LDFLAGS@
@@ -1740,16 +1752,16 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@headers = \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_print_queue.h \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio.h
+headers = \
+	common_ompio_print_queue.h \
+	common_ompio.h
 
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@sources = \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_print_queue.c \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_open.c   \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_view.c   \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_read.c   \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	common_ompio_file_write.c
+sources = \
+	common_ompio_print_queue.c \
+	common_ompio_file_open.c   \
+	common_ompio_file_view.c   \
+	common_ompio_file_read.c   \
+	common_ompio_file_write.c
 
 
 # To simplify components that link to this library, we will *always*
@@ -1760,33 +1772,31 @@ ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
 # case 2), we sym link it to the libmca_<type>_<name>.la name
 # (libtool will do the Right Things under the covers).  See the
 # all-local and clean-local rules, below, for how this is effected.
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@lib_LTLIBRARIES =  \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(am__append_1)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@noinst_LTLIBRARIES =  \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(am__append_2)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@comp_inst = libmca_common_ompio.la
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@comp_noinst = libmca_common_ompio_noinst.la
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@libmca_common_ompio_la_SOURCES = $(headers) $(sources)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@libmca_common_ompio_la_CPPFLAGS = $(common_ompio_CPPFLAGS)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@libmca_common_ompio_la_LDFLAGS = \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        -version-info $(libmca_ompi_common_ompio_so_version) \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@        $(common_ompio_LDFLAGS)
+lib_LTLIBRARIES = $(am__append_1)
+noinst_LTLIBRARIES = $(am__append_2)
+comp_inst = libmca_common_ompio.la
+comp_noinst = libmca_common_ompio_noinst.la
+libmca_common_ompio_la_SOURCES = $(headers) $(sources)
+libmca_common_ompio_la_CPPFLAGS = $(common_ompio_CPPFLAGS)
+libmca_common_ompio_la_LDFLAGS = \
+        -version-info $(libmca_ompi_common_ompio_so_version) \
+        $(common_ompio_LDFLAGS)
 
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@libmca_common_ompio_la_LIBADD = $(common_ompio_LIBS)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@libmca_common_ompio_noinst_la_SOURCES = $(headers) $(sources)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@@WANT_INSTALL_HEADERS_FALSE@ompidir = $(includedir)
+libmca_common_ompio_la_LIBADD = $(common_ompio_LIBS)
+libmca_common_ompio_noinst_la_SOURCES = $(headers) $(sources)
+@WANT_INSTALL_HEADERS_FALSE@ompidir = $(includedir)
 
 # Conditionally install the header files
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@@WANT_INSTALL_HEADERS_TRUE@ompidir = $(ompiincludedir)/ompi/mca/common/ompio
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@@WANT_INSTALL_HEADERS_TRUE@ompi_HEADERS = $(headers)
+@WANT_INSTALL_HEADERS_TRUE@ompidir = $(ompiincludedir)/ompi/mca/common/ompio
+@WANT_INSTALL_HEADERS_TRUE@ompi_HEADERS = $(headers)
 
 # These two rules will sym link the "noinst" libtool library filename
 # to the installable libtool library filename in the case where we are
 # compiling this component statically (case 2), described above).
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@V = 0
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@OMPI_V_LN_SCOMP = $(ompi__v_LN_SCOMP_$V)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@ompi__v_LN_SCOMP_ = $(ompi__v_LN_SCOMP_$AM_DEFAULT_VERBOSITY)
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@ompi__v_LN_SCOMP_0 = @echo "  LN_S    " `basename $(comp_inst)`;
+V = 0
+OMPI_V_LN_SCOMP = $(ompi__v_LN_SCOMP_$V)
+ompi__v_LN_SCOMP_ = $(ompi__v_LN_SCOMP_$AM_DEFAULT_VERBOSITY)
+ompi__v_LN_SCOMP_0 = @echo "  LN_S    " `basename $(comp_inst)`;
 all: all-am
 
 .SUFFIXES:
@@ -2188,23 +2198,16 @@ uninstall-am: uninstall-libLTLIBRARIES uninstall-ompiHEADERS
 .PRECIOUS: Makefile
 
 
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@all-local:
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	$(OMPI_V_LN_SCOMP) if test -z "$(lib_LTLIBRARIES)"; then \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	  rm -f "$(comp_inst)"; \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	  $(LN_S) "$(comp_noinst)" "$(comp_inst)"; \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	fi
+all-local:
+	$(OMPI_V_LN_SCOMP) if test -z "$(lib_LTLIBRARIES)"; then \
+	  rm -f "$(comp_inst)"; \
+	  $(LN_S) "$(comp_noinst)" "$(comp_inst)"; \
+	fi
 
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@clean-local:
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	if test -z "$(lib_LTLIBRARIES)"; then \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	  rm -f "$(comp_inst)"; \
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_TRUE@	fi
-
-# Need to have empty targets because AM can't handle having an
-# AM_CONDITIONAL was targets in the "if" statement but not in the
-# "else".  :-(
-
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_FALSE@all-local:
-@OMPI_PROVIDE_MPI_FILE_INTERFACE_FALSE@clean-local:
+clean-local:
+	if test -z "$(lib_LTLIBRARIES)"; then \
+	  rm -f "$(comp_inst)"; \
+	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

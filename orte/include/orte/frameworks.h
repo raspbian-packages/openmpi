@@ -17,6 +17,7 @@ extern mca_base_framework_t orte_odls_base_framework;
 extern mca_base_framework_t orte_oob_base_framework;
 extern mca_base_framework_t orte_plm_base_framework;
 extern mca_base_framework_t orte_ras_base_framework;
+extern mca_base_framework_t orte_regx_base_framework;
 extern mca_base_framework_t orte_rmaps_base_framework;
 extern mca_base_framework_t orte_rml_base_framework;
 extern mca_base_framework_t orte_routed_base_framework;
@@ -38,6 +39,7 @@ static mca_base_framework_t *orte_frameworks[] = {
     &orte_oob_base_framework,
     &orte_plm_base_framework,
     &orte_ras_base_framework,
+    &orte_regx_base_framework,
     &orte_rmaps_base_framework,
     &orte_rml_base_framework,
     &orte_routed_base_framework,

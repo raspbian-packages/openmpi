@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2015 Mellanox Technologies, Inc.
  *                         All rights reserved.
  * Copyright (c) 2016      Research Organization for Information Science
@@ -37,8 +37,18 @@
 
 BEGIN_C_DECLS
 
+#ifdef OPAL_C_HAVE_VISIBILITY
+  #ifdef PMIX_HAVE_VISIBILITY
+    #undef PMIX_HAVE_VISIBILITY
+  #endif
+#define PMIX_HAVE_VISIBILITY 1
+#else
+#undef PMIX_HAVE_VISIBILITY
+#endif
+
 typedef struct {
   opal_pmix_base_component_t super;
+  bool legacy_get;
   opal_list_t jobids;
   bool native_launch;
   size_t evindex;
@@ -250,6 +260,16 @@ OPAL_MODULE_DECLSPEC int pmix2x_disconnectnb(opal_list_t *procs,
 OPAL_MODULE_DECLSPEC int pmix2x_resolve_peers(const char *nodename, opal_jobid_t jobid,
                                              opal_list_t *procs);
 OPAL_MODULE_DECLSPEC int pmix2x_resolve_nodes(opal_jobid_t jobid, char **nodelist);
+OPAL_MODULE_DECLSPEC int pmix2x_allocate(opal_pmix_alloc_directive_t directive,
+                                         opal_list_t *info,
+                                         opal_pmix_info_cbfunc_t cbfunc, void *cbdata);
+OPAL_MODULE_DECLSPEC int pmix2x_job_control(opal_list_t *targets,
+                                            opal_list_t *directives,
+                                            opal_pmix_info_cbfunc_t cbfunc, void *cbdata);
+
+/****  TOOL FUNCTIONS  ****/
+OPAL_MODULE_DECLSPEC int pmix2x_tool_init(opal_list_t *info);
+OPAL_MODULE_DECLSPEC int pmix2x_tool_fini(void);
 
 /****  COMMON FUNCTIONS  ****/
 OPAL_MODULE_DECLSPEC int pmix2x_store_local(const opal_process_name_t *proc,

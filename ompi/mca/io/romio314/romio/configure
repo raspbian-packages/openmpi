@@ -9082,6 +9082,12 @@ lt_prog_compiler_static=
 	lt_prog_compiler_pic='-KPIC'
 	lt_prog_compiler_static='-static'
         ;;
+      # Flang compiler
+      *flang)
+	lt_prog_compiler_wl='-Wl,'
+	lt_prog_compiler_pic='-fPIC -DPIC'
+	lt_prog_compiler_static='-static'
+        ;;
       # icc used to be incompatible with GCC.
       # ICC 10 doesn't accept -KPIC any more.
       icc* | ifort*)
@@ -17225,6 +17231,12 @@ lt_prog_compiler_static_FC=
       ecc*)
 	lt_prog_compiler_wl_FC='-Wl,'
 	lt_prog_compiler_pic_FC='-KPIC'
+	lt_prog_compiler_static_FC='-static'
+        ;;
+      # Flang compiler
+      *flang)
+	lt_prog_compiler_wl_FC='-Wl,'
+	lt_prog_compiler_pic_FC='-fPIC -DPIC'
 	lt_prog_compiler_static_FC='-static'
         ;;
       # icc used to be incompatible with GCC.

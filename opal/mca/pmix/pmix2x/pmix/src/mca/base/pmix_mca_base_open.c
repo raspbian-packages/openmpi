@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2017 The University of Tennessee and The University
+ * Copyright (c) 2004-2008 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -48,7 +48,7 @@ char *pmix_mca_base_component_path = NULL;
 int pmix_mca_base_opened = 0;
 char *pmix_mca_base_system_default_path = NULL;
 char *pmix_mca_base_user_default_path = NULL;
-bool pmix_mca_base_component_show_load_errors = true;
+bool pmix_mca_base_component_show_load_errors = (bool) PMIX_SHOW_LOAD_ERRORS_DEFAULT;
 bool pmix_mca_base_component_disable_dlopen = false;
 
 static char *pmix_mca_base_verbose = NULL;
@@ -69,6 +69,7 @@ int pmix_mca_base_open(void)
     pmix_output_stream_t lds;
     char hostname[64];
     int var_id;
+    int rc;
 
     if (pmix_mca_base_opened++) {
         return PMIX_SUCCESS;
@@ -77,17 +78,24 @@ int pmix_mca_base_open(void)
     /* define the system and user default paths */
 #if PMIX_WANT_HOME_CONFIG_FILES
     pmix_mca_base_system_default_path = strdup(pmix_pinstall_dirs.pmixlibdir);
-    asprintf(&pmix_mca_base_user_default_path, "%s"PMIX_PATH_SEP".pmix"PMIX_PATH_SEP"components", pmix_home_directory());
+    rc = asprintf(&pmix_mca_base_user_default_path, "%s"PMIX_PATH_SEP".pmix"PMIX_PATH_SEP"components", pmix_home_directory());
 #else
-    asprintf(&pmix_mca_base_system_default_path, "%s", pmix_pinstall_dirs.pmixlibdir);
+    rc = asprintf(&pmix_mca_base_system_default_path, "%s", pmix_pinstall_dirs.pmixlibdir);
 #endif
+
+    if (0 > rc) {
+        return PMIX_ERR_OUT_OF_RESOURCE;
+    }
 
     /* see if the user wants to override the defaults */
     if (NULL == pmix_mca_base_user_default_path) {
         value = strdup(pmix_mca_base_system_default_path);
     } else {
-        asprintf(&value, "%s%c%s", pmix_mca_base_system_default_path,
-                 PMIX_ENV_SEP, pmix_mca_base_user_default_path);
+        rc = asprintf(&value, "%s%c%s", pmix_mca_base_system_default_path,
+                      PMIX_ENV_SEP, pmix_mca_base_user_default_path);
+        if (0 > rc) {
+            return PMIX_ERR_OUT_OF_RESOURCE;
+        }
     }
 
     pmix_mca_base_component_path = value;
@@ -101,7 +109,7 @@ int pmix_mca_base_open(void)
                                               PMIX_MCA_BASE_VAR_SYN_FLAG_DEPRECATED);
     free(value);
 
-    pmix_mca_base_component_show_load_errors = true;
+    pmix_mca_base_component_show_load_errors = (bool) PMIX_SHOW_LOAD_ERRORS_DEFAULT;;
     var_id = pmix_mca_base_var_register("pmix", "mca", "base", "component_show_load_errors",
                                    "Whether to show errors for components that failed to load or not",
                                    PMIX_MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
@@ -139,7 +147,10 @@ int pmix_mca_base_open(void)
         set_defaults(&lds);
     }
     gethostname(hostname, 64);
-    asprintf(&lds.lds_prefix, "[%s:%05d] ", hostname, getpid());
+    rc = asprintf(&lds.lds_prefix, "[%s:%05d] ", hostname, getpid());
+    if (0 > rc) {
+        return PMIX_ERR_OUT_OF_RESOURCE;
+    }
     pmix_output_reopen(0, &lds);
     pmix_output_verbose (PMIX_MCA_BASE_VERBOSE_COMPONENT, 0,
                          "mca: base: opening components at %s", pmix_mca_base_component_path);
