@@ -50,6 +50,10 @@
 #include "src/util/output.h"
 #include "src/util/pmix_environ.h"
 
+#ifndef MAXPATHLEN /* Hurd */
+#define MAXPATHLEN 1024
+#endif
+
 /*
  * local variables
  */
