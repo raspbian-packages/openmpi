@@ -1,10 +1,16 @@
-openmpi (3.1.0-6+rpi1) buster-staging; urgency=medium
+openmpi (3.1.0-7+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Sun, 03 Jun 2018 23:43:50 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 20 Jun 2018 18:27:04 +0000
+
+openmpi (3.1.0-7) unstable; urgency=medium
+
+  * Enable libpsm2.  Closes: #901132
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 09 Jun 2018 13:36:15 +0100
 
 openmpi (3.1.0-6) unstable; urgency=medium
 
