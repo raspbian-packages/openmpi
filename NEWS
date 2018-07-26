@@ -54,6 +54,27 @@ included in the vX.Y.Z section and be denoted as:
 
    (** also appeared: A.B.C)  -- indicating that this item was previously
                                  included in release version vA.B.C.
+3.1.1 -- June, 2018
+-------------------
+
+- Fix potential hang in UCX PML during MPI_FINALIZE
+- Update internal PMIx to v2.1.2rc2 to fix forward version compatibility.
+- Add new MCA parameter osc_sm_backing_store to allow users to specify
+  where in the filesystem the backing file for the shared memory
+  one-sided component should live.  Defaults to /dev/shm on Linux.
+- Fix potential hang on non-x86 platforms when using builds with
+  optimization flags turned off.
+- Disable osc/pt2pt when using MPI_THREAD_MULTIPLE due to numerous
+  race conditions in the component.
+- Fix dummy variable names for the mpi and mpi_f08 Fortran bindings to
+  match the MPI standard.  This may break applications which use
+  name-based parameters in Fortran which used our internal names
+  rather than those documented in the MPI standard.
+- Revamp Java detection to properly handle new Java versions which do
+  not provide a javah wrapper.
+- Fix RMA function signatures for use-mpi-f08 bindings to have the
+  asynchonous property on all buffers.
+- Improved configure logic for finding the UCX library.
 
 3.1.0 -- May, 2018
 ------------------
@@ -113,6 +134,30 @@ included in the vX.Y.Z section and be denoted as:
 - Remove support for big endian PowerPC.
 - Remove support for XL compilers older than v13.1.
 - Remove support for atomic operations using MacOS atomics library.
+
+3.0.2 -- June, 2018
+-------------------
+
+- Disable osc/pt2pt when using MPI_THREAD_MULTIPLE due to numerous
+  race conditions in the component.
+- Fix dummy variable names for the mpi and mpi_f08 Fortran bindings to
+  match the MPI standard.  This may break applications which use
+  name-based parameters in Fortran which used our internal names
+  rather than those documented in the MPI standard.
+- Fixed MPI_SIZEOF in the "mpi" Fortran module for the NAG compiler.
+- Fix RMA function signatures for use-mpi-f08 bindings to have the
+  asynchonous property on all buffers.
+- Fix Fortran MPI_COMM_SPAWN_MULTIPLE to properly follow the count
+  length argument when parsing the array_of_commands variable.
+- Revamp Java detection to properly handle new Java versions which do
+  not provide a javah wrapper.
+- Improved configure logic for finding the UCX library.
+- Add support for HDR InfiniBand link speeds.
+- Disable the POWER 7/BE block in configure.  Note that POWER 7/BE is
+  still not a supported platform, but it is no longer automatically
+  disabled.  See
+  https://github.com/open-mpi/ompi/issues/4349#issuecomment-374970982
+  for more information.
 
 3.0.1 -- March, 2018
 ----------------------

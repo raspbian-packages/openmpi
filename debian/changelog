@@ -1,10 +1,68 @@
-openmpi (3.1.0-7+rpi1) buster-staging; urgency=medium
+openmpi (3.1.1.real-4+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Wed, 20 Jun 2018 18:27:04 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 26 Jul 2018 13:20:14 +0000
+
+openmpi (3.1.1.real-4) unstable; urgency=medium
+
+  * Make libopenmpi3 pull in libpmix2 >= 3.0.0-1
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 18 Jul 2018 11:20:16 +0100
+
+openmpi (3.1.1.real-3) unstable; urgency=medium
+ 
+  * Patch ext2x to use pmix 3.0 
+    Closes: #903561, #903492, #903549, #903655
+  * Fix broken symlinks for libmpi_usempif08  
+ 
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 14 Jul 2018 13:47:37 +0100
+
+openmpi (3.1.1.real-2) unstable; urgency=medium
+
+  * Use internal pmix (2.1.2rc1) not external which is currently
+    incompatible. Closes: #903596
+  * Standards-Version: 4.1.5
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 12 Jul 2018 07:18:14 +0100
+
+openmpi (3.1.1.real-1) unstable; urgency=medium
+
+  * Real upstream 3.1.1 release (previous was a mislabelled 3.1.1rc2)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 02 Jul 2018 16:14:02 +0100
+
+openmpi (3.1.1-1) unstable; urgency=medium
+
+  * New upstream release
+  * Depend on pmix >= 2.1.2rc1
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 01 Jul 2018 17:12:05 +0100
+
+openmpi (3.1.1~git.20180627-1) experimental; urgency=medium
+
+  * Nightly tarball to test fix for armel
+  * Update soversions:
+     libmpi_mpifh.so.40.10.1
+     libmpi.so.40.10.1
+     libmpi_usempif08.so.40.10.1
+     libmpi_usempi_ignore_tkr.so.40.10.1
+     libopen-pal.so.40.10.1
+     libopen-rte.so.40.10.1
+  * mpi*-wrapper-data.txt is arch-dependent, so:
+     Set openmpi-common as Arch: any, not all
+     Drop M-A: foreign from openmpi-bin (which uses it)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 27 Jun 2018 15:53:25 +0100
+
+openmpi (3.1.0-8) unstable; urgency=medium
+
+  * Remove powerpc build patch; now obsoleted upstream
+  * Remove arm64 build patch; now obsoleted upstream
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 22 Jun 2018 12:26:38 +0100
 
 openmpi (3.1.0-7) unstable; urgency=medium
 

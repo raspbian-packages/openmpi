@@ -11,5 +11,5 @@ debian/tmp/usr/share/man/man1/orte-top.1
 debian/tmp/usr/share/man/man1/orterun.1
 debian/tmp/usr/share/man/man1/mpiexec.openmpi.1
 debian/tmp/usr/share/man/man1/mpirun.openmpi.1
-debian/tmp/usr/share/man/man1/orte-dvm.1
+# debian/tmp/usr/share/man/man1/orte-dvm.1
 debian/tmp/usr/share/man/man1/orte-server.1

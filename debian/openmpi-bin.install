@@ -10,7 +10,7 @@ usr/bin/orted
 usr/bin/orte-ps
 usr/bin/orterun
 usr/bin/ompi-top
-usr/bin/orte-dvm
+#usr/bin/orte-dvm
 usr/bin/orte-server
 usr/bin/orte-top
 ## Compiler wrappers (symlinks) and man pages

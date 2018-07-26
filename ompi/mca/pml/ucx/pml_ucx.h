@@ -42,6 +42,7 @@ struct mca_pml_ucx_module {
     ompi_request_t            completed_send_req;
     size_t                    request_size;
     int                       num_disconnect;
+    bool                      opal_mem_hooks;
 
     /* Converters pool */
     mca_pml_ucx_freelist_t    convs;
@@ -87,7 +88,6 @@ int mca_pml_ucx_close(void);
 int mca_pml_ucx_init(void);
 int mca_pml_ucx_cleanup(void);
 
-ucp_ep_h mca_pml_ucx_add_proc(ompi_communicator_t *comm, int dst);
 int mca_pml_ucx_add_procs(struct ompi_proc_t **procs, size_t nprocs);
 int mca_pml_ucx_del_procs(struct ompi_proc_t **procs, size_t nprocs);
 

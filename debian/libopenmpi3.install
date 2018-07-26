@@ -1,12 +1,12 @@
 ## Shared libraries
 usr/lib/*/openmpi/lib/libmca_common_sm.so.40.10.0
 usr/lib/*/openmpi/lib/libmpi_cxx.so.40.10.0
-usr/lib/*/openmpi/lib/libmpi_mpifh.so.40.10.0
-usr/lib/*/openmpi/lib/libmpi.so.40.10.0
-usr/lib/*/openmpi/lib/libmpi_usempif08.so.40.10.0
-usr/lib/*/openmpi/lib/libmpi_usempi_ignore_tkr.so.40.10.0
+usr/lib/*/openmpi/lib/libmpi_mpifh.so.40.10.1
+usr/lib/*/openmpi/lib/libmpi.so.40.10.1
+usr/lib/*/openmpi/lib/libmpi_usempif08.so.40.10.1
+usr/lib/*/openmpi/lib/libmpi_usempi_ignore_tkr.so.40.10.1
 usr/lib/*/openmpi/lib/libompitrace.so.40.10.0
-usr/lib/*/openmpi/lib/libopen-pal.so.40.10.0
-usr/lib/*/openmpi/lib/libopen-rte.so.40.10.0
+usr/lib/*/openmpi/lib/libopen-pal.so.40.10.1
+usr/lib/*/openmpi/lib/libopen-rte.so.40.10.1
 ## Plugins
 usr/lib/*/openmpi/lib/openmpi3/*.so

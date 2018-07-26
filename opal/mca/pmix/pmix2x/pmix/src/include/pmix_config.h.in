@@ -498,23 +498,14 @@
 /* The compiler $lower which PMIX was built with */
 #undef PMIX_BUILD_PLATFORM_COMPILER_VERSION_STR
 
-/* PMIx underlying C compiler */
+/* OMPI underlying C compiler */
 #undef PMIX_CC
-
-/* Use static const char[] strings for C files */
-#undef PMIX_CC_USE_CONST_CHAR_IDENT
-
-/* Use #ident strings for C files */
-#undef PMIX_CC_USE_IDENT
-
-/* Use #pragma comment for C files */
-#undef PMIX_CC_USE_PRAGMA_COMMENT
-
-/* Use #pragma ident strings for C files */
-#undef PMIX_CC_USE_PRAGMA_IDENT
 
 /* Whether C compiler supports GCC style inline assembly */
 #undef PMIX_C_GCC_INLINE_ASSEMBLY
+
+/* Whether C compiler support atomic convenience variables in stdatomic.h */
+#undef PMIX_C_HAVE_ATOMIC_CONV_VAR
 
 /* Whether C compiler supports __builtin_clz */
 #undef PMIX_C_HAVE_BUILTIN_CLZ
@@ -524,6 +515,21 @@
 
 /* Whether C compiler supports __builtin_prefetch */
 #undef PMIX_C_HAVE_BUILTIN_PREFETCH
+
+/* Whether C compiler supports __Atomic keyword */
+#undef PMIX_C_HAVE__ATOMIC
+
+/* Whether C compiler supports __Generic keyword */
+#undef PMIX_C_HAVE__GENERIC
+
+/* Whether C compiler support _Static_assert keyword */
+#undef PMIX_C_HAVE__STATIC_ASSERT
+
+/* Whether C compiler supports __Thread_local */
+#undef PMIX_C_HAVE__THREAD_LOCAL
+
+/* Whether C compiler supports __thread */
+#undef PMIX_C_HAVE___THREAD
 
 /* Whether we are in debugging mode or not */
 #undef PMIX_ENABLE_DEBUG

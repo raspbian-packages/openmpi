@@ -35,6 +35,7 @@
 # $HEADER$
 #
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -407,7 +408,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am $(dist_ompidata_DATA) \
+	$(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/opal/include/opal_config.h \
 	$(top_builddir)/ompi/include/mpi.h \
@@ -444,7 +446,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(mcacomponentdir)"
+am__installdirs = "$(DESTDIR)$(mcacomponentdir)" \
+	"$(DESTDIR)$(ompidatadir)"
 LTLIBRARIES = $(mcacomponent_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libmca_osc_pt2pt_la_LIBADD =
 am__objects_1 = osc_pt2pt_module.lo osc_pt2pt_comm.lo \
@@ -515,6 +518,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+DATA = $(dist_ompidata_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -1742,6 +1746,7 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
+dist_ompidata_DATA = help-osc-pt2pt.txt
 pt2pt_sources = \
 	osc_pt2pt.h \
 	osc_pt2pt_module.c \
@@ -1907,6 +1912,27 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+install-dist_ompidataDATA: $(dist_ompidata_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_ompidata_DATA)'; test -n "$(ompidatadir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(ompidatadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(ompidatadir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(ompidatadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(ompidatadir)" || exit $$?; \
+	done
+
+uninstall-dist_ompidataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_ompidata_DATA)'; test -n "$(ompidatadir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(ompidatadir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -1992,9 +2018,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES)
+all-am: Makefile $(LTLIBRARIES) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(mcacomponentdir)"; do \
+	for dir in "$(DESTDIR)$(mcacomponentdir)" "$(DESTDIR)$(ompidatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -2051,7 +2077,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-mcacomponentLTLIBRARIES
+install-data-am: install-dist_ompidataDATA \
+	install-mcacomponentLTLIBRARIES
 
 install-dvi: install-dvi-am
 
@@ -2097,7 +2124,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-mcacomponentLTLIBRARIES
+uninstall-am: uninstall-dist_ompidataDATA \
+	uninstall-mcacomponentLTLIBRARIES
 
 .MAKE: install-am install-strip
 
@@ -2106,16 +2134,17 @@ uninstall-am: uninstall-mcacomponentLTLIBRARIES
 	clean-noinstLTLIBRARIES cscopelist-am ctags ctags-am distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
+	install install-am install-data install-data-am \
+	install-dist_ompidataDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man \
 	install-mcacomponentLTLIBRARIES install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags tags-am uninstall uninstall-am \
-	uninstall-mcacomponentLTLIBRARIES
+	uninstall-dist_ompidataDATA uninstall-mcacomponentLTLIBRARIES
 
 .PRECIOUS: Makefile
 

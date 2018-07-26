@@ -1,8 +1,6 @@
 manpage_macros
-powerpc.patch
 build_hurd
 link-libfabric.patch
-arm64.patch
 libdir.patch
 hurd-maxhostnamelen.patch
 hppa.patch
@@ -10,4 +8,5 @@ opal_fifo.patch
 verbose-ompi-rules.patch
 openjdk10.patch
 fix-underlinking.patch
+force-pmix-3.patch
 raspbian.diff

@@ -104,7 +104,7 @@ override_dh_auto_configure:
 		$(STATIC_CONFIG_PARAMS) \
 		$(BTL_TESTS) \
 		--with-libevent=external \
-		--with-pmix=${LIBDIR}/pmix  \
+		--with-pmix=${LIBDIR}/pmix \
 		--disable-silent-rules \
 		--enable-mpi-cxx \
 		--with-hwloc=/usr  \
@@ -180,13 +180,13 @@ override_dh_install:
 		cp -a debian/tmp/usr/bin/oshmem_info  debian/openmpi-bin//usr/bin/ ; \
 		cp -a debian/tmp/usr/bin/oshcc	 debian/libopenmpi-dev/usr/bin   ; \
 		cp -a debian/tmp/usr/bin/oshfort   debian/libopenmpi-dev/usr/bin   ; \
-		cp -a debian/tmp/${LIBDIR}/openmpi/lib/liboshmem.so.40.10.0 debian/libopenmpi3/${LIBDIR}/openmpi/lib ; \
+		cp -a debian/tmp/${LIBDIR}/openmpi/lib/liboshmem.so.40.10.1 debian/libopenmpi3/${LIBDIR}/openmpi/lib ; \
 		cp -a debian/tmp/usr/share/man/man1/oshcc.1 debian/libopenmpi-dev/usr/share/man/man1 ; \
 		cp -a debian/tmp/usr/share/man/man1/oshfort.1 debian/libopenmpi-dev/usr/share/man/man1 ; \
 		cp -a debian/tmp/usr/share/man/man1/oshrun.1 debian/openmpi-bin/usr/share/man/man1 ; \
 		cp -a debian/tmp/usr/share/man/man1/oshmem_info.1 debian/openmpi-bin/usr/share/man/man1 ; \
 		dh_link -p libopenmpi-dev	${LIBDIR}/liboshmem.so.40  ${LIBDIR}/liboshmem.so ; \
-		dh_link -p libopenmpi3 ${LIBDIR}/openmpi/lib/liboshmem.so.40.10.0  ${LIBDIR}/liboshmem.so.40 ; \
+		dh_link -p libopenmpi3 ${LIBDIR}/openmpi/lib/liboshmem.so.40.10.1  ${LIBDIR}/liboshmem.so.40 ; \
 	fi
 	if test -f debian/tmp/${LIBDIR}/openmpi/lib/libmpi_java.so.40.10.0 ; then \
 		cp -a debian/tmp/${LIBDIR}/openmpi/lib/libmpi_java.so.40.10.0 \

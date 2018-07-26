@@ -11,7 +11,7 @@ Build-Depends: dpkg-dev (>= 1.16.1~),
  gfortran, gcc (>= 4:5.2.1), 
  chrpath, 
  libhwloc-dev,
- libpmix-dev (>= 2.1.0~rc1-4), 
+ libpmix-dev (>= 3.0.0-1), 
  pkg-config,
  libibverbs-dev (>= 1.1.7) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
  libfabric-dev [amd64 i386],
@@ -21,14 +21,13 @@ Build-Depends: dpkg-dev (>= 1.16.1~),
  default-jdk [!hppa !hurd-i386 !ia64 !riscv64] <!stage1>,
  flex
 Build-Conflicts: libmpich-dev, libopenmpi-dev
-Standards-Version: 4.1.4
+Standards-Version: 4.1.5
 Homepage: https://www.open-mpi.org/
 Vcs-Browser: https://salsa.debian.org/hpc-team/openmpi
 Vcs-Git: https://salsa.debian.org/hpc-team/openmpi.git -b debian/master
 
 Package: openmpi-bin
 Architecture: any
-Multi-Arch: foreign
 Depends: ${shlibs:Depends}, ${misc:Depends}, openmpi-common (>= ${source:Version}),
  openssh-client | ssh-client
 Conflicts: openmpi-bin, 
@@ -85,7 +84,8 @@ Section: libs
 Architecture: any
 Recommends: openmpi-bin
 Multi-Arch: same
-Depends: ${shlibs:Depends}, ${misc:Depends}, libhwloc-plugins
+Depends: ${shlibs:Depends}, ${misc:Depends}, libhwloc-plugins, 
+ libpmix2 (>= 3.0.0-1)
 Description: high performance message passing library -- shared library
  Open MPI is a project combining technologies and resources from several other
  projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
@@ -96,8 +96,7 @@ Description: high performance message passing library -- shared library
  This package contains the Open MPI shared libraries.
 
 Package: openmpi-common
-Architecture: all
-Multi-Arch: foreign
+Architecture: any
 Depends: ${misc:Depends}
 Conflicts: openmpi-common
 Description: high performance message passing library -- common files
