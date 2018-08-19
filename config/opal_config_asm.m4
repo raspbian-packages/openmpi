@@ -999,6 +999,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
             OPAL_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
+        hppa*)
+            opal_cv_asm_arch="HPPA"
+            OPAL_ASM_SUPPORT_64BIT=0
+            OPAL_GCC_INLINE_ASSIGN='"copy 0,%0" : "=&r"(ret)'
+            ;;
+
         mips-*|mips64*)
             # Should really find some way to make sure that we are on
             # a MIPS III machine (r4000 and later)
