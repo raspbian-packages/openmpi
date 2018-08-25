@@ -103,8 +103,6 @@ override_dh_auto_configure:
 		$(JAVA) \
 		$(STATIC_CONFIG_PARAMS) \
 		$(BTL_TESTS) \
-		--with-libevent=external \
-		--with-pmix=${LIBDIR}/pmix \
 		--disable-silent-rules \
 		--enable-mpi-cxx \
 		--with-hwloc=/usr  \

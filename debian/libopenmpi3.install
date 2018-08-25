@@ -8,5 +8,7 @@ usr/lib/*/openmpi/lib/libmpi_usempi_ignore_tkr.so.40.10.1
 usr/lib/*/openmpi/lib/libompitrace.so.40.10.0
 usr/lib/*/openmpi/lib/libopen-pal.so.40.10.1
 usr/lib/*/openmpi/lib/libopen-rte.so.40.10.1
+usr/lib/*/openmpi/lib/libpmix.so.2.1.12
 ## Plugins
 usr/lib/*/openmpi/lib/openmpi3/*.so
+usr/lib/*/openmpi/lib/pmix/*.so

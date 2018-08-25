@@ -1,23 +1,45 @@
-openmpi (3.1.1.real-4+rpi1) buster-staging; urgency=medium
+openmpi (3.1.1.real-7+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 26 Jul 2018 13:20:14 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sat, 25 Aug 2018 17:48:56 +0000
+
+openmpi (3.1.1.real-7) unstable; urgency=medium
+
+  * Patch from upstream for OMPI/PMIX hang. Closes: #906118
+  * Change openmpi-common to Arch: all
+  * Standards-VersioN: 4.2.0
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 19 Aug 2018 19:06:13 +0100
+
+openmpi (3.1.1.real-6) unstable; urgency=medium
+
+  * Typo on d/control Breaks. pmix-dev -> pmix2
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 09 Aug 2018 15:02:02 +0100
+
+openmpi (3.1.1.real-5) unstable; urgency=medium
+
+  * Include zlib1g-dev to build against
+  * Use internal libpmix, libevent to fix hang on MPI_Abort. 
+    Closes: #904825.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 09 Aug 2018 12:55:50 +0100
 
 openmpi (3.1.1.real-4) unstable; urgency=medium
 
   * Make libopenmpi3 pull in libpmix2 >= 3.0.0-1
 
  -- Alastair McKinstry <mckinstry@debian.org>  Wed, 18 Jul 2018 11:20:16 +0100
-
+ 
 openmpi (3.1.1.real-3) unstable; urgency=medium
  
   * Patch ext2x to use pmix 3.0 
     Closes: #903561, #903492, #903549, #903655
   * Fix broken symlinks for libmpi_usempif08  
- 
+
  -- Alastair McKinstry <mckinstry@debian.org>  Sat, 14 Jul 2018 13:47:37 +0100
 
 openmpi (3.1.1.real-2) unstable; urgency=medium
