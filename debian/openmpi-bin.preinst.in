@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# set -e
+
+(update-alternatives --remove-all mpirun-@TRIPLET@ 2> /dev/null || true)
+
+#DEBHELPER#
+
+exit 0
