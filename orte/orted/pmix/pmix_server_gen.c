@@ -13,7 +13,7 @@
  *                         All rights reserved.
  * Copyright (c) 2009      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2017 Mellanox Technologies, Inc.
  *                         All rights reserved.
  * Copyright (c) 2014      Research Organization for Information Science
@@ -356,6 +356,17 @@ void pmix_server_notify(int status, orte_process_name_t* sender,
         }
     }
 
+    /* protect against infinite loops by marking that this notification was
+     * passed down to the server by me */
+    if (NULL == cd->info) {
+        cd->info = OBJ_NEW(opal_list_t);
+    }
+    val = OBJ_NEW(opal_value_t);
+    val->key = strdup("orte.notify.donotloop");
+    val->type = OPAL_BOOL;
+    val->data.flag = true;
+    opal_list_append(cd->info, &val->super);
+
     opal_output_verbose(2, orte_pmix_server_globals.output,
                         "%s NOTIFYING PMIX SERVER OF STATUS %d",
                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME), ret);
@@ -381,6 +392,14 @@ int pmix_server_notify_event(int code, opal_process_name_t *source,
                         "%s local process %s generated event code %d",
                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                         ORTE_NAME_PRINT(source), code);
+
+    /* check to see if this is one we sent down */
+    OPAL_LIST_FOREACH(val, info, opal_value_t) {
+        if (0 == strcmp(val->key, "orte.notify.donotloop")) {
+            /* yep - do not process */
+            goto done;
+        }
+    }
 
     /* a local process has generated an event - we need to xcast it
      * to all the daemons so it can be passed down to their local
@@ -448,6 +467,7 @@ int pmix_server_notify_event(int code, opal_process_name_t *source,
     /* maintain accounting */
     OBJ_RELEASE(sig);
 
+  done:
     /* execute the callback */
     if (NULL != cbfunc) {
         cbfunc(ORTE_SUCCESS, cbdata);
@@ -862,6 +882,7 @@ void pmix_tool_connected_fn(opal_list_t *info,
 static void lgcbfn(int sd, short args, void *cbdata)
 {
     orte_pmix_server_op_caddy_t *cd = (orte_pmix_server_op_caddy_t*)cbdata;
+
     if (NULL != cd->cbfunc) {
         cd->cbfunc(cd->status, cd->cbdata);
     }
@@ -911,10 +932,6 @@ void pmix_server_log_fn(opal_process_name_t *requestor,
                 ORTE_ERROR_LOG(rc);
             }
         }
-    }
-
-    if (NULL != cbfunc) {
-        cbfunc(OPAL_SUCCESS, cbdata);
     }
 
     /* we cannot directly execute the callback here

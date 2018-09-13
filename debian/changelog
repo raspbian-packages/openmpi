@@ -1,16 +1,30 @@
-openmpi (3.1.1.real-7+rpi1) buster-staging; urgency=medium
+openmpi (3.1.2-1+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Sat, 25 Aug 2018 17:48:56 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 13 Sep 2018 18:27:29 +0000
+
+openmpi (3.1.2-1) unstable; urgency=medium
+
+  * New upstream release
+   - library changes:
+     libmpi_mpifh.so.40.10.1 -> libmpi_mpifh.so.40.10.2
+     libmpi.so.40.10.1 -> libmpi.so.40.10.2
+     libopen-pal.so.40.10.1 -> libopen-pal.so.40.10.2
+     libopen-rte.so.40.10.1 -> libopen-rte.so.40.10.2
+   - hang-fix patch merged upstream
+  * Re-enable use of external libpix, libevent
+  * Add Recommends: on open-coarrays (dev and bin packages)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 28 Aug 2018 19:07:54 +0100
 
 openmpi (3.1.1.real-7) unstable; urgency=medium
 
   * Patch from upstream for OMPI/PMIX hang. Closes: #906118
   * Change openmpi-common to Arch: all
-  * Standards-VersioN: 4.2.0
+  * Standards-Version: 4.2.0
 
  -- Alastair McKinstry <mckinstry@debian.org>  Sun, 19 Aug 2018 19:06:13 +0100
 

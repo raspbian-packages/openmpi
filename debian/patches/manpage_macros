@@ -5,10 +5,10 @@ Author: Alastair McKinstry <mckinstry@debian.org>
 Forwarded: no
 Last-Update: 2018-04-08
 
-Index: openmpi-3.0.1/orte/tools/orte-dvm/orte-dvm.1in
+Index: openmpi/orte/tools/orte-dvm/orte-dvm.1in
 ===================================================================
---- openmpi-3.0.1.orig/orte/tools/orte-dvm/orte-dvm.1in
-+++ openmpi-3.0.1/orte/tools/orte-dvm/orte-dvm.1in
+--- openmpi.orig/orte/tools/orte-dvm/orte-dvm.1in
++++ openmpi/orte/tools/orte-dvm/orte-dvm.1in
 @@ -1,7 +1,7 @@
 -.\” -*- nroff -*-
 +.\" -*- nroff -*-
@@ -28,10 +28,10 @@ Index: openmpi-3.0.1/orte/tools/orte-dvm/orte-dvm.1in
  Setting MCA parameters:
  .
  .
-Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
+Index: openmpi/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
 ===================================================================
---- openmpi-3.0.1.orig/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
-+++ openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
+--- openmpi.orig/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
++++ openmpi/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
 @@ -32,7 +32,7 @@ Length of the string and/or buffer for n
  
  .SH OUTPUT PARAMETERS
@@ -41,10 +41,10 @@ Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_enum_get_info.3in
  num
  number of discrete values represented by this enumeration.
  .TP 1i
-Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
+Index: openmpi/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
 ===================================================================
---- openmpi-3.0.1.orig/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
-+++ openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
+--- openmpi.orig/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
++++ openmpi/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
 @@ -131,7 +131,7 @@ MPI_T_PVAR_CLASS_GENERIC
  Variable does not fit into any other class. Can by represented by an type supported by the MPI tool
  information interface (see DATATYPE). Starting value is variable specific.
@@ -54,10 +54,10 @@ Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_pvar_get_info.3in
  
  .SH DATATYPE
  .ft R
-Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_Get.3in
+Index: openmpi/ompi/mpi/man/man3/MPI_Get.3in
 ===================================================================
---- openmpi-3.0.1.orig/ompi/mpi/man/man3/MPI_Get.3in
-+++ openmpi-3.0.1/ompi/mpi/man/man3/MPI_Get.3in
+--- openmpi.orig/ompi/mpi/man/man3/MPI_Get.3in
++++ openmpi/ompi/mpi/man/man3/MPI_Get.3in
 @@ -104,7 +104,7 @@ window object used for communication (ha
  
  .SH OUTPUT PARAMETER
@@ -67,10 +67,10 @@ Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_Get.3in
  request
  MPI_Rget: RMA request
  .TP 1i
-Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
+Index: openmpi/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
 ===================================================================
---- openmpi-3.0.1.orig/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
-+++ openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
+--- openmpi.orig/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
++++ openmpi/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
 @@ -36,7 +36,7 @@ Length of the string and/or buffer for n
  
  .SH OUTPUT PARAMETERS
@@ -80,10 +80,10 @@ Index: openmpi-3.0.1/ompi/mpi/man/man3/MPI_T_enum_get_item.3in
  value
  Variable value.
  .TP 1i
-Index: openmpi-3.0.1/orte/mca/sstore/orte_sstore.7in
+Index: openmpi/orte/mca/sstore/orte_sstore.7in
 ===================================================================
---- openmpi-3.0.1.orig/orte/mca/sstore/orte_sstore.7in
-+++ openmpi-3.0.1/orte/mca/sstore/orte_sstore.7in
+--- openmpi.orig/orte/mca/sstore/orte_sstore.7in
++++ openmpi/orte/mca/sstore/orte_sstore.7in
 @@ -12,8 +12,7 @@
  .\" **************************
  .SH NAME

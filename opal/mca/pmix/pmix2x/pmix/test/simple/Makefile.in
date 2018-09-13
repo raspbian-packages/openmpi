@@ -27,7 +27,7 @@
 #                         All rights reserved.
 # Copyright (c) 2006-2010 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2012-2013 Los Alamos National Security, Inc.  All rights reserved.
-# Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+# Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -113,7 +113,8 @@ target_triplet = @target@
 noinst_PROGRAMS = simptest$(EXEEXT) simpclient$(EXEEXT) \
 	simppub$(EXEEXT) simpdyn$(EXEEXT) simpft$(EXEEXT) \
 	simpdmodex$(EXEEXT) test_pmix$(EXEEXT) simptool$(EXEEXT) \
-	simpdie$(EXEEXT) simplegacy$(EXEEXT)
+	simpdie$(EXEEXT) simplegacy$(EXEEXT) stability$(EXEEXT) \
+	quietclient$(EXEEXT)
 subdir = test/simple
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -173,65 +174,78 @@ CONFIG_HEADER = $(top_builddir)/src/include/pmix_config.h \
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_simpclient_OBJECTS = simpclient.$(OBJEXT)
-simpclient_OBJECTS = $(am_simpclient_OBJECTS)
-simpclient_DEPENDENCIES = $(top_builddir)/src/libpmix.la
+am__objects_1 =
+am_quietclient_OBJECTS = $(am__objects_1) quietclient.$(OBJEXT)
+quietclient_OBJECTS = $(am_quietclient_OBJECTS)
+quietclient_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+quietclient_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(quietclient_LDFLAGS) $(LDFLAGS) -o $@
+am_simpclient_OBJECTS = $(am__objects_1) simpclient.$(OBJEXT)
+simpclient_OBJECTS = $(am_simpclient_OBJECTS)
+simpclient_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simpclient_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simpclient_LDFLAGS) $(LDFLAGS) -o $@
-am_simpdie_OBJECTS = simpdie.$(OBJEXT)
+am_simpdie_OBJECTS = $(am__objects_1) simpdie.$(OBJEXT)
 simpdie_OBJECTS = $(am_simpdie_OBJECTS)
 simpdie_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simpdie_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simpdie_LDFLAGS) $(LDFLAGS) -o $@
-am_simpdmodex_OBJECTS = simpdmodex.$(OBJEXT)
+am_simpdmodex_OBJECTS = $(am__objects_1) simpdmodex.$(OBJEXT)
 simpdmodex_OBJECTS = $(am_simpdmodex_OBJECTS)
 simpdmodex_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simpdmodex_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simpdmodex_LDFLAGS) $(LDFLAGS) -o $@
-am_simpdyn_OBJECTS = simpdyn.$(OBJEXT)
+am_simpdyn_OBJECTS = $(am__objects_1) simpdyn.$(OBJEXT)
 simpdyn_OBJECTS = $(am_simpdyn_OBJECTS)
 simpdyn_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simpdyn_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simpdyn_LDFLAGS) $(LDFLAGS) -o $@
-am_simpft_OBJECTS = simpft.$(OBJEXT)
+am_simpft_OBJECTS = $(am__objects_1) simpft.$(OBJEXT)
 simpft_OBJECTS = $(am_simpft_OBJECTS)
 simpft_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simpft_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simpft_LDFLAGS) $(LDFLAGS) -o $@
-am_simplegacy_OBJECTS = simplegacy.$(OBJEXT)
+am_simplegacy_OBJECTS = $(am__objects_1) simplegacy.$(OBJEXT)
 simplegacy_OBJECTS = $(am_simplegacy_OBJECTS)
 simplegacy_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simplegacy_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simplegacy_LDFLAGS) $(LDFLAGS) -o $@
-am_simppub_OBJECTS = simppub.$(OBJEXT)
+am_simppub_OBJECTS = $(am__objects_1) simppub.$(OBJEXT)
 simppub_OBJECTS = $(am_simppub_OBJECTS)
 simppub_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simppub_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simppub_LDFLAGS) $(LDFLAGS) -o $@
-am_simptest_OBJECTS = simptest.$(OBJEXT)
+am_simptest_OBJECTS = $(am__objects_1) simptest.$(OBJEXT)
 simptest_OBJECTS = $(am_simptest_OBJECTS)
 simptest_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simptest_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simptest_LDFLAGS) $(LDFLAGS) -o $@
-am_simptool_OBJECTS = simptool.$(OBJEXT)
+am_simptool_OBJECTS = $(am__objects_1) simptool.$(OBJEXT)
 simptool_OBJECTS = $(am_simptool_OBJECTS)
 simptool_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 simptool_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(simptool_LDFLAGS) $(LDFLAGS) -o $@
-am_test_pmix_OBJECTS = test_pmix.$(OBJEXT)
+am_stability_OBJECTS = $(am__objects_1) stability.$(OBJEXT)
+stability_OBJECTS = $(am_stability_OBJECTS)
+stability_DEPENDENCIES = $(top_builddir)/src/libpmix.la
+stability_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(stability_LDFLAGS) $(LDFLAGS) -o $@
+am_test_pmix_OBJECTS = $(am__objects_1) test_pmix.$(OBJEXT)
 test_pmix_OBJECTS = $(am_test_pmix_OBJECTS)
 test_pmix_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 test_pmix_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -271,14 +285,16 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(simpclient_SOURCES) $(simpdie_SOURCES) \
-	$(simpdmodex_SOURCES) $(simpdyn_SOURCES) $(simpft_SOURCES) \
-	$(simplegacy_SOURCES) $(simppub_SOURCES) $(simptest_SOURCES) \
-	$(simptool_SOURCES) $(test_pmix_SOURCES)
-DIST_SOURCES = $(simpclient_SOURCES) $(simpdie_SOURCES) \
-	$(simpdmodex_SOURCES) $(simpdyn_SOURCES) $(simpft_SOURCES) \
-	$(simplegacy_SOURCES) $(simppub_SOURCES) $(simptest_SOURCES) \
-	$(simptool_SOURCES) $(test_pmix_SOURCES)
+SOURCES = $(quietclient_SOURCES) $(simpclient_SOURCES) \
+	$(simpdie_SOURCES) $(simpdmodex_SOURCES) $(simpdyn_SOURCES) \
+	$(simpft_SOURCES) $(simplegacy_SOURCES) $(simppub_SOURCES) \
+	$(simptest_SOURCES) $(simptool_SOURCES) $(stability_SOURCES) \
+	$(test_pmix_SOURCES)
+DIST_SOURCES = $(quietclient_SOURCES) $(simpclient_SOURCES) \
+	$(simpdie_SOURCES) $(simpdmodex_SOURCES) $(simpdyn_SOURCES) \
+	$(simpft_SOURCES) $(simplegacy_SOURCES) $(simppub_SOURCES) \
+	$(simptest_SOURCES) $(simptool_SOURCES) $(stability_SOURCES) \
+	$(test_pmix_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -574,74 +590,89 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_builddir)/src/include -I$(top_builddir)/include -I$(top_builddir)/include/pmix
-simptest_SOURCES = \
+headers = simptest.h
+simptest_SOURCES = $(headers) \
         simptest.c
 
 simptest_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simptest_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simpclient_SOURCES = \
+simpclient_SOURCES = $(headers) \
         simpclient.c
 
 simpclient_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simpclient_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simppub_SOURCES = \
+simppub_SOURCES = $(headers) \
         simppub.c
 
 simppub_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simppub_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simpdmodex_SOURCES = \
+simpdmodex_SOURCES = $(headers) \
         simpdmodex.c
 
 simpdmodex_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simpdmodex_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simpft_SOURCES = \
+simpft_SOURCES = $(headers) \
         simpft.c
 
 simpft_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simpft_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simpdyn_SOURCES = \
+simpdyn_SOURCES = $(headers) \
         simpdyn.c
 
 simpdyn_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simpdyn_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-test_pmix_SOURCES = \
+test_pmix_SOURCES = $(headers) \
         test_pmix.c
 
 test_pmix_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 test_pmix_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simptool_SOURCES = \
+simptool_SOURCES = $(headers) \
         simptool.c
 
 simptool_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simptool_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simpdie_SOURCES = \
+simpdie_SOURCES = $(headers) \
         simpdie.c
 
 simpdie_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simpdie_LDADD = \
     $(top_builddir)/src/libpmix.la
 
-simplegacy_SOURCES = \
+simplegacy_SOURCES = $(headers) \
         simplegacy.c
 
 simplegacy_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simplegacy_LDADD = \
+    $(top_builddir)/src/libpmix.la
+
+stability_SOURCES = $(headers) \
+        stability.c
+
+stability_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
+stability_LDADD = \
+    $(top_builddir)/src/libpmix.la
+
+quietclient_SOURCES = $(headers) \
+        quietclient.c
+
+quietclient_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
+quietclient_LDADD = \
     $(top_builddir)/src/libpmix.la
 
 all: all-am
@@ -687,6 +718,10 @@ clean-noinstPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+quietclient$(EXEEXT): $(quietclient_OBJECTS) $(quietclient_DEPENDENCIES) $(EXTRA_quietclient_DEPENDENCIES) 
+	@rm -f quietclient$(EXEEXT)
+	$(AM_V_CCLD)$(quietclient_LINK) $(quietclient_OBJECTS) $(quietclient_LDADD) $(LIBS)
+
 simpclient$(EXEEXT): $(simpclient_OBJECTS) $(simpclient_DEPENDENCIES) $(EXTRA_simpclient_DEPENDENCIES) 
 	@rm -f simpclient$(EXEEXT)
 	$(AM_V_CCLD)$(simpclient_LINK) $(simpclient_OBJECTS) $(simpclient_LDADD) $(LIBS)
@@ -723,6 +758,10 @@ simptool$(EXEEXT): $(simptool_OBJECTS) $(simptool_DEPENDENCIES) $(EXTRA_simptool
 	@rm -f simptool$(EXEEXT)
 	$(AM_V_CCLD)$(simptool_LINK) $(simptool_OBJECTS) $(simptool_LDADD) $(LIBS)
 
+stability$(EXEEXT): $(stability_OBJECTS) $(stability_DEPENDENCIES) $(EXTRA_stability_DEPENDENCIES) 
+	@rm -f stability$(EXEEXT)
+	$(AM_V_CCLD)$(stability_LINK) $(stability_OBJECTS) $(stability_LDADD) $(LIBS)
+
 test_pmix$(EXEEXT): $(test_pmix_OBJECTS) $(test_pmix_DEPENDENCIES) $(EXTRA_test_pmix_DEPENDENCIES) 
 	@rm -f test_pmix$(EXEEXT)
 	$(AM_V_CCLD)$(test_pmix_LINK) $(test_pmix_OBJECTS) $(test_pmix_LDADD) $(LIBS)
@@ -733,6 +772,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quietclient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simpclient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simpdie.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simpdmodex.Po@am__quote@
@@ -742,6 +782,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simppub.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simptest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simptool.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stability.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_pmix.Po@am__quote@
 
 .c.o:

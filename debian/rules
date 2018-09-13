@@ -103,6 +103,8 @@ override_dh_auto_configure:
 		$(JAVA) \
 		$(STATIC_CONFIG_PARAMS) \
 		$(BTL_TESTS) \
+                --with-libevent=external \
+                --with-pmix=${LIBDIR}/pmix \
 		--disable-silent-rules \
 		--enable-mpi-cxx \
 		--with-hwloc=/usr  \
@@ -236,6 +238,8 @@ override_dh_install:
 		cp -a debian/tmp/usr/share/man/man1/shmemcc.1 debian/openmpi-bin/usr/share/man/man1 ; \
 		cp -a debian/tmp/usr/share/man/man1/shmemfort.1 debian/openmpi-bin/usr/share/man/man1 ; \
 	fi
+ 	# plugin, not so lib
+	rm debian/libopenmpi-dev/usr/lib/*/openmpi/lib/ompi_monitoring_prof.so
 
 override_dh_install-arch:
 

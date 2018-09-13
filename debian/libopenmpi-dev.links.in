@@ -10,7 +10,6 @@ usr/lib/@TRIPLET@/libmpi_usempi_ignore_tkr.so.40	usr/lib/@TRIPLET@/libmpi_usempi
 usr/lib/@TRIPLET@/libompitrace.so.40			usr/lib/@TRIPLET@/libompitrace.so
 usr/lib/@TRIPLET@/libopen-pal.so.40			usr/lib/@TRIPLET@/libopen-pal.so
 usr/lib/@TRIPLET@/libopen-rte.so.40			usr/lib/@TRIPLET@/libopen-rte.so
-usr/lib/@TRIPLET@/libpmix.so.2			usr/lib/@TRIPLET@/libpmix.so
 ## Convenience link for header files, see bug #493875
 usr/lib/@TRIPLET@/openmpi/include/		usr/include/openmpi
 # pkg-config
