@@ -238,13 +238,10 @@ override_dh_install:
 		cp -a debian/tmp/usr/share/man/man1/shmemcc.1 debian/openmpi-bin/usr/share/man/man1 ; \
 		cp -a debian/tmp/usr/share/man/man1/shmemfort.1 debian/openmpi-bin/usr/share/man/man1 ; \
 	fi
- 	# plugin, not so lib
-	rm debian/libopenmpi-dev/usr/lib/*/openmpi/lib/ompi_monitoring_prof.so
-
-override_dh_install-arch:
 
 override_dh_fixperms-arch:
 	chmod 0644 debian/libopenmpi*/${LIBDIR}/openmpi/lib/*.mod
+	rm -f debian/libopenmpi-dev/usr/lib/*/openmpi/lib/ompi_monitoring_prof.so
 	# TODO: whats causing this?
 	rm -f debian/libopenmpi-dev/usr/bin
 	dh_fixperms

@@ -1,10 +1,28 @@
-openmpi (3.1.2-1+rpi1) buster-staging; urgency=medium
+openmpi (3.1.2-3+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 13 Sep 2018 18:27:29 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Tue, 18 Sep 2018 11:29:02 +0000
+
+openmpi (3.1.2-3) unstable; urgency=medium
+
+  * Regression: don't ship ompi_monitoring_prof.so in libopenmp3.
+    Closes: #908503.
+  * Standards-Version: 4.2.1. No changes required
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 11 Sep 2018 11:44:22 +0100
+
+openmpi (3.1.2-2) unstable; urgency=medium
+
+  * Mark openmpi-common as M-A: foreign
+  * Fix FTBFS with dpkg-buildpackage -A. Closes: #908148
+  * Fix pmix dependency on -1 version to -1~.
+  * Closing old bugs fixed in previous releases:
+    Closes: #904779
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 07 Sep 2018 10:09:52 +0100
 
 openmpi (3.1.2-1) unstable; urgency=medium
 
