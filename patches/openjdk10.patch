@@ -1,0 +1,30 @@
+Index: openmpi/ompi/mpi/java/java/Makefile.am
+===================================================================
+--- openmpi.orig/ompi/mpi/java/java/Makefile.am
++++ openmpi/ompi/mpi/java/java/Makefile.am
+@@ -74,7 +74,6 @@ if OMPI_WANT_JAVA_BINDINGS
+ # from JAVA_SRC_FILES.
+ JAVA_H = \
+ 	mpi_MPI.h          \
+-	mpi_CartParms.h    \
+ 	mpi_CartComm.h     \
+ 	mpi_Comm.h         \
+ 	mpi_Constant.h     \
+@@ -82,7 +81,6 @@ JAVA_H = \
+ 	mpi_Datatype.h     \
+ 	mpi_Errhandler.h   \
+ 	mpi_File.h         \
+-	mpi_GraphParms.h   \
+ 	mpi_GraphComm.h    \
+ 	mpi_Group.h        \
+ 	mpi_Info.h         \
+@@ -92,9 +90,7 @@ JAVA_H = \
+ 	mpi_Op.h           \
+ 	mpi_Prequest.h     \
+ 	mpi_Request.h      \
+-	mpi_ShiftParms.h   \
+ 	mpi_Status.h       \
+-	mpi_Version.h	   \
+ 	mpi_Win.h
+ 
+ # A little verbosity magic; see Makefile.ompi-rules for an explanation.
