@@ -35,7 +35,6 @@ Conflicts: openmpi-bin,
 Breaks: libopenmpi-dev (<< 3.0.1~rc2-2)
 Replaces: libopenmpi-dev (<< 3.0.1~rc2-2)
 Suggests: gfortran
-Recommends: open-coarrays-bin
 Description: high performance message passing library -- binaries
  Open MPI is a project combining technologies and resources from several other
  projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
@@ -68,7 +67,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  openmpi-common (>= ${source:Version}), 
  libibverbs-dev (>= 1.1.7) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], libhwloc-dev,
  openmpi-bin (>= 3.0.0-1)
-Recommends: libcoarrays-dev
+Recommends: libcoarrays-openmpi-dev
 Conflicts: libopenmpi-dev
 Breaks: openmpi-bin (<< 3.0.1~rc2-2)
 Suggests: openmpi-doc

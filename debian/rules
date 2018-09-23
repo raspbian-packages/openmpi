@@ -170,6 +170,12 @@ override_dh_install:
 	find . -name '*.pc' | while read f ; do \
 		cat $${f} | sed -e 's%-I$${pkgincludedir}[a-zA-Z0-9/]* %%g' > x ; \
 		 mv x $${f}; done
+# sanitize build paths for bit-reproducibility
+	if test ./debian/tmp/${LIBDIR}/openmpi/include/openmpi/opal_config.h ; then \
+		sed -e 's%${CURDIR}%/build/openmpi%g' < ./debian/tmp/${LIBDIR}/openmpi/include/openmpi/opal_config.h \
+			> debian/tmp/x ; \
+		mv debian/tmp/x ./debian/tmp/${LIBDIR}/openmpi/include/openmpi/opal_config.h ; \
+	fi
 # Continue as usual
 	dh_install
 # oshmem, shmem only built on Linux so do by hand or it may fail ...
