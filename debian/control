@@ -31,7 +31,8 @@ Package: openmpi-bin
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, openmpi-common (>= ${source:Version}),
  openssh-client | ssh-client
-Conflicts: openmpi-bin, 
+Conflicts: openmpi-bin
+Requires: libopenmpi-dev
 Breaks: libopenmpi-dev (<< 3.0.1~rc2-2)
 Replaces: libopenmpi-dev (<< 3.0.1~rc2-2)
 Suggests: gfortran
