@@ -997,7 +997,11 @@ void orte_odls_base_default_launch_local(int fd, short sd, void *cbdata)
     orte_app_context_t *app;
     orte_proc_t *child=NULL;
     int rc=ORTE_SUCCESS;
-    char basedir[MAXPATHLEN];
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    char *basedir=NULL;
+#else
+  char basedir[MAXPATHLEN];
+#endif
     int j, idx;
     int total_num_local_procs = 0;
     orte_odls_launch_local_t *caddy = (orte_odls_launch_local_t*)cbdata;
@@ -1020,7 +1024,11 @@ void orte_odls_base_default_launch_local(int fd, short sd, void *cbdata)
      * bouncing around as we execute various apps, but we will always return
      * to this place as our default directory
      */
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    basedir = get_current_dir_name();
+#else
     getcwd(basedir, sizeof(basedir));
+#endif
 
     /* find the jobdat for this job */
     if (NULL == (jobdat = orte_get_job_data_object(job))) {
@@ -1907,7 +1915,12 @@ int orte_odls_base_default_restart_proc(orte_proc_t *child,
     int rc;
     orte_app_context_t *app;
     orte_job_t *jobdat;
-    char basedir[MAXPATHLEN];
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    char *basedir=NULL;
+    char *dir=NULL;
+#else
+  char basedir[MAXPATHLEN];
+#endif  
     char *wdir = NULL;
     orte_odls_spawn_caddy_t *cd;
     opal_event_base_t *evb;
@@ -1921,7 +1934,11 @@ int orte_odls_base_default_restart_proc(orte_proc_t *child,
      * bouncing around as we execute this app, but we will always return
      * to this place as our default directory
      */
+#if !defined(MAXPATHLEN) && defined(__GLIBC__)
+    basedir = get_current_dir_name();
+#else
     getcwd(basedir, sizeof(basedir));
+#endif
 
     /* find this child's jobdat */
     if (NULL == (jobdat = orte_get_job_data_object(child->name.jobid))) {
