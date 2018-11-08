@@ -8,10 +8,10 @@ Forwarded: no
 Last-Update: 2016-12-15
 ---
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
-Index: openmpi/test/class/opal_fifo.c
+Index: openmpi-3.1.3~rc1/test/class/opal_fifo.c
 ===================================================================
---- openmpi.orig/test/class/opal_fifo.c
-+++ openmpi/test/class/opal_fifo.c
+--- openmpi-3.1.3~rc1.orig/test/class/opal_fifo.c
++++ openmpi-3.1.3~rc1/test/class/opal_fifo.c
 @@ -63,7 +63,7 @@ static void *thread_test (void *arg) {
      printf ("Atomics thread finished. Time: %d s %d us %d nsec/poppush\n", (int) total.tv_sec,
              (int)total.tv_usec, (int)(timing / 1e-9));

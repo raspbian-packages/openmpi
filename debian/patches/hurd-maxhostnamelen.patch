@@ -3,10 +3,10 @@ Description: Fix needed for Hurd build
 Forwarded: no
 Last-Updated: 2017-11-17
 
-Index: openmpi/opal/mca/pmix/pmix2x/pmix/src/mca/base/pmix_mca_base_component_find.c
+Index: openmpi-3.1.3~rc1/opal/mca/pmix/pmix2x/pmix/src/mca/base/pmix_mca_base_component_find.c
 ===================================================================
---- openmpi.orig/opal/mca/pmix/pmix2x/pmix/src/mca/base/pmix_mca_base_component_find.c
-+++ openmpi/opal/mca/pmix/pmix2x/pmix/src/mca/base/pmix_mca_base_component_find.c
+--- openmpi-3.1.3~rc1.orig/opal/mca/pmix/pmix2x/pmix/src/mca/base/pmix_mca_base_component_find.c
++++ openmpi-3.1.3~rc1/opal/mca/pmix/pmix2x/pmix/src/mca/base/pmix_mca_base_component_find.c
 @@ -339,7 +339,7 @@ static int component_find_check (pmix_mc
          }
  

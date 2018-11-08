@@ -16,6 +16,8 @@
  * Copyright (c) 2010      IBM Corporation.  All rights reserved.
  * Copyright (c) 2014      Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2018      Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -34,7 +36,7 @@
 #ifdef HAVE_SYS_MOUNT_H
 #include <sys/mount.h>
 #endif
-#if defined(__linux__) /* not present on Hurd */
+#ifdef HAVE_SYS_STATFS_H
 #include <sys/statfs.h>
 #endif
 #ifdef HAVE_SYS_VFS_H

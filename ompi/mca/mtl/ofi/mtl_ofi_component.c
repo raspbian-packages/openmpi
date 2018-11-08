@@ -108,7 +108,7 @@ ompi_mtl_ofi_component_register(void)
                                     MCA_BASE_VAR_SCOPE_READONLY,
                                     &param_priority);
 
-    prov_include = "psm,psm2,gni";
+    prov_include = NULL;
     mca_base_component_var_register(&mca_mtl_ofi_component.super.mtl_version,
                                     "provider_include",
                                     "Comma-delimited list of OFI providers that are considered for use (e.g., \"psm,psm2\"; an empty value means that all providers will be considered). Mutually exclusive with mtl_ofi_provider_exclude.",
@@ -117,7 +117,7 @@ ompi_mtl_ofi_component_register(void)
                                     MCA_BASE_VAR_SCOPE_READONLY,
                                     &prov_include);
 
-    prov_exclude = NULL;
+    prov_exclude = "shm,sockets,tcp,udp,rstream";
     mca_base_component_var_register(&mca_mtl_ofi_component.super.mtl_version,
                                     "provider_exclude",
                                     "Comma-delimited list of OFI providers that are not considered for use (default: \"sockets,mxm\"; empty value means that all providers will be considered). Mutually exclusive with mtl_ofi_provider_include.",
@@ -499,21 +499,6 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
         goto error;
     }
 
-    /**
-     * Allocate memory for storing the CQ events read in OFI progress.
-     */
-    ompi_mtl_ofi.progress_entries = calloc(ompi_mtl_ofi.ofi_progress_event_count, sizeof(struct fi_cq_tagged_entry));
-    if (OPAL_UNLIKELY(!ompi_mtl_ofi.progress_entries)) {
-        opal_output_verbose(1, ompi_mtl_base_framework.framework_output,
-                            "%s:%d: alloc of CQ event storage failed: %s\n",
-                            __FILE__, __LINE__, strerror(errno));
-        goto error;
-    }
-
-    /**
-     * The remote fi_addr will be stored in the ofi_endpoint struct.
-     */
-
     av_attr.type = (MTL_OFI_AV_TABLE == av_type) ? FI_AV_TABLE: FI_AV_MAP;
 
     ret = fi_av_open(ompi_mtl_ofi.domain, &av_attr, &ompi_mtl_ofi.av, NULL);
@@ -632,9 +617,6 @@ error:
     if (ompi_mtl_ofi.fabric) {
         (void) fi_close((fid_t)ompi_mtl_ofi.fabric);
     }
-    if (ompi_mtl_ofi.progress_entries) {
-        free(ompi_mtl_ofi.progress_entries);
-    }
 
     return NULL;
 }
@@ -666,8 +648,6 @@ ompi_mtl_ofi_finalize(struct mca_mtl_base_module_t *mtl)
     if ((ret = fi_close((fid_t)ompi_mtl_ofi.fabric))) {
         goto finalize_err;
     }
-
-    free(ompi_mtl_ofi.progress_entries);
 
     return OMPI_SUCCESS;
 

@@ -2377,8 +2377,8 @@
 /* whether fbtl_posix is found and available */
 #undef OPAL_HAVE_FBTL_POSIX
 
-/* Whether the __atomic builtin atomic compare and swap is lock-free on
-   128-bit values */
+/* Whether the __atomic builtin atomic compare swap is both supported and
+   lock-free on 128-bit values */
 #undef OPAL_HAVE_GCC_BUILTIN_CSWAP_INT128
 
 /* whether gethostbyname is found and available */

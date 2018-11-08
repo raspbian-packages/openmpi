@@ -7,5 +7,4 @@ opal_fifo.patch
 verbose-ompi-rules.patch
 openjdk10.patch
 fix-underlinking.patch
-btl.patch
 raspbian.diff

@@ -27,6 +27,8 @@
 #
 # Copyright (c) 2011-2013 Los Alamos National Security, LLC.
 #                         All rights reserved.
+# Copyright (c) 2018      Research Organization for Information Science
+#                         and Technology (RIST).  All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -368,6 +370,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/fs/lustre/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/plfs/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/pvfs2/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/ufs/configure.m4 \
 	$(top_srcdir)/ompi/mca/io/ompio/configure.m4 \
 	$(top_srcdir)/ompi/mca/io/romio314/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/mxm/configure.m4 \
@@ -1738,7 +1741,7 @@ libmca_state_la_SOURCES = $(headers) base/state_base_frame.c \
 	base/state_base_select.c base/state_base_fns.c
 
 # pkgdata setup
-dist_ortedata_DATA = 
+dist_ortedata_DATA = base/help-state-base.txt
 
 # local files
 headers = state.h state_types.h base/state_private.h base/base.h

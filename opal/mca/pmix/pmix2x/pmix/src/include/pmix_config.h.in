@@ -504,7 +504,7 @@
 /* Whether C compiler supports GCC style inline assembly */
 #undef PMIX_C_GCC_INLINE_ASSEMBLY
 
-/* Whether C compiler support atomic convenience variables in stdatomic.h */
+/* Whether C compiler supports atomic convenience variables in stdatomic.h */
 #undef PMIX_C_HAVE_ATOMIC_CONV_VAR
 
 /* Whether C compiler supports __builtin_clz */
@@ -522,7 +522,7 @@
 /* Whether C compiler supports __Generic keyword */
 #undef PMIX_C_HAVE__GENERIC
 
-/* Whether C compiler support _Static_assert keyword */
+/* Whether C compiler supports _Static_assert keyword */
 #undef PMIX_C_HAVE__STATIC_ASSERT
 
 /* Whether C compiler supports __Thread_local */

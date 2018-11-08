@@ -71,7 +71,6 @@ static inline mca_btl_vader_fbox_hdr_t mca_btl_vader_fbox_read_header (mca_btl_v
     return tmp;
 }
 
-
 /* attempt to reserve a contiguous segment from the remote ep */
 static inline bool mca_btl_vader_fbox_sendi (mca_btl_base_endpoint_t *ep, unsigned char tag,
                                              void * restrict header, const size_t header_size,

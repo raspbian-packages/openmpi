@@ -2,13 +2,13 @@ Source: openmpi
 Section: net
 Priority: optional
 Maintainer: Alastair McKinstry <mckinstry@debian.org>
-Uploaders: Debian Open MPI Maintainers <pkg-openmpi-maintainers@lists.alioth.debian.org>,
- Manuel Prinz <manuel@debian.org>
+Uploaders: Manuel Prinz <manuel@debian.org>
 Build-Depends: dpkg-dev (>= 1.16.1~), 
  debhelper (>= 11), 
+ gcc-7 [ia64],
  libltdl-dev,
  libevent-dev,
- libpmix-dev (>= 3.0.1-1~),
+ libpmix-dev,
  zlib1g-dev,
  gfortran, gcc (>= 4:5.2.1), 
  chrpath, 
@@ -31,8 +31,8 @@ Package: openmpi-bin
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, openmpi-common (>= ${source:Version}),
  openssh-client | ssh-client
+Recommends: libopenmpi-dev
 Conflicts: openmpi-bin
-Requires: libopenmpi-dev
 Breaks: libopenmpi-dev (<< 3.0.1~rc2-2)
 Replaces: libopenmpi-dev (<< 3.0.1~rc2-2)
 Suggests: gfortran

@@ -2,6 +2,19 @@
 
 set -e
 
+case "$1" in
+   configure)
+      # Continue below
+      ;;
+   abort-upgrade|abort-remove|abort-deconfigure)
+      exit 0;
+      ;;
+   *)
+      echo "postinst called with unknown argument \`$1'" >&2
+      exit 0;
+      ;;
+esac
+
 update-alternatives \
 	--install /usr/include/@TRIPLET@/mpi mpi-@TRIPLET@ /usr/lib/@TRIPLET@/openmpi/include 50 \
 	--slave /usr/lib/@TRIPLET@/libmpi.so libmpi.so-@TRIPLET@ /usr/lib/@TRIPLET@/openmpi/lib/libmpi.so \
@@ -10,7 +23,6 @@ update-alternatives \
 	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi-fort.pc mpi-fort.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi-fort.pc \
 	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi-c.pc mpi-c.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi-c.pc \
 	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi-cxx.pc mpi-cxx.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi-cxx.pc
-
 
 #DEBHELPER#
 
