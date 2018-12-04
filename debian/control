@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Alastair McKinstry <mckinstry@debian.org>
 Uploaders: Manuel Prinz <manuel@debian.org>
 Build-Depends: dpkg-dev (>= 1.16.1~), 
+ dh-fortran-mod,
  debhelper (>= 11), 
  gcc-7 [ia64],
  libltdl-dev,

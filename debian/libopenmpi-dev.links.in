@@ -11,7 +11,7 @@ usr/lib/@TRIPLET@/libompitrace.so.40			usr/lib/@TRIPLET@/libompitrace.so
 usr/lib/@TRIPLET@/libopen-pal.so.40			usr/lib/@TRIPLET@/libopen-pal.so
 usr/lib/@TRIPLET@/libopen-rte.so.40			usr/lib/@TRIPLET@/libopen-rte.so
 ## Convenience link for header files, see bug #493875
-usr/lib/@TRIPLET@/openmpi/include/		usr/include/openmpi
+usr/lib/@TRIPLET@/openmpi/include/		usr/include/@TRIPLET@/openmpi
 # pkg-config
 usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/ompi-fort.pc	usr/lib/@TRIPLET@/pkgconfig/ompi-fort.pc
 usr/lib/@TRIPLET@/openmpi/lib/pkgconfig/orte.pc		usr/lib/@TRIPLET@/pkgconfig/orte.pc

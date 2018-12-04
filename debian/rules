@@ -77,7 +77,7 @@ STATIC_CONFIG_PARAMS =
 
 
 %:
-	dh $@ --no-parallel
+	dh $@ --no-parallel --with=fortran_mod
 
 override_dh_auto_clean:
 	dh_clean
