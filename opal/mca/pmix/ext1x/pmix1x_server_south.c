@@ -41,6 +41,11 @@
 #include "pmix.h"
 #include "pmix_server.h"
 
+/* Deprecated. Rewrite code below */
+#ifndef PMIX_INFO_ARRAY
+#define PMIX_INFO_ARRAY 44
+#endif
+
 /****    S.O.U.T.H.B.O.U.N.D   I.N.T.E.R.F.A.C.E.S     ****/
 
 /* These are the interfaces used by the OMPI/ORTE/OPAL layer to call
