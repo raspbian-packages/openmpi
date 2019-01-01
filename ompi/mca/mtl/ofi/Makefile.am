@@ -1,4 +1,4 @@
-#
+
 # Copyright (c) 2013-2015 Intel, Inc. All rights reserved
 #
 # Copyright (c) 2014-2015 Cisco Systems, Inc.  All rights reserved.
@@ -47,7 +47,7 @@ mca_mtl_ofi_la_LDFLAGS = \
         $(ompi_mtl_ofi_LDFLAGS) \
         -module -avoid-version
 mca_mtl_ofi_la_LIBADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
-	$(ompi_mtl_ofi_LIBS) \
+	$(ompi_mtl_ofi_LIBS) $(opal_common_ofi_LIBS) \
         $(OPAL_TOP_BUILDDIR)/opal/mca/common/ofi/lib@OPAL_LIB_PREFIX@mca_common_ofi.la
 
 noinst_LTLIBRARIES = $(component_noinst)
