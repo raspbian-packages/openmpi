@@ -1001,10 +1001,6 @@ int pmix2x_value_unload(opal_value_t *kv,
         OPAL_ERROR_LOG(OPAL_ERR_NOT_SUPPORTED);
         rc = OPAL_ERR_NOT_SUPPORTED;
         break;
-    case PMIX_MODEX:
-        OPAL_ERROR_LOG(OPAL_ERR_NOT_SUPPORTED);
-        rc = OPAL_ERR_NOT_SUPPORTED;
-        break;
     case PMIX_PERSIST:
         kv->type = OPAL_PERSIST;
         kv->data.uint8 = pmix2x_convert_persist(v->data.persist);
@@ -1108,10 +1104,6 @@ int pmix2x_value_unload(opal_value_t *kv,
         rc = OPAL_ERR_NOT_SUPPORTED;
         break;
     case PMIX_ALLOC_DIRECTIVE:
-        OPAL_ERROR_LOG(OPAL_ERR_NOT_SUPPORTED);
-        rc = OPAL_ERR_NOT_SUPPORTED;
-        break;
-    case PMIX_INFO_ARRAY:
         OPAL_ERROR_LOG(OPAL_ERR_NOT_SUPPORTED);
         rc = OPAL_ERR_NOT_SUPPORTED;
         break;
