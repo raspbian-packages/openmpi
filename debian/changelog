@@ -1,10 +1,56 @@
-openmpi (3.1.3-3+rpi1) buster-staging; urgency=medium
+openmpi (3.1.3-9+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Tue, 04 Dec 2018 18:17:21 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Tue, 15 Jan 2019 10:15:41 +0000
+
+openmpi (3.1.3-9) unstable; urgency=medium
+
+  * Re-enable external pmix now that it works with 32-bit systems again.
+    Closes: #918713.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 08 Jan 2019 19:20:33 +0000
+
+openmpi (3.1.3-8) unstable; urgency=medium
+
+  * dh-fortran-mod >= 0.11 to properly remove files on purge.
+    Closes: #918000, #915025.
+  * Use internal pmix until pmix pkg works.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 07 Jan 2019 21:19:05 +0000
+
+openmpi (3.1.3-7) unstable; urgency=medium
+
+  * Standards-Version: 4.3.0
+  * Use dh-fortran-mod and place mod files in $fmoddir/openmpi to avoid
+    collision with mpich. Closes: #917133
+  * Patch to remove PMIX_MODEX (removed in latest pmix release)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 01 Jan 2019 13:25:39 +0000
+
+openmpi (3.1.3-6) unstable; urgency=medium
+
+  * Rebuild with dh-fortran-mod >= 0.6 to fix broken postrm script.
+    Closes: #916890
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 20 Dec 2018 09:23:45 +0000
+
+openmpi (3.1.3-5) unstable; urgency=medium
+
+  * Use dh-fortran-mod >= 0.4: insert tracking via Fortran-Mod rather than
+    Depends. mod file is now placed in /usr/lib/$arch/fortran/gfortran-8
+    ($fmoddir) but also in usual place until gfortan reads $fmoddirOA
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 11 Dec 2018 14:14:53 +0000
+
+openmpi (3.1.3-4) unstable; urgency=medium
+
+  * More robust altertnatives handling. Closes: #915025
+  * Don't call dpkg-parsechangelog in rules
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 07 Dec 2018 13:04:38 +0000
 
 openmpi (3.1.3-3) unstable; urgency=medium
 

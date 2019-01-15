@@ -11,10 +11,16 @@ update-alternatives --quiet --remove-all mpicc >/dev/null 2>&1 || true
 # Similarly, see #886644
 update-alternatives --quiet --remove-all mpiCC >/dev/null 2>&1 || true
 
-# Splitting mpi and mpi-$MULTIARCH  requires this
-if [ ! -z "$(update-alternatives --query mpi 2> /dev/null | grep mpi-fort.pc)" ]; then
-    update-alternatives --quiet --remove-all mpi >/dev/null 2>&1 
-    update-alternatives --quiet --remove-all mpi-@TRIPLET@ >/dev/null 2>&1 
+# If corrupt from a previous install
+if [ ! -z "$(update-alternatives --query mpi 2>&1 >  /dev/null)" ]; then
+    rm -f /var/lib/dpkg/alternatives/mpi
+    rm -f /var/lib/dpkg/alternatives/mpi-@TRIPLET@
+else
+    # Splitting mpi and mpi-$MULTIARCH  requires this
+    if [ ! -z "$(update-alternatives --query mpi 2> /dev/null | grep mpi-fort.pc)" ]; then
+	update-alternatives --quiet --remove-all mpi >/dev/null 2>&1 
+	update-alternatives --quiet --remove-all mpi-@TRIPLET@ >/dev/null 2>&1 
+    fi
 fi
 
 # This may be left hanging on the upgrade to multi-arch.
