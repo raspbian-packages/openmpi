@@ -72,7 +72,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
 Recommends: libcoarrays-openmpi-dev
 Fortran-Mod: ${Fortran-Mod}
 Conflicts: libopenmpi-dev
-Breaks: openmpi-bin (<< 3.0.1~rc2-2)
+Breaks: openmpi-bin (<< 3.0.1~rc2-2), libmpich-dev (<< 3.3~b1-5)
 Suggests: openmpi-doc
 Description: high performance message passing library -- header files
  Open MPI is a project combining technologies and resources from several other

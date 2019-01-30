@@ -2,20 +2,8 @@
 
 set -e
 
-case "$1" in
-   configure)
-      # Continue below
-      ;;
-   abort-upgrade|abort-remove|abort-deconfigure)
-      exit 0;
-      ;;
-   *)
-      echo "postinst called with unknown argument \`$1'" >&2
-      exit 0;
-      ;;
-esac
+if [ "$1" = "configure" ]; then
 
-# so, we are running with $1 = configure
 # openmpi versions before 1.3.3-2 were using two alternatives where other
 # MPI implementations were using only one, which breaks. Clean up
 # our mess.
@@ -46,6 +34,6 @@ update-alternatives \
 	--slave /usr/share/man/man1/mpif90.1.gz mpif90.1.gz /usr/share/man/man1/mpif90.openmpi.1.gz \
 	--slave /usr/share/man/man1/mpifort.1.gz mpifort.1.gz /usr/share/man/man1/mpifort.openmpi.1.gz 
 
-#DEBHELPER#
+fi
 
-exit 0
+#DEBHELPER#
