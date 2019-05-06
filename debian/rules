@@ -23,6 +23,13 @@ NO_JAVA_ARCH:= hppa hurd-i386 ia64 riscv64
 NO_TEST_ARCH:= hppa hurd-i386
 GCC7_ARCH:= ia64
 
+FORTRAN:=$(shell basename $(shell readlink /etc/alternatives/f95))
+FC ?= $(FORTRAN)
+# Drop '-g' flag with flang. Known failure with 2018122 version
+ifneq ($(filter flang,$(FC)),)
+FCFLAGS=$(shell dpkg-buildflags --get FCLAGS |  sed -e 's/-g //')
+endif
+
 ifeq (sparc,$(DEB_HOST_GNU_CPU))
 	CFLAGS += -mcpu=v9
 endif

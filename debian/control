@@ -11,7 +11,7 @@ Build-Depends: dpkg-dev (>= 1.16.1~),
  libevent-dev,
  libpmix-dev,
  zlib1g-dev,
- gfortran, gcc (>= 4:5.2.1), 
+ gfortran | fortran-compiler,
  chrpath, 
  libhwloc-dev,
  pkg-config,
@@ -34,9 +34,13 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, openmpi-common (>= ${source:Version
  openssh-client | ssh-client
 Recommends: libopenmpi-dev
 Conflicts: openmpi-bin
-Breaks: libopenmpi-dev (<< 3.0.1~rc2-2)
+Breaks:
+ libopenmpi-dev (<< 3.0.1~rc2-2),
+ mpich (<< 3.3~b1-5),
+ libmpich-dev (<< 3.3~b1-5),
+ lam4-dev (<< 7.1.4-4),
 Replaces: libopenmpi-dev (<< 3.0.1~rc2-2)
-Suggests: gfortran
+Suggests: gfortran | fortran-compiler
 Description: high performance message passing library -- binaries
  Open MPI is a project combining technologies and resources from several other
  projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
@@ -72,7 +76,11 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
 Recommends: libcoarrays-openmpi-dev
 Fortran-Mod: ${Fortran-Mod}
 Conflicts: libopenmpi-dev
-Breaks: openmpi-bin (<< 3.0.1~rc2-2), libmpich-dev (<< 3.3~b1-5)
+Breaks:
+ openmpi-bin (<< 3.0.1~rc2-2),
+ mpich (<< 3.3~b1-5),
+ libmpich-dev (<< 3.3~b1-5),
+ lam4-dev (<< 7.1.4-4),
 Suggests: openmpi-doc
 Description: high performance message passing library -- header files
  Open MPI is a project combining technologies and resources from several other
