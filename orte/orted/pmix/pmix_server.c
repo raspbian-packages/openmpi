@@ -13,7 +13,7 @@
  *                         All rights reserved.
  * Copyright (c) 2009-2012 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2017 Mellanox Technologies, Inc.
  *                         All rights reserved.
  * Copyright (c) 2014-2015 Research Organization for Information Science
@@ -248,9 +248,6 @@ int pmix_server_init(void)
     OBJ_CONSTRUCT(&orte_pmix_server_globals.notifications, opal_list_t);
     orte_pmix_server_globals.server = *ORTE_NAME_INVALID;
 
-    /* ensure the PMIx server uses the proper rendezvous directory */
-    opal_setenv("PMIX_SERVER_TMPDIR", orte_process_info.proc_session_dir, true, &environ);
-
     OBJ_CONSTRUCT(&info, opal_list_t);
     /* tell the server our temp directory */
     kv = OBJ_NEW(opal_value_t);
@@ -286,7 +283,8 @@ int pmix_server_init(void)
      * PMIx connection point - only do this for the HNP as, in
      * at least one case, a daemon can be colocated with the
      * HNP and would overwrite the server rendezvous file */
-    if (orte_pmix_server_globals.system_server && ORTE_PROC_IS_HNP) {
+    if (orte_pmix_server_globals.system_server &&
+        (ORTE_PROC_IS_HNP || ORTE_PROC_IS_MASTER)) {
         kv = OBJ_NEW(opal_value_t);
         kv->key = strdup(OPAL_PMIX_SERVER_SYSTEM_SUPPORT);
         kv->type = OPAL_BOOL;

@@ -1,26 +1,17 @@
 Desciption: Fix underlinking
-  Prevents symbol lookup error: ../openmpi3/mca_mtl_ofi.so:
+  Prevents symbol lookup error: ../openmpi4/mca_mtl_ofi.so:
   undefined symbol: fi_dupinfo when linked with --as-needed
 Bug-Debian: https://bugs.debian.org/899104
 Author: Graham Inggs <ginggs@debian.org>
 Last-Update: 2018-05-23
 
-Index: openmpi-3.1.3~rc1/ompi/mca/mtl/ofi/Makefile.am
+Index: openmpi-4.0.1/ompi/mca/mtl/ofi/Makefile.am
 ===================================================================
---- openmpi-3.1.3~rc1.orig/ompi/mca/mtl/ofi/Makefile.am
-+++ openmpi-3.1.3~rc1/ompi/mca/mtl/ofi/Makefile.am
+--- openmpi-4.0.1.orig/ompi/mca/mtl/ofi/Makefile.am
++++ openmpi-4.0.1/ompi/mca/mtl/ofi/Makefile.am
 @@ -1,4 +1,4 @@
 -#
 +
  # Copyright (c) 2013-2015 Intel, Inc. All rights reserved
  #
- # Copyright (c) 2014-2015 Cisco Systems, Inc.  All rights reserved.
-@@ -47,7 +47,7 @@ mca_mtl_ofi_la_LDFLAGS = \
-         $(ompi_mtl_ofi_LDFLAGS) \
-         -module -avoid-version
- mca_mtl_ofi_la_LIBADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
--	$(ompi_mtl_ofi_LIBS) \
-+	$(ompi_mtl_ofi_LIBS) $(opal_common_ofi_LIBS) \
-         $(OPAL_TOP_BUILDDIR)/opal/mca/common/ofi/lib@OPAL_LIB_PREFIX@mca_common_ofi.la
- 
- noinst_LTLIBRARIES = $(component_noinst)
+ # Copyright (c) 2014-2019 Cisco Systems, Inc.  All rights reserved

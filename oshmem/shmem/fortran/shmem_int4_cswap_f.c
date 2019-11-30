@@ -4,6 +4,7 @@
  * Copyright (c) 2013 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2014      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2019      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -36,13 +37,13 @@ SHMEM_GENERATE_FORTRAN_BINDINGS_FUNCTION (ompi_fortran_integer4_t,
 
 ompi_fortran_integer4_t shmem_int4_cswap_f(FORTRAN_POINTER_T target, MPI_Fint *cond, FORTRAN_POINTER_T value, MPI_Fint *pe)
 {
-    ompi_fortran_integer4_t out_value = 0;
+    ompi_fortran_integer8_t out_value = 0;
 
-    MCA_ATOMIC_CALL(cswap(FPTR_2_VOID_PTR(target),
+    MCA_ATOMIC_CALL(cswap(oshmem_ctx_default, FPTR_2_VOID_PTR(target),
         (void *)&out_value,
-        (const void*)(OMPI_PFINT_2_PINT(cond)),
-        FPTR_2_VOID_PTR(value),
-        sizeof(out_value),
+        FPTR_2_INT(cond, sizeof(ompi_fortran_integer4_t)),
+        FPTR_2_INT(value, sizeof(ompi_fortran_integer4_t)),
+        sizeof(ompi_fortran_integer4_t),
         OMPI_FINT_2_INT(*pe)));
 
     return out_value;

@@ -240,16 +240,6 @@ static int mca_coll_hcoll_module_enable(mca_coll_base_module_t *module,
     return OMPI_SUCCESS;
 }
 
-int mca_coll_hcoll_progress(void)
-{
-    if (ompi_mpi_state >= OMPI_MPI_STATE_FINALIZE_STARTED) {
-        hcoll_rte_p2p_disabled_notify();
-    }
-
-    (*hcoll_progress_fn)();
-    return OMPI_SUCCESS;
-}
-
 
 OBJ_CLASS_INSTANCE(mca_coll_hcoll_dtype_t,
                    opal_free_list_item_t,
@@ -290,7 +280,7 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
            mxm bcol in libhcoll needs world_group fully functional during init
            world_group, i.e. ompi_comm_world, is not ready at hcoll component open
            call */
-        opal_progress_register(mca_coll_hcoll_progress);
+        opal_progress_register(hcoll_progress_fn);
 
         HCOL_VERBOSE(10,"Calling hcoll_init();");
 #if HCOLL_API >= HCOLL_VERSION(3,2)
@@ -307,28 +297,39 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
 
         if (HCOLL_SUCCESS != rc){
             cm->hcoll_enable = 0;
-            opal_progress_unregister(mca_coll_hcoll_progress);
+            opal_progress_unregister(hcoll_progress_fn);
             HCOL_ERROR("Hcol library init failed");
             return NULL;
         }
-
 #if HCOLL_API >= HCOLL_VERSION(3,2)
-        if (cm->using_mem_hooks && cm->init_opts->mem_hook_needed) {
+        if (cm->init_opts->mem_hook_needed) {
 #else
-        if (cm->using_mem_hooks && hcoll_check_mem_release_cb_needed()) {
+        if (hcoll_check_mem_release_cb_needed()) {
 #endif
-            opal_mem_hooks_register_release(mca_coll_hcoll_mem_release_cb, NULL);
+            rc = mca_base_framework_open(&opal_memory_base_framework, 0);
+            if (OPAL_SUCCESS != rc) {
+                HCOL_VERBOSE(1, "failed to initialize memory base framework: %d, "
+                             "memory hooks will not be used", rc);
+            } else {
+                if ((OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_MUNMAP_SUPPORT) ==
+                    ((OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_MUNMAP_SUPPORT) &
+                     opal_mem_hooks_support_level())) {
+                    HCOL_VERBOSE(1, "using OPAL memory hooks as external events");
+                    cm->using_mem_hooks = 1;
+                    opal_mem_hooks_register_release(mca_coll_hcoll_mem_release_cb, NULL);
+                    setenv("MXM_HCOLL_MEM_ON_DEMAND_MAP", "y", 0);
+                }
+            }
         } else {
             cm->using_mem_hooks = 0;
         }
-
         copy_fn.attr_communicator_copy_fn = (MPI_Comm_internal_copy_attr_function*) MPI_COMM_NULL_COPY_FN;
         del_fn.attr_communicator_delete_fn = hcoll_comm_attr_del_fn;
         err = ompi_attr_create_keyval(COMM_ATTR, copy_fn, del_fn, &hcoll_comm_attr_keyval, NULL ,0, NULL);
         if (OMPI_SUCCESS != err) {
             cm->hcoll_enable = 0;
             hcoll_finalize();
-            opal_progress_unregister(mca_coll_hcoll_progress);
+            opal_progress_unregister(hcoll_progress_fn);
             HCOL_ERROR("Hcol comm keyval create failed");
             return NULL;
         }
@@ -341,7 +342,7 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
             if (OMPI_SUCCESS != err) {
                 cm->hcoll_enable = 0;
                 hcoll_finalize();
-                opal_progress_unregister(mca_coll_hcoll_progress);
+                opal_progress_unregister(hcoll_progress_fn);
                 HCOL_ERROR("Hcol type keyval create failed");
                 return NULL;
             }
@@ -358,7 +359,7 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
         if (!cm->libhcoll_initialized) {
             cm->hcoll_enable = 0;
             hcoll_finalize();
-            opal_progress_unregister(mca_coll_hcoll_progress);
+            opal_progress_unregister(hcoll_progress_fn);
         }
         return NULL;
     }
@@ -377,7 +378,7 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
         if (!cm->libhcoll_initialized) {
             cm->hcoll_enable = 0;
             hcoll_finalize();
-            opal_progress_unregister(mca_coll_hcoll_progress);
+            opal_progress_unregister(hcoll_progress_fn);
         }
         return NULL;
     }

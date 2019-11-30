@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2014-2015 Intel, Inc.  All rights reserved.
@@ -40,11 +40,6 @@
 
 #include "pmix.h"
 #include "pmix_server.h"
-
-/* Deprecated. Rewrite code below */
-#ifndef PMIX_INFO_ARRAY
-#define PMIX_INFO_ARRAY 44
-#endif
 
 /****    S.O.U.T.H.B.O.U.N.D   I.N.T.E.R.F.A.C.E.S     ****/
 

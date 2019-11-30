@@ -13,7 +13,7 @@
 # Copyright (c) 2011-2013 Los Alamos National Security, LLC.
 #                         All rights reserved.
 # Copyright (c) 2010-2015 Cisco Systems, Inc.  All rights reserved.
-# Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+# Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
 # Copyright (c) 2015-2017 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # Copyright (c) 2014-2015 Mellanox Technologies, Inc.
@@ -33,9 +33,7 @@ AC_DEFUN([MCA_opal_pmix_ext1x_CONFIG],[
     AS_IF([test "$opal_external_pmix_happy" = "yes"],
           [ # check for the 1.x version ( >= 1.1.4 ?)
            AC_MSG_CHECKING([if external component is version 1.x])
-           AS_IF([test "$opal_external_pmix_version" = "11" ||
-                  test "$opal_external_pmix_version" = "12" ||
-                  test "$opal_external_pmix_version" = "1x"],
+           AS_IF([test "$opal_external_pmix_version" = "1x"],
                  [AC_MSG_RESULT([yes])
                   AS_IF([test "$opal_event_external_support" != "yes"],
                         [AC_MSG_WARN([EXTERNAL PMIX SUPPORT REQUIRES USE OF EXTERNAL LIBEVENT])

@@ -2,7 +2,7 @@
 # Copyright (c) 2011      Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2013      Los Alamos National Security, LLC.
 #                         All rights reserved.
-# Copyright (c) 2014      Intel, Inc. All rights reserved
+# Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
 # Copyright (c) 2017      IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
 #
@@ -10,6 +10,12 @@
 #
 # $HEADER$
 #
+
+# Add MPIR unwind flags because files in this tree are
+# involved in startup. This is not needed in the other
+# subdirs in orte/mca/ess because the other components are
+# solely used by daemons and thus are not accessible by the debugger.
+AM_CFLAGS = $(MPIR_UNWIND_CFLAGS)
 
 AM_CPPFLAGS = $(ess_pmi_CPPFLAGS)
 

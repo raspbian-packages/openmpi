@@ -3,10 +3,10 @@ Description: Symbol versioning
 Forwarded: yes
 Last-Updated: 2017-05-03
 
-Index: openmpi-2.0.1/config/ld-version-script.m4
+Index: openmpi-4.0.1/config/ld-version-script.m4
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/config/ld-version-script.m4
++++ openmpi-4.0.1/config/ld-version-script.m4
 @@ -0,0 +1,49 @@
 +dnl Copyright (C) 2006-2013 Free Software Foundation, Inc.
 +dnl This file is free software; the Free Software Foundation
@@ -57,26 +57,26 @@ Index: openmpi-2.0.1/config/ld-version-script.m4
 +])
 +
 +gl_LD_VERSION_SCRIPT()
-Index: openmpi-2.0.1/ompi/Makefile.am
+Index: openmpi-4.0.1/ompi/Makefile.am
 ===================================================================
---- openmpi-2.0.1.orig/ompi/Makefile.am
-+++ openmpi-2.0.1/ompi/Makefile.am
-@@ -153,6 +153,10 @@ libmpi_la_LDFLAGS = \
+--- openmpi-4.0.1.orig/ompi/Makefile.am
++++ openmpi-4.0.1/ompi/Makefile.am
+@@ -161,6 +161,10 @@ lib@OMPI_LIBMPI_NAME@_la_LDFLAGS = \
         -version-info $(libmpi_so_version) \
          $(OMPI_LIBMPI_EXTRA_LDFLAGS)
  
 +if HAVE_LD_VERSION_SCRIPT
-+libmpi_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/libmpi.map
++lib@OMPI_LIBMPI_NAME@_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/libmpi.map
 +endif
 +
  # included subdirectory Makefile.am's and appended-to variables
  headers =
  noinst_LTLIBRARIES =
-Index: openmpi-2.0.1/oshmem/Makefile.am
+Index: openmpi-4.0.1/oshmem/Makefile.am
 ===================================================================
---- openmpi-2.0.1.orig/oshmem/Makefile.am
-+++ openmpi-2.0.1/oshmem/Makefile.am
-@@ -72,6 +72,11 @@ liboshmem_la_LDFLAGS = \
+--- openmpi-4.0.1.orig/oshmem/Makefile.am
++++ openmpi-4.0.1/oshmem/Makefile.am
+@@ -73,6 +73,11 @@ liboshmem_la_LDFLAGS = \
          -version-info $(liboshmem_so_version) \
          $(OSHMEM_LIBSHMEM_EXTRA_LDFLAGS)
  
@@ -88,70 +88,70 @@ Index: openmpi-2.0.1/oshmem/Makefile.am
  # included subdirectory Makefile.am's and appended-to variables
  headers =
  noinst_LTLIBRARIES =
-Index: openmpi-2.0.1/ompi/mpi/cxx/Makefile.am
+Index: openmpi-4.0.1/ompi/mpi/cxx/Makefile.am
 ===================================================================
---- openmpi-2.0.1.orig/ompi/mpi/cxx/Makefile.am
-+++ openmpi-2.0.1/ompi/mpi/cxx/Makefile.am
-@@ -45,6 +45,10 @@ endif
- libmpi_cxx_la_LIBADD = $(top_builddir)/ompi/libmpi.la
- libmpi_cxx_la_LDFLAGS = -version-info $(libmpi_cxx_so_version)
+--- openmpi-4.0.1.orig/ompi/mpi/cxx/Makefile.am
++++ openmpi-4.0.1/ompi/mpi/cxx/Makefile.am
+@@ -45,6 +45,10 @@ lib@OMPI_LIBMPI_NAME@_cxx_la_SOURCES = \
+ lib@OMPI_LIBMPI_NAME@_cxx_la_LIBADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la
+ lib@OMPI_LIBMPI_NAME@_cxx_la_LDFLAGS = -version-info $(libmpi_cxx_so_version)
  
 +if HAVE_LD_VERSION_SCRIPT
-+libmpi_cxx_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/cxx/libmpi_cxx.map
++lib@OMPI_LIBMPI_NAME@_cxx_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/cxx/libmpi_cxx.map
 +endif
 +
  headers = \
  	mpicxx.h \
          constants.h \
-Index: openmpi-2.0.1/ompi/mpi/fortran/mpif-h/Makefile.am
+Index: openmpi-4.0.1/ompi/mpi/fortran/mpif-h/Makefile.am
 ===================================================================
---- openmpi-2.0.1.orig/ompi/mpi/fortran/mpif-h/Makefile.am
-+++ openmpi-2.0.1/ompi/mpi/fortran/mpif-h/Makefile.am
-@@ -57,6 +57,10 @@ libmpi_mpifh_la_LIBADD = \
+--- openmpi-4.0.1.orig/ompi/mpi/fortran/mpif-h/Makefile.am
++++ openmpi-4.0.1/ompi/mpi/fortran/mpif-h/Makefile.am
+@@ -58,6 +58,10 @@ lib@OMPI_LIBMPI_NAME@_mpifh_la_LIBADD =
  
- libmpi_mpifh_la_LDFLAGS = -version-info $(libmpi_mpifh_so_version)
+ lib@OMPI_LIBMPI_NAME@_mpifh_la_LDFLAGS = -version-info $(libmpi_mpifh_so_version)
  
 +if HAVE_LD_VERSION_SCRIPT
-+libmpi_mpifh_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
++lib@OMPI_LIBMPI_NAME@_mpifh_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
 +endif
 +
  # Are we building the mpif.h bindings at all?
  if OMPI_BUILD_FORTRAN_MPIFH_BINDINGS
  # If yes, then we need to build the installable library and the glue
-Index: openmpi-2.0.1/ompi/mpi/fortran/use-mpi-f08/Makefile.am
+Index: openmpi-4.0.1/ompi/mpi/fortran/use-mpi-f08/Makefile.am
 ===================================================================
---- openmpi-2.0.1.orig/ompi/mpi/fortran/use-mpi-f08/Makefile.am
-+++ openmpi-2.0.1/ompi/mpi/fortran/use-mpi-f08/Makefile.am
-@@ -826,6 +826,10 @@ libmpi_usempif08_la_LIBADD = \
- libmpi_usempif08_la_DEPENDENCIES = $(module_sentinel_file)
- libmpi_usempif08_la_LDFLAGS = -version-info $(libmpi_usempif08_so_version)
+--- openmpi-4.0.1.orig/ompi/mpi/fortran/use-mpi-f08/Makefile.am
++++ openmpi-4.0.1/ompi/mpi/fortran/use-mpi-f08/Makefile.am
+@@ -823,6 +823,10 @@ lib@OMPI_LIBMPI_NAME@_usempif08_la_LIBAD
+ lib@OMPI_LIBMPI_NAME@_usempif08_la_DEPENDENCIES = $(module_sentinel_file)
+ lib@OMPI_LIBMPI_NAME@_usempif08_la_LDFLAGS = -version-info $(libmpi_usempif08_so_version)
  
 +if HAVE_LD_VERSION_SCRIPT
-+libmpi_usempif08_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
++lib@OMPI_LIBMPI_NAME@_usempif08_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
 +endif
 +
  #
  # Automake doesn't do Fortran dependency analysis, so must list them
  # manually here.  Bummer!
-Index: openmpi-2.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/Makefile.am
+Index: openmpi-4.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/Makefile.am
 ===================================================================
---- openmpi-2.0.1.orig/ompi/mpi/fortran/use-mpi-ignore-tkr/Makefile.am
-+++ openmpi-2.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/Makefile.am
-@@ -59,6 +59,10 @@ libmpi_usempi_ignore_tkr_la_LDFLAGS = \
+--- openmpi-4.0.1.orig/ompi/mpi/fortran/use-mpi-ignore-tkr/Makefile.am
++++ openmpi-4.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/Makefile.am
+@@ -62,6 +62,10 @@ lib@OMPI_LIBMPI_NAME@_usempi_ignore_tkr_
          -version-info $(libmpi_usempi_ignore_tkr_so_version) \
          $(OMPI_FORTRAN_EXTRA_SHARED_LIBRARY_FLAGS)
  
 +if HAVE_LD_VERSION_SCRIPT
-+libmpi_usempi_ignore_tkr_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tkr.map
++lib@OMPI_LIBMPI_NAME@_usempi_ignore_tkr_la_LDFLAGS += -Wl,--version-script=$(top_srcdir)/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tkr.map
 +endif
 +
  #
  # mpi-ignore-tkr-sizeof.* are generated based on some results from
  # configure tests.
-Index: openmpi-2.0.1/ompi/libmpi.map
+Index: openmpi-4.0.1/ompi/libmpi.map
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/ompi/libmpi.map
++++ openmpi-4.0.1/ompi/libmpi.map
 @@ -0,0 +1,1707 @@
 +/* Symbol versioning for libmpi.so.20.0.0 (OpenMPI 2.0.0)
 + * EXPERIMENTAL
@@ -1860,10 +1860,10 @@ Index: openmpi-2.0.1/ompi/libmpi.map
 +	/* pml_v_output_close*/
 +	/* pml_v_output_open */
 +};
-Index: openmpi-2.0.1/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
+Index: openmpi-4.0.1/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
++++ openmpi-4.0.1/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
 @@ -0,0 +1,4967 @@
 +/* Symbol version map for libmpi_mpifh.so.20.0.0 (OpenMPI 2.0.0)
 + * EXPERIMENTAL
@@ -6832,10 +6832,10 @@ Index: openmpi-2.0.1/ompi/mpi/fortran/mpif-h/libmpi_mpifh.map
 +	*;
 +	/* libmpi_mpifh.map */
 +};
-Index: openmpi-2.0.1/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
+Index: openmpi-4.0.1/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
++++ openmpi-4.0.1/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
 @@ -0,0 +1,971 @@
 +/* Symbol version map for libmpi_usempif08.so.20.0.0 (OpenMPI 2.0.0)
 + * EXPERIMENTAL
@@ -7809,10 +7809,10 @@ Index: openmpi-2.0.1/ompi/mpi/fortran/use-mpi-f08/libmpi_usempif08.map
 +__mpi_f08_types_MOD_ompi_win_op_ne
 +*/
 \ No newline at end of file
-Index: openmpi-2.0.1/oshmem/liboshmem.map
+Index: openmpi-4.0.1/oshmem/liboshmem.map
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/oshmem/liboshmem.map
++++ openmpi-4.0.1/oshmem/liboshmem.map
 @@ -0,0 +1,1824 @@
 +/* symbol version map for liboshmem.so.20.0.0 (OpenMPI 2.0.0)
 + * EXPERIMENTAL
@@ -9638,10 +9638,10 @@ Index: openmpi-2.0.1/oshmem/liboshmem.map
 +lock_counter_head
 +lock_prev_pe_container_head
 +*/
-Index: openmpi-2.0.1/ompi/mpi/cxx/libmpi_cxx.map
+Index: openmpi-4.0.1/ompi/mpi/cxx/libmpi_cxx.map
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/ompi/mpi/cxx/libmpi_cxx.map
++++ openmpi-4.0.1/ompi/mpi/cxx/libmpi_cxx.map
 @@ -0,0 +1,403 @@
 +/* Symbol version map for libmpi_cxx.so.20.0.0 (OpenMPI 2.0.0)
 + * EXPERIMENTAL
@@ -10046,10 +10046,10 @@ Index: openmpi-2.0.1/ompi/mpi/cxx/libmpi_cxx.map
 +	*;
 +};
 +
-Index: openmpi-2.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tkr.map
+Index: openmpi-4.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tkr.map
 ===================================================================
 --- /dev/null
-+++ openmpi-2.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tkr.map
++++ openmpi-4.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tkr.map
 @@ -0,0 +1,180 @@
 +/* Symbol version map for libmpi_usempi_ignore_tkr.so.20.0.0 (OpenMPI 2.0.0)
 + * EXPERIMENTAL
@@ -10232,11 +10232,11 @@ Index: openmpi-2.0.1/ompi/mpi/fortran/use-mpi-ignore-tkr/libmpi_usempi_ignore_tk
 +	*;
 +};
 \ No newline at end of file
-Index: openmpi-2.0.1/configure.ac
+Index: openmpi-4.0.1/configure.ac
 ===================================================================
---- openmpi-2.0.1.orig/configure.ac
-+++ openmpi-2.0.1/configure.ac
-@@ -40,6 +40,7 @@ m4_include([config/autogen_found_items.m
+--- openmpi-4.0.1.orig/configure.ac
++++ openmpi-4.0.1/configure.ac
+@@ -43,6 +43,7 @@ m4_include([config/autogen_found_items.m
  m4_include([config/opal_get_version.m4])
  AC_LANG([C])
  
@@ -10244,7 +10244,7 @@ Index: openmpi-2.0.1/configure.ac
  # Init autoconf
  
  # We don't have the version number to put in here yet, and we can't
-@@ -251,6 +252,7 @@ m4_ifdef([project_orte], [ORTE_CONFIGURE
+@@ -266,6 +267,7 @@ m4_ifdef([project_orte], [ORTE_CONFIGURE
  m4_ifdef([project_ompi], [OMPI_CONFIGURE_OPTIONS])
  m4_ifdef([project_oshmem], [OSHMEM_CONFIGURE_OPTIONS])
  
@@ -10252,7 +10252,7 @@ Index: openmpi-2.0.1/configure.ac
  # Set up project specific AM_CONDITIONALs
  AS_IF([test "$enable_ompi" != "no"], [project_ompi_amc=true], [project_ompi_amc=false])
  m4_ifndef([project_ompi], [project_ompi_amc=false])
-@@ -1332,6 +1334,8 @@ case "`uname`" in
+@@ -1400,6 +1402,8 @@ case "`uname`" in
      ;;
  esac
  

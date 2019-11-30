@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2012      Oak Rigde National Laboratory. All rights reserved.
- * Copyright (c) 2015      Research Organization for Information Science
- *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2017      The University of Tennessee and The University
+ * Copyright (c) 2015-2019 Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
+ * Copyright (c) 2017-2018 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * $COPYRIGHT$
@@ -19,7 +19,9 @@
 #include "ompi/communicator/communicator.h"
 #include "ompi/errhandler/errhandler.h"
 #include "ompi/datatype/ompi_datatype.h"
+#include "ompi/mca/coll/base/coll_base_util.h"
 #include "ompi/memchecker.h"
+#include "ompi/runtime/ompi_spc.h"
 
 #if OMPI_BUILD_MPI_PROFILING
 #if OPAL_HAVE_WEAK_SYMBOLS
@@ -35,6 +37,8 @@ int MPI_Ibcast(void *buffer, int count, MPI_Datatype datatype,
               int root, MPI_Comm comm,  MPI_Request *request)
 {
     int err;
+
+    SPC_RECORD(OMPI_SPC_IBCAST, 1);
 
     MEMCHECKER(
         memchecker_datatype(datatype);
@@ -83,5 +87,13 @@ int MPI_Ibcast(void *buffer, int count, MPI_Datatype datatype,
     err = comm->c_coll->coll_ibcast(buffer, count, datatype, root, comm,
                                   request,
                                   comm->c_coll->coll_ibcast_module);
+    if (OPAL_LIKELY(OMPI_SUCCESS == err)) {
+        if (!OMPI_COMM_IS_INTRA(comm)) {
+            if (MPI_PROC_NULL == root) {
+                datatype = NULL;
+            }
+        }
+        ompi_coll_base_retain_datatypes(*request, datatype, NULL);
+    }
     OMPI_ERRHANDLER_RETURN(err, comm, err, FUNC_NAME);
 }

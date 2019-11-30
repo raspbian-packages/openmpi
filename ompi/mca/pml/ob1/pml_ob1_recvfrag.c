@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2018 The University of Tennessee and The University
+ * Copyright (c) 2004-2019 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2007 High Performance Computing Center Stuttgart,
@@ -39,6 +39,7 @@
 #include "ompi/mca/pml/pml.h"
 #include "ompi/peruse/peruse-internal.h"
 #include "ompi/memchecker.h"
+#include "ompi/runtime/ompi_spc.h"
 
 #include "pml_ob1.h"
 #include "pml_ob1_comm.h"
@@ -388,6 +389,7 @@ void mca_pml_ob1_recv_frag_callback_match(mca_btl_base_module_t* btl,
             MCA_PML_OB1_RECV_FRAG_ALLOC(frag);
             MCA_PML_OB1_RECV_FRAG_INIT(frag, hdr, segments, num_segments, btl);
             append_frag_to_ordered_list(&proc->frags_cant_match, frag, proc->expected_sequence);
+            SPC_RECORD(OMPI_SPC_OUT_OF_SEQUENCE, 1);
             OB1_MATCHING_UNLOCK(&comm->matching_lock);
             return;
         }
@@ -453,6 +455,8 @@ void mca_pml_ob1_recv_frag_callback_match(mca_btl_base_module_t* btl,
                                    &iov_count,
                                    &bytes_received );
             match->req_bytes_received = bytes_received;
+            SPC_USER_OR_MPI(match->req_recv.req_base.req_ompi.req_status.MPI_TAG, (ompi_spc_value_t)bytes_received,
+                            OMPI_SPC_BYTES_RECEIVED_USER, OMPI_SPC_BYTES_RECEIVED_MPI);
             /*
              *  Unpacking finished, make the user buffer unaccessable again.
              */
@@ -554,10 +558,6 @@ void mca_pml_ob1_recv_frag_callback_ack(mca_btl_base_module_t* btl,
      * then throttle sends */
     if(hdr->hdr_common.hdr_flags & MCA_PML_OB1_HDR_FLAGS_NORDMA) {
         if (NULL != sendreq->rdma_frag) {
-            if (NULL != sendreq->rdma_frag->local_handle) {
-                mca_bml_base_deregister_mem (sendreq->req_rdma[0].bml_btl, sendreq->rdma_frag->local_handle);
-                sendreq->rdma_frag->local_handle = NULL;
-            }
             MCA_PML_OB1_RDMA_FRAG_RETURN(sendreq->rdma_frag);
             sendreq->rdma_frag = NULL;
         }
@@ -583,7 +583,7 @@ void mca_pml_ob1_recv_frag_callback_ack(mca_btl_base_module_t* btl,
          * protocol has req_state == 0 and as such should not be
          * decremented.
          */
-        OPAL_THREAD_ADD32(&sendreq->req_state, -1);
+        OPAL_THREAD_ADD_FETCH32(&sendreq->req_state, -1);
     }
 
 #if OPAL_CUDA_SUPPORT /* CUDA_ASYNC_SEND */
@@ -777,6 +777,11 @@ match_one(mca_btl_base_module_t *btl,
           mca_pml_ob1_comm_proc_t *proc,
           mca_pml_ob1_recv_frag_t* frag)
 {
+#if SPC_ENABLE == 1
+    opal_timer_t timer = 0;
+#endif
+    SPC_TIMER_START(OMPI_SPC_MATCH_TIME, &timer);
+
     mca_pml_ob1_recv_request_t *match;
     mca_pml_ob1_comm_t *comm = (mca_pml_ob1_comm_t *)comm_ptr->c_pml_comm;
 
@@ -814,19 +819,25 @@ match_one(mca_btl_base_module_t *btl,
                                                        num_segments);
                 /* this frag is already processed, so we want to break out
                    of the loop and not end up back on the unexpected queue. */
+                SPC_TIMER_STOP(OMPI_SPC_MATCH_TIME, &timer);
                 return NULL;
             }
 
             PERUSE_TRACE_COMM_EVENT(PERUSE_COMM_MSG_MATCH_POSTED_REQ,
                                     &(match->req_recv.req_base), PERUSE_RECV);
+            SPC_TIMER_STOP(OMPI_SPC_MATCH_TIME, &timer);
             return match;
         }
 
         /* if no match found, place on unexpected queue */
         append_frag_to_list(&proc->unexpected_frags, btl, hdr, segments,
                             num_segments, frag);
+        SPC_RECORD(OMPI_SPC_UNEXPECTED, 1);
+        SPC_RECORD(OMPI_SPC_UNEXPECTED_IN_QUEUE, 1);
+        SPC_UPDATE_WATERMARK(OMPI_SPC_MAX_UNEXPECTED_IN_QUEUE, OMPI_SPC_UNEXPECTED_IN_QUEUE);
         PERUSE_TRACE_MSG_EVENT(PERUSE_COMM_MSG_INSERT_IN_UNEX_Q, comm_ptr,
                                hdr->hdr_src, hdr->hdr_tag, PERUSE_RECV);
+        SPC_TIMER_STOP(OMPI_SPC_MATCH_TIME, &timer);
         return NULL;
     } while(true);
 }
@@ -914,14 +925,21 @@ static int mca_pml_ob1_recv_frag_match( mca_btl_base_module_t *btl,
     frag_msg_seq = hdr->hdr_seq;
     next_msg_seq_expected = (uint16_t)proc->expected_sequence;
 
-    /* If the sequence number is wrong, queue it up for later. */
-    if(OPAL_UNLIKELY(frag_msg_seq != next_msg_seq_expected)) {
-        mca_pml_ob1_recv_frag_t* frag;
-        MCA_PML_OB1_RECV_FRAG_ALLOC(frag);
-        MCA_PML_OB1_RECV_FRAG_INIT(frag, hdr, segments, num_segments, btl);
-        append_frag_to_ordered_list(&proc->frags_cant_match, frag, next_msg_seq_expected);
-        OB1_MATCHING_UNLOCK(&comm->matching_lock);
-        return OMPI_SUCCESS;
+    if (!OMPI_COMM_CHECK_ASSERT_ALLOW_OVERTAKE(comm_ptr)) {
+        /* If the sequence number is wrong, queue it up for later. */
+        if(OPAL_UNLIKELY(frag_msg_seq != next_msg_seq_expected)) {
+            mca_pml_ob1_recv_frag_t* frag;
+            MCA_PML_OB1_RECV_FRAG_ALLOC(frag);
+            MCA_PML_OB1_RECV_FRAG_INIT(frag, hdr, segments, num_segments, btl);
+            append_frag_to_ordered_list(&proc->frags_cant_match, frag, next_msg_seq_expected);
+
+            SPC_RECORD(OMPI_SPC_OUT_OF_SEQUENCE, 1);
+            SPC_RECORD(OMPI_SPC_OOS_IN_QUEUE, 1);
+            SPC_UPDATE_WATERMARK(OMPI_SPC_MAX_OOS_IN_QUEUE, OMPI_SPC_OOS_IN_QUEUE);
+
+            OB1_MATCHING_UNLOCK(&comm->matching_lock);
+            return OMPI_SUCCESS;
+        }
     }
 
     /* mca_pml_ob1_recv_frag_match_proc() will release the lock. */
@@ -957,6 +975,10 @@ mca_pml_ob1_recv_frag_match_proc( mca_btl_base_module_t *btl,
 
  match_this_frag:
     /* We're now expecting the next sequence number. */
+    /* NOTE: We should have checked for ALLOW_OVERTAKE comm flag here
+     * but adding a branch in this critical path is not ideal for performance.
+     * We decided to let it run the sequence number even we are not doing
+     * anything with it. */
     proc->expected_sequence++;
 
     /* We generate the SEARCH_POSTED_QUEUE only when the message is

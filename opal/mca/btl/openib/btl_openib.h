@@ -12,14 +12,16 @@
  *                         All rights reserved.
  * Copyright (c) 2006-2011 Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2006-2009 Mellanox Technologies. All rights reserved.
- * Copyright (c) 2006-2016 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2006-2018 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2006-2007 Voltaire All rights reserved.
  * Copyright (c) 2009-2010 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2013-2014 NVIDIA Corporation.  All rights reserved.
  * Copyright (c) 2014      Bull SAS.  All rights reserved.
- * Copyright (c) 2015-2016 Research Organization for Information Science
- *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015-2018 Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
+ * Copyrigth (c) 2019      Triad National Security, LLC. All rights reserved.
+ *
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -164,6 +166,9 @@ struct mca_btl_openib_component_t {
     int                                ib_num_btls;
     /**< number of devices available to the openib component */
 
+    int                                ib_allowed_btls;
+    /**< number of devices allowed to the openib component */
+
     struct mca_btl_openib_module_t             **openib_btls;
     /**< array of available BTLs */
 
@@ -245,6 +250,7 @@ struct mca_btl_openib_component_t {
        guarantee about the size of an enum. this value will be registered as an
        integer with the MCA variable system */
     int device_type;
+    bool allow_ib;
     char *if_include;
     char **if_include_list;
     char *if_exclude;
@@ -388,6 +394,7 @@ typedef struct mca_btl_openib_device_t {
     /* Whether this device supports eager RDMA */
     uint8_t use_eager_rdma;
     uint8_t btls;              /** < number of btls using this device */
+    uint8_t allowed_btls;      /** < number of allowed btls using this device */
     opal_pointer_array_t *endpoints;
     opal_pointer_array_t *device_btls;
     uint16_t hp_cq_polls;
@@ -479,6 +486,7 @@ struct mca_btl_openib_module_t {
     uint8_t num_cpcs;
 
     mca_btl_openib_device_t *device;
+    char * device_name;
     uint8_t port_num;                  /**< ID of the PORT */
     uint16_t pkey_index;
     struct ibv_port_attr ib_port_attr;

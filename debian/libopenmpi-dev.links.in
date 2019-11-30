@@ -1,7 +1,7 @@
 ## SONAME symlinks
 # libmpi.so is handled by the mpi-@TRIPLET@ alternative
 usr/lib/@TRIPLET@/libmca_common_monitoring.so.50        usr/lib/@TRIPLET@/libmca_common_monitoring.so
-usr/lib/@TRIPLET@/libmca_common_ofi.so.40               usr/lib/@TRIPLET@/libmca_common_ofi.so
+# usr/lib/@TRIPLET@/libmca_common_ofi.so.40               usr/lib/@TRIPLET@/libmca_common_ofi.so
 usr/lib/@TRIPLET@/libmca_common_sm.so.40		usr/lib/@TRIPLET@/libmca_common_sm.so
 usr/lib/@TRIPLET@/libmpi_cxx.so.40			usr/lib/@TRIPLET@/libmpi_cxx.so
 usr/lib/@TRIPLET@/libmpi_mpifh.so.40			usr/lib/@TRIPLET@/libmpi_mpifh.so

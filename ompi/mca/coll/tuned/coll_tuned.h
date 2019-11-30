@@ -3,8 +3,8 @@
  * Copyright (c) 2004-2015 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
- * Copyright (c) 2015      Research Organization for Information Science
- *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2015-2018 Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -38,6 +38,9 @@ extern int   ompi_coll_tuned_init_chain_fanout;
 extern int   ompi_coll_tuned_init_max_requests;
 extern int   ompi_coll_tuned_alltoall_small_msg;
 extern int   ompi_coll_tuned_alltoall_intermediate_msg;
+extern int   ompi_coll_tuned_alltoall_large_msg;
+extern int   ompi_coll_tuned_alltoall_min_procs;
+extern int   ompi_coll_tuned_alltoall_max_requests;
 
 /* forced algorithm choices */
 /* this structure is for storing the indexes to the forced algorithm mca params... */
@@ -150,11 +153,29 @@ int ompi_coll_tuned_reduce_scatter_intra_dec_dynamic(REDUCESCATTER_ARGS);
 int ompi_coll_tuned_reduce_scatter_intra_do_this(REDUCESCATTER_ARGS, int algorithm, int faninout, int segsize);
 int ompi_coll_tuned_reduce_scatter_intra_check_forced_init (coll_tuned_force_algorithm_mca_param_indices_t *mca_param_indices);
 
+/* Reduce_scatter_block */
+int ompi_coll_tuned_reduce_scatter_block_intra_dec_fixed(REDUCESCATTERBLOCK_ARGS);
+int ompi_coll_tuned_reduce_scatter_block_intra_dec_dynamic(REDUCESCATTERBLOCK_ARGS);
+int ompi_coll_tuned_reduce_scatter_block_intra_do_this(REDUCESCATTERBLOCK_ARGS, int algorithm, int faninout, int segsize);
+int ompi_coll_tuned_reduce_scatter_block_intra_check_forced_init (coll_tuned_force_algorithm_mca_param_indices_t *mca_param_indices);
+
 /* Scatter */
 int ompi_coll_tuned_scatter_intra_dec_fixed(SCATTER_ARGS);
 int ompi_coll_tuned_scatter_intra_dec_dynamic(SCATTER_ARGS);
 int ompi_coll_tuned_scatter_intra_do_this(SCATTER_ARGS, int algorithm, int faninout, int segsize);
 int ompi_coll_tuned_scatter_intra_check_forced_init (coll_tuned_force_algorithm_mca_param_indices_t *mca_param_indices);
+
+/* Exscan */
+int ompi_coll_tuned_exscan_intra_dec_fixed(EXSCAN_ARGS);
+int ompi_coll_tuned_exscan_intra_dec_dynamic(EXSCAN_ARGS);
+int ompi_coll_tuned_exscan_intra_do_this(EXSCAN_ARGS, int algorithm);
+int ompi_coll_tuned_exscan_intra_check_forced_init (coll_tuned_force_algorithm_mca_param_indices_t *mca_param_indices);
+
+/* Scan */
+int ompi_coll_tuned_scan_intra_dec_fixed(SCAN_ARGS);
+int ompi_coll_tuned_scan_intra_dec_dynamic(SCAN_ARGS);
+int ompi_coll_tuned_scan_intra_do_this(SCAN_ARGS, int algorithm);
+int ompi_coll_tuned_scan_intra_check_forced_init (coll_tuned_force_algorithm_mca_param_indices_t *mca_param_indices);
 
 int mca_coll_tuned_ft_event(int state);
 

@@ -19,9 +19,10 @@
  * Copyright (c) 2009      IBM Corporation.  All rights reserved.
  * Copyright (c) 2013-2015 Intel, Inc. All rights reserved
  * Copyright (c) 2013-2015 NVIDIA Corporation.  All rights reserved.
- * Copyright (c) 2014-2015 Research Organization for Information Science
- *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2014-2018 Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
  * Copyright (c) 2014      Bull SAS.  All rights reserved
+ * Copyrigth (c) 2019      Triad National Security, LLC. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -1119,7 +1120,7 @@ int mca_btl_openib_add_procs(
     }
 
     if (nprocs_new) {
-        opal_atomic_add_32 (&openib_btl->num_peers, nprocs_new);
+        opal_atomic_add_fetch_32 (&openib_btl->num_peers, nprocs_new);
 
         /* adjust cq sizes given the new procs */
         rc = openib_btl_size_queues (openib_btl);
@@ -1229,7 +1230,7 @@ struct mca_btl_base_endpoint_t *mca_btl_openib_get_ep (struct mca_btl_base_modul
 
         /* this is a new process to this openib btl
          * account this procs if need */
-        opal_atomic_add_32 (&openib_btl->num_peers, 1);
+        opal_atomic_add_fetch_32 (&openib_btl->num_peers, 1);
         rc = openib_btl_size_queues(openib_btl);
         if (OPAL_SUCCESS != rc) {
             BTL_ERROR(("error creating cqs"));
@@ -1644,6 +1645,7 @@ static int mca_btl_openib_finalize_resources(struct mca_btl_base_module_t* btl) 
         for (ep_index=0;
              ep_index < opal_pointer_array_get_size(openib_btl->device->endpoints);
              ep_index++) {
+
             endpoint=(mca_btl_openib_endpoint_t *)opal_pointer_array_get_item(openib_btl->device->endpoints,
                                                                               ep_index);
             if(!endpoint) {
@@ -1710,7 +1712,7 @@ static int mca_btl_openib_finalize_resources(struct mca_btl_base_module_t* btl) 
     free(openib_btl->cpcs);
 
     /* Release device if there are no more users */
-    if(!(--openib_btl->device->btls)) {
+    if(!(--openib_btl->device->allowed_btls)) {
         OBJ_RELEASE(openib_btl->device);
     }
 

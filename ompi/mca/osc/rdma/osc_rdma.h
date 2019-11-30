@@ -77,9 +77,6 @@ struct ompi_osc_rdma_component_t {
     /** RDMA component buffer size */
     unsigned int buffer_size;
 
-    /** aggregation limit */
-    unsigned int aggregation_limit;
-
     /** List of requests that need to be freed */
     opal_list_t request_gc;
 
@@ -103,9 +100,6 @@ struct ompi_osc_rdma_component_t {
 
     /** Priority of the osc/rdma component */
     unsigned int priority;
-
-    /** aggregation free list */
-    opal_free_list_t aggregate;
 
     /** directory where to place backing files */
     char *backing_directory;
@@ -150,6 +144,9 @@ struct ompi_osc_rdma_module_t {
     bool acc_single_intrinsic;
 
     bool acc_use_amo;
+
+    /** whether the group is located on a single node */
+    bool single_node;
 
     /** flavor of this window */
     int flavor;
@@ -269,6 +266,9 @@ struct ompi_osc_rdma_module_t {
 
     /** number of time a get had to be retried */
     unsigned long get_retry_count;
+
+    /** outstanding atomic operations */
+    volatile int32_t pending_ops;
 };
 typedef struct ompi_osc_rdma_module_t ompi_osc_rdma_module_t;
 OMPI_MODULE_DECLSPEC extern ompi_osc_rdma_component_t mca_osc_rdma_component;
@@ -503,7 +503,7 @@ static inline ompi_osc_rdma_sync_t *ompi_osc_rdma_module_sync_lookup (ompi_osc_r
     return NULL;
 }
 
-static inline bool ompi_osc_rdma_use_btl_flush (ompi_osc_rdma_module_t *module)
+static bool ompi_osc_rdma_use_btl_flush (ompi_osc_rdma_module_t *module)
 {
 #if defined(BTL_VERSION) && (BTL_VERSION >= 310)
     return !!(module->selected_btl->btl_flush);
@@ -566,16 +566,6 @@ static inline void ompi_osc_rdma_sync_rdma_dec (ompi_osc_rdma_sync_t *rdma_sync)
  */
 static inline void ompi_osc_rdma_sync_rdma_complete (ompi_osc_rdma_sync_t *sync)
 {
-    if (opal_list_get_size (&sync->aggregations)) {
-        ompi_osc_rdma_aggregation_t *aggregation, *next;
-
-        OPAL_THREAD_SCOPED_LOCK(&sync->lock,
-                                OPAL_LIST_FOREACH_SAFE(aggregation, next, &sync->aggregations, ompi_osc_rdma_aggregation_t) {
-                                    fprintf (stderr, "Flushing aggregation %p, peer %p\n", (void*)aggregation, (void*)aggregation->peer);
-                                    ompi_osc_rdma_peer_aggregate_flush (aggregation->peer);
-                                });
-    }
-
 #if !defined(BTL_VERSION) || (BTL_VERSION < 310)
     do {
         opal_progress ();
@@ -607,16 +597,6 @@ static inline bool ompi_osc_rdma_access_epoch_active (ompi_osc_rdma_module_t *mo
 {
     return (module->all_sync.epoch_active || ompi_osc_rdma_in_passive_epoch (module));
 }
-
-static inline void ompi_osc_rdma_aggregation_return (ompi_osc_rdma_aggregation_t *aggregation)
-{
-    if (aggregation->sync) {
-        opal_list_remove_item (&aggregation->sync->aggregations, (opal_list_item_t *) aggregation);
-    }
-
-    opal_free_list_return(&mca_osc_rdma_component.aggregate, (opal_free_list_item_t *) aggregation);
-}
-
 
 __opal_attribute_always_inline__
 static inline bool ompi_osc_rdma_oor (int rc)

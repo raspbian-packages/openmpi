@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2006 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2017 The University of Tennessee and The University
+ * Copyright (c) 2004-2019 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2006 High Performance Computing Center Stuttgart,
@@ -12,8 +12,8 @@
  *                         All rights reserved.
  * Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
  * Copyright (c) 2011      NVIDIA Corporation.  All rights reserved.
- * Copyright (c) 2013-2017 Research Organization for Information Science
- *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2013-2018 Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
  * Copyright (c) 2017      Intel, Inc. All rights reserved
  * $COPYRIGHT$
  *
@@ -324,13 +324,14 @@ complete_contiguous_data_unpack:
     return pConv->fAdvance( pConv, iov, out_size, max_data );
 }
 
-static inline int opal_convertor_create_stack_with_pos_contig( opal_convertor_t* pConvertor,
-                                                               size_t starting_point, const size_t* sizes )
+static inline int
+opal_convertor_create_stack_with_pos_contig( opal_convertor_t* pConvertor,
+                                             size_t starting_point, const size_t* sizes )
 {
     dt_stack_t* pStack;   /* pointer to the position on the stack */
     const opal_datatype_t* pData = pConvertor->pDesc;
     dt_elem_desc_t* pElems;
-    uint32_t count;
+    size_t count;
     ptrdiff_t extent;
 
     pStack = pConvertor->pStack;
@@ -340,7 +341,7 @@ static inline int opal_convertor_create_stack_with_pos_contig( opal_convertor_t*
      */
     pElems = pConvertor->use_desc->desc;
 
-    count = (uint32_t)(starting_point / pData->size);
+    count = starting_point / pData->size;
     extent = pData->ub - pData->lb;
 
     pStack[0].type     = OPAL_DATATYPE_LOOP;  /* the first one is always the loop */
@@ -349,14 +350,14 @@ static inline int opal_convertor_create_stack_with_pos_contig( opal_convertor_t*
     pStack[0].disp     = count * extent;
 
     /* now compute the number of pending bytes */
-    count = (uint32_t)(starting_point - count * pData->size);
+    count = starting_point % pData->size;
     /**
      * We save the current displacement starting from the begining
      * of this data.
      */
     if( OPAL_LIKELY(0 == count) ) {
         pStack[1].type     = pElems->elem.common.type;
-        pStack[1].count    = pElems->elem.count;
+        pStack[1].count    = pElems->elem.blocklen;
     } else {
         pStack[1].type  = OPAL_DATATYPE_UINT1;
         pStack[1].count = pData->size - count;
@@ -370,9 +371,9 @@ static inline int opal_convertor_create_stack_with_pos_contig( opal_convertor_t*
     return OPAL_SUCCESS;
 }
 
-static inline
-int opal_convertor_create_stack_at_begining( opal_convertor_t* convertor,
-                                             const size_t* sizes )
+static inline int
+opal_convertor_create_stack_at_begining( opal_convertor_t* convertor,
+                                         const size_t* sizes )
 {
     dt_stack_t* pStack = convertor->pStack;
     dt_elem_desc_t* pElems;
@@ -402,7 +403,7 @@ int opal_convertor_create_stack_at_begining( opal_convertor_t* convertor,
         pStack[1].count = pElems[0].loop.loops;
         pStack[1].type  = OPAL_DATATYPE_LOOP;
     } else {
-        pStack[1].count = pElems[0].elem.count;
+        pStack[1].count = pElems[0].elem.count * pElems[0].elem.blocklen;
         pStack[1].type  = pElems[0].elem.common.type;
     }
     return OPAL_SUCCESS;
@@ -563,7 +564,7 @@ size_t opal_convertor_compute_remote_size( opal_convertor_t* pConvertor )
 
 int32_t opal_convertor_prepare_for_recv( opal_convertor_t* convertor,
                                          const struct opal_datatype_t* datatype,
-                                         int32_t count,
+                                         size_t count,
                                          const void* pUserBuf )
 {
     /* Here I should check that the data is not overlapping */
@@ -578,8 +579,9 @@ int32_t opal_convertor_prepare_for_recv( opal_convertor_t* convertor,
     assert(! (convertor->flags & CONVERTOR_SEND));
     OPAL_CONVERTOR_PREPARE( convertor, datatype, count, pUserBuf );
 
-    if( convertor->flags & CONVERTOR_WITH_CHECKSUM ) {
-        if( !(convertor->flags & CONVERTOR_HOMOGENEOUS) ) {
+#if defined(CHECKSUM)
+    if( OPAL_UNLIKELY(convertor->flags & CONVERTOR_WITH_CHECKSUM) ) {
+        if( OPAL_UNLIKELY(!(convertor->flags & CONVERTOR_HOMOGENEOUS)) ) {
             convertor->fAdvance = opal_unpack_general_checksum;
         } else {
             if( convertor->pDesc->flags & OPAL_DATATYPE_FLAG_CONTIGUOUS ) {
@@ -588,8 +590,9 @@ int32_t opal_convertor_prepare_for_recv( opal_convertor_t* convertor,
                 convertor->fAdvance = opal_generic_simple_unpack_checksum;
             }
         }
-    } else {
-        if( !(convertor->flags & CONVERTOR_HOMOGENEOUS) ) {
+    } else
+#endif  /* defined(CHECKSUM) */
+        if( OPAL_UNLIKELY(!(convertor->flags & CONVERTOR_HOMOGENEOUS)) ) {
             convertor->fAdvance = opal_unpack_general;
         } else {
             if( convertor->pDesc->flags & OPAL_DATATYPE_FLAG_CONTIGUOUS ) {
@@ -598,14 +601,13 @@ int32_t opal_convertor_prepare_for_recv( opal_convertor_t* convertor,
                 convertor->fAdvance = opal_generic_simple_unpack;
             }
         }
-    }
     return OPAL_SUCCESS;
 }
 
 
 int32_t opal_convertor_prepare_for_send( opal_convertor_t* convertor,
                                          const struct opal_datatype_t* datatype,
-                                         int32_t count,
+                                         size_t count,
                                          const void* pUserBuf )
 {
     convertor->flags |= CONVERTOR_SEND;
@@ -617,6 +619,7 @@ int32_t opal_convertor_prepare_for_send( opal_convertor_t* convertor,
 
     OPAL_CONVERTOR_PREPARE( convertor, datatype, count, pUserBuf );
 
+#if defined(CHECKSUM)
     if( convertor->flags & CONVERTOR_WITH_CHECKSUM ) {
         if( CONVERTOR_SEND_CONVERSION == (convertor->flags & (CONVERTOR_SEND_CONVERSION|CONVERTOR_HOMOGENEOUS)) ) {
             convertor->fAdvance = opal_pack_general_checksum;
@@ -631,7 +634,8 @@ int32_t opal_convertor_prepare_for_send( opal_convertor_t* convertor,
                 convertor->fAdvance = opal_generic_simple_pack_checksum;
             }
         }
-    } else {
+    } else
+#endif  /* defined(CHECKSUM) */
         if( CONVERTOR_SEND_CONVERSION == (convertor->flags & (CONVERTOR_SEND_CONVERSION|CONVERTOR_HOMOGENEOUS)) ) {
             convertor->fAdvance = opal_pack_general;
         } else {
@@ -645,7 +649,6 @@ int32_t opal_convertor_prepare_for_send( opal_convertor_t* convertor,
                 convertor->fAdvance = opal_generic_simple_pack;
             }
         }
-    }
     return OPAL_SUCCESS;
 }
 
@@ -699,12 +702,12 @@ int opal_convertor_clone( const opal_convertor_t* source,
 
 void opal_convertor_dump( opal_convertor_t* convertor )
 {
-    opal_output( 0, "Convertor %p count %d stack position %d bConverted %ld\n"
-                 "\tlocal_size %ld remote_size %ld flags %X stack_size %d pending_length %d\n"
+    opal_output( 0, "Convertor %p count %" PRIsize_t " stack position %u bConverted %" PRIsize_t "\n"
+                 "\tlocal_size %" PRIsize_t " remote_size %" PRIsize_t " flags %X stack_size %u pending_length %" PRIsize_t "\n"
                  "\tremote_arch %u local_arch %u\n",
                  (void*)convertor,
-                 convertor->count, convertor->stack_pos, (unsigned long)convertor->bConverted,
-                 (unsigned long)convertor->local_size, (unsigned long)convertor->remote_size,
+                 convertor->count, convertor->stack_pos, convertor->bConverted,
+                 convertor->local_size, convertor->remote_size,
                  convertor->flags, convertor->stack_size, convertor->partial_length,
                  convertor->remoteArch, opal_local_arch );
     if( convertor->flags & CONVERTOR_RECV ) opal_output( 0, "unpack ");
@@ -734,8 +737,8 @@ void opal_datatype_dump_stack( const dt_stack_t* pStack, int stack_pos,
 {
     opal_output( 0, "\nStack %p stack_pos %d name %s\n", (void*)pStack, stack_pos, name );
     for( ; stack_pos >= 0; stack_pos-- ) {
-        opal_output( 0, "%d: pos %d count %d disp %ld ", stack_pos, pStack[stack_pos].index,
-                     (int)pStack[stack_pos].count, (long)pStack[stack_pos].disp );
+        opal_output( 0, "%d: pos %d count %" PRIsize_t " disp %ld ", stack_pos, pStack[stack_pos].index,
+                     pStack[stack_pos].count, pStack[stack_pos].disp );
         if( pStack->index != -1 )
             opal_output( 0, "\t[desc count %lu disp %ld extent %ld]\n",
                          (unsigned long)pDesc[pStack[stack_pos].index].elem.count,

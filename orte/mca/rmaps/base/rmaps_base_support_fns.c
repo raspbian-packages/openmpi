@@ -14,8 +14,6 @@
  *                         All rights reserved.
  * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2016      IBM Corporation.  All rights reserved.
- * Copyright (c) 2018      Mellanox Technologies, Inc.
- *                         All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -192,49 +190,8 @@ int orte_rmaps_base_get_target_nodes(opal_list_t *allocated_nodes, orte_std_cntr
                 return rc;
             }
             free(hosts);
-        } else if (NULL != orte_rankfile) {
-            /* use the rankfile, if provided */
-            OPAL_OUTPUT_VERBOSE((5, orte_rmaps_base_framework.framework_output,
-                                 "%s using rankfile %s",
-                                 ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                                 orte_rankfile));
-            if (ORTE_SUCCESS != (rc = orte_util_add_hostfile_nodes(&nodes,
-                                                                   orte_rankfile))) {
-                ORTE_ERROR_LOG(rc);
-                return rc;
-            }
-            if (0 == opal_list_get_size(&nodes)) {
-                OPAL_OUTPUT_VERBOSE((5, orte_rmaps_base_framework.framework_output,
-                                     "%s nothing found in given rankfile",
-                                     ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
-                OBJ_DESTRUCT(&nodes);
-                return ORTE_ERR_BAD_PARAM;
-            }
-        } else if (NULL != orte_default_hostfile) {
-            /* fall back to the default hostfile, if provided */
-            OPAL_OUTPUT_VERBOSE((5, orte_rmaps_base_framework.framework_output,
-                                 "%s using default hostfile %s",
-                                 ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                                 orte_default_hostfile));
-            if (ORTE_SUCCESS != (rc = orte_util_add_hostfile_nodes(&nodes,
-                                                                   orte_default_hostfile))) {
-                ORTE_ERROR_LOG(rc);
-                return rc;
-            }
-            /* this is a special case - we always install a default
-             * hostfile, but it is empty. If the user didn't remove it
-             * or put something into it, then we will have pursued that
-             * option and found nothing. This isn't an error, we just need
-             * to add all the known nodes
-             */
-            if (0 == opal_list_get_size(&nodes)) {
-                OPAL_OUTPUT_VERBOSE((5, orte_rmaps_base_framework.framework_output,
-                                     "%s nothing in default hostfile - using known nodes",
-                                     ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
-                goto addknown;
-            }
         } else {
-            /* if nothing else was available, then use all known nodes, which
+            /* if nothing else was specified by the app, then use all known nodes, which
              * will include ourselves
              */
             OPAL_OUTPUT_VERBOSE((5, orte_rmaps_base_framework.framework_output,
@@ -258,6 +215,10 @@ int orte_rmaps_base_get_target_nodes(opal_list_t *allocated_nodes, orte_std_cntr
         for (i=0; i < orte_node_pool->size; i++) {
             nd = NULL;
             if (NULL == (node = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, i))) {
+                continue;
+            }
+            /* ignore nodes that are non-usable */
+            if (ORTE_FLAG_TEST(node, ORTE_NODE_NON_USABLE)) {
                 continue;
             }
             OPAL_LIST_FOREACH_SAFE(nptr, next, &nodes, orte_node_t) {
@@ -363,6 +324,10 @@ int orte_rmaps_base_get_target_nodes(opal_list_t *allocated_nodes, orte_std_cntr
     }
     for (i=1; i < orte_node_pool->size; i++) {
         if (NULL != (node = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, i))) {
+            /* ignore nodes that are non-usable */
+            if (ORTE_FLAG_TEST(node, ORTE_NODE_NON_USABLE)) {
+                continue;
+            }
             /* ignore nodes that are marked as do-not-use for this mapping */
             if (ORTE_NODE_STATE_DO_NOT_USE == node->state) {
                 OPAL_OUTPUT_VERBOSE((10, orte_rmaps_base_framework.framework_output,
@@ -587,9 +552,7 @@ orte_proc_t* orte_rmaps_base_setup_proc(orte_job_t *jdata,
      * available slots - otherwise, it does */
     if (!ORTE_FLAG_TEST(jdata, ORTE_JOB_FLAG_DEBUGGER_DAEMON)) {
         node->num_procs++;
-        if (node->slots_inuse < node->slots) {
-            ++node->slots_inuse;
-        }
+        ++node->slots_inuse;
     }
     if (0 > (rc = opal_pointer_array_add(node->procs, (void*)proc))) {
         ORTE_ERROR_LOG(rc);

@@ -29,9 +29,9 @@
 # Copyright (c) 2011      Sandia National Laboratories. All rights reserved.
 # Copyright (c) 2012      Oak Rigde National Laboratory. All rights reserved.
 # Copyright (c) 2012-2013 Inria.  All rights reserved.
-# Copyright (c) 2013      Los Alamos National Security, LLC. All rights
+# Copyright (c) 2013-2018 Los Alamos National Security, LLC. All rights
 #                         reserved.
-# Copyright (c) 2015-2017 Research Organization for Information Science
+# Copyright (c) 2015-2018 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # $COPYRIGHT$
 #
@@ -130,7 +130,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ompi_check_libhcoll.m4 \
 	$(top_srcdir)/config/ompi_check_lustre.m4 \
 	$(top_srcdir)/config/ompi_check_mxm.m4 \
-	$(top_srcdir)/config/ompi_check_plfs.m4 \
 	$(top_srcdir)/config/ompi_check_psm.m4 \
 	$(top_srcdir)/config/ompi_check_psm2.m4 \
 	$(top_srcdir)/config/ompi_check_pvfs2.m4 \
@@ -178,6 +177,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ompi_setup_java.m4 \
 	$(top_srcdir)/config/ompi_setup_mpi_ext.m4 \
 	$(top_srcdir)/config/ompi_setup_mpi_fortran.m4 \
+	$(top_srcdir)/config/ompi_setup_mpi_java.m4 \
 	$(top_srcdir)/config/ompi_setup_mpi_profiling.m4 \
 	$(top_srcdir)/config/opal_case_sensitive_fs_setup.m4 \
 	$(top_srcdir)/config/opal_check_alps.m4 \
@@ -229,7 +229,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/opal_setup_cli.m4 \
 	$(top_srcdir)/config/opal_setup_cxx.m4 \
 	$(top_srcdir)/config/opal_setup_ft.m4 \
-	$(top_srcdir)/config/opal_setup_java.m4 \
 	$(top_srcdir)/config/opal_setup_wrappers.m4 \
 	$(top_srcdir)/config/opal_setup_zlib.m4 \
 	$(top_srcdir)/config/opal_strip_optflags.m4 \
@@ -259,8 +258,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
-	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ucx/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs_usnic/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/execinfo/configure.m4 \
@@ -268,10 +267,10 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/backtrace/printstack/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/openib/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/portals4/configure.m4 \
-	$(top_srcdir)/opal/mca/btl/scif/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/smcuda/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/tcp/configure.m4 \
+	$(top_srcdir)/opal/mca/btl/uct/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/ugni/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/usnic/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/vader/configure.m4 \
@@ -281,13 +280,15 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/event/external/configure.m4 \
 	$(top_srcdir)/opal/mca/event/libevent2022/configure.m4 \
 	$(top_srcdir)/opal/mca/hwloc/external/configure.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/configure.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/hwloc/config/hwloc.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/hwloc/config/hwloc_pkg.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/hwloc/config/hwloc_check_attributes.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/hwloc/config/hwloc_check_visibility.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/hwloc/config/hwloc_check_vendor.m4 \
-	$(top_srcdir)/opal/mca/hwloc/hwloc1117/hwloc/config/hwloc_components.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/configure.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc_pkg.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc_check_attributes.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc_check_visibility.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc_check_vendor.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc_components.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/hwloc_internal.m4 \
+	$(top_srcdir)/opal/mca/hwloc/hwloc201/hwloc/config/netloc.m4 \
 	$(top_srcdir)/opal/mca/if/bsdx_ipv4/configure.m4 \
 	$(top_srcdir)/opal/mca/if/bsdx_ipv6/configure.m4 \
 	$(top_srcdir)/opal/mca/if/linux_ipv6/configure.m4 \
@@ -304,8 +305,9 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pmix/cray/configure.m4 \
 	$(top_srcdir)/opal/mca/pmix/ext1x/configure.m4 \
 	$(top_srcdir)/opal/mca/pmix/ext2x/configure.m4 \
+	$(top_srcdir)/opal/mca/pmix/ext3x/configure.m4 \
 	$(top_srcdir)/opal/mca/pmix/flux/configure.m4 \
-	$(top_srcdir)/opal/mca/pmix/pmix2x/configure.m4 \
+	$(top_srcdir)/opal/mca/pmix/pmix3x/configure.m4 \
 	$(top_srcdir)/opal/mca/pmix/s1/configure.m4 \
 	$(top_srcdir)/opal/mca/pmix/s2/configure.m4 \
 	$(top_srcdir)/opal/mca/pstat/linux/configure.m4 \
@@ -326,12 +328,11 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ess/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ess/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ess/tm/configure.m4 \
-	$(top_srcdir)/orte/mca/notifier/syslog/configure.m4 \
 	$(top_srcdir)/orte/mca/odls/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/odls/default/configure.m4 \
+	$(top_srcdir)/orte/mca/odls/pspawn/configure.m4 \
 	$(top_srcdir)/orte/mca/oob/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/oob/tcp/configure.m4 \
-	$(top_srcdir)/orte/mca/oob/ud/configure.m4 \
 	$(top_srcdir)/orte/mca/plm/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/plm/isolated/configure.m4 \
 	$(top_srcdir)/orte/mca/plm/lsf/configure.m4 \
@@ -343,7 +344,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/lsf/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
-	$(top_srcdir)/orte/mca/rml/ofi/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
@@ -368,16 +368,13 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
-	$(top_srcdir)/ompi/mca/fbtl/plfs/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/posix/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/pvfs2/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/lustre/configure.m4 \
-	$(top_srcdir)/ompi/mca/fs/plfs/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/pvfs2/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/ufs/configure.m4 \
 	$(top_srcdir)/ompi/mca/io/ompio/configure.m4 \
-	$(top_srcdir)/ompi/mca/io/romio314/configure.m4 \
-	$(top_srcdir)/ompi/mca/mtl/mxm/configure.m4 \
+	$(top_srcdir)/ompi/mca/io/romio321/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/ofi/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
@@ -394,6 +391,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/pml/v/configure.m4 \
 	$(top_srcdir)/ompi/mca/pml/yalla/configure.m4 \
 	$(top_srcdir)/ompi/mca/rte/orte/configure.m4 \
+	$(top_srcdir)/ompi/mca/rte/pmix/configure.m4 \
 	$(top_srcdir)/ompi/mca/sharedfp/sm/configure.m4 \
 	$(top_srcdir)/ompi/mca/topo/treematch/configure.m4 \
 	$(top_srcdir)/oshmem/mca/memheap/configure.m4 \
@@ -410,6 +408,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mpiext/affinity/configure.m4 \
 	$(top_srcdir)/ompi/mpiext/cr/configure.m4 \
 	$(top_srcdir)/ompi/mpiext/cuda/configure.m4 \
+	$(top_srcdir)/ompi/mpiext/pcollreq/configure.m4 \
 	$(top_srcdir)/ompi/contrib/libompitrace/configure.m4 \
 	$(top_srcdir)/config/opal_get_version.m4 \
 	$(top_srcdir)/configure.ac
@@ -421,8 +420,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/opal/include/opal_config.h \
 	$(top_builddir)/ompi/include/mpi.h \
 	$(top_builddir)/oshmem/include/shmem.h \
-	$(top_builddir)/opal/mca/hwloc/hwloc1117/hwloc/include/private/autogen/config.h \
-	$(top_builddir)/opal/mca/hwloc/hwloc1117/hwloc/include/hwloc/autogen/config.h \
+	$(top_builddir)/opal/mca/hwloc/hwloc201/hwloc/include/private/autogen/config.h \
+	$(top_builddir)/opal/mca/hwloc/hwloc201/hwloc/include/hwloc/autogen/config.h \
 	$(top_builddir)/ompi/mpiext/cuda/c/mpiext_cuda_c.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
@@ -436,7 +435,7 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 libmpi_c_mpi_la_LIBADD =
 am_libmpi_c_mpi_la_OBJECTS = abort.lo add_error_class.lo \
-	add_error_code.lo add_error_string.lo address.lo allgather.lo \
+	add_error_code.lo add_error_string.lo allgather.lo \
 	iallgather.lo allgatherv.lo iallgatherv.lo alloc_mem.lo \
 	allreduce.lo iallreduce.lo alltoall.lo ialltoall.lo \
 	alltoallv.lo ialltoallv.lo alltoallw.lo ialltoallw.lo \
@@ -459,8 +458,7 @@ am_libmpi_c_mpi_la_OBJECTS = abort.lo add_error_class.lo \
 	comm_set_name.lo comm_size.lo comm_spawn.lo \
 	comm_spawn_multiple.lo comm_split.lo comm_split_type.lo \
 	comm_test_inter.lo compare_and_swap.lo dims_create.lo \
-	errhandler_c2f.lo errhandler_create.lo errhandler_f2c.lo \
-	errhandler_free.lo errhandler_get.lo errhandler_set.lo \
+	errhandler_c2f.lo errhandler_f2c.lo errhandler_free.lo \
 	error_class.lo error_string.lo exscan.lo fetch_and_op.lo \
 	iexscan.lo file_c2f.lo file_call_errhandler.lo file_close.lo \
 	file_create_errhandler.lo file_delete.lo file_f2c.lo \
@@ -502,27 +500,27 @@ am_libmpi_c_mpi_la_OBJECTS = abort.lo add_error_class.lo \
 	info_get_nkeys.lo info_get_nthkey.lo info_get_valuelen.lo \
 	info_set.lo init.lo init_thread.lo initialized.lo \
 	intercomm_create.lo intercomm_merge.lo iprobe.lo irecv.lo \
-	irsend.lo is_thread_main.lo isend.lo issend.lo \
-	keyval_create.lo keyval_free.lo lookup_name.lo message_f2c.lo \
-	message_c2f.lo mprobe.lo mrecv.lo neighbor_allgather.lo \
-	ineighbor_allgather.lo neighbor_allgatherv.lo \
-	ineighbor_allgatherv.lo neighbor_alltoall.lo \
-	ineighbor_alltoall.lo neighbor_alltoallv.lo \
-	ineighbor_alltoallv.lo neighbor_alltoallw.lo \
-	ineighbor_alltoallw.lo op_c2f.lo op_commutative.lo \
-	op_create.lo op_f2c.lo op_free.lo open_port.lo \
-	pack_external.lo pack_external_size.lo pack.lo pack_size.lo \
-	pcontrol.lo probe.lo publish_name.lo query_thread.lo \
-	raccumulate.lo recv_init.lo recv.lo reduce.lo \
-	register_datarep.lo ireduce.lo reduce_local.lo \
-	reduce_scatter.lo ireduce_scatter.lo reduce_scatter_block.lo \
-	ireduce_scatter_block.lo request_c2f.lo request_f2c.lo \
-	request_free.lo request_get_status.lo rget.lo \
-	rget_accumulate.lo rput.lo rsend_init.lo rsend.lo scan.lo \
-	iscan.lo scatter.lo iscatter.lo scatterv.lo iscatterv.lo \
-	send.lo send_init.lo sendrecv.lo sendrecv_replace.lo \
-	ssend_init.lo ssend.lo start.lo startall.lo status_c2f.lo \
-	status_f2c.lo status_set_cancelled.lo status_set_elements.lo \
+	irsend.lo is_thread_main.lo isend.lo issend.lo lookup_name.lo \
+	message_f2c.lo message_c2f.lo mprobe.lo mrecv.lo \
+	neighbor_allgather.lo ineighbor_allgather.lo \
+	neighbor_allgatherv.lo ineighbor_allgatherv.lo \
+	neighbor_alltoall.lo ineighbor_alltoall.lo \
+	neighbor_alltoallv.lo ineighbor_alltoallv.lo \
+	neighbor_alltoallw.lo ineighbor_alltoallw.lo keyval_create.lo \
+	keyval_free.lo op_c2f.lo op_commutative.lo op_create.lo \
+	op_f2c.lo op_free.lo open_port.lo pack_external.lo \
+	pack_external_size.lo pack.lo pack_size.lo pcontrol.lo \
+	probe.lo publish_name.lo query_thread.lo raccumulate.lo \
+	recv_init.lo recv.lo reduce.lo register_datarep.lo ireduce.lo \
+	reduce_local.lo reduce_scatter.lo ireduce_scatter.lo \
+	reduce_scatter_block.lo ireduce_scatter_block.lo \
+	request_c2f.lo request_f2c.lo request_free.lo \
+	request_get_status.lo rget.lo rget_accumulate.lo rput.lo \
+	rsend_init.lo rsend.lo scan.lo iscan.lo scatter.lo iscatter.lo \
+	scatterv.lo iscatterv.lo send.lo send_init.lo sendrecv.lo \
+	sendrecv_replace.lo ssend_init.lo ssend.lo start.lo \
+	startall.lo status_c2f.lo status_f2c.lo \
+	status_set_cancelled.lo status_set_elements.lo \
 	status_set_elements_x.lo testall.lo testany.lo test.lo \
 	test_cancelled.lo testsome.lo topo_test.lo type_c2f.lo \
 	type_commit.lo type_contiguous.lo type_create_darray.lo \
@@ -532,13 +530,11 @@ am_libmpi_c_mpi_la_OBJECTS = abort.lo add_error_class.lo \
 	type_create_hindexed_block.lo type_create_keyval.lo \
 	type_create_resized.lo type_create_struct.lo \
 	type_create_subarray.lo type_delete_attr.lo type_dup.lo \
-	type_extent.lo type_f2c.lo type_free.lo type_free_keyval.lo \
-	type_get_attr.lo type_get_contents.lo type_get_envelope.lo \
-	type_get_extent.lo type_get_extent_x.lo type_get_name.lo \
-	type_get_true_extent.lo type_get_true_extent_x.lo \
-	type_hindexed.lo type_hvector.lo type_indexed.lo type_lb.lo \
-	type_match_size.lo type_set_attr.lo type_set_name.lo \
-	type_size.lo type_size_x.lo type_struct.lo type_ub.lo \
+	type_f2c.lo type_free.lo type_free_keyval.lo type_get_attr.lo \
+	type_get_contents.lo type_get_envelope.lo type_get_extent.lo \
+	type_get_extent_x.lo type_get_name.lo type_get_true_extent.lo \
+	type_get_true_extent_x.lo type_indexed.lo type_match_size.lo \
+	type_set_attr.lo type_set_name.lo type_size.lo type_size_x.lo \
 	type_vector.lo unpack_external.lo unpack.lo unpublish_name.lo \
 	wait.lo waitall.lo waitany.lo waitsome.lo wtime.lo wtick.lo \
 	accumulate.lo get.lo put.lo win_allocate.lo \
@@ -553,7 +549,10 @@ am_libmpi_c_mpi_la_OBJECTS = abort.lo add_error_class.lo \
 	win_lock_all.lo win_post.lo win_set_attr.lo \
 	win_set_errhandler.lo win_set_info.lo win_set_name.lo \
 	win_shared_query.lo win_sync.lo win_start.lo win_test.lo \
-	win_unlock.lo win_unlock_all.lo win_wait.lo
+	win_unlock.lo win_unlock_all.lo win_wait.lo address.lo \
+	errhandler_create.lo errhandler_get.lo errhandler_set.lo \
+	type_extent.lo type_hindexed.lo type_hvector.lo type_lb.lo \
+	type_struct.lo type_ub.lo
 libmpi_c_mpi_la_OBJECTS = $(am_libmpi_c_mpi_la_OBJECTS)
 @BUILD_MPI_BINDINGS_LAYER_TRUE@am_libmpi_c_mpi_la_rpath =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -568,7 +567,7 @@ AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/opal/include -I$(top_builddir)/ompi/include -I$(top_builddir)/oshmem/include -I$(top_builddir)/opal/mca/hwloc/hwloc1117/hwloc/include/private/autogen -I$(top_builddir)/opal/mca/hwloc/hwloc1117/hwloc/include/hwloc/autogen -I$(top_builddir)/ompi/mpiext/cuda/c
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/opal/include -I$(top_builddir)/ompi/include -I$(top_builddir)/oshmem/include -I$(top_builddir)/opal/mca/hwloc/hwloc201/hwloc/include/private/autogen -I$(top_builddir)/opal/mca/hwloc/hwloc201/hwloc/include/hwloc/autogen -I$(top_builddir)/ompi/mpiext/cuda/c
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -771,17 +770,16 @@ HWLOC_GL_LIBS = @HWLOC_GL_LIBS@
 HWLOC_HAVE_LIBXML2 = @HWLOC_HAVE_LIBXML2@
 HWLOC_HAVE_NVML = @HWLOC_HAVE_NVML@
 HWLOC_HAVE_OPENCL = @HWLOC_HAVE_OPENCL@
-HWLOC_KERRIGHED_CFLAGS = @HWLOC_KERRIGHED_CFLAGS@
-HWLOC_KERRIGHED_LIBS = @HWLOC_KERRIGHED_LIBS@
 HWLOC_LDFLAGS = @HWLOC_LDFLAGS@
 HWLOC_LIBS = @HWLOC_LIBS@
 HWLOC_LIBS_PRIVATE = @HWLOC_LIBS_PRIVATE@
 HWLOC_LIBXML2_CFLAGS = @HWLOC_LIBXML2_CFLAGS@
 HWLOC_LIBXML2_LIBS = @HWLOC_LIBXML2_LIBS@
-HWLOC_LINUX_LIBNUMA_LIBS = @HWLOC_LINUX_LIBNUMA_LIBS@
 HWLOC_MS_LIB = @HWLOC_MS_LIB@
 HWLOC_MS_LIB_ARCH = @HWLOC_MS_LIB_ARCH@
 HWLOC_NVML_LIBS = @HWLOC_NVML_LIBS@
+HWLOC_OPENCL_CFLAGS = @HWLOC_OPENCL_CFLAGS@
+HWLOC_OPENCL_LDFLAGS = @HWLOC_OPENCL_LDFLAGS@
 HWLOC_OPENCL_LIBS = @HWLOC_OPENCL_LIBS@
 HWLOC_PCIACCESS_CFLAGS = @HWLOC_PCIACCESS_CFLAGS@
 HWLOC_PCIACCESS_LIBS = @HWLOC_PCIACCESS_LIBS@
@@ -817,6 +815,7 @@ LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
+MCA_PROJECT_DIST_SUBDIRS = @MCA_PROJECT_DIST_SUBDIRS@
 MCA_PROJECT_SUBDIRS = @MCA_PROJECT_SUBDIRS@
 MCA_ompi_FRAMEWORKS = @MCA_ompi_FRAMEWORKS@
 MCA_ompi_FRAMEWORKS_SUBDIRS = @MCA_ompi_FRAMEWORKS_SUBDIRS@
@@ -1118,13 +1117,6 @@ MCA_orte_common_DSO_SUBDIRS = @MCA_orte_common_DSO_SUBDIRS@
 MCA_orte_common_STATIC_COMPONENTS = @MCA_orte_common_STATIC_COMPONENTS@
 MCA_orte_common_STATIC_LTLIBS = @MCA_orte_common_STATIC_LTLIBS@
 MCA_orte_common_STATIC_SUBDIRS = @MCA_orte_common_STATIC_SUBDIRS@
-MCA_orte_dfs_ALL_COMPONENTS = @MCA_orte_dfs_ALL_COMPONENTS@
-MCA_orte_dfs_ALL_SUBDIRS = @MCA_orte_dfs_ALL_SUBDIRS@
-MCA_orte_dfs_DSO_COMPONENTS = @MCA_orte_dfs_DSO_COMPONENTS@
-MCA_orte_dfs_DSO_SUBDIRS = @MCA_orte_dfs_DSO_SUBDIRS@
-MCA_orte_dfs_STATIC_COMPONENTS = @MCA_orte_dfs_STATIC_COMPONENTS@
-MCA_orte_dfs_STATIC_LTLIBS = @MCA_orte_dfs_STATIC_LTLIBS@
-MCA_orte_dfs_STATIC_SUBDIRS = @MCA_orte_dfs_STATIC_SUBDIRS@
 MCA_orte_errmgr_ALL_COMPONENTS = @MCA_orte_errmgr_ALL_COMPONENTS@
 MCA_orte_errmgr_ALL_SUBDIRS = @MCA_orte_errmgr_ALL_SUBDIRS@
 MCA_orte_errmgr_DSO_COMPONENTS = @MCA_orte_errmgr_DSO_COMPONENTS@
@@ -1160,13 +1152,6 @@ MCA_orte_iof_DSO_SUBDIRS = @MCA_orte_iof_DSO_SUBDIRS@
 MCA_orte_iof_STATIC_COMPONENTS = @MCA_orte_iof_STATIC_COMPONENTS@
 MCA_orte_iof_STATIC_LTLIBS = @MCA_orte_iof_STATIC_LTLIBS@
 MCA_orte_iof_STATIC_SUBDIRS = @MCA_orte_iof_STATIC_SUBDIRS@
-MCA_orte_notifier_ALL_COMPONENTS = @MCA_orte_notifier_ALL_COMPONENTS@
-MCA_orte_notifier_ALL_SUBDIRS = @MCA_orte_notifier_ALL_SUBDIRS@
-MCA_orte_notifier_DSO_COMPONENTS = @MCA_orte_notifier_DSO_COMPONENTS@
-MCA_orte_notifier_DSO_SUBDIRS = @MCA_orte_notifier_DSO_SUBDIRS@
-MCA_orte_notifier_STATIC_COMPONENTS = @MCA_orte_notifier_STATIC_COMPONENTS@
-MCA_orte_notifier_STATIC_LTLIBS = @MCA_orte_notifier_STATIC_LTLIBS@
-MCA_orte_notifier_STATIC_SUBDIRS = @MCA_orte_notifier_STATIC_SUBDIRS@
 MCA_orte_odls_ALL_COMPONENTS = @MCA_orte_odls_ALL_COMPONENTS@
 MCA_orte_odls_ALL_SUBDIRS = @MCA_orte_odls_ALL_SUBDIRS@
 MCA_orte_odls_DSO_COMPONENTS = @MCA_orte_odls_DSO_COMPONENTS@
@@ -1302,6 +1287,7 @@ MCA_oshmem_sshmem_STATIC_COMPONENTS = @MCA_oshmem_sshmem_STATIC_COMPONENTS@
 MCA_oshmem_sshmem_STATIC_LTLIBS = @MCA_oshmem_sshmem_STATIC_LTLIBS@
 MCA_oshmem_sshmem_STATIC_SUBDIRS = @MCA_oshmem_sshmem_STATIC_SUBDIRS@
 MKDIR_P = @MKDIR_P@
+MPIR_UNWIND_CFLAGS = @MPIR_UNWIND_CFLAGS@
 NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
@@ -1333,6 +1319,8 @@ OMPI_ALIGNMENT_FORTRAN_REAL8 = @OMPI_ALIGNMENT_FORTRAN_REAL8@
 OMPI_CONTRIB_DIST_SUBDIRS = @OMPI_CONTRIB_DIST_SUBDIRS@
 OMPI_CONTRIB_SUBDIRS = @OMPI_CONTRIB_SUBDIRS@
 OMPI_CXX_ABSOLUTE = @OMPI_CXX_ABSOLUTE@
+OMPI_ENABLE_GREQUEST_EXTENSIONS = @OMPI_ENABLE_GREQUEST_EXTENSIONS@
+OMPI_ENABLE_MPI1_COMPAT = @OMPI_ENABLE_MPI1_COMPAT@
 OMPI_F08_SUFFIX = @OMPI_F08_SUFFIX@
 OMPI_FC = @OMPI_FC@
 OMPI_FC_ABSOLUTE = @OMPI_FC_ABSOLUTE@
@@ -1394,6 +1382,7 @@ OMPI_HAVE_FORTRAN_REAL16 = @OMPI_HAVE_FORTRAN_REAL16@
 OMPI_HAVE_FORTRAN_REAL2 = @OMPI_HAVE_FORTRAN_REAL2@
 OMPI_HAVE_FORTRAN_REAL4 = @OMPI_HAVE_FORTRAN_REAL4@
 OMPI_HAVE_FORTRAN_REAL8 = @OMPI_HAVE_FORTRAN_REAL8@
+OMPI_JDK_CPPFLAGS = @OMPI_JDK_CPPFLAGS@
 OMPI_KIND_FORTRAN_CHARACTER = @OMPI_KIND_FORTRAN_CHARACTER@
 OMPI_KIND_FORTRAN_COMPLEX = @OMPI_KIND_FORTRAN_COMPLEX@
 OMPI_KIND_FORTRAN_COMPLEX16 = @OMPI_KIND_FORTRAN_COMPLEX16@
@@ -1505,7 +1494,6 @@ OPAL_DEFAULT_MCA_PARAM_CONF = @OPAL_DEFAULT_MCA_PARAM_CONF@
 OPAL_DYN_LIB_PREFIX = @OPAL_DYN_LIB_PREFIX@
 OPAL_DYN_LIB_SUFFIX = @OPAL_DYN_LIB_SUFFIX@
 OPAL_GREEK_VERSION = @OPAL_GREEK_VERSION@
-OPAL_JDK_CPPFLAGS = @OPAL_JDK_CPPFLAGS@
 OPAL_LIB_PREFIX = @OPAL_LIB_PREFIX@
 OPAL_MAJOR_VERSION = @OPAL_MAJOR_VERSION@
 OPAL_MAX_DATAREP_STRING = @OPAL_MAX_DATAREP_STRING@
@@ -1620,9 +1608,9 @@ btl_openib_LIBS = @btl_openib_LIBS@
 btl_portals4_CPPFLAGS = @btl_portals4_CPPFLAGS@
 btl_portals4_LDFLAGS = @btl_portals4_LDFLAGS@
 btl_portals4_LIBS = @btl_portals4_LIBS@
-btl_scif_CPPFLAGS = @btl_scif_CPPFLAGS@
-btl_scif_LDFLAGS = @btl_scif_LDFLAGS@
-btl_scif_LIBS = @btl_scif_LIBS@
+btl_uct_CPPFLAGS = @btl_uct_CPPFLAGS@
+btl_uct_LDFLAGS = @btl_uct_LDFLAGS@
+btl_uct_LIBS = @btl_uct_LIBS@
 btl_ugni_CPPFLAGS = @btl_ugni_CPPFLAGS@
 btl_ugni_LDFLAGS = @btl_ugni_LDFLAGS@
 btl_ugni_LIBS = @btl_ugni_LIBS@
@@ -1652,6 +1640,10 @@ common_alps_CPPFLAGS = @common_alps_CPPFLAGS@
 common_alps_LDFLAGS = @common_alps_LDFLAGS@
 common_alps_LIBS = @common_alps_LIBS@
 common_cuda_CPPFLAGS = @common_cuda_CPPFLAGS@
+common_ucx_CFLAGS = @common_ucx_CFLAGS@
+common_ucx_CPPFLAGS = @common_ucx_CPPFLAGS@
+common_ucx_LDFLAGS = @common_ucx_LDFLAGS@
+common_ucx_LIBS = @common_ucx_LIBS@
 common_verbs_CFLAGS = @common_verbs_CFLAGS@
 common_verbs_CPPFLAGS = @common_verbs_CPPFLAGS@
 common_verbs_LDFLAGS = @common_verbs_LDFLAGS@
@@ -1676,18 +1668,12 @@ ess_tm_CPPFLAGS = @ess_tm_CPPFLAGS@
 ess_tm_LDFLAGS = @ess_tm_LDFLAGS@
 ess_tm_LIBS = @ess_tm_LIBS@
 exec_prefix = @exec_prefix@
-fbtl_plfs_CPPFLAGS = @fbtl_plfs_CPPFLAGS@
-fbtl_plfs_LDFLAGS = @fbtl_plfs_LDFLAGS@
-fbtl_plfs_LIBS = @fbtl_plfs_LIBS@
 fbtl_pvfs2_CPPFLAGS = @fbtl_pvfs2_CPPFLAGS@
 fbtl_pvfs2_LDFLAGS = @fbtl_pvfs2_LDFLAGS@
 fbtl_pvfs2_LIBS = @fbtl_pvfs2_LIBS@
 fs_lustre_CPPFLAGS = @fs_lustre_CPPFLAGS@
 fs_lustre_LDFLAGS = @fs_lustre_LDFLAGS@
 fs_lustre_LIBS = @fs_lustre_LIBS@
-fs_plfs_CPPFLAGS = @fs_plfs_CPPFLAGS@
-fs_plfs_LDFLAGS = @fs_plfs_LDFLAGS@
-fs_plfs_LIBS = @fs_plfs_LIBS@
 fs_pvfs2_CPPFLAGS = @fs_pvfs2_CPPFLAGS@
 fs_pvfs2_LDFLAGS = @fs_pvfs2_LDFLAGS@
 fs_pvfs2_LIBS = @fs_pvfs2_LIBS@
@@ -1705,8 +1691,8 @@ libexecdir = @libexecdir@
 libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
-libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
+libmca_opal_common_ucx_so_version = @libmca_opal_common_ucx_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
 libmca_opal_common_verbs_so_version = @libmca_opal_common_verbs_so_version@
 libmca_orte_common_alps_so_version = @libmca_orte_common_alps_so_version@
@@ -1729,10 +1715,6 @@ mkdir_p = @mkdir_p@
 mpool_memkind_CPPFLAGS = @mpool_memkind_CPPFLAGS@
 mpool_memkind_LDFLAGS = @mpool_memkind_LDFLAGS@
 mpool_memkind_LIBS = @mpool_memkind_LIBS@
-mtl_mxm_CFLAGS = @mtl_mxm_CFLAGS@
-mtl_mxm_CPPFLAGS = @mtl_mxm_CPPFLAGS@
-mtl_mxm_LDFLAGS = @mtl_mxm_LDFLAGS@
-mtl_mxm_LIBS = @mtl_mxm_LIBS@
 mtl_portals4_CPPFLAGS = @mtl_portals4_CPPFLAGS@
 mtl_portals4_LDFLAGS = @mtl_portals4_LDFLAGS@
 mtl_portals4_LIBS = @mtl_portals4_LIBS@
@@ -1754,9 +1736,6 @@ ompilibdir = @ompilibdir@
 oob_alps_CPPFLAGS = @oob_alps_CPPFLAGS@
 oob_alps_LDFLAGS = @oob_alps_LDFLAGS@
 oob_alps_LIBS = @oob_alps_LIBS@
-opal_common_ofi_CPPFLAGS = @opal_common_ofi_CPPFLAGS@
-opal_common_ofi_LDFLAGS = @opal_common_ofi_LDFLAGS@
-opal_common_ofi_LIBS = @opal_common_ofi_LIBS@
 opal_datatype_cuda_CPPFLAGS = @opal_datatype_cuda_CPPFLAGS@
 opal_dl_dlopen_LIBS = @opal_dl_dlopen_LIBS@
 opal_dl_libltdl_CPPFLAGS = @opal_dl_libltdl_CPPFLAGS@
@@ -1767,11 +1746,14 @@ opal_event_external_LDFLAGS = @opal_event_external_LDFLAGS@
 opal_event_external_LIBS = @opal_event_external_LIBS@
 opal_hwloc_external_LDFLAGS = @opal_hwloc_external_LDFLAGS@
 opal_hwloc_external_LIBS = @opal_hwloc_external_LIBS@
-opal_hwloc_hwloc1117_CFLAGS = @opal_hwloc_hwloc1117_CFLAGS@
-opal_hwloc_hwloc1117_CPPFLAGS = @opal_hwloc_hwloc1117_CPPFLAGS@
-opal_hwloc_hwloc1117_LDFLAGS = @opal_hwloc_hwloc1117_LDFLAGS@
-opal_hwloc_hwloc1117_LIBS = @opal_hwloc_hwloc1117_LIBS@
+opal_hwloc_hwloc201_CFLAGS = @opal_hwloc_hwloc201_CFLAGS@
+opal_hwloc_hwloc201_CPPFLAGS = @opal_hwloc_hwloc201_CPPFLAGS@
+opal_hwloc_hwloc201_LDFLAGS = @opal_hwloc_hwloc201_LDFLAGS@
+opal_hwloc_hwloc201_LIBS = @opal_hwloc_hwloc201_LIBS@
 opal_memchecker_valgrind_CPPFLAGS = @opal_memchecker_valgrind_CPPFLAGS@
+opal_ofi_CPPFLAGS = @opal_ofi_CPPFLAGS@
+opal_ofi_LDFLAGS = @opal_ofi_LDFLAGS@
+opal_ofi_LIBS = @opal_ofi_LIBS@
 opal_pmi1_CPPFLAGS = @opal_pmi1_CPPFLAGS@
 opal_pmi1_LDFLAGS = @opal_pmi1_LDFLAGS@
 opal_pmi1_LIBS = @opal_pmi1_LIBS@
@@ -1786,20 +1768,19 @@ opal_pmix_ext1x_LIBS = @opal_pmix_ext1x_LIBS@
 opal_pmix_ext2x_CPPFLAGS = @opal_pmix_ext2x_CPPFLAGS@
 opal_pmix_ext2x_LDFLAGS = @opal_pmix_ext2x_LDFLAGS@
 opal_pmix_ext2x_LIBS = @opal_pmix_ext2x_LIBS@
-opal_pmix_pmix2x_CPPFLAGS = @opal_pmix_pmix2x_CPPFLAGS@
-opal_pmix_pmix2x_DEPENDENCIES = @opal_pmix_pmix2x_DEPENDENCIES@
-opal_pmix_pmix2x_LDFLAGS = @opal_pmix_pmix2x_LDFLAGS@
-opal_pmix_pmix2x_LIBS = @opal_pmix_pmix2x_LIBS@
+opal_pmix_ext3x_CPPFLAGS = @opal_pmix_ext3x_CPPFLAGS@
+opal_pmix_ext3x_LDFLAGS = @opal_pmix_ext3x_LDFLAGS@
+opal_pmix_ext3x_LIBS = @opal_pmix_ext3x_LIBS@
+opal_pmix_pmix3x_CPPFLAGS = @opal_pmix_pmix3x_CPPFLAGS@
+opal_pmix_pmix3x_DEPENDENCIES = @opal_pmix_pmix3x_DEPENDENCIES@
+opal_pmix_pmix3x_LDFLAGS = @opal_pmix_pmix3x_LDFLAGS@
+opal_pmix_pmix3x_LIBS = @opal_pmix_pmix3x_LIBS@
 opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
 opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
 opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
-orte_oob_ud_CFLAGS = @orte_oob_ud_CFLAGS@
-orte_oob_ud_CPPFLAGS = @orte_oob_ud_CPPFLAGS@
-orte_oob_ud_LDFLAGS = @orte_oob_ud_LDFLAGS@
-orte_oob_ud_LIBS = @orte_oob_ud_LIBS@
 ortedatadir = @ortedatadir@
 orteincludedir = @orteincludedir@
 ortelibdir = @ortelibdir@
@@ -1925,392 +1906,118 @@ libmpi_c_la_SOURCES = \
 #
 # libmpi_c_mpi.la is only built in some cases (see above)
 #
-libmpi_c_mpi_la_SOURCES = \
-        abort.c \
-        add_error_class.c \
-        add_error_code.c \
-        add_error_string.c \
-        address.c \
-        allgather.c \
-        iallgather.c \
-        allgatherv.c \
-        iallgatherv.c \
-        alloc_mem.c \
-        allreduce.c \
-        iallreduce.c \
-        alltoall.c \
-        ialltoall.c \
-        alltoallv.c \
-        ialltoallv.c \
-        alltoallw.c \
-        ialltoallw.c \
-        attr_delete.c \
-        attr_get.c \
-        attr_put.c \
-        barrier.c \
-        ibarrier.c \
-        bcast.c \
-        ibcast.c \
-        bsend.c \
-        bsend_init.c \
-        buffer_attach.c \
-        buffer_detach.c \
-        cancel.c \
-        cart_coords.c \
-        cart_create.c \
-        cartdim_get.c \
-        cart_get.c \
-        cart_map.c \
-        cart_rank.c \
-        cart_shift.c \
-        cart_sub.c \
-        close_port.c \
-        comm_accept.c \
-        comm_c2f.c \
-        comm_call_errhandler.c \
-        comm_compare.c \
-        comm_connect.c \
-        comm_create.c \
-        comm_create_errhandler.c \
-        comm_create_group.c \
-        comm_create_keyval.c \
-        comm_delete_attr.c \
-        comm_disconnect.c \
-        comm_dup.c \
-        comm_dup_with_info.c \
-        comm_idup.c \
-        comm_f2c.c \
-        comm_free.c \
-        comm_free_keyval.c \
-        comm_get_attr.c \
-        comm_get_errhandler.c \
-        comm_get_info.c \
-        comm_get_name.c \
-        comm_get_parent.c \
-        comm_group.c \
-        comm_join.c \
-        comm_rank.c \
-        comm_remote_group.c \
-        comm_remote_size.c \
-        comm_set_attr.c \
-        comm_set_info.c \
-        dist_graph_create.c \
-        dist_graph_create_adjacent.c \
-        dist_graph_neighbors.c \
-        dist_graph_neighbors_count.c \
-        comm_set_errhandler.c \
-        comm_set_name.c \
-        comm_size.c \
-        comm_spawn.c \
-        comm_spawn_multiple.c \
-        comm_split.c \
-        comm_split_type.c \
-        comm_test_inter.c \
-	compare_and_swap.c \
-        dims_create.c \
-        errhandler_c2f.c \
-        errhandler_create.c \
-        errhandler_f2c.c \
-        errhandler_free.c \
-        errhandler_get.c \
-        errhandler_set.c \
-        error_class.c \
-        error_string.c \
-        exscan.c \
-	fetch_and_op.c \
-        iexscan.c \
-        file_c2f.c \
-        file_call_errhandler.c \
-        file_close.c \
-        file_create_errhandler.c \
-        file_delete.c \
-        file_f2c.c \
-        file_get_amode.c \
-        file_get_atomicity.c \
-        file_get_byte_offset.c \
-        file_get_errhandler.c \
-        file_get_group.c \
-        file_get_info.c \
-        file_get_position.c \
-        file_get_position_shared.c \
-        file_get_size.c \
-        file_get_type_extent.c \
-        file_get_view.c \
-        file_iread_at.c \
-        file_iread_at_all.c \
-        file_iread.c \
-        file_iread_all.c \
-        file_iread_shared.c \
-        file_iwrite_at.c \
-        file_iwrite_at_all.c \
-        file_iwrite.c \
-        file_iwrite_all.c \
-        file_iwrite_shared.c \
-        file_open.c \
-        file_preallocate.c \
-        file_read_all_begin.c \
-        file_read_all.c \
-        file_read_all_end.c \
-        file_read_at_all_begin.c \
-        file_read_at_all.c \
-        file_read_at_all_end.c \
-        file_read_at.c \
-        file_read.c \
-        file_read_ordered_begin.c \
-        file_read_ordered.c \
-        file_read_ordered_end.c \
-        file_read_shared.c \
-        file_seek.c \
-        file_seek_shared.c \
-        file_set_atomicity.c \
-        file_set_errhandler.c \
-        file_set_info.c \
-        file_set_size.c \
-        file_set_view.c \
-        file_sync.c \
-        file_write_all_begin.c \
-        file_write_all.c \
-        file_write_all_end.c \
-        file_write_at_all_begin.c \
-        file_write_at_all.c \
-        file_write_at_all_end.c \
-        file_write_at.c \
-        file_write.c \
-        file_write_ordered_begin.c \
-        file_write_ordered.c \
-        file_write_ordered_end.c \
-        file_write_shared.c \
-        finalize.c \
-        finalized.c \
-        free_mem.c \
-        gather.c \
-        igather.c \
-        gatherv.c \
-        igatherv.c \
-        get_address.c \
-        get_count.c \
-        get_elements.c \
-        get_elements_x.c \
-	get_accumulate.c \
-        get_library_version.c \
-        get_processor_name.c \
-        get_version.c \
-        graph_create.c \
-        graph_get.c \
-        graph_map.c \
-        graph_neighbors_count.c \
-        graph_neighbors.c \
-        graphdims_get.c \
-        grequest_complete.c \
-        grequest_start.c \
-        group_c2f.c \
-        group_compare.c \
-        group_difference.c \
-        group_excl.c \
-        group_f2c.c \
-        group_free.c \
-        group_incl.c \
-        group_intersection.c \
-        group_range_excl.c \
-        group_range_incl.c \
-        group_rank.c \
-        group_size.c \
-        group_translate_ranks.c \
-        group_union.c \
-        ibsend.c \
-        improbe.c \
-        imrecv.c \
-        info_c2f.c \
-        info_create.c \
-        info_delete.c \
-        info_dup.c \
-        info_f2c.c \
-        info_free.c \
-        info_get.c \
-        info_get_nkeys.c \
-        info_get_nthkey.c \
-        info_get_valuelen.c \
-        info_set.c \
-        init.c \
-        init_thread.c \
-        initialized.c \
-        intercomm_create.c \
-        intercomm_merge.c \
-        iprobe.c \
-        irecv.c \
-        irsend.c \
-        is_thread_main.c \
-        isend.c \
-        issend.c \
-        keyval_create.c \
-        keyval_free.c \
-        lookup_name.c \
-        message_f2c.c \
-        message_c2f.c \
-        mprobe.c \
-        mrecv.c \
-        neighbor_allgather.c \
-        ineighbor_allgather.c \
-        neighbor_allgatherv.c \
-        ineighbor_allgatherv.c \
-        neighbor_alltoall.c \
-        ineighbor_alltoall.c \
-        neighbor_alltoallv.c \
-        ineighbor_alltoallv.c \
-        neighbor_alltoallw.c \
-        ineighbor_alltoallw.c \
-        op_c2f.c \
-        op_commutative.c \
-        op_create.c \
-        op_f2c.c \
-        op_free.c \
-        open_port.c \
-        pack_external.c \
-        pack_external_size.c \
-        pack.c \
-        pack_size.c \
-        pcontrol.c \
-        probe.c \
-        publish_name.c \
-        query_thread.c \
-	raccumulate.c \
-        recv_init.c \
-        recv.c \
-        reduce.c \
-        register_datarep.c \
-        ireduce.c \
-        reduce_local.c \
-        reduce_scatter.c \
-        ireduce_scatter.c \
-        reduce_scatter_block.c \
-        ireduce_scatter_block.c \
-        request_c2f.c \
-        request_f2c.c \
-        request_free.c \
-        request_get_status.c \
-	rget.c \
-	rget_accumulate.c \
-	rput.c \
-        rsend_init.c \
-        rsend.c \
-        scan.c \
-        iscan.c \
-        scatter.c \
-        iscatter.c \
-        scatterv.c \
-        iscatterv.c \
-        send.c \
-        send_init.c \
-        sendrecv.c \
-        sendrecv_replace.c \
-        ssend_init.c \
-        ssend.c \
-        start.c \
-        startall.c \
-        status_c2f.c \
-        status_f2c.c \
-        status_set_cancelled.c \
-        status_set_elements.c \
-        status_set_elements_x.c \
-        testall.c \
-        testany.c \
-        test.c \
-        test_cancelled.c \
-        testsome.c \
-        topo_test.c \
-        type_c2f.c \
-        type_commit.c \
-        type_contiguous.c \
-        type_create_darray.c \
-        type_create_f90_complex.c \
-        type_create_f90_integer.c \
-        type_create_f90_real.c \
-        type_create_hindexed.c \
-        type_create_hvector.c \
-        type_create_indexed_block.c \
-        type_create_hindexed_block.c \
-        type_create_keyval.c \
-        type_create_resized.c \
-        type_create_struct.c \
-        type_create_subarray.c \
-        type_delete_attr.c \
-        type_dup.c \
-        type_extent.c \
-        type_f2c.c \
-        type_free.c \
-        type_free_keyval.c \
-        type_get_attr.c \
-        type_get_contents.c \
-        type_get_envelope.c \
-        type_get_extent.c \
-        type_get_extent_x.c \
-        type_get_name.c \
-        type_get_true_extent.c \
-        type_get_true_extent_x.c \
-        type_hindexed.c \
-        type_hvector.c \
-        type_indexed.c \
-        type_lb.c \
-        type_match_size.c \
-        type_set_attr.c \
-        type_set_name.c \
-        type_size.c \
-        type_size_x.c \
-        type_struct.c \
-        type_ub.c \
-        type_vector.c \
-        unpack_external.c \
-        unpack.c \
-        unpublish_name.c \
-        wait.c \
-        waitall.c \
-        waitany.c \
-        waitsome.c \
-        wtime.c \
-        wtick.c \
-        accumulate.c \
-        get.c \
-        put.c \
-	win_allocate.c \
-	win_allocate_shared.c \
-	win_attach.c \
-        win_c2f.c \
-        win_call_errhandler.c \
-        win_complete.c  \
-        win_create_errhandler.c \
-        win_create_keyval.c \
-        win_create.c \
-	win_create_dynamic.c \
-        win_delete_attr.c \
-	win_detach.c \
-        win_f2c.c \
-        win_fence.c \
-	win_flush.c \
-	win_flush_all.c \
-	win_flush_local.c \
-	win_flush_local_all.c \
-        win_free_keyval.c \
-        win_free.c \
-        win_get_attr.c \
-        win_get_errhandler.c \
-        win_get_group.c \
-        win_get_info.c \
-        win_get_name.c  \
-        win_lock.c \
-	win_lock_all.c \
-        win_post.c \
-        win_set_attr.c \
-        win_set_errhandler.c \
-        win_set_info.c \
-        win_set_name.c \
-	win_shared_query.c \
-	win_sync.c \
-        win_start.c \
-        win_test.c \
-        win_unlock.c \
-	win_unlock_all.c \
-        win_wait.c
 
+# include all of the removed MPI functions in library
+# for v4.0.x regardless of state of OMPI_ENABLE_MPI1_COMPAT
+libmpi_c_mpi_la_SOURCES = abort.c add_error_class.c add_error_code.c \
+	add_error_string.c allgather.c iallgather.c allgatherv.c \
+	iallgatherv.c alloc_mem.c allreduce.c iallreduce.c alltoall.c \
+	ialltoall.c alltoallv.c ialltoallv.c alltoallw.c ialltoallw.c \
+	attr_delete.c attr_get.c attr_put.c barrier.c ibarrier.c \
+	bcast.c ibcast.c bsend.c bsend_init.c buffer_attach.c \
+	buffer_detach.c cancel.c cart_coords.c cart_create.c \
+	cartdim_get.c cart_get.c cart_map.c cart_rank.c cart_shift.c \
+	cart_sub.c close_port.c comm_accept.c comm_c2f.c \
+	comm_call_errhandler.c comm_compare.c comm_connect.c \
+	comm_create.c comm_create_errhandler.c comm_create_group.c \
+	comm_create_keyval.c comm_delete_attr.c comm_disconnect.c \
+	comm_dup.c comm_dup_with_info.c comm_idup.c comm_f2c.c \
+	comm_free.c comm_free_keyval.c comm_get_attr.c \
+	comm_get_errhandler.c comm_get_info.c comm_get_name.c \
+	comm_get_parent.c comm_group.c comm_join.c comm_rank.c \
+	comm_remote_group.c comm_remote_size.c comm_set_attr.c \
+	comm_set_info.c dist_graph_create.c \
+	dist_graph_create_adjacent.c dist_graph_neighbors.c \
+	dist_graph_neighbors_count.c comm_set_errhandler.c \
+	comm_set_name.c comm_size.c comm_spawn.c comm_spawn_multiple.c \
+	comm_split.c comm_split_type.c comm_test_inter.c \
+	compare_and_swap.c dims_create.c errhandler_c2f.c \
+	errhandler_f2c.c errhandler_free.c error_class.c \
+	error_string.c exscan.c fetch_and_op.c iexscan.c file_c2f.c \
+	file_call_errhandler.c file_close.c file_create_errhandler.c \
+	file_delete.c file_f2c.c file_get_amode.c file_get_atomicity.c \
+	file_get_byte_offset.c file_get_errhandler.c file_get_group.c \
+	file_get_info.c file_get_position.c file_get_position_shared.c \
+	file_get_size.c file_get_type_extent.c file_get_view.c \
+	file_iread_at.c file_iread_at_all.c file_iread.c \
+	file_iread_all.c file_iread_shared.c file_iwrite_at.c \
+	file_iwrite_at_all.c file_iwrite.c file_iwrite_all.c \
+	file_iwrite_shared.c file_open.c file_preallocate.c \
+	file_read_all_begin.c file_read_all.c file_read_all_end.c \
+	file_read_at_all_begin.c file_read_at_all.c \
+	file_read_at_all_end.c file_read_at.c file_read.c \
+	file_read_ordered_begin.c file_read_ordered.c \
+	file_read_ordered_end.c file_read_shared.c file_seek.c \
+	file_seek_shared.c file_set_atomicity.c file_set_errhandler.c \
+	file_set_info.c file_set_size.c file_set_view.c file_sync.c \
+	file_write_all_begin.c file_write_all.c file_write_all_end.c \
+	file_write_at_all_begin.c file_write_at_all.c \
+	file_write_at_all_end.c file_write_at.c file_write.c \
+	file_write_ordered_begin.c file_write_ordered.c \
+	file_write_ordered_end.c file_write_shared.c finalize.c \
+	finalized.c free_mem.c gather.c igather.c gatherv.c igatherv.c \
+	get_address.c get_count.c get_elements.c get_elements_x.c \
+	get_accumulate.c get_library_version.c get_processor_name.c \
+	get_version.c graph_create.c graph_get.c graph_map.c \
+	graph_neighbors_count.c graph_neighbors.c graphdims_get.c \
+	grequest_complete.c grequest_start.c group_c2f.c \
+	group_compare.c group_difference.c group_excl.c group_f2c.c \
+	group_free.c group_incl.c group_intersection.c \
+	group_range_excl.c group_range_incl.c group_rank.c \
+	group_size.c group_translate_ranks.c group_union.c ibsend.c \
+	improbe.c imrecv.c info_c2f.c info_create.c info_delete.c \
+	info_dup.c info_f2c.c info_free.c info_get.c info_get_nkeys.c \
+	info_get_nthkey.c info_get_valuelen.c info_set.c init.c \
+	init_thread.c initialized.c intercomm_create.c \
+	intercomm_merge.c iprobe.c irecv.c irsend.c is_thread_main.c \
+	isend.c issend.c lookup_name.c message_f2c.c message_c2f.c \
+	mprobe.c mrecv.c neighbor_allgather.c ineighbor_allgather.c \
+	neighbor_allgatherv.c ineighbor_allgatherv.c \
+	neighbor_alltoall.c ineighbor_alltoall.c neighbor_alltoallv.c \
+	ineighbor_alltoallv.c neighbor_alltoallw.c \
+	ineighbor_alltoallw.c keyval_create.c keyval_free.c op_c2f.c \
+	op_commutative.c op_create.c op_f2c.c op_free.c open_port.c \
+	pack_external.c pack_external_size.c pack.c pack_size.c \
+	pcontrol.c probe.c publish_name.c query_thread.c raccumulate.c \
+	recv_init.c recv.c reduce.c register_datarep.c ireduce.c \
+	reduce_local.c reduce_scatter.c ireduce_scatter.c \
+	reduce_scatter_block.c ireduce_scatter_block.c request_c2f.c \
+	request_f2c.c request_free.c request_get_status.c rget.c \
+	rget_accumulate.c rput.c rsend_init.c rsend.c scan.c iscan.c \
+	scatter.c iscatter.c scatterv.c iscatterv.c send.c send_init.c \
+	sendrecv.c sendrecv_replace.c ssend_init.c ssend.c start.c \
+	startall.c status_c2f.c status_f2c.c status_set_cancelled.c \
+	status_set_elements.c status_set_elements_x.c testall.c \
+	testany.c test.c test_cancelled.c testsome.c topo_test.c \
+	type_c2f.c type_commit.c type_contiguous.c \
+	type_create_darray.c type_create_f90_complex.c \
+	type_create_f90_integer.c type_create_f90_real.c \
+	type_create_hindexed.c type_create_hvector.c \
+	type_create_indexed_block.c type_create_hindexed_block.c \
+	type_create_keyval.c type_create_resized.c \
+	type_create_struct.c type_create_subarray.c type_delete_attr.c \
+	type_dup.c type_f2c.c type_free.c type_free_keyval.c \
+	type_get_attr.c type_get_contents.c type_get_envelope.c \
+	type_get_extent.c type_get_extent_x.c type_get_name.c \
+	type_get_true_extent.c type_get_true_extent_x.c type_indexed.c \
+	type_match_size.c type_set_attr.c type_set_name.c type_size.c \
+	type_size_x.c type_vector.c unpack_external.c unpack.c \
+	unpublish_name.c wait.c waitall.c waitany.c waitsome.c wtime.c \
+	wtick.c accumulate.c get.c put.c win_allocate.c \
+	win_allocate_shared.c win_attach.c win_c2f.c \
+	win_call_errhandler.c win_complete.c win_create_errhandler.c \
+	win_create_keyval.c win_create.c win_create_dynamic.c \
+	win_delete_attr.c win_detach.c win_f2c.c win_fence.c \
+	win_flush.c win_flush_all.c win_flush_local.c \
+	win_flush_local_all.c win_free_keyval.c win_free.c \
+	win_get_attr.c win_get_errhandler.c win_get_group.c \
+	win_get_info.c win_get_name.c win_lock.c win_lock_all.c \
+	win_post.c win_set_attr.c win_set_errhandler.c win_set_info.c \
+	win_set_name.c win_shared_query.c win_sync.c win_start.c \
+	win_test.c win_unlock.c win_unlock_all.c win_wait.c address.c \
+	errhandler_create.c errhandler_get.c errhandler_set.c \
+	type_extent.c type_hindexed.c type_hvector.c type_lb.c \
+	type_struct.c type_ub.c
 
 # Conditionally install the header files
 @WANT_INSTALL_HEADERS_TRUE@ompidir = $(ompiincludedir)/$(subdir)

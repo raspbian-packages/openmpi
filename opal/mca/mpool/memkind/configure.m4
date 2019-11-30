@@ -25,10 +25,9 @@ AC_DEFUN([MCA_opal_mpool_memkind_CONFIG],[
 	    fi
 
             #
-            # look specifically for memkind_get_kind_by_partition since
-            # this branch of Open MPI uses this now deprecated API.
+            # memkind_create_kind was introduced with memkind v1.4.0 release
             #
-	    OPAL_CHECK_PACKAGE([mpool_memkind], [memkind.h], [memkind], [memkind_get_kind_by_partition], [ -lnuma],
+            OPAL_CHECK_PACKAGE([mpool_memkind], [memkind.h], [memkind], [memkind_create_kind], [ -lnuma],
 	        [$opal_check_memkind_dir], [], [opal_mpool_memkind_happy="yes"], [])
 
 	    if test "$opal_mpool_memkind_happy" != "yes" -a -n "$with_memkind" ; then

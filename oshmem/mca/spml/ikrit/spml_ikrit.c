@@ -61,6 +61,8 @@ static int mca_spml_ikrit_get_async(void *src_addr,
                                     void *dst_addr,
                                     int src);
 
+mca_spml_ikrit_ctx_t mca_spml_ikrit_ctx_default = { 0 };
+
 struct mca_spml_ikrit_put_request {
     opal_free_list_item_t   link;   /* must be a first member */
     mxm_send_req_t          mxm_req;
@@ -149,39 +151,46 @@ int mca_spml_ikrit_put_simple(void* dst_addr,
                               void* src_addr,
                               int dst);
 
-static void mca_spml_ikrit_cache_mkeys(sshmem_mkey_t *, uint32_t seg, int remote_pe, int tr_id);
+static void mca_spml_ikrit_cache_mkeys(shmem_ctx_t ctx, sshmem_mkey_t *,
+                                       uint32_t seg, int remote_pe, int tr_id);
 
 static mxm_mem_key_t *mca_spml_ikrit_get_mkey_slow(int pe, void *va, int ptl_id, void **rva);
 
 mca_spml_ikrit_t mca_spml_ikrit = {
-    {
+    .super = {
         /* Init mca_spml_base_module_t */
-        mca_spml_ikrit_add_procs,
-        mca_spml_ikrit_del_procs,
-        mca_spml_ikrit_enable,
-        mca_spml_ikrit_register,
-        mca_spml_ikrit_deregister,
-        mca_spml_ikrit_oob_get_mkeys,
-        mca_spml_ikrit_put,
-        mca_spml_ikrit_put_nb,
-        mca_spml_ikrit_get,
-        mca_spml_ikrit_get_nb,
-        mca_spml_ikrit_recv,
-        mca_spml_ikrit_send,
-        mca_spml_base_wait,
-        mca_spml_base_wait_nb,
-        mca_spml_ikrit_fence,
-        mca_spml_ikrit_cache_mkeys,
-        mca_spml_base_rmkey_free,
-        mca_spml_base_rmkey_ptr,
-        mca_spml_base_memuse_hook,
+        .spml_add_procs     = mca_spml_ikrit_add_procs,
+        .spml_del_procs     = mca_spml_ikrit_del_procs,
+        .spml_enable        = mca_spml_ikrit_enable,
+        .spml_register      = mca_spml_ikrit_register,
+        .spml_deregister    = mca_spml_ikrit_deregister,
+        .spml_oob_get_mkeys = mca_spml_ikrit_oob_get_mkeys,
+        .spml_ctx_create    = mca_spml_ikrit_ctx_create,
+        .spml_ctx_destroy   = mca_spml_ikrit_ctx_destroy,
+        .spml_put           = mca_spml_ikrit_put,
+        .spml_put_nb        = mca_spml_ikrit_put_nb,
+        .spml_get           = mca_spml_ikrit_get,
+        .spml_get_nb        = mca_spml_ikrit_get_nb,
+        .spml_recv          = mca_spml_ikrit_recv,
+        .spml_send          = mca_spml_ikrit_send,
+        .spml_wait          = mca_spml_base_wait,
+        .spml_wait_nb       = mca_spml_base_wait_nb,
+        .spml_test          = mca_spml_base_test,
+        .spml_fence         = mca_spml_ikrit_fence, /* fence is implemented as quiet */
+        .spml_quiet         = mca_spml_ikrit_fence,
+        .spml_rmkey_unpack  = mca_spml_ikrit_cache_mkeys,
+        .spml_rmkey_free    = mca_spml_base_rmkey_free,
+        .spml_rmkey_ptr     = mca_spml_base_rmkey_ptr,
+        .spml_memuse_hook   = mca_spml_base_memuse_hook,
+        .spml_put_all_nb    = mca_spml_base_put_all_nb,
 
-        (void*)&mca_spml_ikrit
+        .self               = (void*)&mca_spml_ikrit
     },
-    mca_spml_ikrit_get_mkey_slow
+    .get_mkey_slow          = mca_spml_ikrit_get_mkey_slow
 };
 
-static void mca_spml_ikrit_cache_mkeys(sshmem_mkey_t *mkey, uint32_t seg, int dst_pe, int tr_id)
+static void mca_spml_ikrit_cache_mkeys(shmem_ctx_t ctx, sshmem_mkey_t *mkey,
+                                       uint32_t seg, int dst_pe, int tr_id)
 {
     mxm_peer_t *peer;
 
@@ -205,7 +214,7 @@ mxm_mem_key_t *mca_spml_ikrit_get_mkey_slow(int pe, void *va, int ptl_id, void *
     sshmem_mkey_t *mkey;
 
 retry:
-    mkey = mca_memheap_base_get_cached_mkey(pe, va, ptl_id, rva);
+    mkey = mca_memheap_base_get_cached_mkey(oshmem_ctx_default, pe, va, ptl_id, rva);
     if (NULL == mkey) {
         SPML_ERROR("pe=%d: %p is not address of shared variable", pe, va);
         oshmem_shmem_abort(-1);
@@ -431,9 +440,9 @@ bail:
 }
 
 sshmem_mkey_t *mca_spml_ikrit_register(void* addr,
-                                         size_t size,
-                                         uint64_t shmid,
-                                         int *count)
+                                       size_t size,
+                                       uint64_t shmid,
+                                       int *count)
 {
     int i;
     sshmem_mkey_t *mkeys;
@@ -500,7 +509,8 @@ sshmem_mkey_t *mca_spml_ikrit_register(void* addr,
                      my_rank, i, addr, (unsigned long long)size,
                      mca_spml_base_mkey2str(&mkeys[i]));
 
-        mca_spml_ikrit_cache_mkeys(&mkeys[i], memheap_find_segnum(addr), my_rank, i);
+        mca_spml_ikrit_cache_mkeys(oshmem_ctx_default, &mkeys[i],
+                                   memheap_find_segnum(addr), my_rank, i);
     }
     *count = MXM_PTL_LAST;
 
@@ -516,7 +526,7 @@ int mca_spml_ikrit_deregister(sshmem_mkey_t *mkeys)
 {
     int i;
 
-    MCA_SPML_CALL(fence());
+    MCA_SPML_CALL(fence(oshmem_ctx_default));
     if (!mkeys)
         return OSHMEM_SUCCESS;
 
@@ -544,7 +554,8 @@ int mca_spml_ikrit_deregister(sshmem_mkey_t *mkeys)
 
 }
 
-int mca_spml_ikrit_oob_get_mkeys(int pe, uint32_t seg, sshmem_mkey_t *mkeys)
+int mca_spml_ikrit_oob_get_mkeys(shmem_ctx_t ctx, int pe, uint32_t seg,
+                                 sshmem_mkey_t *mkeys)
 {
     int ptl;
 
@@ -563,11 +574,24 @@ int mca_spml_ikrit_oob_get_mkeys(int pe, uint32_t seg, sshmem_mkey_t *mkeys)
         mkeys[ptl].len     = 0;
         mkeys[ptl].va_base = mca_memheap_seg2base_va(seg);
         mkeys[ptl].u.key   = MAP_SEGMENT_SHM_INVALID;
-        mca_spml_ikrit_cache_mkeys(&mkeys[ptl], seg, pe, ptl);
+        mca_spml_ikrit_cache_mkeys(ctx, &mkeys[ptl], seg, pe, ptl);
         return OSHMEM_SUCCESS;
     }
 
     return OSHMEM_ERROR;
+}
+
+int mca_spml_ikrit_ctx_create(long options, shmem_ctx_t *ctx)
+{
+    int rc = OSHMEM_SUCCESS;
+    mca_spml_ikrit_ctx_t *ctxp = malloc(sizeof(mca_spml_ikrit_ctx_t));
+    *ctx = (shmem_ctx_t)ctxp;
+    return rc;
+}
+
+void mca_spml_ikrit_ctx_destroy(shmem_ctx_t ctx)
+{
+    free(ctx);
 }
 
 static inline int mca_spml_ikrit_get_helper(mxm_send_req_t *sreq,
@@ -628,7 +652,8 @@ static inline int mca_spml_ikrit_get_shm(void *src_addr,
     return OSHMEM_SUCCESS;
 }
 
-int mca_spml_ikrit_get_nb(void* src_addr,
+int mca_spml_ikrit_get_nb(shmem_ctx_t ctx,
+                          void* src_addr,
                           size_t size,
                           void* dst_addr,
                           int src,
@@ -637,7 +662,7 @@ int mca_spml_ikrit_get_nb(void* src_addr,
     return mca_spml_ikrit_get_async(src_addr, size, dst_addr, src);
 }
 
-int mca_spml_ikrit_get(void *src_addr, size_t size, void *dst_addr, int src)
+int mca_spml_ikrit_get(shmem_ctx_t ctx, void *src_addr, size_t size, void *dst_addr, int src)
 {
     mxm_send_req_t sreq;
 
@@ -677,7 +702,7 @@ static inline void get_completion_cb(void *ctx)
 {
     mca_spml_ikrit_get_request_t *get_req = (mca_spml_ikrit_get_request_t *) ctx;
 
-    OPAL_THREAD_ADD32(&mca_spml_ikrit.n_active_gets, -1);
+    OPAL_THREAD_ADD_FETCH32(&mca_spml_ikrit.n_active_gets, -1);
     free_get_req(get_req);
 }
 
@@ -705,7 +730,7 @@ static inline int mca_spml_ikrit_get_async(void *src_addr,
     get_req->mxm_req.flags = 0;
     get_req->mxm_req.base.completed_cb = get_completion_cb;
     get_req->mxm_req.base.context = get_req;
-    OPAL_THREAD_ADD32(&mca_spml_ikrit.n_active_gets, 1);
+    OPAL_THREAD_ADD_FETCH32(&mca_spml_ikrit.n_active_gets, 1);
 
     SPML_IKRIT_MXM_POST_SEND(get_req->mxm_req);
 
@@ -717,7 +742,7 @@ static inline void fence_completion_cb(void *ctx)
     mca_spml_ikrit_get_request_t *fence_req =
             (mca_spml_ikrit_get_request_t *) ctx;
 
-    OPAL_THREAD_ADD32(&mca_spml_ikrit.n_mxm_fences, -1);
+    OPAL_THREAD_ADD_FETCH32(&mca_spml_ikrit.n_mxm_fences, -1);
     free_get_req(fence_req);
 }
 
@@ -739,7 +764,7 @@ static int mca_spml_ikrit_mxm_fence(int dst)
     fence_req->mxm_req.base.state = MXM_REQ_NEW;
     fence_req->mxm_req.base.completed_cb = fence_completion_cb;
     fence_req->mxm_req.base.context = fence_req;
-    OPAL_THREAD_ADD32(&mca_spml_ikrit.n_mxm_fences, 1);
+    OPAL_THREAD_ADD_FETCH32(&mca_spml_ikrit.n_mxm_fences, 1);
 
     SPML_IKRIT_MXM_POST_SEND(fence_req->mxm_req);
     return OSHMEM_SUCCESS;
@@ -750,7 +775,7 @@ static inline void put_completion_cb(void *ctx)
     mca_spml_ikrit_put_request_t *put_req = (mca_spml_ikrit_put_request_t *) ctx;
     mxm_peer_t *peer;
 
-    OPAL_THREAD_ADD32(&mca_spml_ikrit.n_active_puts, -1);
+    OPAL_THREAD_ADD_FETCH32(&mca_spml_ikrit.n_active_puts, -1);
     /* TODO: keep pointer to peer in the request */
     peer = &mca_spml_ikrit.mxm_peers[put_req->pe];
 
@@ -852,7 +877,7 @@ static inline int mca_spml_ikrit_put_internal(void* dst_addr,
 
     put_req->mxm_req.op.mem.remote_mkey = mkey; 
 
-    OPAL_THREAD_ADD32(&mca_spml_ikrit.n_active_puts, 1);
+    OPAL_THREAD_ADD_FETCH32(&mca_spml_ikrit.n_active_puts, 1);
     if (mca_spml_ikrit.mxm_peers[dst].need_fence == 0) {
         opal_list_append(&mca_spml_ikrit.active_peers,
                          &mca_spml_ikrit.mxm_peers[dst].link);
@@ -937,7 +962,8 @@ int mca_spml_ikrit_put_simple(void* dst_addr,
     return OSHMEM_SUCCESS;
 }
 
-int mca_spml_ikrit_put_nb(void* dst_addr,
+int mca_spml_ikrit_put_nb(shmem_ctx_t ctx,
+                          void* dst_addr,
                           size_t size,
                           void* src_addr,
                           int dst,
@@ -953,7 +979,7 @@ int mca_spml_ikrit_put_nb(void* dst_addr,
     return OSHMEM_SUCCESS;
 }
 
-int mca_spml_ikrit_put(void* dst_addr, size_t size, void* src_addr, int dst)
+int mca_spml_ikrit_put(shmem_ctx_t ctx, void* dst_addr, size_t size, void* src_addr, int dst)
 {
     int err;
     mca_spml_ikrit_put_request_t *put_req;
@@ -984,7 +1010,7 @@ int mca_spml_ikrit_put(void* dst_addr, size_t size, void* src_addr, int dst)
 }
 
 
-int mca_spml_ikrit_fence(void)
+int mca_spml_ikrit_fence(shmem_ctx_t ctx)
 {
     mxm_peer_t *peer;
     opal_list_item_t *item;

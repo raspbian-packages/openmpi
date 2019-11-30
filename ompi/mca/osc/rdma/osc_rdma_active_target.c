@@ -56,12 +56,17 @@ static void ompi_osc_rdma_pending_op_construct (ompi_osc_rdma_pending_op_t *pend
     pending_op->op_result = NULL;
     pending_op->op_complete = false;
     pending_op->cbfunc = NULL;
+    pending_op->module = NULL;
 }
 
 static void ompi_osc_rdma_pending_op_destruct (ompi_osc_rdma_pending_op_t *pending_op)
 {
     if (NULL != pending_op->op_frag) {
         ompi_osc_rdma_frag_complete (pending_op->op_frag);
+    }
+
+    if (NULL != pending_op->module) {
+        (void) opal_atomic_fetch_add_32 (&pending_op->module->pending_ops, -1);
     }
 
     ompi_osc_rdma_pending_op_construct (pending_op);
@@ -443,7 +448,8 @@ int ompi_osc_rdma_complete_atomic (ompi_win_t *win)
     ompi_osc_rdma_sync_t *sync = &module->all_sync;
     ompi_osc_rdma_peer_t **peers;
     ompi_group_t *group;
-    int group_size, ret;
+    int group_size;
+    int ret __opal_attribute_unused__;
 
     OSC_RDMA_VERBOSE(MCA_BASE_VERBOSE_TRACE, "complete: %s", win->w_name);
 

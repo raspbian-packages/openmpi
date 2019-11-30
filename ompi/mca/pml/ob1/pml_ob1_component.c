@@ -14,6 +14,8 @@
  * Copyright (c) 2010      Oracle and/or its affiliates.  All rights reserved
  * Copyright (c) 2013-2017 Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2018      Research Organization for Information Science
+ *                         and Technology (RIST).  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -110,6 +112,7 @@ static inline unsigned int mca_pml_ob1_param_register_uint(
     return *storage;
 }
 
+#if 0
 static inline size_t mca_pml_ob1_param_register_sizet(
     const char* param_name,
     size_t default_value,
@@ -122,6 +125,7 @@ static inline size_t mca_pml_ob1_param_register_sizet(
                                            MCA_BASE_VAR_SCOPE_READONLY, storage);
     return *storage;
 }
+#endif
 
 static int mca_pml_ob1_comm_size_notify (mca_base_pvar_t *pvar, mca_base_pvar_event_t event, void *obj_handle, int *count)
 {
@@ -209,18 +213,19 @@ static int mca_pml_ob1_component_register(void)
                                            "Name of allocator component for unexpected messages",
                                            MCA_BASE_VAR_TYPE_STRING, NULL, 0, 0, OPAL_INFO_LVL_9,
                                            MCA_BASE_VAR_SCOPE_READONLY, &mca_pml_ob1.allocator_name);
+    (void)mca_base_component_pvar_register(&mca_pml_ob1_component.pmlm_version,
+                                           "unexpected_msgq_length", "Number of unexpected messages "
+                                           "received by each peer in a communicator", OPAL_INFO_LVL_4, MPI_T_PVAR_CLASS_SIZE,
+                                           MCA_BASE_VAR_TYPE_UNSIGNED_INT, NULL, MPI_T_BIND_MPI_COMM,
+                                           MCA_BASE_PVAR_FLAG_READONLY | MCA_BASE_PVAR_FLAG_CONTINUOUS,
+                                           mca_pml_ob1_get_unex_msgq_size, NULL, mca_pml_ob1_comm_size_notify, NULL);
 
-    (void) mca_base_pvar_register ("ompi", "pml", "ob1", "unexpected_msgq_length", "Number of unexpected messages "
-                                   "received by each peer in a communicator", OPAL_INFO_LVL_4, MPI_T_PVAR_CLASS_SIZE,
-                                   MCA_BASE_VAR_TYPE_UNSIGNED_INT, NULL, MPI_T_BIND_MPI_COMM,
-                                   MCA_BASE_PVAR_FLAG_READONLY | MCA_BASE_PVAR_FLAG_CONTINUOUS,
-                                   mca_pml_ob1_get_unex_msgq_size, NULL, mca_pml_ob1_comm_size_notify, NULL);
-
-    (void) mca_base_pvar_register ("ompi", "pml", "ob1", "posted_recvq_length", "Number of unmatched receives "
-                                   "posted for each peer in a communicator", OPAL_INFO_LVL_4, MPI_T_PVAR_CLASS_SIZE,
-                                   MCA_BASE_VAR_TYPE_UNSIGNED_INT, NULL, MPI_T_BIND_MPI_COMM,
-                                   MCA_BASE_PVAR_FLAG_READONLY | MCA_BASE_PVAR_FLAG_CONTINUOUS,
-                                   mca_pml_ob1_get_posted_recvq_size, NULL, mca_pml_ob1_comm_size_notify, NULL);
+    (void)mca_base_component_pvar_register(&mca_pml_ob1_component.pmlm_version,
+                                           "posted_recvq_length", "Number of unmatched receives "
+                                           "posted for each peer in a communicator", OPAL_INFO_LVL_4, MPI_T_PVAR_CLASS_SIZE,
+                                           MCA_BASE_VAR_TYPE_UNSIGNED_INT, NULL, MPI_T_BIND_MPI_COMM,
+                                           MCA_BASE_PVAR_FLAG_READONLY | MCA_BASE_PVAR_FLAG_CONTINUOUS,
+                                           mca_pml_ob1_get_posted_recvq_size, NULL, mca_pml_ob1_comm_size_notify, NULL);
 
     return OMPI_SUCCESS;
 }
@@ -306,8 +311,14 @@ int mca_pml_ob1_component_fini(void)
     if(OMPI_SUCCESS != (rc = mca_bml.bml_finalize()))
         return rc;
 
-    if(!mca_pml_ob1.enabled)
+    if(!mca_pml_ob1.enabled) {
+        if( NULL != mca_pml_ob1.allocator ) {
+            (void)mca_pml_ob1.allocator->alc_finalize(mca_pml_ob1.allocator);
+            mca_pml_ob1.allocator = NULL;
+        }
+
         return OMPI_SUCCESS; /* never selected.. return success.. */
+    }
     mca_pml_ob1.enabled = false;  /* not anymore */
 
     /* return the static receive/send requests to the respective free list and

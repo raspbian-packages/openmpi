@@ -13,7 +13,7 @@
  *                         All rights reserved.
  * Copyright (c) 2009-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2011      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014      Mellanox Technologies, Inc.
  *                         All rights reserved.
  * Copyright (c) 2014-2016 Research Organization for Information Science
@@ -42,6 +42,7 @@
 
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/rmaps/base/base.h"
+#include "orte/mca/rml/base/rml_contact.h"
 #include "orte/mca/state/state.h"
 #include "orte/util/name_fns.h"
 #include "orte/util/show_help.h"
@@ -246,6 +247,25 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
             } else if (0 == strcmp(info->key, OPAL_PMIX_PRELOAD_FILES)) {
                 orte_set_attribute(&app->attributes, ORTE_APP_PRELOAD_FILES,
                                    ORTE_ATTR_GLOBAL, info->data.string, OPAL_STRING);
+
+            /***   ENVIRONMENTAL VARIABLE DIRECTIVES   ***/
+            /* there can be multiple of these, so we add them to the attribute list */
+            } else if (0 == strcmp(info->key, OPAL_PMIX_SET_ENVAR)) {
+                orte_add_attribute(&app->attributes, ORTE_APP_SET_ENVAR,
+                                   ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+            } else if (0 == strcmp(info->key, OPAL_PMIX_ADD_ENVAR)) {
+                orte_add_attribute(&app->attributes, ORTE_APP_ADD_ENVAR,
+                                   ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+            } else if (0 == strcmp(info->key, OPAL_PMIX_UNSET_ENVAR)) {
+                orte_add_attribute(&app->attributes, ORTE_APP_UNSET_ENVAR,
+                                   ORTE_ATTR_GLOBAL, info->data.string, OPAL_STRING);
+            } else if (0 == strcmp(info->key, OPAL_PMIX_PREPEND_ENVAR)) {
+                orte_add_attribute(&app->attributes, ORTE_APP_PREPEND_ENVAR,
+                                   ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+            } else if (0 == strcmp(info->key, OPAL_PMIX_APPEND_ENVAR)) {
+                orte_add_attribute(&app->attributes, ORTE_APP_APPEND_ENVAR,
+                                   ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+
             } else {
                 /* unrecognized key */
                 orte_show_help("help-orted.txt", "bad-key",
@@ -282,14 +302,7 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
 
         /***   MAP-BY   ***/
         } else if (0 == strcmp(info->key, OPAL_PMIX_MAPBY)) {
-            if (ORTE_MAPPING_POLICY_IS_SET(jdata->map->mapping)) {
-                /* not allowed to provide multiple mapping policies */
-                orte_show_help("help-orte-rmaps-base.txt", "redefining-policy",
-                               true, "mapping", info->data.string,
-                               orte_rmaps_base_print_mapping(orte_rmaps_base.mapping));
-                return ORTE_ERR_BAD_PARAM;
-            }
-            rc = orte_rmaps_base_set_mapping_policy(&jdata->map->mapping,
+            rc = orte_rmaps_base_set_mapping_policy(jdata, &jdata->map->mapping,
                                                     NULL, info->data.string);
             if (ORTE_SUCCESS != rc) {
                 return rc;
@@ -297,13 +310,6 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
 
         /***   RANK-BY   ***/
         } else if (0 == strcmp(info->key, OPAL_PMIX_RANKBY)) {
-            if (ORTE_RANKING_POLICY_IS_SET(jdata->map->ranking)) {
-                /* not allowed to provide multiple ranking policies */
-                orte_show_help("help-orte-rmaps-base.txt", "redefining-policy",
-                               true, "ranking", info->data.string,
-                               orte_rmaps_base_print_ranking(orte_rmaps_base.ranking));
-                return ORTE_ERR_BAD_PARAM;
-            }
             rc = orte_rmaps_base_set_ranking_policy(&jdata->map->ranking,
                                                     jdata->map->mapping,
                                                     info->data.string);
@@ -313,13 +319,6 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
 
         /***   BIND-TO   ***/
         } else if (0 == strcmp(info->key, OPAL_PMIX_BINDTO)) {
-            if (OPAL_BINDING_POLICY_IS_SET(jdata->map->binding)) {
-                /* not allowed to provide multiple mapping policies */
-                orte_show_help("help-opal-hwloc-base.txt", "redefining-policy", true,
-                               info->data.string,
-                               opal_hwloc_base_print_binding(opal_hwloc_binding_policy));
-                return ORTE_ERR_BAD_PARAM;
-            }
             rc = opal_hwloc_base_set_binding_policy(&jdata->map->binding,
                                                     info->data.string);
             if (ORTE_SUCCESS != rc) {
@@ -333,8 +332,13 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
         /***   NO USE LOCAL   ***/
         } else if (0 == strcmp(info->key, OPAL_PMIX_NO_PROCS_ON_HEAD)) {
             OPAL_CHECK_BOOL(info, flag);
-            orte_set_attribute(&jdata->attributes, ORTE_MAPPING_NO_USE_LOCAL,
-                               ORTE_ATTR_GLOBAL, &flag, OPAL_BOOL);
+            if (flag) {
+                ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_USE_LOCAL);
+            } else {
+                ORTE_UNSET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_USE_LOCAL);
+            }
+            /* mark that the user specified it */
+            ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_LOCAL_GIVEN);
 
         /***   OVERSUBSCRIBE   ***/
         } else if (0 == strcmp(info->key, OPAL_PMIX_NO_OVERSUBSCRIBE)) {
@@ -344,6 +348,8 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
             } else {
                 ORTE_UNSET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_OVERSUBSCRIBE);
             }
+            /* mark that the user specified it */
+            ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_SUBSCRIBE_GIVEN);
 
         /***   REPORT BINDINGS  ***/
         } else if (0 == strcmp(info->key, OPAL_PMIX_REPORT_BINDINGS)) {
@@ -453,6 +459,24 @@ int pmix_server_spawn_fn(opal_process_name_t *requestor,
             ORTE_FLAG_SET(jdata, ORTE_JOB_FLAG_DEBUGGER_DAEMON);
             ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_DEBUGGER);
 
+        /***   ENVIRONMENTAL VARIABLE DIRECTIVES   ***/
+        /* there can be multiple of these, so we add them to the attribute list */
+        } else if (0 == strcmp(info->key, OPAL_PMIX_SET_ENVAR)) {
+            orte_add_attribute(&jdata->attributes, ORTE_JOB_SET_ENVAR,
+                               ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+        } else if (0 == strcmp(info->key, OPAL_PMIX_ADD_ENVAR)) {
+            orte_add_attribute(&jdata->attributes, ORTE_JOB_ADD_ENVAR,
+                               ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+        } else if (0 == strcmp(info->key, OPAL_PMIX_UNSET_ENVAR)) {
+            orte_add_attribute(&jdata->attributes, ORTE_JOB_UNSET_ENVAR,
+                               ORTE_ATTR_GLOBAL, info->data.string, OPAL_STRING);
+        } else if (0 == strcmp(info->key, OPAL_PMIX_PREPEND_ENVAR)) {
+            orte_add_attribute(&jdata->attributes, ORTE_JOB_PREPEND_ENVAR,
+                               ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+        } else if (0 == strcmp(info->key, OPAL_PMIX_APPEND_ENVAR)) {
+            orte_add_attribute(&jdata->attributes, ORTE_JOB_APPEND_ENVAR,
+                               ORTE_ATTR_GLOBAL, &info->data.envar, OPAL_ENVAR);
+
         /***   DEFAULT - CACHE FOR INCLUSION WITH JOB INFO   ***/
         } else {
             /* cache for inclusion with job info at registration */
@@ -493,7 +517,14 @@ static void _cnlk(int status, opal_list_t *data, void *cbdata)
     int rc, cnt;
     opal_pmix_pdata_t *pdat;
     orte_job_t *jdata;
-    opal_buffer_t buf;
+    orte_node_t *node;
+    orte_proc_t *proc;
+    opal_buffer_t buf, bucket;
+    opal_byte_object_t *bo;
+    orte_process_name_t dmn, pname;
+    char *uri;
+    opal_value_t val;
+    opal_list_t nodes;
 
     ORTE_ACQUIRE_OBJECT(cd);
 
@@ -510,6 +541,7 @@ static void _cnlk(int status, opal_list_t *data, void *cbdata)
     pdat = (opal_pmix_pdata_t*)opal_list_get_first(data);
     if (OPAL_BYTE_OBJECT != pdat->value.type) {
         rc = ORTE_ERR_BAD_PARAM;
+        ORTE_ERROR_LOG(rc);
         goto release;
     }
     /* the data will consist of a packed buffer with the job data in it */
@@ -519,15 +551,107 @@ static void _cnlk(int status, opal_list_t *data, void *cbdata)
     pdat->value.data.bo.size = 0;
     cnt = 1;
     if (OPAL_SUCCESS != (rc = opal_dss.unpack(&buf, &jdata, &cnt, ORTE_JOB))) {
+        ORTE_ERROR_LOG(rc);
         OBJ_DESTRUCT(&buf);
         goto release;
     }
+
+    /* unpack the byte object containing the daemon uri's */
+    cnt=1;
+    if (ORTE_SUCCESS != (rc = opal_dss.unpack(&buf, &bo, &cnt, OPAL_BYTE_OBJECT))) {
+        ORTE_ERROR_LOG(rc);
+        OBJ_DESTRUCT(&buf);
+        goto release;
+    }
+    /* load it into a buffer */
+    OBJ_CONSTRUCT(&bucket, opal_buffer_t);
+    opal_dss.load(&bucket, bo->bytes, bo->size);
+    bo->bytes = NULL;
+    free(bo);
+    /* prep a list to save the nodes */
+    OBJ_CONSTRUCT(&nodes, opal_list_t);
+    /* unpack and store the URI's */
+    cnt = 1;
+    while (OPAL_SUCCESS == (rc = opal_dss.unpack(&bucket, &uri, &cnt, OPAL_STRING))) {
+        rc = orte_rml_base_parse_uris(uri, &dmn, NULL);
+        if (ORTE_SUCCESS != rc) {
+            OBJ_DESTRUCT(&buf);
+            OBJ_DESTRUCT(&bucket);
+            goto release;
+        }
+        /* save a node object for this daemon */
+        node = OBJ_NEW(orte_node_t);
+        node->daemon = OBJ_NEW(orte_proc_t);
+        memcpy(&node->daemon->name, &dmn, sizeof(orte_process_name_t));
+        opal_list_append(&nodes, &node->super);
+        /* register the URI */
+        OBJ_CONSTRUCT(&val, opal_value_t);
+        val.key = OPAL_PMIX_PROC_URI;
+        val.type = OPAL_STRING;
+        val.data.string = uri;
+        if (OPAL_SUCCESS != (rc = opal_pmix.store_local(&dmn, &val))) {
+            ORTE_ERROR_LOG(rc);
+            val.key = NULL;
+            val.data.string = NULL;
+            OBJ_DESTRUCT(&val);
+            OBJ_DESTRUCT(&buf);
+            OBJ_DESTRUCT(&bucket);
+            goto release;
+        }
+        val.key = NULL;
+        val.data.string = NULL;
+        OBJ_DESTRUCT(&val);
+        cnt = 1;
+    }
+    OBJ_DESTRUCT(&bucket);
+
+    /* unpack the proc-to-daemon map */
+    cnt=1;
+    if (ORTE_SUCCESS != (rc = opal_dss.unpack(&buf, &bo, &cnt, OPAL_BYTE_OBJECT))) {
+        ORTE_ERROR_LOG(rc);
+        OBJ_DESTRUCT(&buf);
+        goto release;
+    }
+    /* load it into a buffer */
+    OBJ_CONSTRUCT(&bucket, opal_buffer_t);
+    opal_dss.load(&bucket, bo->bytes, bo->size);
+    bo->bytes = NULL;
+    free(bo);
+    /* unpack and store the map */
+    cnt = 1;
+    while (OPAL_SUCCESS == (rc = opal_dss.unpack(&bucket, &pname, &cnt, ORTE_NAME))) {
+        /* get the name of the daemon hosting it */
+        if (OPAL_SUCCESS != (rc = opal_dss.unpack(&bucket, &dmn, &cnt, ORTE_NAME))) {
+            OBJ_DESTRUCT(&buf);
+            OBJ_DESTRUCT(&bucket);
+            goto release;
+        }
+        /* create the proc object */
+        proc = OBJ_NEW(orte_proc_t);
+        memcpy(&proc->name, &pname, sizeof(orte_process_name_t));
+        opal_pointer_array_set_item(jdata->procs, pname.vpid, proc);
+        /* find the daemon */
+        OPAL_LIST_FOREACH(node, &nodes, orte_node_t) {
+            if (node->daemon->name.vpid == dmn.vpid) {
+                OBJ_RETAIN(node);
+                proc->node = node;
+                break;
+            }
+        }
+    }
+    OBJ_DESTRUCT(&bucket);
+    OPAL_LIST_DESTRUCT(&nodes);
     OBJ_DESTRUCT(&buf);
+
+    /* register the nspace */
     if (ORTE_SUCCESS != (rc = orte_pmix_server_register_nspace(jdata, true))) {
+        ORTE_ERROR_LOG(rc);
         OBJ_RELEASE(jdata);
         goto release;
     }
-    OBJ_RELEASE(jdata);  // no reason to keep this around
+
+    /* save the job object so we don't endlessly cycle */
+    opal_hash_table_set_value_uint32(orte_job_data, jdata->jobid, jdata);
 
     /* restart the cnct processor */
     ORTE_PMIX_OPERATION(cd->procs, cd->info, _cnct, cd->cbfunc, cd->cbdata);
@@ -573,6 +697,7 @@ static void _cnct(int sd, short args, void *cbdata)
              * out about it, and all we can do is return an error */
             if (orte_pmix_server_globals.server.jobid == ORTE_PROC_MY_HNP->jobid &&
                 orte_pmix_server_globals.server.vpid == ORTE_PROC_MY_HNP->vpid) {
+                ORTE_ERROR_LOG(ORTE_ERR_NOT_SUPPORTED);
                 rc = ORTE_ERR_NOT_SUPPORTED;
                 goto release;
             }
@@ -588,6 +713,7 @@ static void _cnct(int sd, short args, void *cbdata)
             kv->data.uint32 = geteuid();
             opal_list_append(cd->info, &kv->super);
             if (ORTE_SUCCESS != (rc = pmix_server_lookup_fn(&nm->name, keys, cd->info, _cnlk, cd))) {
+                ORTE_ERROR_LOG(rc);
                 opal_argv_free(keys);
                 goto release;
             }
@@ -601,6 +727,7 @@ static void _cnct(int sd, short args, void *cbdata)
         if (!orte_get_attribute(&jdata->attributes, ORTE_JOB_NSPACE_REGISTERED, NULL, OPAL_BOOL)) {
             /* it hasn't been registered yet, so register it now */
             if (ORTE_SUCCESS != (rc = orte_pmix_server_register_nspace(jdata, true))) {
+                ORTE_ERROR_LOG(rc);
                 goto release;
             }
         }

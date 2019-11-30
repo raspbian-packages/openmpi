@@ -13,7 +13,7 @@
 # Copyright (c) 2006-2008 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2011-2013 Los Alamos National Security, LLC.  All rights
 #                         reserved.
-# Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+# Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -26,28 +26,16 @@
 
 SUBDIRS += \
 	tools/orte-clean \
-	tools/orte-ps \
 	tools/orted \
 	tools/orterun \
 	tools/wrappers \
-        tools/orte-top \
         tools/orte-info \
         tools/orte-server
 
 DIST_SUBDIRS += \
 	tools/orte-clean \
-	tools/orte-ps \
 	tools/orted \
 	tools/orterun \
 	tools/wrappers \
-        tools/orte-top \
         tools/orte-info \
-        tools/orte-server \
-        tools/orte-dvm \
-        tools/prun
-
-if OPAL_WANT_PRUN
-SUBDIRS += \
-	tools/prun \
-        tools/orte-dvm
-endif
+        tools/orte-server

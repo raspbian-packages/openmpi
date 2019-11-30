@@ -1,11 +1,10 @@
 manpage_macros
 build_hurd
 libdir.patch
-hurd-maxhostnamelen.patch
 hppa.patch
 opal_fifo.patch
 verbose-ompi-rules.patch
-openjdk10.patch
 fix-underlinking.patch
-pmix-modex.patch
+# version-script.patch
+no-warning-unused.patch
 raspbian.diff

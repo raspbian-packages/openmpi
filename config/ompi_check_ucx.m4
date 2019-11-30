@@ -83,6 +83,7 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                             [$ompi_check_ucx_libdir],
                                             [ompi_check_ucx_happy="yes"],
                                             [ompi_check_ucx_happy="no"])
+
                          CPPFLAGS="$ompi_check_ucx_$1_save_CPPFLAGS"
                          LDFLAGS="$ompi_check_ucx_$1_save_LDFLAGS"
                          LIBS="$ompi_check_ucx_$1_save_LIBS"
@@ -100,24 +101,46 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                 AC_MSG_RESULT([$ompi_check_ucx_happy])
                                 CPPFLAGS=$old_CPPFLAGS])])
 
-           old_CPPFLAGS="$CPPFLAGS"
-           AS_IF([test -n "$ompi_check_ucx_dir"],
-                 [CPPFLAGS="$CPPFLAGS -I$ompi_check_ucx_dir/include"])
-                 AC_CHECK_DECLS([ucp_tag_send_nbr],
-                                [AC_DEFINE([HAVE_UCP_TAG_SEND_NBR],[1],
-                                [have ucp_tag_send_nbr()])], [],
-                                [#include <ucp/api/ucp.h>])
-           CPPFLAGS=$old_CPPFLAGS
+                  old_CPPFLAGS="$CPPFLAGS"
+                  AS_IF([test -n "$ompi_check_ucx_dir"],
+                        [CPPFLAGS="$CPPFLAGS -I$ompi_check_ucx_dir/include"])
+                  AC_CHECK_DECLS([ucp_tag_send_nbr],
+                                 [AC_DEFINE([HAVE_UCP_TAG_SEND_NBR],[1],
+                                            [have ucp_tag_send_nbr()])], [],
+                                 [#include <ucp/api/ucp.h>])
+                  AC_CHECK_DECLS([ucp_ep_flush_nb, ucp_worker_flush_nb,
+                                  ucp_request_check_status, ucp_put_nb, ucp_get_nb],
+                                 [], [],
+                                 [#include <ucp/api/ucp.h>])
+                  AC_CHECK_DECLS([ucm_test_events],
+                                 [], [],
+                                 [#include <ucm/api/ucm.h>])
+                  AC_CHECK_DECLS([UCP_ATOMIC_POST_OP_AND,
+                                  UCP_ATOMIC_POST_OP_OR,
+                                  UCP_ATOMIC_POST_OP_XOR,
+                                  UCP_ATOMIC_FETCH_OP_FAND,
+                                  UCP_ATOMIC_FETCH_OP_FOR,
+                                  UCP_ATOMIC_FETCH_OP_FXOR,
+                                  UCP_PARAM_FIELD_ESTIMATED_NUM_PPN],
+                                 [], [],
+                                 [#include <ucp/api/ucp.h>])
+                  AC_CHECK_DECLS([UCP_WORKER_ATTR_FIELD_ADDRESS_FLAGS],
+                                 [AC_DEFINE([HAVE_UCP_WORKER_ADDRESS_FLAGS], [1],
+                                            [have worker address attribute])], [],
+                                 [#include <ucp/api/ucp.h>])
+                  CPPFLAGS=$old_CPPFLAGS
 
-           OPAL_SUMMARY_ADD([[Transports]],[[Open UCX]],[$1],[$ompi_check_ucx_happy])])])
+                  OPAL_SUMMARY_ADD([[Transports]],[[Open UCX]],[$1],[$ompi_check_ucx_happy])])])
 
     AS_IF([test "$ompi_check_ucx_happy" = "yes"],
           [$1_CPPFLAGS="[$]$1_CPPFLAGS $ompi_check_ucx_CPPFLAGS"
            $1_LDFLAGS="[$]$1_LDFLAGS $ompi_check_ucx_LDFLAGS"
            $1_LIBS="[$]$1_LIBS $ompi_check_ucx_LIBS"
+           AC_DEFINE([HAVE_UCX], [1], [have ucx])
            $2],
           [AS_IF([test ! -z "$with_ucx" && test "$with_ucx" != "no"],
                  [AC_MSG_ERROR([UCX support requested but not found.  Aborting])])
+           AC_DEFINE([HAVE_UCX], [0], [have ucx])
            $3])
 
     OPAL_VAR_SCOPE_POP

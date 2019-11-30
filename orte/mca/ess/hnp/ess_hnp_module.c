@@ -42,13 +42,13 @@
 #include "opal/class/opal_list.h"
 #include "opal/mca/event/event.h"
 #include "opal/runtime/opal.h"
-#include "opal/runtime/opal_cr.h"
 
 #include "opal/util/arch.h"
 #include "opal/util/argv.h"
 #include "opal/util/if.h"
 #include "opal/util/os_path.h"
 #include "opal/util/output.h"
+#include "opal/util/opal_environ.h"
 #include "opal/util/malloc.h"
 #include "opal/util/basename.h"
 #include "opal/util/fd.h"
@@ -62,7 +62,6 @@
 #include "orte/mca/routed/base/base.h"
 #include "orte/mca/routed/routed.h"
 #include "orte/mca/rtc/base/base.h"
-#include "orte/mca/dfs/base/base.h"
 #include "orte/mca/errmgr/base/base.h"
 #include "orte/mca/grpcomm/base/base.h"
 #include "orte/mca/iof/base/base.h"
@@ -72,10 +71,6 @@
 #include "orte/mca/plm/plm.h"
 #include "orte/mca/odls/base/base.h"
 #include "orte/mca/rmaps/base/base.h"
-#if OPAL_ENABLE_FT_CR == 1
-#include "orte/mca/snapc/base/base.h"
-#include "orte/mca/sstore/base/base.h"
-#endif
 #include "orte/mca/filem/base/base.h"
 #include "orte/mca/state/base/base.h"
 #include "orte/mca/state/state.h"
@@ -95,7 +90,6 @@
 #include "orte/runtime/orte_wait.h"
 #include "orte/runtime/orte_globals.h"
 #include "orte/runtime/orte_quit.h"
-#include "orte/runtime/orte_cr.h"
 #include "orte/runtime/orte_locks.h"
 
 #include "orte/mca/ess/ess.h"
@@ -150,6 +144,7 @@ static int rte_init(void)
     orte_topology_t *t;
     opal_list_t transports;
     orte_ess_base_signal_t *sig;
+    opal_value_t val;
 
     /* run the prolog */
     if (ORTE_SUCCESS != (ret = orte_ess_base_std_prolog())) {
@@ -473,6 +468,22 @@ static int rte_init(void)
     proc->pid = orte_process_info.pid;
     orte_oob_base_get_addr(&proc->rml_uri);
     orte_process_info.my_hnp_uri = strdup(proc->rml_uri);
+    /* store it in the local PMIx repo for later retrieval */
+    OBJ_CONSTRUCT(&val, opal_value_t);
+    val.key = OPAL_PMIX_PROC_URI;
+    val.type = OPAL_STRING;
+    val.data.string = proc->rml_uri;
+    if (OPAL_SUCCESS != (ret = opal_pmix.store_local(ORTE_PROC_MY_NAME, &val))) {
+        ORTE_ERROR_LOG(ret);
+        val.key = NULL;
+        val.data.string = NULL;
+        OBJ_DESTRUCT(&val);
+        error = "store uri";
+        goto error;
+    }
+    val.key = NULL;
+    val.data.string = NULL;
+    OBJ_DESTRUCT(&val);
     /* we are also officially a daemon, so better update that field too */
     orte_process_info.my_daemon_uri = strdup(proc->rml_uri);
     proc->state = ORTE_PROC_STATE_RUNNING;
@@ -686,57 +697,6 @@ static int rte_init(void)
         error = "orte_filem_base_select";
         goto error;
     }
-#if OPAL_ENABLE_FT_CR == 1
-    /*
-     * Setup the SnapC
-     */
-    if (ORTE_SUCCESS != (ret = mca_base_framework_open(&orte_snapc_base_framework, 0))) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_snapc_base_open";
-        goto error;
-    }
-    if (ORTE_SUCCESS != (ret = mca_base_framework_open(&orte_sstore_base_framework, 0))) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_sstore_base_open";
-        goto error;
-    }
-    if (ORTE_SUCCESS != (ret = orte_snapc_base_select(ORTE_PROC_IS_HNP, ORTE_PROC_IS_APP))) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_snapc_base_select";
-        goto error;
-    }
-    if (ORTE_SUCCESS != (ret = orte_sstore_base_select())) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_sstore_base_select";
-        goto error;
-    }
-
-    /* For HNP, ORTE doesn't need the OPAL CR stuff */
-    opal_cr_set_enabled(false);
-#else
-    opal_cr_set_enabled(false);
-#endif
-    /*
-     * Initalize the CR setup
-     * Note: Always do this, even in non-FT builds.
-     * If we don't some user level tools may hang.
-     */
-    if (ORTE_SUCCESS != (ret = orte_cr_init())) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_cr_init";
-        goto error;
-    }
-    /* setup the dfs framework */
-    if (ORTE_SUCCESS != (ret = mca_base_framework_open(&orte_dfs_base_framework, 0))) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_dfs_base_open";
-        goto error;
-    }
-    if (ORTE_SUCCESS != (ret = orte_dfs_base_select())) {
-        ORTE_ERROR_LOG(ret);
-        error = "orte_dfs_select";
-        goto error;
-    }
 
     /* setup to support debugging */
     orte_state.add_job_state(ORTE_JOB_STATE_READY_FOR_DEBUGGERS,
@@ -775,7 +735,7 @@ static int rte_init(void)
     opal_progress_set_yield_when_idle(false);
     return ORTE_SUCCESS;
 
- error:
+  error:
     if (ORTE_ERR_SILENT != ret && !orte_report_silent_errors) {
         orte_show_help("help-orte-runtime.txt",
                        "orte_init:startup:internal-failure",
@@ -822,7 +782,6 @@ static int rte_finalize(void)
     /* shutdown the pmix server */
     pmix_server_finalize();
     (void) mca_base_framework_close(&opal_pmix_base_framework);
-    (void) mca_base_framework_close(&orte_dfs_base_framework);
     (void) mca_base_framework_close(&orte_filem_base_framework);
     /* output any lingering stdout/err data */
     fflush(stdout);
@@ -886,6 +845,52 @@ static int rte_finalize(void)
     if (orte_do_not_launch) {
         exit(0);
     }
+
+{
+    opal_pointer_array_t * array = orte_node_topologies;
+    int i;
+    if( array->number_free != array->size ) {
+        OPAL_THREAD_LOCK(&array->lock);
+        array->lowest_free = 0;
+        array->number_free = array->size;
+        for(i=0; i<array->size; i++) {
+            if(NULL != array->addr[i]) {
+                orte_topology_t * topo = (orte_topology_t *)array->addr[i];
+                topo->topo = NULL;
+                OBJ_RELEASE(topo);
+            }
+            array->addr[i] = NULL;
+        }
+        OPAL_THREAD_UNLOCK(&array->lock);
+    }
+}
+    OBJ_RELEASE(orte_node_topologies);
+
+{
+    opal_pointer_array_t * array = orte_node_pool;
+    int i;
+    orte_node_t* node = (orte_node_t *)opal_pointer_array_get_item(orte_node_pool, 0);
+    assert(NULL != node);
+    OBJ_RELEASE(node->daemon);
+    node->daemon = NULL;
+    if( array->number_free != array->size ) {
+        OPAL_THREAD_LOCK(&array->lock);
+        array->lowest_free = 0;
+        array->number_free = array->size;
+        for(i=0; i<array->size; i++) {
+            if(NULL != array->addr[i]) {
+                node= (orte_node_t*)array->addr[i];
+                OBJ_RELEASE(node);
+            }
+            array->addr[i] = NULL;
+        }
+        OPAL_THREAD_UNLOCK(&array->lock);
+    }
+}
+    OBJ_RELEASE(orte_node_pool);
+
+    free(orte_topo_signature);
+
     return ORTE_SUCCESS;
 }
 
@@ -900,8 +905,6 @@ static void rte_abort(int status, bool report)
      * - Assume errmgr cleans up child processes before we exit.
      */
 
-    /* CRS cleanup since it may have a named pipe and thread active */
-    orte_cr_finalize();
     /* ensure we scrub the session directory tree */
     orte_session_dir_cleanup(ORTE_JOBID_WILDCARD);
     /* - Clean out the global structures

@@ -10,11 +10,12 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006-2016 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2006-2018 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2015-2016 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  *
+ * Copyright (c) 2018      Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -168,11 +169,12 @@ opal_progress_finalize(void)
     return OPAL_SUCCESS;
 }
 
-static int opal_progress_events()
+static int opal_progress_events(void)
 {
+    static volatile int32_t lock = 0;
     int events = 0;
 
-    if( opal_progress_event_flag != 0 ) {
+    if( opal_progress_event_flag != 0 && !OPAL_THREAD_SWAP_32(&lock, 1) ) {
 #if OPAL_HAVE_WORKING_EVENTOPS
 #if OPAL_PROGRESS_USE_TIMERS
 #if OPAL_PROGRESS_ONLY_USEC_NATIVE
@@ -192,7 +194,7 @@ static int opal_progress_events()
 #else /* OPAL_PROGRESS_USE_TIMERS */
     /* trip the event library if we've reached our tick rate and we are
        enabled */
-        if (OPAL_THREAD_ADD32(&event_progress_counter, -1) <= 0 ) {
+        if (OPAL_THREAD_ADD_FETCH32(&event_progress_counter, -1) <= 0 ) {
                 event_progress_counter =
                     (num_event_users > 0) ? 0 : event_progress_delta;
                 events += opal_event_loop(opal_sync_event_base, opal_progress_event_flag);
@@ -200,6 +202,7 @@ static int opal_progress_events()
 #endif /* OPAL_PROGRESS_USE_TIMERS */
 
 #endif /* OPAL_HAVE_WORKING_EVENTOPS */
+        lock = 0;
     }
 
     return events;
@@ -274,11 +277,11 @@ opal_progress_event_users_increment(void)
 {
 #if OPAL_ENABLE_DEBUG
     int32_t val;
-    val = opal_atomic_add_32(&num_event_users, 1);
+    val = opal_atomic_add_fetch_32(&num_event_users, 1);
 
     OPAL_OUTPUT((debug_output, "progress: event_users_increment setting count to %d", val));
 #else
-    (void)opal_atomic_add_32(&num_event_users, 1);
+    (void)opal_atomic_add_fetch_32(&num_event_users, 1);
 #endif
 
 #if OPAL_PROGRESS_USE_TIMERS
@@ -296,11 +299,11 @@ opal_progress_event_users_decrement(void)
 {
 #if OPAL_ENABLE_DEBUG || ! OPAL_PROGRESS_USE_TIMERS
     int32_t val;
-    val = opal_atomic_sub_32(&num_event_users, 1);
+    val = opal_atomic_sub_fetch_32(&num_event_users, 1);
 
     OPAL_OUTPUT((debug_output, "progress: event_users_decrement setting count to %d", val));
 #else
-    (void)opal_atomic_sub_32(&num_event_users, 1);
+    (void)opal_atomic_sub_fetch_32(&num_event_users, 1);
 #endif
 
 #if !OPAL_PROGRESS_USE_TIMERS

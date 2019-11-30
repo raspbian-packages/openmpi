@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2011-2017 Cisco Systems, Inc.  All rights reserved
- * Copyright (c) 2016      Research Organization for Information Science
+ * Copyright (c) 2011-2019 Cisco Systems, Inc.  All rights reserved
+ * Copyright (c) 2016-2019 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  *
  * Copyright (c) 2016-2017 Intel, Inc. All rights reserved.
@@ -21,6 +21,23 @@
 BEGIN_C_DECLS
 
 #include <opal_config.h>
+
+/* Top-level configure will always configure the embedded hwloc
+ * component, even if we already know that we'll be using an external
+ * hwloc (because of complicated reasons). A side-effect of this is
+ * that the embedded hwloc will AC_DEFINE HWLOC_VERSION (and friends)
+ * in opal_config.h. If the external hwloc defines a different value
+ * of HWLOC_VERSION (etc.), we'll get zillions of warnings about the
+ * two HWLOC_VERSION values not matching.  Hence, we undefined all of
+ * them here (so that the external <hwloc.h> can define them to
+ * whatever it wants). */
+
+#undef HWLOC_VERSION
+#undef HWLOC_VERSION_MAJOR
+#undef HWLOC_VERSION_MINOR
+#undef HWLOC_VERSION_RELEASE
+#undef HWLOC_VERSION_GREEK
+
 #include MCA_hwloc_external_header
 
 /* If the including file requested it, also include the hwloc verbs
@@ -41,6 +58,15 @@ BEGIN_C_DECLS
 #    else
 #        error Tried to include hwloc verbs helper file, but hwloc was compiled with no OpenFabrics support
 #    endif
+#endif
+
+#if defined(OPAL_HWLOC_WANT_SHMEM) && OPAL_HWLOC_WANT_SHMEM
+#    if HWLOC_API_VERSION >= 0x20000
+#        include MCA_hwloc_external_shmem_header
+#    endif
+/* Do nothing in the 1.x case because the caller doesn't know HWLOC_API_VERSION when it sets OPAL_HWLOC_WANT_SHMEM.
+ * Calls to hwloc/shmem.h are protected by HWLOC_API_VERSION >= 0x20000 in the actual code.
+ */
 #endif
 
 #if HWLOC_API_VERSION < 0x00010b00

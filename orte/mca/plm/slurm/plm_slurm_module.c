@@ -9,7 +9,7 @@
  *                         University of Stuttgart.  All rights reserved.
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
- * Copyright (c) 2006-2014 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2006-2019 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2007-2015 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
@@ -272,14 +272,6 @@ static void launch_daemons(int fd, short args, void *cbdata)
         opal_argv_append(&argc, &argv, "--kill-on-bad-exit");
     }
 
-    /* ensure the orteds are not bound to a single processor,
-     * just in case the TaskAffinity option is set by default.
-     * This will *not* release the orteds from any cpu-set
-     * constraint, but will ensure it doesn't get
-     * bound to only one processor
-     */
-    opal_argv_append(&argc, &argv, "--cpu_bind=none");
-
 #if SLURM_CRAY_ENV
     /*
      * If in a SLURM/Cray env. make sure that Cray PMI is not pulled in,
@@ -420,12 +412,29 @@ static void launch_daemons(int fd, short args, void *cbdata)
     /* setup environment */
     env = opal_argv_copy(orte_launch_environ);
 
+    /* ensure the orteds are not bound to a single processor,
+     * just in case the TaskAffinity option is set by default.
+     * This will *not* release the orteds from any cpu-set
+     * constraint, but will ensure it doesn't get
+     * bound to only one processor
+     *
+     * NOTE: We used to pass --cpu_bind=none on the command line.  But
+     * SLURM 19 changed this to --cpu-bind.  There is no easy way to
+     * test at run time which of these two parameters is used (see
+     * https://github.com/open-mpi/ompi/pull/6654).  There was
+     * discussion of using --test-only to see which one works, but
+     * --test-only is only effective if you're not already inside a
+     * SLURM allocation.  Instead, set the env var SLURM_CPU_BIND to
+     * "none", which should do the same thing as --cpu*bind=none.
+     */
+    opal_setenv("SLURM_CPU_BIND", "none", true, &env);
+
     if (0 < opal_output_get_verbosity(orte_plm_base_framework.framework_output)) {
         param = opal_argv_join(argv, ' ');
-        OPAL_OUTPUT_VERBOSE((1, orte_plm_base_framework.framework_output,
-                             "%s plm:slurm: final top-level argv:\n\t%s",
-                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
-                             (NULL == param) ? "NULL" : param));
+        opal_output(orte_plm_base_framework.framework_output,
+                    "%s plm:slurm: final top-level argv:\n\t%s",
+                    ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                    (NULL == param) ? "NULL" : param);
         if (NULL != param) free(param);
     }
 
@@ -524,7 +533,9 @@ static int plm_slurm_finalize(void)
 }
 
 
-static void srun_wait_cb(orte_proc_t *proc, void* cbdata){
+static void srun_wait_cb(int sd, short fd, void *cbdata){
+    orte_wait_tracker_t *t2 = (orte_wait_tracker_t*)cbdata;
+    orte_proc_t *proc = t2->child;
     orte_job_t *jdata;
 
     /* According to the SLURM folks, srun always returns the highest exit
@@ -557,8 +568,9 @@ static void srun_wait_cb(orte_proc_t *proc, void* cbdata){
          * that the daemon has failed so we exit
          */
         OPAL_OUTPUT_VERBOSE((1, orte_plm_base_framework.framework_output,
-                             "%s plm:slurm: daemon failed while running",
-                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME)));
+                             "%s plm:slurm: srun returned non-zero exit status (%d) from launching the per-node daemon",
+                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                             proc->exit_code));
         ORTE_ACTIVATE_JOB_STATE(jdata, ORTE_JOB_STATE_ABORTED);
     } else {
         /* otherwise, check to see if this is the primary pid */
@@ -576,7 +588,7 @@ static void srun_wait_cb(orte_proc_t *proc, void* cbdata){
     }
 
     /* done with this dummy */
-    OBJ_RELEASE(proc);
+    OBJ_RELEASE(t2);
 }
 
 
@@ -613,7 +625,7 @@ static int plm_slurm_start_proc(int argc, char **argv, char **env,
     /* be sure to mark it as alive so we don't instantly fire */
     ORTE_FLAG_SET(dummy, ORTE_PROC_FLAG_ALIVE);
     /* setup the waitpid so we can find out if srun succeeds! */
-    orte_wait_cb(dummy, srun_wait_cb, NULL);
+    orte_wait_cb(dummy, srun_wait_cb, orte_event_base, NULL);
 
     if (0 == srun_pid) {  /* child */
         char *bin_base = NULL, *lib_base = NULL;

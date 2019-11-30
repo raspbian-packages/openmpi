@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011-2012 Los Alamos National Security, LLC.
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2018      Research Organization for Information Science
  *                         and Technology (RIST).  All rights reserved.
  * $COPYRIGHT$
@@ -408,8 +408,10 @@ static void cleanup_node(orte_proc_t *proc)
     if (NULL == (node = proc->node)) {
         return;
     }
-    node->num_procs--;
-    node->slots_inuse--;
+    if (!ORTE_FLAG_TEST(proc, ORTE_PROC_FLAG_TOOL)) {
+        node->num_procs--;
+        node->slots_inuse--;
+    }
     for (i=0; i < node->procs->size; i++) {
         if (NULL == (p = (orte_proc_t*)opal_pointer_array_get_item(node->procs, i))) {
             continue;
@@ -951,8 +953,9 @@ void orte_state_base_check_all_complete(int fd, short args, void *cbdata)
     one_still_alive = false;
     j = opal_hash_table_get_first_key_uint32(orte_job_data, &u32, (void **)&job, &nptr);
     while (OPAL_SUCCESS == j) {
-        /* skip the daemon job */
-        if (job->jobid == ORTE_PROC_MY_NAME->jobid) {
+        /* skip the daemon job and all jobs from other families */
+        if (job->jobid == ORTE_PROC_MY_NAME->jobid ||
+            ORTE_JOB_FAMILY(job->jobid) != ORTE_JOB_FAMILY(ORTE_PROC_MY_NAME->jobid)) {
             goto next;
         }
         /* if this is the job we are checking AND it normally terminated,

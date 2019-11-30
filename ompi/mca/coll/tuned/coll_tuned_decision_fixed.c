@@ -13,7 +13,7 @@
  * Copyright (c) 2008      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2013      Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2018 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -119,7 +119,11 @@ int ompi_coll_tuned_alltoall_intra_dec_fixed(const void *sbuf, int scount,
        the University of Tennessee (2GB MX) up to 64 nodes.
        Has better performance for messages of intermediate sizes than the old one */
     /* determine block size */
-    ompi_datatype_type_size(sdtype, &dsize);
+    if (MPI_IN_PLACE != sbuf) {
+        ompi_datatype_type_size(sdtype, &dsize);
+    } else {
+        ompi_datatype_type_size(rdtype, &dsize);
+    }
     block_dsize = dsize * (ptrdiff_t)scount;
 
     if ((block_dsize < (size_t) ompi_coll_tuned_alltoall_small_msg)
@@ -132,6 +136,12 @@ int ompi_coll_tuned_alltoall_intra_dec_fixed(const void *sbuf, int scount,
         return ompi_coll_base_alltoall_intra_basic_linear(sbuf, scount, sdtype,
                                                           rbuf, rcount, rdtype,
                                                           comm, module);
+    } else if ((block_dsize < (size_t) ompi_coll_tuned_alltoall_large_msg) &&
+               (communicator_size <= ompi_coll_tuned_alltoall_min_procs)) {
+        return ompi_coll_base_alltoall_intra_linear_sync(sbuf, scount, sdtype,
+                                                         rbuf, rcount, rdtype,
+                                                         comm, module,
+                                                         ompi_coll_tuned_alltoall_max_requests);
     }
 
     return ompi_coll_base_alltoall_intra_pairwise(sbuf, scount, sdtype,
@@ -501,6 +511,26 @@ int ompi_coll_tuned_reduce_scatter_intra_dec_fixed( const void *sbuf, void *rbuf
 }
 
 /*
+ *	reduce_scatter_block_intra_dec
+ *
+ *	Function:	- seletects reduce_scatter_block algorithm to use
+ *	Accepts:	- same arguments as MPI_Reduce_scatter_block()
+ *	Returns:	- MPI_SUCCESS or error code (passed from
+ *                        the reduce scatter implementation)
+ */
+int ompi_coll_tuned_reduce_scatter_block_intra_dec_fixed(const void *sbuf, void *rbuf,
+                                                         int rcount,
+                                                         struct ompi_datatype_t *dtype,
+                                                         struct ompi_op_t *op,
+                                                         struct ompi_communicator_t *comm,
+                                                         mca_coll_base_module_t *module)
+{
+    OPAL_OUTPUT((ompi_coll_tuned_stream, "ompi_coll_tuned_reduce_scatter_block_intra_dec_fixed"));
+    return ompi_coll_base_reduce_scatter_block_basic_linear(sbuf, rbuf, rcount,
+                                                            dtype, op, comm, module);
+}
+
+/*
  *	allgather_intra_dec
  *
  *	Function:	- seletects allgather algorithm to use
@@ -529,7 +559,11 @@ int ompi_coll_tuned_allgather_intra_dec_fixed(const void *sbuf, int scount,
     }
 
     /* Determine complete data size */
-    ompi_datatype_type_size(sdtype, &dsize);
+    if (MPI_IN_PLACE != sbuf) {
+        ompi_datatype_type_size(sdtype, &dsize);
+    } else {
+        ompi_datatype_type_size(rdtype, &dsize);
+    }
     total_dsize = dsize * (ptrdiff_t)scount * (ptrdiff_t)communicator_size;
 
     OPAL_OUTPUT((ompi_coll_tuned_stream, "ompi_coll_tuned_allgather_intra_dec_fixed"
@@ -624,7 +658,12 @@ int ompi_coll_tuned_allgatherv_intra_dec_fixed(const void *sbuf, int scount,
     }
 
     /* Determine complete data size */
-    ompi_datatype_type_size(sdtype, &dsize);
+    if (MPI_IN_PLACE != sbuf) {
+        ompi_datatype_type_size(sdtype, &dsize);
+    } else {
+        ompi_datatype_type_size(rdtype, &dsize);
+    }
+
     total_dsize = 0;
     for (i = 0; i < communicator_size; i++) {
         total_dsize += dsize * (ptrdiff_t)rcounts[i];

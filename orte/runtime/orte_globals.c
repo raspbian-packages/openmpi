@@ -13,7 +13,7 @@
  * Copyright (c) 2009-2010 Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2014-2018 Research Organization for Information Science
  *                         and Technology (RIST).  All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
@@ -136,8 +136,6 @@ int orte_timeout_usec_per_proc = -1;
 float orte_max_timeout = -1.0;
 orte_timer_t *orte_mpiexec_timeout = NULL;
 
-opal_buffer_t *orte_tree_launch_cmd = NULL;
-
 int orte_stack_trace_wait_timeout = 30;
 
 /* global arrays for data storage */
@@ -206,6 +204,9 @@ FILE *orte_xml_fp = NULL;
 char *orte_job_ident = NULL;
 bool orte_execute_quiet = false;
 bool orte_report_silent_errors = false;
+
+/* enable PMIx-based "instant on" support */
+bool orte_enable_instant_on_support = false;
 
 /* See comment in orte/tools/orterun/debuggers.c about this MCA
    param */
@@ -655,6 +656,7 @@ static void orte_job_construct(orte_job_t* job)
     ORTE_FLAG_SET(job, ORTE_JOB_FLAG_FORWARD_OUTPUT);
 
     OBJ_CONSTRUCT(&job->attributes, opal_list_t);
+    OBJ_CONSTRUCT(&job->launch_msg, opal_buffer_t);
 }
 
 static void orte_job_destruct(orte_job_t* job)
@@ -716,6 +718,8 @@ static void orte_job_destruct(orte_job_t* job)
 
     /* release the attributes */
     OPAL_LIST_DESTRUCT(&job->attributes);
+
+    OBJ_DESTRUCT(&job->launch_msg);
 
     if (NULL != orte_job_data && ORTE_JOBID_INVALID != job->jobid) {
         /* remove the job from the global array */

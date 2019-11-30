@@ -59,12 +59,13 @@ int mca_btl_ugni_smsg_process (mca_btl_base_endpoint_t *ep)
     mca_btl_ugni_base_frag_t frag;
     mca_btl_base_segment_t seg;
     bool disconnect = false;
+    int32_t _tmp_value = 0;
     uintptr_t data_ptr;
     gni_return_t rc;
     uint32_t len;
     int count = 0;
 
-    if (!opal_atomic_cmpset_32 (&ep->smsg_progressing, 0, 1)) {
+    if (!opal_atomic_compare_exchange_strong_32 (&ep->smsg_progressing, &_tmp_value, 1)) {
         /* already progressing (we can't support reentry here) */
         return 0;
     }
@@ -73,7 +74,7 @@ int mca_btl_ugni_smsg_process (mca_btl_base_endpoint_t *ep)
     do {
         uint8_t tag = GNI_SMSG_ANY_TAG;
 
-        rc = mca_btl_ugni_smsg_get_next_wtag (ep->smsg_ep_handle, &data_ptr, &tag);
+        rc = mca_btl_ugni_smsg_get_next_wtag (&ep->smsg_ep_handle, &data_ptr, &tag);
         if (GNI_RC_SUCCESS != rc) {
             if (OPAL_LIKELY(GNI_RC_NOT_DONE == rc)) {
                 BTL_VERBOSE(("no smsg message waiting. rc = %s", gni_err_str[rc]));
@@ -137,7 +138,7 @@ int mca_btl_ugni_smsg_process (mca_btl_base_endpoint_t *ep)
             break;
         }
 
-        rc = mca_btl_ugni_smsg_release (ep->smsg_ep_handle);
+        rc = mca_btl_ugni_smsg_release (&ep->smsg_ep_handle);
         if (OPAL_UNLIKELY(GNI_RC_SUCCESS != rc)) {
             BTL_ERROR(("Smsg release failed! rc = %d", rc));
             return OPAL_ERROR;

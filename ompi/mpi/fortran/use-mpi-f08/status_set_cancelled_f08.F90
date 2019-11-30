@@ -1,15 +1,16 @@
 ! -*- f90 -*-
 !
-! Copyright (c) 2010-2013 Cisco Systems, Inc.  All rights reserved.
+! Copyright (c) 2010-2018 Cisco Systems, Inc.  All rights reserved
 ! Copyright (c) 2009-2012 Los Alamos National Security, LLC.
 !               All Rights reserved.
+! Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
 ! $COPYRIGHT$
 
 subroutine MPI_Status_set_cancelled_f08(status,flag,ierror)
    use :: mpi_f08_types, only : MPI_Status
    implicit none
    TYPE(MPI_Status), INTENT(INOUT) :: status
-   LOGICAL, INTENT(OUT) :: flag
+   LOGICAL, INTENT(IN) :: flag
    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
    integer :: c_ierror
 

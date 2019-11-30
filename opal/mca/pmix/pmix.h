@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
  * $COPYRIGHT$
@@ -733,6 +733,39 @@ typedef int (*opal_pmix_base_module_server_notify_event_fn_t)(int status,
                                                               opal_list_t *info,
                                                               opal_pmix_op_cbfunc_t cbfunc, void *cbdata);
 
+/* push IO to local clients */
+typedef int (*opal_pmix_base_module_server_push_io_fn_t)(const opal_process_name_t *source,
+                                                         opal_pmix_iof_channel_t channel,
+                                                         unsigned char *data, size_t nbytes);
+
+/* define a callback function for the setup_application API. The returned info
+ * array is owned by the PMIx server library and will be free'd when the
+ * provided cbfunc is called. */
+typedef void (*opal_pmix_setup_application_cbfunc_t)(int status,
+                                                     opal_list_t *info,
+                                                     void *provided_cbdata,
+                                                     opal_pmix_op_cbfunc_t cbfunc, void *cbdata);
+
+/* Provide a function by which we can request
+ * any application-specific environmental variables prior to
+ * launch of an application. For example, network libraries may
+ * opt to provide security credentials for the application. This
+ * is defined as a non-blocking operation in case network
+ * libraries need to perform some action before responding. The
+ * returned env will be distributed along with the application */
+typedef int (*opal_pmix_server_setup_application_fn_t)(opal_jobid_t jobid,
+                                                       opal_list_t *info,
+                                                       opal_pmix_setup_application_cbfunc_t cbfunc, void *cbdata);
+
+/* Provide a function by which the local PMIx server can perform
+ * any application-specific operations prior to spawning local
+ * clients of a given application. For example, a network library
+ * might need to setup the local driver for "instant on" addressing.
+ */
+typedef int (*opal_pmix_server_setup_local_support_fn_t)(opal_jobid_t jobid,
+                                                         opal_list_t *info,
+                                                         opal_pmix_op_cbfunc_t cbfunc, void *cbdata);
+
 
 /************************************************************
  *                         TOOL APIs                        *
@@ -867,6 +900,9 @@ typedef int (*opal_pmix_base_process_monitor_fn_t)(opal_list_t *monitor,
                                                    opal_list_t *directives,
                                                    opal_pmix_info_cbfunc_t cbfunc, void *cbdata);
 
+/* register cleanup */
+typedef int (*opal_pmix_base_register_cleanup_fn_t)(char *path, bool directory, bool ignore, bool jobscope);
+
 typedef bool (*opal_pmix_base_legacy_get_fn_t)(void);
 
 /*
@@ -904,6 +940,7 @@ typedef struct {
     opal_pmix_base_alloc_fn_t                               allocate;
     opal_pmix_base_job_control_fn_t                         job_control;
     opal_pmix_base_process_monitor_fn_t                     monitor;
+    opal_pmix_base_register_cleanup_fn_t                    register_cleanup;
     /* server APIs */
     opal_pmix_base_module_server_init_fn_t                  server_init;
     opal_pmix_base_module_server_finalize_fn_t              server_finalize;
@@ -916,6 +953,9 @@ typedef struct {
     opal_pmix_base_module_server_setup_fork_fn_t            server_setup_fork;
     opal_pmix_base_module_server_dmodex_request_fn_t        server_dmodex_request;
     opal_pmix_base_module_server_notify_event_fn_t          server_notify_event;
+    opal_pmix_base_module_server_push_io_fn_t               server_iof_push;
+    opal_pmix_server_setup_application_fn_t                 server_setup_application;
+    opal_pmix_server_setup_local_support_fn_t               server_setup_local_support;
     /* tool APIs */
     opal_pmix_base_module_tool_init_fn_t                    tool_init;
     opal_pmix_base_module_tool_fini_fn_t                    tool_finalize;

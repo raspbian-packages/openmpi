@@ -1,6 +1,6 @@
 /* -*- Mode: C; c-basic-offset:4 ; indent-tabs-mode:nil -*- */
 /*
- * Copyright (c) 2014-2017 Los Alamos National Security, LLC.  All rights
+ * Copyright (c) 2014-2018 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * $COPYRIGHT$
  *
@@ -13,131 +13,6 @@
 #define OMPI_OSC_RDMA_TYPES_H
 
 #include "ompi_config.h"
-#include "opal/threads/thread_usage.h"
-
-
-#if !defined(OPAL_ATOMIC_AND_FETCH32)
-/* compatibility to avoid having to change the rest of the component files */
-static inline bool opal_atomic_compare_exchange_strong_32 (volatile int32_t *addr, int32_t *old, int32_t value)
-{
-    int32_t old_value = *addr;
-    bool ret = opal_atomic_cmpset_32 (addr, *old, value);
-    if (!ret) {
-        *old = old_value;
-    }
-
-    return ret;
-}
-
-static inline bool OPAL_ATOMIC_COMPARE_EXCHANGE_STRONG_32 (volatile int32_t *addr, int32_t *old, int32_t value)
-{
-    int32_t old_value = *addr;
-
-    if (!opal_using_threads ()) {
-        if (old_value != *old) {
-            *old = old_value;
-            return false;
-        }
-        *addr = value;
-
-        return true;
-    }
-
-    bool ret = opal_atomic_cmpset_32 (addr, *old, value);
-    if (!ret) {
-        *old = old_value;
-    }
-
-    return ret;
-}
-
-static inline bool opal_atomic_compare_exchange_strong_64 (volatile int64_t *addr, int64_t *old, int64_t value)
-{
-    int64_t old_value = *addr;
-    bool ret = opal_atomic_cmpset_64 (addr, *old, value);
-    if (!ret) {
-        *old = old_value;
-    }
-
-    return ret;
-}
-
-static inline bool OPAL_ATOMIC_COMPARE_EXCHANGE_STRONG_64 (volatile int64_t *addr, int64_t *old, int64_t value)
-{
-    int64_t old_value = *addr;
-
-    if (!opal_using_threads ()) {
-        if (old_value != *old) {
-            *old = old_value;
-            return false;
-        }
-        *addr = value;
-
-        return true;
-    }
-
-    bool ret = opal_atomic_cmpset_64 (addr, *old, value);
-    if (!ret) {
-        *old = old_value;
-    }
-
-    return ret;
-}
-
-#if SIZEOF_VOID_P == 4
-#define opal_atomic_compare_exchange_strong_ptr(a,b,c) opal_atomic_compare_exchange_strong_32((volatile int32_t *) a, (int32_t *) b, (int32_t) c)
-#else
-#define opal_atomic_compare_exchange_strong_ptr(a,b,c) opal_atomic_compare_exchange_strong_64((volatile int64_t *) a, (int64_t *) b, (int64_t) c)
-#endif
-
-#define opal_atomic_add_fetch_64 opal_atomic_add_64
-#define OPAL_THREAD_ADD_FETCH32 OPAL_THREAD_ADD32
-#define OPAL_THREAD_ADD_FETCH64 OPAL_THREAD_ADD64
-
-static inline int64_t opal_atomic_fetch_add_64 (volatile int64_t *addr, int64_t value)
-{
-    int64_t new = opal_atomic_add_64 (addr, value);
-    return new - value;
-}
-
-static inline int64_t opal_atomic_fetch_add_32 (volatile int32_t *addr, int32_t value)
-{
-    int32_t new = opal_atomic_add_32 (addr, value);
-    return new - value;
-}
-
-#define OPAL_THREAD_FETCH_ADD32(addr, value) (OPAL_THREAD_ADD32(addr, value) - value)
-#define OPAL_THREAD_FETCH_ADD64(addr, value) (OPAL_THREAD_ADD64(addr, value) - value)
-
-static inline int32_t opal_atomic_and_fetch32 (volatile int32_t *addr, int32_t value)
-{
-    int32_t old;
-    do {
-        old = *addr;
-    } while (!opal_atomic_cmpset_32 (addr, old, old & value));
-
-    return old;
-}
-
-static inline int32_t OPAL_ATOMIC_AND_FETCH32 (volatile int32_t *addr, int32_t value)
-{
-    int32_t old;
-
-    if (!opal_using_threads ()) {
-        old = *addr;
-        *addr &= value;
-        return old;
-    }
-
-    do {
-        old = *addr;
-    } while (!opal_atomic_cmpset_32 (addr, old, old & value));
-
-    return old;
-}
-
-#endif
-
 
 /* forward declarations of some other component types */
 struct ompi_osc_rdma_frag_t;
@@ -296,44 +171,11 @@ struct ompi_osc_rdma_state_t {
 };
 typedef struct ompi_osc_rdma_state_t ompi_osc_rdma_state_t;
 
-struct ompi_osc_rdma_aggregation_t {
-    opal_list_item_t super;
-
-    /** associated peer */
-    struct ompi_osc_rdma_peer_t *peer;
-
-    /** aggregation buffer frag */
-    struct ompi_osc_rdma_frag_t *frag;
-
-    /** synchronization object */
-    struct ompi_osc_rdma_sync_t *sync;
-
-    /** aggregation buffer */
-    char *buffer;
-
-    /** target for the operation */
-    osc_rdma_base_t target_address;
-
-    /** handle for target memory address */
-    mca_btl_base_registration_handle_t *target_handle;
-
-    /** buffer size */
-    size_t buffer_size;
-
-    /** buffer used */
-    size_t buffer_used;
-
-    /** type */
-    int type;
-};
-typedef struct ompi_osc_rdma_aggregation_t ompi_osc_rdma_aggregation_t;
-
-OBJ_CLASS_DECLARATION(ompi_osc_rdma_aggregation_t);
-
 typedef void (*ompi_osc_rdma_pending_op_cb_fn_t) (void *, void *, int);
 
 struct ompi_osc_rdma_pending_op_t {
     opal_list_item_t super;
+    struct ompi_osc_rdma_module_t *module;
     struct ompi_osc_rdma_frag_t *op_frag;
     void *op_buffer;
     void *op_result;
@@ -365,7 +207,6 @@ struct ompi_osc_rdma_frag_t {
 };
 typedef struct ompi_osc_rdma_frag_t ompi_osc_rdma_frag_t;
 OBJ_CLASS_DECLARATION(ompi_osc_rdma_frag_t);
-
 
 #define OSC_RDMA_VERBOSE(x, ...) OPAL_OUTPUT_VERBOSE((x, ompi_osc_base_framework.framework_output, __VA_ARGS__))
 

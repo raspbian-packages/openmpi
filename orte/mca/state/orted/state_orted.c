@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011-2017 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -23,6 +23,7 @@
 
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/iof/base/base.h"
+#include "orte/mca/odls/base/base.h"
 #include "orte/mca/rmaps/rmaps_types.h"
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/routed/routed.h"
@@ -288,6 +289,13 @@ static void track_procs(int fd, short argc, void *cbdata)
         /* update the proc state */
         pdata->state = state;
         jdata->num_launched++;
+        if (jdata->num_launched == jdata->num_local_procs) {
+            /* tell the state machine that all local procs for this job
+             * were launched so that it can do whatever it needs to do,
+             * like send a state update message for all procs to the HNP
+             */
+            ORTE_ACTIVATE_JOB_STATE(jdata, ORTE_JOB_STATE_LOCAL_LAUNCH_COMPLETE);
+        }
         /* don't update until we are told that all are done */
     } else if (ORTE_PROC_STATE_REGISTERED == state) {
         /* update the proc state */
@@ -472,8 +480,10 @@ static void track_procs(int fd, short argc, void *cbdata)
                             /* skip procs from another job */
                             continue;
                         }
-                        node->slots_inuse--;
-                        node->num_procs--;
+                        if (!ORTE_FLAG_TEST(pptr, ORTE_PROC_FLAG_TOOL)) {
+                            node->slots_inuse--;
+                            node->num_procs--;
+                        }
                         OPAL_OUTPUT_VERBOSE((2, orte_state_base_framework.framework_output,
                                              "%s state:orted releasing proc %s from node %s",
                                              ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),

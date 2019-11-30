@@ -12,9 +12,11 @@
  *                         All rights reserved.
  * Copyright (c) 2006-2007 Voltaire. All rights reserved.
  * Copyright (c) 2009-2010 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2010-2017 Los Alamos National Security, LLC. All rights
+ * Copyright (c) 2010-2018 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * Copyright (c) 2015      Mellanox Technologies. All rights reserved.
+ * Copyright (c) 2018      Triad National Security, LLC. All rights
+ *                         reserved.
  *
  * $COPYRIGHT$
  *
@@ -53,6 +55,7 @@
 #include "opal/mca/rcache/rcache.h"
 #include "opal/mca/rcache/base/base.h"
 #include "opal/mca/btl/base/btl_base_error.h"
+#include "opal/mca/mpool/base/base.h"
 #include "opal/util/proc.h"
 #include "btl_vader_endpoint.h"
 
@@ -81,7 +84,12 @@ union vader_modex_t {
         void *segment_base;
     } xpmem;
 #endif
-    opal_shmem_ds_t seg_ds;
+    struct vader_modex_other_t {
+        ino_t user_ns_id;
+        int seg_ds_size;
+        /* seg_ds needs to be the last element */
+        opal_shmem_ds_t seg_ds;
+    } other;
 };
 
 /**
@@ -92,6 +100,7 @@ enum {
     MCA_BTL_VADER_CMA   = 1,
     MCA_BTL_VADER_KNEM  = 2,
     MCA_BTL_VADER_NONE  = 3,
+    MCA_BTL_VADER_EMUL  = 4,
 };
 
 /**
@@ -111,16 +120,15 @@ struct mca_btl_vader_component_t {
     opal_mutex_t lock;                      /**< lock to protect concurrent updates to this structure's members */
     char *my_segment;                       /**< this rank's base pointer */
     size_t segment_size;                    /**< size of my_segment */
-    size_t segment_offset;                  /**< start of unused portion of my_segment */
     int32_t num_smp_procs;                  /**< current number of smp procs on this host */
     opal_free_list_t vader_frags_eager;     /**< free list of vader send frags */
     opal_free_list_t vader_frags_max_send;  /**< free list of vader max send frags (large fragments) */
     opal_free_list_t vader_frags_user;      /**< free list of small inline frags */
+    opal_free_list_t vader_fboxes;          /**< free list of available fast-boxes */
 
     unsigned int fbox_threshold;            /**< number of sends required before we setup a send fast box for a peer */
     unsigned int fbox_max;                  /**< maximum number of send fast boxes to allocate */
     unsigned int fbox_size;                 /**< size of each peer fast box allocation */
-    unsigned int fbox_count;                /**< number of send fast boxes allocated  */
 
     int single_copy_mechanism;              /**< single copy mechanism to use */
 
@@ -142,6 +150,7 @@ struct mca_btl_vader_component_t {
 #if OPAL_BTL_VADER_HAVE_KNEM
     unsigned int knem_dma_min;              /**< minimum size to enable DMA for knem transfers (0 disables) */
 #endif
+    mca_mpool_base_module_t *mpool;
 };
 typedef struct mca_btl_vader_component_t mca_btl_vader_component_t;
 OPAL_MODULE_DECLSPEC extern mca_btl_vader_component_t mca_btl_vader_component;
@@ -233,6 +242,11 @@ int mca_btl_vader_put_knem (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t 
                             int order, mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata);
 #endif
 
+int mca_btl_vader_put_sc_emu (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t *endpoint, void *local_address,
+                               uint64_t remote_address, mca_btl_base_registration_handle_t *local_handle,
+                               mca_btl_base_registration_handle_t *remote_handle, size_t size, int flags,
+                               int order, mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata);
+
 /**
  * Initiate an synchronous get.
  *
@@ -260,6 +274,31 @@ int mca_btl_vader_get_knem (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t 
                             mca_btl_base_registration_handle_t *remote_handle, size_t size, int flags,
                             int order, mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata);
 #endif
+
+ino_t mca_btl_vader_get_user_ns_id(void);
+
+int mca_btl_vader_get_sc_emu (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t *endpoint, void *local_address,
+                               uint64_t remote_address, mca_btl_base_registration_handle_t *local_handle,
+                               mca_btl_base_registration_handle_t *remote_handle, size_t size, int flags,
+                               int order, mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata);
+
+int mca_btl_vader_emu_aop (struct mca_btl_base_module_t *btl, struct mca_btl_base_endpoint_t *endpoint,
+                           uint64_t remote_address, mca_btl_base_registration_handle_t *remote_handle,
+                           mca_btl_base_atomic_op_t op, uint64_t operand, int flags, int order,
+                           mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata);
+
+int mca_btl_vader_emu_afop (struct mca_btl_base_module_t *btl, struct mca_btl_base_endpoint_t *endpoint,
+                            void *local_address, uint64_t remote_address, mca_btl_base_registration_handle_t *local_handle,
+                            mca_btl_base_registration_handle_t *remote_handle, mca_btl_base_atomic_op_t op,
+                            uint64_t operand, int flags, int order, mca_btl_base_rdma_completion_fn_t cbfunc,
+                            void *cbcontext, void *cbdata);
+
+int mca_btl_vader_emu_acswap (struct mca_btl_base_module_t *btl, struct mca_btl_base_endpoint_t *endpoint,
+                              void *local_address, uint64_t remote_address, mca_btl_base_registration_handle_t *local_handle,
+                              mca_btl_base_registration_handle_t *remote_handle, uint64_t compare, uint64_t value, int flags,
+                              int order, mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata);
+
+void mca_btl_vader_sc_emu_init (void);
 
 /**
  * Allocate a segment.

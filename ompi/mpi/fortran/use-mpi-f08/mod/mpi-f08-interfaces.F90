@@ -1,6 +1,6 @@
 ! -*- f90 -*-
 !
-! Copyright (c) 2009-2015 Cisco Systems, Inc.  All rights reserved.
+! Copyright (c) 2009-2018 Cisco Systems, Inc.  All rights reserved
 ! Copyright (c) 2009-2015 Los Alamos National Security, LLC.
 !                         All rights reserved.
 ! Copyright (c) 2012      The University of Tennessee and The University
@@ -9,7 +9,7 @@
 ! Copyright (c) 2012      Inria.  All rights reserved.
 ! Copyright (c) 2015-2017 Research Organization for Information Science
 !                         and Technology (RIST). All rights reserved.
-! Copyright (c) 2017      FUJITSU LIMITED.  All rights reserved.
+! Copyright (c) 2017-2018 FUJITSU LIMITED.  All rights reserved.
 ! $COPYRIGHT$
 !
 ! This file provides the interface specifications for the MPI Fortran
@@ -3503,7 +3503,7 @@ subroutine MPI_Status_set_cancelled_f08(status,flag,ierror)
    use :: mpi_f08_types, only : MPI_Status
    implicit none
    TYPE(MPI_Status), INTENT(INOUT) :: status
-   LOGICAL, INTENT(OUT) :: flag
+   LOGICAL, INTENT(IN) :: flag
    INTEGER, OPTIONAL, INTENT(OUT) :: ierror
 end subroutine MPI_Status_set_cancelled_f08
 end interface  MPI_Status_set_cancelled

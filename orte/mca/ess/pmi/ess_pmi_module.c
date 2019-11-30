@@ -15,6 +15,9 @@
  * Copyright (c) 2013-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2016-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2018      Mellanox Technologies, Inc.
+ *                         All rights reserved.
+ * Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -43,6 +46,7 @@
 
 #include "opal/util/opal_environ.h"
 #include "opal/util/output.h"
+#include "opal/util/arch.h"
 #include "opal/util/argv.h"
 #include "opal/runtime/opal_progress_threads.h"
 #include "opal/class/opal_pointer_array.h"
@@ -51,12 +55,17 @@
 #include "opal/util/proc.h"
 #include "opal/mca/pmix/pmix.h"
 #include "opal/mca/pmix/base/base.h"
+#include "opal/util/timings.h"
 
-#include "orte/mca/errmgr/errmgr.h"
+#include "orte/mca/errmgr/base/base.h"
+#include "orte/mca/filem/base/base.h"
 #include "orte/mca/grpcomm/grpcomm.h"
 #include "orte/mca/rml/rml.h"
+#include "orte/mca/rml/base/rml_contact.h"
 #include "orte/mca/schizo/schizo.h"
+#include "orte/mca/state/base/base.h"
 #include "orte/util/proc_info.h"
+#include "orte/util/session_dir.h"
 #include "orte/util/show_help.h"
 #include "orte/util/name_fns.h"
 #include "orte/util/pre_condition_transports.h"
@@ -82,6 +91,7 @@ static bool added_transport_keys=false;
 static bool added_num_procs = false;
 static bool added_app_ctx = false;
 static bool progress_thread_running = false;
+static bool direct_launched = false;
 
 /****    MODULE FUNCTIONS    ****/
 
@@ -101,16 +111,20 @@ static int rte_init(void)
     bool bool_val, *bool_ptr = &bool_val, tdir_mca_override = false;
     size_t i;
 
+    OPAL_TIMING_ENV_INIT(rte_init);
+
     /* run the prolog */
     if (ORTE_SUCCESS != (ret = orte_ess_base_std_prolog())) {
         error = "orte_ess_base_std_prolog";
         goto error;
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "orte_ess_base_std_prolog");
 
     /* get an async event base - we use the opal_async one so
      * we don't startup extra threads if not needed */
     orte_event_base = opal_progress_thread_init(NULL);
     progress_thread_running = true;
+    OPAL_TIMING_ENV_NEXT(rte_init, "progress_thread_init");
 
     /* open and setup pmix */
     if (OPAL_SUCCESS != (ret = mca_base_framework_open(&opal_pmix_base_framework, 0))) {
@@ -126,13 +140,19 @@ static int rte_init(void)
     }
     /* set the event base */
     opal_pmix_base_set_evbase(orte_event_base);
+    OPAL_TIMING_ENV_NEXT(rte_init, "pmix_framework_open");
+
+    /* see if we were direct launched */
+    if (ORTE_SCHIZO_DIRECT_LAUNCHED == orte_schizo.check_launch_environment()) {
+        direct_launched = true;
+    }
+
     /* initialize the selected module */
     if (!opal_pmix.initialized() && (OPAL_SUCCESS != (ret = opal_pmix.init(NULL)))) {
         /* we cannot run - this could be due to being direct launched
          * without the required PMI support being built. Try to detect
          * that scenario and warn the user */
-        if (ORTE_SCHIZO_DIRECT_LAUNCHED == orte_schizo.check_launch_environment() &&
-            NULL != (envar = getenv("ORTE_SCHIZO_DETECTION"))) {
+        if (direct_launched && NULL != (envar = getenv("ORTE_SCHIZO_DETECTION"))) {
             if (0 == strcmp(envar, "SLURM")) {
                 /* yes to both - so emit a hopefully helpful
                  * error message and abort */
@@ -165,6 +185,8 @@ static int rte_init(void)
     /* setup a name for retrieving proc-specific data */
     pname.jobid = ORTE_PROC_MY_NAME->jobid;
     pname.vpid = 0;
+
+    OPAL_TIMING_ENV_NEXT(rte_init, "pmix_init");
 
     /* get our local rank from PMI */
     OPAL_MODEX_RECV_VALUE(ret, OPAL_PMIX_LOCAL_RANK,
@@ -242,6 +264,7 @@ static int rte_init(void)
     if (OPAL_SUCCESS == ret) {
         orte_process_info.num_nodes = u32;
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "pmix_get_job_params");
 
     /* setup transport keys in case the MPI layer needs them -
      * we can use the jobfam and stepid as unique keys
@@ -263,6 +286,7 @@ static int rte_init(void)
         /* cannot free the envar as that messes up our environ */
         free(string_key);
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "orte_precondition_transport");
 
     /* retrieve temp directories info */
     OPAL_MODEX_RECV_VALUE_OPTIONAL(ret, OPAL_PMIX_TMPDIR, &wildcard_rank, &val, OPAL_STRING);
@@ -320,6 +344,7 @@ static int rte_init(void)
             orte_process_info.rm_session_dirs = bool_val;
         }
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "pmix_set_tdirs");
 
     /* get our local peers */
     if (0 < orte_process_info.num_local_peers) {
@@ -395,19 +420,155 @@ static int rte_init(void)
             free(mycpuset);
         }
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "pmix_set_locality");
 
     /* now that we have all required info, complete the setup */
-    if (ORTE_SUCCESS != (ret = orte_ess_base_app_setup(false))) {
+    /*
+     * stdout/stderr buffering
+     * If the user requested to override the default setting then do
+     * as they wish.
+     */
+    if( orte_ess_base_std_buffering > -1 ) {
+        if( 0 == orte_ess_base_std_buffering ) {
+            setvbuf(stdout, NULL, _IONBF, 0);
+            setvbuf(stderr, NULL, _IONBF, 0);
+        }
+        else if( 1 == orte_ess_base_std_buffering ) {
+            setvbuf(stdout, NULL, _IOLBF, 0);
+            setvbuf(stderr, NULL, _IOLBF, 0);
+        }
+        else if( 2 == orte_ess_base_std_buffering ) {
+            setvbuf(stdout, NULL, _IOFBF, 0);
+            setvbuf(stderr, NULL, _IOFBF, 0);
+        }
+    }
+
+    /* if I am an MPI app, we will let the MPI layer define and
+     * control the opal_proc_t structure. Otherwise, we need to
+     * do so here */
+    if (ORTE_PROC_NON_MPI) {
+        orte_process_info.super.proc_name = *(opal_process_name_t*)ORTE_PROC_MY_NAME;
+        orte_process_info.super.proc_hostname = orte_process_info.nodename;
+        orte_process_info.super.proc_flags = OPAL_PROC_ALL_LOCAL;
+        orte_process_info.super.proc_arch = opal_local_arch;
+        opal_proc_local_set(&orte_process_info.super);
+    }
+
+    /* open and setup the state machine */
+    if (ORTE_SUCCESS != (ret = mca_base_framework_open(&orte_state_base_framework, 0))) {
         ORTE_ERROR_LOG(ret);
-        error = "orte_ess_base_app_setup";
+        error = "orte_state_base_open";
         goto error;
     }
+    if (ORTE_SUCCESS != (ret = orte_state_base_select())) {
+        ORTE_ERROR_LOG(ret);
+        error = "orte_state_base_select";
+        goto error;
+    }
+    OPAL_TIMING_ENV_NEXT(rte_init, "state_framework_open");
+
+    /* open the errmgr */
+    if (ORTE_SUCCESS != (ret = mca_base_framework_open(&orte_errmgr_base_framework, 0))) {
+        ORTE_ERROR_LOG(ret);
+        error = "orte_errmgr_base_open";
+        goto error;
+    }
+    OPAL_TIMING_ENV_NEXT(rte_init, "errmgr_framework_open");
+
+    /* setup my session directory */
+    if (orte_create_session_dirs) {
+        OPAL_OUTPUT_VERBOSE((2, orte_ess_base_framework.framework_output,
+                             "%s setting up session dir with\n\ttmpdir: %s\n\thost %s",
+                             ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                             (NULL == orte_process_info.tmpdir_base) ? "UNDEF" : orte_process_info.tmpdir_base,
+                             orte_process_info.nodename));
+        if (ORTE_SUCCESS != (ret = orte_session_dir(true, ORTE_PROC_MY_NAME))) {
+            ORTE_ERROR_LOG(ret);
+            error = "orte_session_dir";
+            goto error;
+        }
+        /* Once the session directory location has been established, set
+           the opal_output env file location to be in the
+           proc-specific session directory. */
+        opal_output_set_output_file_info(orte_process_info.proc_session_dir,
+                                         "output-", NULL, NULL);
+        /* register the directory for cleanup */
+        if (NULL != opal_pmix.register_cleanup) {
+            if (orte_standalone_operation) {
+                if (OPAL_SUCCESS != (ret = opal_pmix.register_cleanup(orte_process_info.top_session_dir, true, false, true))) {
+                    ORTE_ERROR_LOG(ret);
+                    error = "register cleanup";
+                    goto error;
+                }
+            } else {
+                if (OPAL_SUCCESS != (ret = opal_pmix.register_cleanup(orte_process_info.job_session_dir, true, false, false))) {
+                    ORTE_ERROR_LOG(ret);
+                    error = "register cleanup";
+                    goto error;
+                }
+            }
+        }
+    }
+    OPAL_TIMING_ENV_NEXT(rte_init, "create_session_dirs");
+
+    /* if we have info on the HNP and local daemon, process it */
+    if (NULL != orte_process_info.my_hnp_uri) {
+        /* we have to set the HNP's name, even though we won't route messages directly
+         * to it. This is required to ensure that we -do- send messages to the correct
+         * HNP name
+         */
+        if (ORTE_SUCCESS != (ret = orte_rml_base_parse_uris(orte_process_info.my_hnp_uri,
+                                                            ORTE_PROC_MY_HNP, NULL))) {
+            ORTE_ERROR_LOG(ret);
+            error = "orte_rml_parse_HNP";
+            goto error;
+        }
+    }
+    if (NULL != orte_process_info.my_daemon_uri) {
+        opal_value_t val;
+
+        /* extract the daemon's name so we can update the routing table */
+        if (ORTE_SUCCESS != (ret = orte_rml_base_parse_uris(orte_process_info.my_daemon_uri,
+                                                            ORTE_PROC_MY_DAEMON, NULL))) {
+            ORTE_ERROR_LOG(ret);
+            error = "orte_rml_parse_daemon";
+            goto error;
+        }
+        /* Set the contact info in the database - this won't actually establish
+         * the connection, but just tells us how to reach the daemon
+         * if/when we attempt to send to it
+         */
+        OBJ_CONSTRUCT(&val, opal_value_t);
+        val.key = OPAL_PMIX_PROC_URI;
+        val.type = OPAL_STRING;
+        val.data.string = orte_process_info.my_daemon_uri;
+        if (OPAL_SUCCESS != (ret = opal_pmix.store_local(ORTE_PROC_MY_DAEMON, &val))) {
+            ORTE_ERROR_LOG(ret);
+            val.key = NULL;
+            val.data.string = NULL;
+            OBJ_DESTRUCT(&val);
+            error = "store DAEMON URI";
+            goto error;
+        }
+        val.key = NULL;
+        val.data.string = NULL;
+        OBJ_DESTRUCT(&val);
+    }
+
+    /* setup the errmgr */
+    if (ORTE_SUCCESS != (ret = orte_errmgr_base_select())) {
+        ORTE_ERROR_LOG(ret);
+        error = "orte_errmgr_base_select";
+        goto error;
+    }
+    OPAL_TIMING_ENV_NEXT(rte_init, "errmgr_select");
 
     /* setup process binding */
     if (ORTE_SUCCESS != (ret = orte_ess_base_proc_binding())) {
         error = "proc_binding";
         goto error;
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "ess_base_proc_binding");
 
     /* this needs to be set to enable debugger use when direct launched */
     if (NULL == orte_process_info.my_daemon_uri) {
@@ -446,6 +607,7 @@ static int rte_init(void)
             goto error;
         }
     }
+    OPAL_TIMING_ENV_NEXT(rte_init, "rte_init_done");
 
     return ORTE_SUCCESS;
 
@@ -466,8 +628,6 @@ static int rte_init(void)
 
 static int rte_finalize(void)
 {
-    int ret;
-
     /* remove the envars that we pushed into environ
      * so we leave that structure intact
      */
@@ -481,11 +641,21 @@ static int rte_finalize(void)
         unsetenv("OMPI_APP_CTX_NUM_PROCS");
     }
 
-    /* use the default app procedure to finish */
-    if (ORTE_SUCCESS != (ret = orte_ess_base_app_finalize())) {
-        ORTE_ERROR_LOG(ret);
-        return ret;
+    /* close frameworks */
+    (void) mca_base_framework_close(&orte_filem_base_framework);
+    (void) mca_base_framework_close(&orte_errmgr_base_framework);
+
+    if (NULL != opal_pmix.finalize) {
+        opal_pmix.finalize();
+        (void) mca_base_framework_close(&opal_pmix_base_framework);
     }
+    (void) mca_base_framework_close(&orte_state_base_framework);
+
+    if (direct_launched) {
+        orte_session_dir_finalize(ORTE_PROC_MY_NAME);
+    }
+    /* cleanup the process info */
+    orte_proc_info_finalize();
 
     /* release the event base */
     if (progress_thread_running) {

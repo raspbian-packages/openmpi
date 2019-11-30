@@ -15,7 +15,7 @@
  * Copyright (c) 2007-2017 Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
- * Copyright (c) 2015-2017 Research Organization for Information Science
+ * Copyright (c) 2015-2018 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
@@ -173,14 +173,44 @@ char MPIR_attach_fifo[MPIR_MAX_PATH_LENGTH] = {0};
 int MPIR_force_to_main = 0;
 static void orte_debugger_init_before_spawn(orte_job_t *jdata);
 
-ORTE_DECLSPEC void* __opal_attribute_optnone__ MPIR_Breakpoint(void);
+ORTE_DECLSPEC void __opal_attribute_optnone__ MPIR_Breakpoint(void);
+
+/* 
+ * Attempt to prevent the compiler from optimizing out
+ * MPIR_Breakpoint().
+ *
+ * Some older versions of automake can add -O3 to every
+ * file via CFLAGS (which was demonstrated in automake v1.13.4),
+ * so there is a possibility that the compiler will see
+ * this function as a NOOP and optimize it out on older versions.
+ * While using the current/recommended version of automake
+ * does not do this, the following will help those
+ * stuck with an older version, as well as guard against
+ * future regressions.
+ *
+ * See the following git issue for more discussion:
+ * https://github.com/open-mpi/ompi/issues/5501
+ */
+volatile void* volatile orte_noop_mpir_breakpoint_ptr = NULL;
 
 /*
  * Breakpoint function for parallel debuggers
  */
-void* MPIR_Breakpoint(void)
+void MPIR_Breakpoint(void)
 {
-    return NULL;
+    /* 
+     * Actually do something with this pointer to make
+     * sure the compiler does not optimize out this function.
+     * The compiler should be forced to keep this
+     * function around due to the volatile void* type.
+     *
+     * This pointer doesn't actually do anything other than
+     * prevent unwanted optimization, and
+     * *should not* be used anywhere else in the code.
+     * So pointing this to the weeds should be OK.
+     */
+    orte_noop_mpir_breakpoint_ptr = (volatile void *) 0x42;
+    return;
 }
 
 /* local objects */
@@ -324,6 +354,14 @@ int orte_submit_init(int argc, char *argv[],
      * exit with a giant warning flag
      */
     if (0 == geteuid() && !orte_cmd_options.run_as_root) {
+        /* check for two envars that allow override of this protection */
+        char *r1, *r2;
+        if (NULL != (r1 = getenv("OMPI_ALLOW_RUN_AS_ROOT")) &&
+            NULL != (r2 = getenv("OMPI_ALLOW_RUN_AS_ROOT_CONFIRM"))) {
+            if (0 == strcmp(r1, "1") && 0 == strcmp(r2, "1")) {
+                goto moveon;
+            }
+        }
         /* show_help is not yet available, so print an error manually */
         fprintf(stderr, "--------------------------------------------------------------------------\n");
         if (orte_cmd_options.help) {
@@ -338,13 +376,17 @@ int orte_submit_init(int argc, char *argv[],
 
         fprintf(stderr, "We strongly suggest that you run %s as a non-root user.\n\n", orte_basename);
 
-        fprintf(stderr, "You can override this protection by adding the --allow-run-as-root\n");
-        fprintf(stderr, "option to your command line.  However, we reiterate our strong advice\n");
-        fprintf(stderr, "against doing so - please do so at your own risk.\n");
+        fprintf(stderr, "You can override this protection by adding the --allow-run-as-root option\n");
+        fprintf(stderr, "to the cmd line or by setting two environment variables in the following way:\n");
+        fprintf(stderr, "the variable OMPI_ALLOW_RUN_AS_ROOT=1 to indicate the desire to override this\n");
+        fprintf(stderr, "protection, and OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 to confirm the choice and\n");
+        fprintf(stderr, "add one more layer of certainty that you want to do so.\n");
+        fprintf(stderr, "We reiterate our advice against doing so - please proceed at your own risk.\n");
         fprintf(stderr, "--------------------------------------------------------------------------\n");
         exit(1);
     }
 
+  moveon:
     /* process any mca params */
     rc = mca_base_cmd_line_process_args(orte_cmd_line, &environ, &environ);
     if (ORTE_SUCCESS != rc) {
@@ -864,7 +906,7 @@ int orte_submit_job(char *argv[], int *index,
     jdata->map = OBJ_NEW(orte_job_map_t);
 
     if (NULL != orte_cmd_options.mapping_policy) {
-        if (ORTE_SUCCESS != (rc = orte_rmaps_base_set_mapping_policy(&jdata->map->mapping, NULL, orte_cmd_options.mapping_policy))) {
+        if (ORTE_SUCCESS != (rc = orte_rmaps_base_set_mapping_policy(jdata, &jdata->map->mapping, NULL, orte_cmd_options.mapping_policy))) {
             ORTE_ERROR_LOG(rc);
             return rc;
         }
@@ -917,6 +959,7 @@ int orte_submit_job(char *argv[], int *index,
     }
     if (orte_cmd_options.oversubscribe) {
         ORTE_UNSET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_NO_OVERSUBSCRIBE);
+        ORTE_SET_MAPPING_DIRECTIVE(jdata->map->mapping, ORTE_MAPPING_SUBSCRIBE_GIVEN);
     }
     if (orte_cmd_options.report_bindings) {
         orte_set_attribute(&jdata->attributes, ORTE_JOB_REPORT_BINDINGS, ORTE_ATTR_GLOBAL, NULL, OPAL_BOOL);
@@ -2244,6 +2287,8 @@ struct MPIR_PROCDESC {
  * spawn we need to check if we are being run under a TotalView-like
  * debugger; if so then inform applications via an MCA parameter.
  */
+static bool mpir_warning_printed = false;
+
 static void orte_debugger_init_before_spawn(orte_job_t *jdata)
 {
     char *env_name;
@@ -2291,6 +2336,15 @@ static void orte_debugger_init_before_spawn(orte_job_t *jdata)
 
  launchit:
     opal_output_verbose(1, orte_debug_output, "Info: Spawned by a debugger");
+
+    /* if we haven't previously warned about it */
+    if (!mpir_warning_printed) {
+        mpir_warning_printed = true;
+        /* check for silencing envar */
+        if (NULL == getenv("OMPI_MPIR_DO_NOT_WARN")) {
+            orte_show_help("help-orted.txt", "mpir-debugger-detected", true);
+        }
+    }
 
     /* tell the procs they are being debugged */
     (void) mca_base_var_env_name ("orte_in_parallel_debugger", &env_name);
@@ -2505,6 +2559,14 @@ void orte_debugger_init_after_spawn(int fd, short event, void *cbdata)
         if (MPIR_being_debugged || NULL != orte_debugger_test_daemon ||
             NULL != getenv("ORTE_TEST_DEBUGGER_ATTACH")) {
             OBJ_RELEASE(caddy);
+            /* if we haven't previously warned about it */
+            if (!mpir_warning_printed) {
+                mpir_warning_printed = true;
+                /* check for silencing envar */
+                if (NULL == getenv("OMPI_MPIR_DO_NOT_WARN")) {
+                    orte_show_help("help-orted.txt", "mpir-debugger-detected", true);
+                }
+            }
             if (!mpir_breakpoint_fired) {
                 /* record that we have triggered the debugger */
                 mpir_breakpoint_fired = true;
@@ -2600,6 +2662,15 @@ void orte_debugger_init_after_spawn(int fd, short event, void *cbdata)
      */
     if (MPIR_being_debugged || NULL != orte_debugger_test_daemon ||
         NULL != getenv("ORTE_TEST_DEBUGGER_ATTACH")) {
+        /* if we haven't previously warned about it */
+        if (!mpir_warning_printed) {
+            mpir_warning_printed = true;
+            /* check for silencing envar */
+            if (NULL == getenv("OMPI_MPIR_DO_NOT_WARN")) {
+                orte_show_help("help-orted.txt", "mpir-debugger-detected", true);
+            }
+        }
+
         /* if we are not launching debugger daemons, then trigger
          * the debugger - otherwise, we need to wait for the debugger
          * daemons to be started
@@ -2908,6 +2979,15 @@ static void attach_debugger(int fd, short event, void *arg)
                         "%s Attaching debugger %s", ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                         (NULL == orte_debugger_test_daemon) ? MPIR_executable_path : orte_debugger_test_daemon);
 
+    /* if we haven't previously warned about it */
+    if (!mpir_warning_printed) {
+        mpir_warning_printed = true;
+        /* check for silencing envar */
+        if (NULL == getenv("OMPI_MPIR_DO_NOT_WARN")) {
+            orte_show_help("help-orted.txt", "mpir-debugger-detected", true);
+        }
+    }
+
     /* a debugger has attached! All the MPIR_Proctable
      * data is already available, so we only need to
      * check to see if we should spawn any daemons
@@ -3021,6 +3101,15 @@ static void run_debugger(char *basename, opal_cmd_line_t *cmd_line,
     if (OPAL_SUCCESS == ret && NULL != env_name) {
         opal_setenv(env_name, "1", true, &environ);
         free(env_name);
+    }
+
+    /* if we haven't previously warned about it */
+    if (!mpir_warning_printed) {
+        mpir_warning_printed = true;
+        /* check for silencing envar */
+        if (NULL == getenv("OMPI_MPIR_DO_NOT_WARN")) {
+            orte_show_help("help-orted.txt", "mpir-debugger-detected", true);
+        }
     }
 
     /* Launch the debugger */

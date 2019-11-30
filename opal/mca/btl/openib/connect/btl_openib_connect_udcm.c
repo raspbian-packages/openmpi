@@ -7,7 +7,7 @@
  *                         reserved.
  * Copyright (c) 2014-2015 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
- * Copyright (c) 2014      Intel, Inc. All rights reserved.
+ * Copyright (c) 2014-2017 Intel, Inc. All rights reserved.
  * Copyright (c) 2014      Bull SAS.  All rights reserved.
  * Copyright (c) 2016      Mellanox Technologies. All rights reserved.
  *
@@ -75,6 +75,7 @@
 #include "connect/connect.h"
 
 #include "opal/util/sys_limits.h"
+#include "opal/align.h"
 
 #if (ENABLE_DYNAMIC_SL)
 #include "connect/btl_openib_connect_sl.h"
@@ -1040,7 +1041,7 @@ static void udcm_module_destroy_listen_qp (udcm_module_t *m)
 
 static int udcm_module_allocate_buffers (udcm_module_t *m)
 {
-    size_t total_size;
+    size_t total_size, page_size;
 
     m->msg_length   = sizeof (udcm_msg_hdr_t) +
         mca_btl_openib_component.num_qps * sizeof (udcm_qp_t);
@@ -1048,8 +1049,11 @@ static int udcm_module_allocate_buffers (udcm_module_t *m)
     total_size = (udcm_recv_count + 1) * (m->msg_length +
                                           UDCM_GRH_SIZE);
 
+    page_size = opal_getpagesize();
+    total_size = OPAL_ALIGN(total_size, page_size, size_t);
+
     m->cm_buffer = NULL;
-    posix_memalign ((void **)&m->cm_buffer, (size_t)opal_getpagesize(),
+    posix_memalign ((void **)&m->cm_buffer, (size_t)page_size,
                     total_size);
     if (NULL == m->cm_buffer) {
         BTL_ERROR(("malloc failed! errno = %d", errno));
@@ -1980,7 +1984,9 @@ static int udcm_process_messages (struct ibv_cq *event_cq, udcm_module_t *m)
     udcm_msg_t *message = NULL;
     udcm_message_recv_t *item;
     struct ibv_wc wc[20];
+#if OPAL_ENABLE_DEBUG
     struct ibv_grh *grh;
+#endif
     udcm_endpoint_t *udep;
     uint64_t dir;
 
@@ -2000,7 +2006,9 @@ static int udcm_process_messages (struct ibv_cq *event_cq, udcm_module_t *m)
 
         msg_num = (int)(wc[i].wr_id & (~UDCM_WR_DIR_MASK));
 
+#if OPAL_ENABLE_DEBUG
         grh = (wc[i].wc_flags & IBV_WC_GRH) ? (struct ibv_grh *) udcm_module_get_recv_buffer (m, msg_num, false) : NULL;
+#endif
 
         BTL_VERBOSE(("WC: wr_id: 0x%016" PRIu64 ", status: %d, opcode: 0x%x, byte_len: %x, imm_data: 0x%08x, "
                      "qp_num: 0x%08x, src_qp: 0x%08x, wc_flags: 0x%x, slid: 0x%04x grh_present: %s",

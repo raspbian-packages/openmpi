@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2011 Mellanox Technologies. All rights reserved.
- * Copyright (c) 2014 Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2011-2018 Mellanox Technologies. All rights reserved.
+ * Copyright (c) 2014      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2014      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -17,6 +17,7 @@
 #include "oshmem/proc/proc.h"
 #include "oshmem/runtime/runtime.h"
 #include "ompi/mca/coll/base/base.h"
+#include "opal/util/timings.h"
 
 int mca_scoll_mpi_init_query(bool enable_progress_threads, bool enable_mpi_threads)
 {
@@ -109,7 +110,7 @@ mca_scoll_mpi_comm_query(oshmem_group_t *osh_group, int *priority)
     mca_scoll_mpi_module_t *mpi_module;
     int err, i;
     int tag;
-    ompi_group_t* parent_group, *new_group;
+    ompi_group_t* world_group, *new_group;
     ompi_communicator_t* newcomm = NULL;
     *priority = 0;
     mca_scoll_mpi_component_t *cm;
@@ -121,49 +122,58 @@ mca_scoll_mpi_comm_query(oshmem_group_t *osh_group, int *priority)
     if ((osh_group->proc_count < 2) || (osh_group->proc_count < cm->mpi_np)) {
         return NULL;
     }
+    OPAL_TIMING_ENV_INIT(comm_query);
+
     /* Create OMPI_Comm object and store ptr to it in group obj*/
     if (NULL == oshmem_group_all) {
         osh_group->ompi_comm = &(ompi_mpi_comm_world.comm);
+        OPAL_TIMING_ENV_NEXT(comm_query, "ompi_mpi_comm_world");
     } else {
-        err = ompi_comm_group(&(ompi_mpi_comm_world.comm), &parent_group);
+        err = ompi_comm_group(&(ompi_mpi_comm_world.comm), &world_group);
         if (OPAL_UNLIKELY(OMPI_SUCCESS != err)) {
             return NULL;
         }
+        OPAL_TIMING_ENV_NEXT(comm_query, "ompi_comm_group");
+
         ranks = (int*) malloc(osh_group->proc_count * sizeof(int));
         if (OPAL_UNLIKELY(NULL == ranks)) {
             return NULL;
         }
         tag = 1;
 
+        OPAL_TIMING_ENV_NEXT(comm_query, "malloc");
+
+        /* Fill the map "group_rank-to-world_rank" in order to create a new proc group */
         for (i = 0; i < osh_group->proc_count; i++) {
-            ompi_proc_t* ompi_proc;
-            for( int j = 0; j < ompi_group_size(parent_group); j++ ) {
-                ompi_proc = ompi_group_peer_lookup(parent_group, j);
-                if( 0 == opal_compare_proc(ompi_proc->super.proc_name, osh_group->proc_array[i]->super.proc_name)) {
-                    ranks[i] = j;
-                    break;
-                }
-            }
+            ranks[i] = osh_group->proc_array[i]->super.proc_name.vpid;
         }
 
-        err = ompi_group_incl(parent_group, osh_group->proc_count, ranks, &new_group);
+        OPAL_TIMING_ENV_NEXT(comm_query, "build_ranks");
+
+        err = ompi_group_incl(world_group, osh_group->proc_count, ranks, &new_group);
         if (OPAL_UNLIKELY(OMPI_SUCCESS != err)) {
             free(ranks);
             return NULL;
         }
+        OPAL_TIMING_ENV_NEXT(comm_query, "ompi_group_incl");
+
         err = ompi_comm_create_group(&(ompi_mpi_comm_world.comm), new_group, tag, &newcomm);
         if (OPAL_UNLIKELY(OMPI_SUCCESS != err)) {
             free(ranks);
             return NULL;
         }
+        OPAL_TIMING_ENV_NEXT(comm_query, "ompi_comm_create_group");
+
         err = ompi_group_free(&new_group);
         if (OPAL_UNLIKELY(OMPI_SUCCESS != err)) {
             free(ranks);
             return NULL;
         }
+        OPAL_TIMING_ENV_NEXT(comm_query, "ompi_group_free");
 
         free(ranks);
         osh_group->ompi_comm = newcomm;
+        OPAL_TIMING_ENV_NEXT(comm_query, "set_group_comm");
     }
     mpi_module = OBJ_NEW(mca_scoll_mpi_module_t);
     if (!mpi_module){

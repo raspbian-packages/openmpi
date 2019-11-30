@@ -54,7 +54,6 @@ int mca_common_monitoring_coll_cache_name(ompi_communicator_t*comm)
 
 static inline void mca_common_monitoring_coll_cache(mca_monitoring_coll_data_t*data)
 {
-    int world_rank;
     if( -1 == data->world_rank ) {
         /* Get current process world_rank */
         mca_common_monitoring_get_world_rank(ompi_comm_rank(data->p_comm),
@@ -96,7 +95,7 @@ mca_monitoring_coll_data_t*mca_common_monitoring_coll_new( ompi_communicator_t*c
     }
 
     data->p_comm      = comm;
-    
+
     /* Allocate hashtable */
     if( NULL == comm_data ) {
         comm_data = OBJ_NEW(opal_hash_table_t);
@@ -106,7 +105,7 @@ mca_monitoring_coll_data_t*mca_common_monitoring_coll_new( ompi_communicator_t*c
         }
         opal_hash_table_init(comm_data, 2048);
     }
-    
+
     /* Insert in hashtable */
     uint64_t key = *((uint64_t*)&comm);
     if( OPAL_SUCCESS != opal_hash_table_set_value_uint64(comm_data, key, (void*)data) ) {
@@ -128,7 +127,7 @@ void mca_common_monitoring_coll_release(mca_monitoring_coll_data_t*data)
         return;
     }
 #endif /* OPAL_ENABLE_DEBUG */
-        
+
     /* not flushed yet */
     data->is_released = 1;
     mca_common_monitoring_coll_cache(data);
@@ -142,7 +141,7 @@ static void mca_common_monitoring_coll_cond_release(mca_monitoring_coll_data_t*d
         return;
     }
 #endif /* OPAL_ENABLE_DEBUG */
-        
+
     if( data->is_released ) { /* if the communicator is already released */
         opal_hash_table_remove_value_uint64(comm_data, *((uint64_t*)&data->p_comm));
         data->p_comm = NULL;
@@ -238,8 +237,8 @@ void mca_common_monitoring_coll_o2a(size_t size, mca_monitoring_coll_data_t*data
         return;
     }
 #endif /* OPAL_ENABLE_DEBUG */
-    opal_atomic_add_size_t(&data->o2a_size, size);
-    opal_atomic_add_size_t(&data->o2a_count, 1);
+    opal_atomic_add_fetch_size_t(&data->o2a_size, size);
+    opal_atomic_add_fetch_size_t(&data->o2a_count, 1);
 }
 
 int mca_common_monitoring_coll_get_o2a_count(const struct mca_base_pvar_t *pvar,
@@ -279,8 +278,8 @@ void mca_common_monitoring_coll_a2o(size_t size, mca_monitoring_coll_data_t*data
         return;
     }
 #endif /* OPAL_ENABLE_DEBUG */
-    opal_atomic_add_size_t(&data->a2o_size, size);
-    opal_atomic_add_size_t(&data->a2o_count, 1);
+    opal_atomic_add_fetch_size_t(&data->a2o_size, size);
+    opal_atomic_add_fetch_size_t(&data->a2o_count, 1);
 }
 
 int mca_common_monitoring_coll_get_a2o_count(const struct mca_base_pvar_t *pvar,
@@ -320,8 +319,8 @@ void mca_common_monitoring_coll_a2a(size_t size, mca_monitoring_coll_data_t*data
         return;
     }
 #endif /* OPAL_ENABLE_DEBUG */
-    opal_atomic_add_size_t(&data->a2a_size, size);
-    opal_atomic_add_size_t(&data->a2a_count, 1);
+    opal_atomic_add_fetch_size_t(&data->a2a_size, size);
+    opal_atomic_add_fetch_size_t(&data->a2a_count, 1);
 }
 
 int mca_common_monitoring_coll_get_a2a_count(const struct mca_base_pvar_t *pvar,

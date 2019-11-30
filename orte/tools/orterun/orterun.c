@@ -14,7 +14,7 @@
  * Copyright (c) 2007-2009 Sun Microsystems, Inc. All rights reserved.
  * Copyright (c) 2007-2017 Los Alamos National Security, LLC.  All rights
  *                         reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -81,7 +81,6 @@
 #include "opal/class/opal_pointer_array.h"
 #include "opal/dss/dss.h"
 
-#include "orte/mca/dfs/dfs.h"
 #include "orte/mca/odls/odls.h"
 #include "orte/mca/rml/rml.h"
 #include "orte/mca/state/state.h"
@@ -135,28 +134,6 @@ int orterun(int argc, char *argv[])
     /* orte_submit_init() will also check if the user is running as
        root (and may issue a warning/exit). */
     if (ORTE_SUCCESS != orte_submit_init(argc, argv, NULL)) {
-        exit(1);
-    }
-
-    /* check if we are running as root - if we are, then only allow
-     * us to proceed if the allow-run-as-root flag was given. Otherwise,
-     * exit with a giant warning flag
-     */
-    if (0 == geteuid() && !orte_cmd_options.run_as_root) {
-        fprintf(stderr, "--------------------------------------------------------------------------\n");
-        if (NULL != orte_cmd_options.help) {
-            fprintf(stderr, "%s cannot provide the help message when run as root.\n", orte_basename);
-        } else {
-            /* show_help is not yet available, so print an error manually */
-            fprintf(stderr, "%s has detected an attempt to run as root.\n", orte_basename);
-        }
-        fprintf(stderr, "Running at root is *strongly* discouraged as any mistake (e.g., in\n");
-        fprintf(stderr, "defining TMPDIR) or bug can result in catastrophic damage to the OS\n");
-        fprintf(stderr, "file system, leaving your system in an unusable state.\n\n");
-        fprintf(stderr, "You can override this protection by adding the --allow-run-as-root\n");
-        fprintf(stderr, "option to your cmd line. However, we reiterate our strong advice\n");
-        fprintf(stderr, "against doing so - please do so at your own risk.\n");
-        fprintf(stderr, "--------------------------------------------------------------------------\n");
         exit(1);
     }
 

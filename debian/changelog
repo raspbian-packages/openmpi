@@ -1,10 +1,76 @@
-openmpi (3.1.3-11+rpi1) buster-staging; urgency=medium
+openmpi (4.0.2-4+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Mon, 06 May 2019 17:36:45 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sat, 30 Nov 2019 13:42:09 +0000
+
+openmpi (4.0.2-4) unstable; urgency=medium
+
+  * Version numbers on libs changed:
+   - libmpi_java.so now version 40.20.0
+   - libmca_common_monitoring.so now 50.10.0
+   - libmca_common_ompio.so now 41.19.2
+   - libmca_common_verbs.so now 40.20.0 
+   - libmca_common_ofi.so, liboshmem.so no longer produced
+   - Closes: #945170, 
+  * Close old bug: Closes #945121
+  * Update postinst scripts, remove preinst scripts; remove stuff no longer
+    needed post buster
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 21 Nov 2019 14:35:36 +0000
+
+openmpi (4.0.2-3) unstable; urgency=medium
+
+  * Add dependency on libevent-dev to libopenmpi-dev. Closes: #933738
+  * Drop deprecated Fortran-Mod: clause from d/control. Closes: #916860
+  * Enable java support for riscv64. Closes: #933738
+  * dh_fortran_mod now adds Fortran dependencies. Closes: #916159
+  * As of last upload, openmpi no longer prints warnings to stderr
+    by default. Closes: #814451
+  * Recent openmpi works in chroot. Closes: #494046
+  * OpenMPI4 works with hwloc2. Closes: #916794.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 20 Nov 2019 09:24:14 +0000
+
+openmpi (4.0.2-2) unstable; urgency=medium
+
+  * Move to unstable. Closes: #941996
+  * Set OMPI_MCA_btl_base_warn_component_unused=0 by default to silence 
+    warnings. Add README.Debian to say so.
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 19 Nov 2019 11:55:49 +0000
+
+openmpi (4.0.2-1) experimental; urgency=medium
+
+  * New upstream release
+   - libmpi_usempi_ignore_tkr.so now .40.20.0 
+   - libompitrace.so now 40.20.0
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 22 Oct 2019 18:04:21 +0100
+
+openmpi (4.0.2~rc1-1) experimental; urgency=medium
+
+  * New upstream release
+   - libmpi_cxx.so, libmpi_usempif08.so  now 40.20.1
+   - libmpi_mpifh, libmpi.so now 40.20.2
+   - libopen-pal, libopen-rte now 40.20.2
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 09 Sep 2019 06:46:16 +0100
+
+openmpi (4.0.1-1) experimental; urgency=medium
+
+  * New upstream release
+   -  orte-ps, orte-top, orte-server, orte-dvm, prun no longer built.
+   - libmca_common_sm now 40.20.0
+   - libmpi.so, libmpi_mpifh,libopen-rte,libopen-pal  now 40.20.1
+  * Undo --no-parallel.
+  * Standards-Version: 4.4.0
+  * Use debhelper-compat (= 12)
+  * Drop B-D on gcc7 for ia64 (no longer a release arch)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 21 Jul 2019 11:20:58 +0100
 
 openmpi (3.1.3-11) unstable; urgency=medium
 

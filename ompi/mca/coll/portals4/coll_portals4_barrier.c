@@ -44,7 +44,7 @@ barrier_hypercube_top(struct ompi_communicator_t *comm,
 
     request->type = OMPI_COLL_PORTALS4_TYPE_BARRIER;
 
-    count = opal_atomic_add_size_t(&portals4_module->coll_count, 1);
+    count = opal_atomic_add_fetch_size_t(&portals4_module->coll_count, 1);
 
     ret = PtlCTAlloc(mca_coll_portals4_component.ni_h,
             &request->u.barrier.rtr_ct_h);
@@ -271,7 +271,7 @@ ompi_coll_portals4_barrier_intra(struct ompi_communicator_t *comm,
 int
 ompi_coll_portals4_ibarrier_intra(struct ompi_communicator_t *comm,
         ompi_request_t **ompi_req,
-        struct mca_coll_base_module_2_2_0_t *module)
+        struct mca_coll_base_module_2_3_0_t *module)
 {
     int ret;
     mca_coll_portals4_module_t *portals4_module = (mca_coll_portals4_module_t*) module;

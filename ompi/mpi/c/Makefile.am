@@ -13,9 +13,9 @@
 # Copyright (c) 2011      Sandia National Laboratories. All rights reserved.
 # Copyright (c) 2012      Oak Rigde National Laboratory. All rights reserved.
 # Copyright (c) 2012-2013 Inria.  All rights reserved.
-# Copyright (c) 2013      Los Alamos National Security, LLC. All rights
+# Copyright (c) 2013-2018 Los Alamos National Security, LLC. All rights
 #                         reserved.
-# Copyright (c) 2015-2017 Research Organization for Information Science
+# Copyright (c) 2015-2018 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # $COPYRIGHT$
 #
@@ -65,7 +65,6 @@ libmpi_c_mpi_la_SOURCES = \
         add_error_class.c \
         add_error_code.c \
         add_error_string.c \
-        address.c \
         allgather.c \
         iallgather.c \
         allgatherv.c \
@@ -144,11 +143,8 @@ libmpi_c_mpi_la_SOURCES = \
 	compare_and_swap.c \
         dims_create.c \
         errhandler_c2f.c \
-        errhandler_create.c \
         errhandler_f2c.c \
         errhandler_free.c \
-        errhandler_get.c \
-        errhandler_set.c \
         error_class.c \
         error_string.c \
         exscan.c \
@@ -277,8 +273,6 @@ libmpi_c_mpi_la_SOURCES = \
         is_thread_main.c \
         isend.c \
         issend.c \
-        keyval_create.c \
-        keyval_free.c \
         lookup_name.c \
         message_f2c.c \
         message_c2f.c \
@@ -294,6 +288,8 @@ libmpi_c_mpi_la_SOURCES = \
         ineighbor_alltoallv.c \
         neighbor_alltoallw.c \
         ineighbor_alltoallw.c \
+        keyval_create.c \
+        keyval_free.c \
         op_c2f.c \
         op_commutative.c \
         op_create.c \
@@ -370,7 +366,6 @@ libmpi_c_mpi_la_SOURCES = \
         type_create_subarray.c \
         type_delete_attr.c \
         type_dup.c \
-        type_extent.c \
         type_f2c.c \
         type_free.c \
         type_free_keyval.c \
@@ -382,17 +377,12 @@ libmpi_c_mpi_la_SOURCES = \
         type_get_name.c \
         type_get_true_extent.c \
         type_get_true_extent_x.c \
-        type_hindexed.c \
-        type_hvector.c \
         type_indexed.c \
-        type_lb.c \
         type_match_size.c \
         type_set_attr.c \
         type_set_name.c \
         type_size.c \
         type_size_x.c \
-        type_struct.c \
-        type_ub.c \
         type_vector.c \
         unpack_external.c \
         unpack.c \
@@ -445,6 +435,21 @@ libmpi_c_mpi_la_SOURCES = \
         win_unlock.c \
 	win_unlock_all.c \
         win_wait.c
+
+
+# include all of the removed MPI functions in library
+# for v4.0.x regardless of state of OMPI_ENABLE_MPI1_COMPAT
+libmpi_c_mpi_la_SOURCES += \
+        address.c \
+        errhandler_create.c \
+        errhandler_get.c \
+        errhandler_set.c \
+        type_extent.c \
+        type_hindexed.c \
+        type_hvector.c \
+        type_lb.c \
+        type_struct.c \
+        type_ub.c
 
 # Conditionally install the header files
 

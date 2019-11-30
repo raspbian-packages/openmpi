@@ -13,7 +13,7 @@
  * Copyright (c) 2007-2017 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2011-2013 Los Alamos National Security, LLC.
  *                         All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
  * Copyright (c) 2017-2018 Research Organization for Information Science
  *                         and Technology (RIST).  All rights reserved.
@@ -365,6 +365,8 @@ typedef struct {
     orte_job_flags_t flags;
     /* attributes */
     opal_list_t attributes;
+    /* launch msg buffer */
+    opal_buffer_t launch_msg;
 } orte_job_t;
 ORTE_DECLSPEC OBJ_CLASS_DECLARATION(orte_job_t);
 
@@ -519,7 +521,6 @@ ORTE_DECLSPEC extern int orte_startup_timeout;
 ORTE_DECLSPEC extern int orte_timeout_usec_per_proc;
 ORTE_DECLSPEC extern float orte_max_timeout;
 ORTE_DECLSPEC extern orte_timer_t *orte_mpiexec_timeout;
-ORTE_DECLSPEC extern opal_buffer_t *orte_tree_launch_cmd;
 
 /* global arrays for data storage */
 ORTE_DECLSPEC extern opal_hash_table_t *orte_job_data;
@@ -586,6 +587,9 @@ ORTE_DECLSPEC extern char *orte_daemon_cores;
 
 /* Max time to wait for stack straces to return */
 ORTE_DECLSPEC extern int orte_stack_trace_wait_timeout;
+
+/* enable PMIx-based "instant on" support */
+ORTE_DECLSPEC extern bool orte_enable_instant_on_support;
 
 END_C_DECLS
 

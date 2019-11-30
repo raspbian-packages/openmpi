@@ -3,16 +3,10 @@ etc/openmpi/*
 ## Executables
 usr/bin/ompi-clean
 usr/bin/ompi_info
-usr/bin/ompi-ps
 usr/bin/ompi-server
 usr/bin/orte-clean
 usr/bin/orted
-usr/bin/orte-ps
 usr/bin/orterun
-usr/bin/ompi-top
-#usr/bin/orte-dvm
-usr/bin/orte-server
-usr/bin/orte-top
 ## Compiler wrappers (symlinks) and man pages
 usr/bin/mpic++.openmpi
 usr/share/man/man1/mpic++.openmpi.1
@@ -35,5 +29,4 @@ usr/share/man/man1/opalcc.1
 ## Wrappers and man pages
 usr/bin/opal_wrapper
 usr/share/man/man1/opal_wrapper.1
-#sr/bin/orte_wrapper_scripta FIXME
 # NOTE: There's no man page for opal_wrapper_script (upstream, lintian warning)

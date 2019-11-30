@@ -50,6 +50,7 @@
 #include "orte/mca/errmgr/errmgr.h"
 #include "orte/mca/ess/ess.h"
 #include "orte/mca/iof/base/base.h"
+#include "orte/mca/odls/base/base.h"
 #include "orte/mca/ras/base/base.h"
 #include "orte/mca/regx/regx.h"
 #include "orte/mca/rmaps/rmaps.h"
@@ -58,7 +59,6 @@
 #include "orte/mca/rml/rml_types.h"
 #include "orte/mca/routed/routed.h"
 #include "orte/mca/grpcomm/base/base.h"
-#include "orte/mca/odls/odls.h"
 #if OPAL_ENABLE_FT_CR == 1
 #include "orte/mca/snapc/base/base.h"
 #endif
@@ -190,9 +190,17 @@ void orte_plm_base_allocation_complete(int fd, short args, void *cbdata)
 
     ORTE_ACQUIRE_OBJECT(caddy);
 
-    /* move the state machine along */
-    caddy->jdata->state = ORTE_JOB_STATE_ALLOCATION_COMPLETE;
-    ORTE_ACTIVATE_JOB_STATE(caddy->jdata, ORTE_JOB_STATE_LAUNCH_DAEMONS);
+    /* if we don't want to launch, then we at least want
+     * to map so we can see where the procs would have
+     * gone - so skip to the mapping state */
+    if (orte_do_not_launch) {
+        caddy->jdata->state = ORTE_JOB_STATE_ALLOCATION_COMPLETE;
+        ORTE_ACTIVATE_JOB_STATE(caddy->jdata, ORTE_JOB_STATE_MAP);
+    } else {
+        /* move the state machine along */
+        caddy->jdata->state = ORTE_JOB_STATE_ALLOCATION_COMPLETE;
+        ORTE_ACTIVATE_JOB_STATE(caddy->jdata, ORTE_JOB_STATE_LAUNCH_DAEMONS);
+    }
 
     /* cleanup */
     OBJ_RELEASE(caddy);
@@ -503,13 +511,10 @@ static void timer_cb(int fd, short event, void *cbdata)
 
 void orte_plm_base_launch_apps(int fd, short args, void *cbdata)
 {
+    orte_state_caddy_t *caddy = (orte_state_caddy_t*)cbdata;
     orte_job_t *jdata;
     orte_daemon_cmd_flag_t command;
-    opal_buffer_t *buffer;
     int rc;
-    orte_state_caddy_t *caddy = (orte_state_caddy_t*)cbdata;
-    orte_timer_t *timer;
-    orte_grpcomm_signature_t *sig;
 
     ORTE_ACQUIRE_OBJECT(caddy);
 
@@ -529,30 +534,44 @@ void orte_plm_base_launch_apps(int fd, short args, void *cbdata)
                          ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
                          ORTE_JOBID_PRINT(jdata->jobid)));
 
-    /* setup the buffer */
-    buffer = OBJ_NEW(opal_buffer_t);
-
     /* pack the appropriate add_local_procs command */
     if (orte_get_attribute(&jdata->attributes, ORTE_JOB_FIXED_DVM, NULL, OPAL_BOOL)) {
         command = ORTE_DAEMON_DVM_ADD_PROCS;
     } else {
         command = ORTE_DAEMON_ADD_LOCAL_PROCS;
     }
-    if (ORTE_SUCCESS != (rc = opal_dss.pack(buffer, &command, 1, ORTE_DAEMON_CMD))) {
+    if (ORTE_SUCCESS != (rc = opal_dss.pack(&jdata->launch_msg, &command, 1, ORTE_DAEMON_CMD))) {
         ORTE_ERROR_LOG(rc);
-        OBJ_RELEASE(buffer);
         ORTE_FORCED_TERMINATE(ORTE_ERROR_DEFAULT_EXIT_CODE);
         OBJ_RELEASE(caddy);
         return;
     }
 
     /* get the local launcher's required data */
-    if (ORTE_SUCCESS != (rc = orte_odls.get_add_procs_data(buffer, jdata->jobid))) {
+    if (ORTE_SUCCESS != (rc = orte_odls.get_add_procs_data(&jdata->launch_msg, jdata->jobid))) {
         ORTE_ERROR_LOG(rc);
         ORTE_FORCED_TERMINATE(ORTE_ERROR_DEFAULT_EXIT_CODE);
-        OBJ_RELEASE(caddy);
-        return;
     }
+
+    OBJ_RELEASE(caddy);
+    return;
+}
+
+void orte_plm_base_send_launch_msg(int fd, short args, void *cbdata)
+{
+    orte_state_caddy_t *caddy = (orte_state_caddy_t*)cbdata;
+    orte_timer_t *timer;
+    orte_grpcomm_signature_t *sig;
+    orte_job_t *jdata;
+    int rc;
+
+    /* convenience */
+    jdata = caddy->jdata;
+
+    OPAL_OUTPUT_VERBOSE((5, orte_plm_base_framework.framework_output,
+                         "%s plm:base:send launch msg for job %s",
+                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME),
+                         ORTE_JOBID_PRINT(jdata->jobid)));
 
     /* if we don't want to launch the apps, now is the time to leave */
     if (orte_do_not_launch) {
@@ -560,14 +579,15 @@ void orte_plm_base_launch_apps(int fd, short args, void *cbdata)
         uint8_t *cmpdata;
         size_t cmplen;
         /* report the size of the launch message */
-        compressed = orte_util_compress_block((uint8_t*)buffer->base_ptr, buffer->bytes_used,
+        compressed = orte_util_compress_block((uint8_t*)jdata->launch_msg.base_ptr,
+                                              jdata->launch_msg.bytes_used,
                                               &cmpdata, &cmplen);
         if (compressed) {
             opal_output(0, "LAUNCH MSG RAW SIZE: %d COMPRESSED SIZE: %d",
-                        (int)buffer->bytes_used, (int)cmplen);
+                        (int)jdata->launch_msg.bytes_used, (int)cmplen);
             free(cmpdata);
         } else {
-            opal_output(0, "LAUNCH MSG RAW SIZE: %d", (int)buffer->bytes_used);
+            opal_output(0, "LAUNCH MSG RAW SIZE: %d", (int)jdata->launch_msg.bytes_used);
         }
         orte_never_launched = true;
         ORTE_FORCED_TERMINATE(0);
@@ -581,15 +601,15 @@ void orte_plm_base_launch_apps(int fd, short args, void *cbdata)
     sig->signature[0].jobid = ORTE_PROC_MY_NAME->jobid;
     sig->signature[0].vpid = ORTE_VPID_WILDCARD;
     sig->sz = 1;
-    if (ORTE_SUCCESS != (rc = orte_grpcomm.xcast(sig, ORTE_RML_TAG_DAEMON, buffer))) {
+    if (ORTE_SUCCESS != (rc = orte_grpcomm.xcast(sig, ORTE_RML_TAG_DAEMON, &jdata->launch_msg))) {
         ORTE_ERROR_LOG(rc);
-        OBJ_RELEASE(buffer);
         OBJ_RELEASE(sig);
         ORTE_FORCED_TERMINATE(ORTE_ERROR_DEFAULT_EXIT_CODE);
         OBJ_RELEASE(caddy);
         return;
     }
-    OBJ_RELEASE(buffer);
+    OBJ_DESTRUCT(&jdata->launch_msg);
+    OBJ_CONSTRUCT(&jdata->launch_msg, opal_buffer_t);
     /* maintain accounting */
     OBJ_RELEASE(sig);
 
@@ -1318,14 +1338,6 @@ void orte_plm_base_daemon_callback(int status, orte_process_name_t* sender,
     if (ORTE_ERR_UNPACK_READ_PAST_END_OF_BUFFER != rc) {
         ORTE_ERROR_LOG(rc);
         ORTE_ACTIVATE_JOB_STATE(jdatorted, ORTE_JOB_STATE_FAILED_TO_START);
-    } else if (NULL != orte_tree_launch_cmd) {
-        /* if a tree-launch is underway, send the cmd back */
-        relay = OBJ_NEW(opal_buffer_t);
-        opal_dss.copy_payload(relay, orte_tree_launch_cmd);
-        orte_rml.send_buffer_nb(orte_mgmt_conduit,
-                                sender, relay,
-                                ORTE_RML_TAG_DAEMON,
-                                orte_rml_send_callback, NULL);
     }
 }
 
@@ -1508,16 +1520,19 @@ int orte_plm_base_orted_append_basic_args(int *argc, char ***argv,
         ORTE_ERROR_LOG(rc);
         return rc;
     }
+    if (NULL != orte_node_regex) {
+        free(orte_node_regex);
+    }
+    orte_node_regex = param;
     /* if this is too long, then we'll have to do it with
      * a phone home operation instead */
     if (strlen(param) < orte_plm_globals.node_regex_threshold) {
         opal_argv_append(argc, argv, "-"OPAL_MCA_CMD_LINE_ID);
         opal_argv_append(argc, argv, "orte_node_regex");
-        opal_argv_append(argc, argv, param);
+        opal_argv_append(argc, argv, orte_node_regex);
         /* mark that the nidmap has been communicated */
         orte_nidmap_communicated = true;
     }
-    free(param);
 
     if (!orte_static_ports && !orte_fwd_mpirun_port) {
         /* if we are using static ports, or we are forwarding

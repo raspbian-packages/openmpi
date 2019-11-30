@@ -9,10 +9,7 @@
 
 #include "pml_ucx.h"
 
-#include "opal/memoryhooks/memory.h"
 #include "opal/mca/memory/base/base.h"
-
-#include <ucm/api/ucm.h>
 
 
 static int mca_pml_ucx_component_register(void);
@@ -29,37 +26,29 @@ mca_pml_base_component_2_0_0_t mca_pml_ucx_component = {
 
     /* First, the mca_base_component_t struct containing meta
      * information about the component itself */
-    {
+    .pmlm_version = {
          MCA_PML_BASE_VERSION_2_0_0,
 
-         "ucx", /* MCA component name */
-         OMPI_MAJOR_VERSION,  /* MCA component major version */
-         OMPI_MINOR_VERSION,  /* MCA component minor version */
-         OMPI_RELEASE_VERSION,  /* MCA component release version */
-         mca_pml_ucx_component_open,  /* component open */
-         mca_pml_ucx_component_close,  /* component close */
-         NULL,
-         mca_pml_ucx_component_register,
+         .mca_component_name            = "ucx",
+         .mca_component_major_version   = OMPI_MAJOR_VERSION,
+         .mca_component_minor_version   = OMPI_MINOR_VERSION,
+         .mca_component_release_version = OMPI_RELEASE_VERSION,
+         .mca_open_component            = mca_pml_ucx_component_open,
+         .mca_close_component           = mca_pml_ucx_component_close,
+         .mca_query_component           = NULL,
+         .mca_register_component_params = mca_pml_ucx_component_register,
      },
-     {
+     .pmlm_data = {
          /* This component is not checkpoint ready */
-         MCA_BASE_METADATA_PARAM_NONE
+         .param_field                   = MCA_BASE_METADATA_PARAM_NONE
      },
 
-     mca_pml_ucx_component_init,  /* component init */
-     mca_pml_ucx_component_fini   /* component finalize */
+     .pmlm_init                         = mca_pml_ucx_component_init,
+     .pmlm_finalize                     = mca_pml_ucx_component_fini
 };
 
 static int mca_pml_ucx_component_register(void)
 {
-    ompi_pml_ucx.verbose = 0;
-    (void) mca_base_component_var_register(&mca_pml_ucx_component.pmlm_version, "verbose",
-                                           "Verbose level of the UCX component",
-                                           MCA_BASE_VAR_TYPE_INT, NULL, 0, 0,
-                                           OPAL_INFO_LVL_9,
-                                           MCA_BASE_VAR_SCOPE_LOCAL,
-                                           &ompi_pml_ucx.verbose);
-
     ompi_pml_ucx.priority = 51;
     (void) mca_base_component_var_register(&mca_pml_ucx_component.pmlm_version, "priority",
                                            "Priority of the UCX component",
@@ -75,38 +64,13 @@ static int mca_pml_ucx_component_register(void)
                                            OPAL_INFO_LVL_3,
                                            MCA_BASE_VAR_SCOPE_LOCAL,
                                            &ompi_pml_ucx.num_disconnect);
-
-    ompi_pml_ucx.opal_mem_hooks = 0;
-    (void) mca_base_component_var_register(&mca_pml_ucx_component.pmlm_version, "opal_mem_hooks",
-                                           "Use OPAL memory hooks, instead of UCX internal memory hooks",
-                                           MCA_BASE_VAR_TYPE_BOOL, NULL, 0, 0,
-                                           OPAL_INFO_LVL_3,
-                                           MCA_BASE_VAR_SCOPE_LOCAL,
-                                           &ompi_pml_ucx.opal_mem_hooks);
+    opal_common_ucx_mca_var_register(&mca_pml_ucx_component.pmlm_version);
     return 0;
-}
-
-static void mca_pml_ucx_mem_release_cb(void *buf, size_t length,
-                                       void *cbdata, bool from_alloc)
-{
-    ucm_vm_munmap(buf, length);
 }
 
 static int mca_pml_ucx_component_open(void)
 {
-    ompi_pml_ucx.output = opal_output_open(NULL);
-    opal_output_set_verbosity(ompi_pml_ucx.output, ompi_pml_ucx.verbose);
-
-    /* Set memory hooks */
-    if (ompi_pml_ucx.opal_mem_hooks &&
-        (OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_MUNMAP_SUPPORT) ==
-        ((OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_MUNMAP_SUPPORT) &
-         opal_mem_hooks_support_level()))
-    {
-        PML_UCX_VERBOSE(1, "%s", "using OPAL memory hooks as external events");
-        ucm_set_external_event(UCM_EVENT_VM_UNMAPPED);
-        opal_mem_hooks_register_release(mca_pml_ucx_mem_release_cb, NULL);
-    }
+    opal_common_ucx_mca_register();
 
     return mca_pml_ucx_open();
 }
@@ -120,18 +84,17 @@ static int mca_pml_ucx_component_close(void)
         return rc;
     }
 
-    opal_mem_hooks_unregister_release(mca_pml_ucx_mem_release_cb);
-    opal_output_close(ompi_pml_ucx.output);
+    opal_common_ucx_mca_deregister();
     return 0;
 }
 
 static mca_pml_base_module_t*
 mca_pml_ucx_component_init(int* priority, bool enable_progress_threads,
-                             bool enable_mpi_threads)
+                           bool enable_mpi_threads)
 {
     int ret;
 
-    if ( (ret = mca_pml_ucx_init()) != 0) {
+    if ( (ret = mca_pml_ucx_init(enable_mpi_threads)) != 0) {
         return NULL;
     }
 

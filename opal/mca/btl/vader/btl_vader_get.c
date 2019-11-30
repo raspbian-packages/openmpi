@@ -4,6 +4,7 @@
  *                         reserved.
  * Copyright (c) 2018      Research Organization for Information Science
  *                         and Technology (RIST).  All rights reserved.
+ * Copyright (c) 2019      Google, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -155,3 +156,16 @@ int mca_btl_vader_get_knem (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t 
     return OPAL_SUCCESS;
 }
 #endif
+
+int mca_btl_vader_get_sc_emu (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t *endpoint, void *local_address,
+                              uint64_t remote_address, mca_btl_base_registration_handle_t *local_handle,
+                              mca_btl_base_registration_handle_t *remote_handle, size_t size, int flags,
+                              int order, mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata)
+{
+    if (size > mca_btl_vader.super.btl_get_limit) {
+        return OPAL_ERR_NOT_AVAILABLE;
+    }
+
+    return mca_btl_vader_rdma_frag_start (btl, endpoint, MCA_BTL_VADER_OP_GET, 0, 0, 0, order, flags, size,
+                                          local_address, remote_address, cbfunc, cbcontext, cbdata);
+}

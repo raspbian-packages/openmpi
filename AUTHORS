@@ -19,6 +19,7 @@ Adrian Knoth
   adi@minet.uni-jena.de
 Adrian Reber
   adrian@lisas.de
+  areber@redhat.com
 Alejandro Vilches
   alejandro.vilches@intel.com
 Aleksey Senin
@@ -38,6 +39,8 @@ Andrew Friedley
   andrew.friedley@intel.com
 Andrew Lumsdaine
   lums@cs.indiana.edu
+Andrey Maslennikov
+  andreyma@mellanox.com
 Annapurna Dasari
   annapurna.dasari@intel.com
 Antoine Dechaume
@@ -50,6 +53,8 @@ Artem Polyakov
   artpol84@gmail.com
 Aurelien Bouteiller
   bouteill@icl.utk.edu
+Austen Lauria
+  awlauria@us.ibm.com
 Avneesh Pant
   avneesh.pant@qlogic.com
 Ben Menadue
@@ -68,6 +73,8 @@ Brad Benton
   brad.benton@us.ibm.com
 Brad Penoff
   penoff@cs.ubc.ca
+Brelle Emmanuel
+  emmanuel.brelle@atos.net
 Brian Barrett
   bbarrett@amazon.com
   brbarret@open-mpi.org
@@ -99,6 +106,8 @@ Dave Goodell
   dgoodell@cisco.com
 David Daniel
   ddd@lanl.gov
+David Eberius
+  deberius@vols.utk.edu
 David Solt
   dsolt@us.ibm.com
 Denis Dimick
@@ -133,6 +142,8 @@ Gabriel Pichot
   gabriel.pichot@gmail.com
 Galen Shipman
   gshipman@lanl.gov
+Gaëtan Bossu
+  gbossu@ddn.com
 Geoffrey Paulsen
   gpaulsen@us.ibm.com
 George Bosilca
@@ -161,6 +172,10 @@ Guillaume Papauré
   guillaume.papaure@bull.net
 Hadi Montakhabi
   hmontakhabi@uh.edu
+Harald Klimach
+  harald@klimachs.de
+Harumi Kuno
+  harumi.kuno@hpe.com
 Howard Pritchard
   howardp@lanl.gov
   hppritcha@gmail.com
@@ -171,6 +186,10 @@ Igor Ivanov
   igor.ivanov@itseez.com
 Igor Usarov
   igoru@mellanox.com
+James Clark
+  james.clark@arm.com
+Jason Williams
+  uberlinuxguy@gmail.com
 Jed Brown
   jed@jedbrown.org
 Jeff Hammond
@@ -184,14 +203,20 @@ Jijo Varghese
   jijo733@gmail.com
 Jithin Jose
   jithin.jose@intel.com
+John L. Jolly
+  jjolly@suse.com
 John Westlund
   john.a.westlund@intel.com
 Jon Mason
   jdmason@opengridcomputing.com
+Jordan Cherry
+  cherryj@amazon.com
+Jordan Hayes
+  jhayes@ucr.edu
 Jose Roman
   jroman@dsic.upv.es
 Joseph Schuchart
-  joseph.schuchart@hlrs.de
+  schuchart@hlrs.de
 Josh Hursey
   jhursey@us.ibm.com
   jjhursey@open-mpi.org
@@ -204,6 +229,8 @@ Joshua Ladd
 KAWASHIMA Takahiro
   rivis.kawashima@nifty.com
   t-kawashima@jp.fujitsu.com
+Kaiyu Shi
+  skyisno.1@gmail.com
 Karen Norteman
   karen.norteman@sun.com
 Karol Mroz
@@ -212,6 +239,8 @@ Kenneth Matney
   matneykdsr@ornl.gov
 Kevin Buckley
   kevin.buckley.ecs.vuw.ac.nz@gmail.com
+Kurita, Takehiro
+  fj6370fp@aa.jp.fujitsu.com
 L. R. Rajeshnarayanan
   l.r.rajeshnarayanan@intel.com
 Laura Casswell
@@ -245,8 +274,12 @@ Matthias Jurenz
   matthias.jurenz@tu-dresden.de
 Maximilien Levesque
   maximilien.levesque@gmail.com
+Michael Heinz
+  michael.william.heinz@intel.com
 Mike Dubman
   miked@mellanox.com
+Mikhail Brinskii
+  mikhailb@mellanox.com
 Mikhail Kurnosov
   mkurnosov@gmail.com
 Mitch Sukalski
@@ -264,6 +297,7 @@ Nadia Derbey
   nadia.derbey@bull.net
 Nathan Hjelm
   hjelmn@cs.unm.edu
+  hjelmn@google.com
   hjelmn@lanl.gov
   hjelmn@me.com
 Nathan T. Weeks
@@ -277,6 +311,8 @@ Nicolas Chevalier
   nicolas.chevalier@bull.net
 Nicolas Morey-Chaisemartin
   nmoreychaisemartin@suse.com
+Ninad Prabhukhanolkar
+  ninadchess96@gmail.com
 Noah Evans
   noah.evans@gmail.com
 Nysal Jan K A
@@ -285,6 +321,8 @@ Omri Mor
   omri50@gmail.com
 Orion Poplawski
   orion@cora.nwra.com
+Orivej Desh
+  orivej@gmx.fr
 Oscar Vega-Gisbert
   ovega@dsic.upv.es
 Pak Lui
@@ -296,6 +334,10 @@ Patrick Geoffray
 Pavel Shamis
   pasharesearch@gmail.com
   shamisp@ornl.gov
+Peter Gottesman
+  peter@petergottesman.com
+Philip Kovacs
+  pkdevel@yahoo.com
 Philipp Otte
   philipp.j.otte@googlemail.com
 Pierre Lemarinier
@@ -314,10 +356,15 @@ Rainer Keller
   rainer.keller@hlrs.de
 Ralph Castain
   rhc@open-mpi.org
+  rhc@pmix.org
 Reese Faucette
   rfaucett@cisco.com
+René Widera
+  r.widera@hzdr.de
 Rich Graham
   richardg@mellanox.com
+Risto Toijala
+  risto.toijala@gmail.com
 Rob Awles
   rta@lanl.gov
 Rob Latham
@@ -347,8 +394,13 @@ Sharon Melamed
   sharonm@voltaire.com
 Shiqing Fan
   shiqing@hlrs.de
+Simon Byrne
+  simonbyrne@gmail.com
 Spruit, Neil R
   neil.r.spruit@intel.com
+Stanislav Kirillov
+  staskirillof@yandex.ru
+  staskirillov@gmail.com
 Steve Wise
   swise@opengridcomputing.com
 Sushant Sharma
@@ -366,6 +418,7 @@ Terry Dontje
   terry.dontje@oracle.com
 Thananon Patinyasakdikul
   apatinya@cisco.com
+  thananon.patinyasakdikul@intel.com
   tpatinya@utk.edu
 Thara Angskun
   angskun@cs.utk.edu
@@ -386,6 +439,7 @@ Todd Kordenbrock
   thkgcode@gmail.com
   thkorde@sandia.gov
 Tomislav Janjusic
+  tomislavj@mellanox.com
   tomislavj@mngx-apl-01.mtl.labs.mlnx
 Torsten Hoefler
   htor@osl.iu.edu
@@ -425,3 +479,13 @@ Zhi Ming Wang
   wangzm@cn.ibm.com
 Zoltán Mizsei
   zmizsei@extrowerk.com
+guserav
+  erik.zeiske@hpe.com
+heasterday
+  heasterday@users.noreply.github.com
+luz.paz
+  luzpaz@users.noreply.github.com
+perrynzhou
+  perrynzhou@gmail.com
+raafatfeki
+  fekiraafat@gmail.com

@@ -14,7 +14,7 @@
  * Copyright (c) 2012-2017 Los Alamos National Security, LLC. All rights
  *                         reserved.
  * Copyright (c) 2013-2017 Intel, Inc. All rights reserved
- * Copyright (c) 2017      Research Organization for Information Science
+ * Copyright (c) 2018      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -119,15 +119,14 @@ ompi_mtl_psm2_component_register(void)
     (void) get_num_total_procs(&num_total_procs);
 
     /* set priority high enough to beat ob1's default (also set higher than psm) */
-    if (num_local_procs == num_total_procs) {
-        /* disable hfi if all processes are local */
+    if ((num_local_procs == num_total_procs) && (1 < num_total_procs)) {
+        /* Disable hfi if all processes are local. However, if running only one
+         * process assume it is ompi_info or this is most likely going to spawn, for
+         * which all PSM2 devices are needed */
         setenv("PSM2_DEVICES", "self,shm", 0);
-        /* ob1 is much faster than psm2 with shared memory */
-        param_priority = 10;
-    } else {
-        param_priority = 40;
     }
 
+    param_priority = 40;
     (void) mca_base_component_var_register (&mca_mtl_psm2_component.super.mtl_version,
                                             "priority", "Priority of the PSM2 MTL component",
                                             MCA_BASE_VAR_TYPE_INT, NULL, 0, 0,
@@ -148,7 +147,7 @@ ompi_mtl_psm2_component_open(void)
 
   /* Component available only if Omni-Path hardware is present */
   res = glob("/dev/hfi1_[0-9]", GLOB_DOOFFS, NULL, &globbuf);
-  if (globbuf.gl_pathc > 0) {
+  if (globbuf.gl_pathc > 0 || GLOB_NOMATCH==res) {
       globfree(&globbuf);
   }
   if (0 != res) {

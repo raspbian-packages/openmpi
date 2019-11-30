@@ -110,10 +110,6 @@
    don't. */
 #undef HAVE_DECL_AF_UNSPEC
 
-/* Define to 1 if you have the declaration of `CL_DEVICE_TOPOLOGY_AMD', and to
-   0 if you don't. */
-#undef HAVE_DECL_CL_DEVICE_TOPOLOGY_AMD
-
 /* Define to 1 if you have the declaration of `CTL_HW', and to 0 if you don't.
    */
 #undef HAVE_DECL_CTL_HW
@@ -272,6 +268,10 @@
 /* Embedded mode; just assume we do not have Valgrind support */
 #undef HAVE_DECL_RUNNING_ON_VALGRIND
 
+/* Define to 1 if you have the declaration of `sched_getcpu', and to 0 if you
+   don't. */
+#undef HAVE_DECL_SCHED_GETCPU
+
 /* Define to 1 if you have the declaration of `SIOCETHTOOL', and to 0 if you
    don't. */
 #undef HAVE_DECL_SIOCETHTOOL
@@ -288,9 +288,73 @@
    don't. */
 #undef HAVE_DECL_STRTOULL
 
+/* Define to 1 if you have the declaration of `ucm_test_events', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCM_TEST_EVENTS
+
+/* Define to 1 if you have the declaration of `UCP_ATOMIC_FETCH_OP_FAND', and
+   to 0 if you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_FETCH_OP_FAND
+
+/* Define to 1 if you have the declaration of `UCP_ATOMIC_FETCH_OP_FOR', and
+   to 0 if you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_FETCH_OP_FOR
+
+/* Define to 1 if you have the declaration of `UCP_ATOMIC_FETCH_OP_FXOR', and
+   to 0 if you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_FETCH_OP_FXOR
+
+/* Define to 1 if you have the declaration of `UCP_ATOMIC_POST_OP_AND', and to
+   0 if you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_POST_OP_AND
+
+/* Define to 1 if you have the declaration of `UCP_ATOMIC_POST_OP_OR', and to
+   0 if you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_POST_OP_OR
+
+/* Define to 1 if you have the declaration of `UCP_ATOMIC_POST_OP_XOR', and to
+   0 if you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_POST_OP_XOR
+
+/* Define to 1 if you have the declaration of `ucp_ep_flush_nb', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCP_EP_FLUSH_NB
+
+/* Define to 1 if you have the declaration of `ucp_get_nb', and to 0 if you
+   don't. */
+#undef HAVE_DECL_UCP_GET_NB
+
+/* Define to 1 if you have the declaration of
+   `UCP_PARAM_FIELD_ESTIMATED_NUM_PPN', and to 0 if you don't. */
+#undef HAVE_DECL_UCP_PARAM_FIELD_ESTIMATED_NUM_PPN
+
+/* Define to 1 if you have the declaration of `ucp_put_nb', and to 0 if you
+   don't. */
+#undef HAVE_DECL_UCP_PUT_NB
+
+/* Define to 1 if you have the declaration of `ucp_request_check_status', and
+   to 0 if you don't. */
+#undef HAVE_DECL_UCP_REQUEST_CHECK_STATUS
+
 /* Define to 1 if you have the declaration of `ucp_tag_send_nbr', and to 0 if
    you don't. */
 #undef HAVE_DECL_UCP_TAG_SEND_NBR
+
+/* Define to 1 if you have the declaration of
+   `UCP_WORKER_ATTR_FIELD_ADDRESS_FLAGS', and to 0 if you don't. */
+#undef HAVE_DECL_UCP_WORKER_ATTR_FIELD_ADDRESS_FLAGS
+
+/* Define to 1 if you have the declaration of `ucp_worker_flush_nb', and to 0
+   if you don't. */
+#undef HAVE_DECL_UCP_WORKER_FLUSH_NB
+
+/* Define to 1 if you have the declaration of `UCT_CB_FLAG_SYNC', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCT_CB_FLAG_SYNC
+
+/* Define to 1 if you have the declaration of `UCT_PROGRESS_THREAD_SAFE', and
+   to 0 if you don't. */
+#undef HAVE_DECL_UCT_PROGRESS_THREAD_SAFE
 
 /* Define to 1 if you have the declaration of `_putenv', and to 0 if you
    don't. */
@@ -332,10 +396,6 @@
    don't. */
 #undef HAVE_DECL___FUNC__
 
-/* Define to 1 if you have the declaration of `__mmap', and to 0 if you don't.
-   */
-#undef HAVE_DECL___MMAP
-
 /* Define to 1 if you have the declaration of `__syscall', and to 0 if you
    don't. */
 #undef HAVE_DECL___SYSCALL
@@ -364,8 +424,8 @@
 /* Define to 1 if you have the <err.h> header file. */
 #undef HAVE_ERR_H
 
-/* Define to 1 if you have the <event.h> header file. */
-#undef HAVE_EVENT_H
+/* Define to 1 if you have the <event2/event.h> header file. */
+#undef HAVE_EVENT2_EVENT_H
 
 /* Define to 1 if you have the <execinfo.h> header file. */
 #undef HAVE_EXECINFO_H
@@ -622,9 +682,6 @@
 /* Define to 1 if you have the <net/uio.h> header file. */
 #undef HAVE_NET_UIO_H
 
-/* Define to 1 if you have the <numaif.h> header file. */
-#undef HAVE_NUMAIF_H
-
 /* Define to 1 if the system has the type `NUMA_NODE_RELATIONSHIP'. */
 #undef HAVE_NUMA_NODE_RELATIONSHIP
 
@@ -640,6 +697,9 @@
 /* Define to 1 if you have the `openat' function. */
 #undef HAVE_OPENAT
 
+/* Define to 1 if you have the <OpenCL/cl_ext.h> header file. */
+#undef HAVE_OPENCL_CL_EXT_H
+
 /* Define to 1 if you have the `openpty' function. */
 #undef HAVE_OPENPTY
 
@@ -651,9 +711,6 @@
 
 /* Define to 1 if you have the `pipe' function. */
 #undef HAVE_PIPE
-
-/* Define to 1 if you have the <plfs.h> header file. */
-#undef HAVE_PLFS_H
 
 /* Define to 1 if you have the <poll.h> header file. */
 #undef HAVE_POLL_H
@@ -757,9 +814,6 @@
 
 /* Define to 1 if you have the <sched.h> header file. */
 #undef HAVE_SCHED_H
-
-/* Define to 1 if you have the <scif.h> header file. */
-#undef HAVE_SCIF_H
 
 /* Define to 1 if you have the `sem_init' function. */
 #undef HAVE_SEM_INIT
@@ -1034,6 +1088,15 @@
 /* have ucp_tag_send_nbr() */
 #undef HAVE_UCP_TAG_SEND_NBR
 
+/* have worker address attribute */
+#undef HAVE_UCP_WORKER_ADDRESS_FLAGS
+
+/* have ucx */
+#undef HAVE_UCX
+
+/* Support for device memory allocation */
+#undef HAVE_UCX_DEVICE_MEM
+
 /* Define to 1 if the system has the type `uint128_t'. */
 #undef HAVE_UINT128_T
 
@@ -1107,6 +1170,9 @@
 /* Define to 1 if you have the `_NSGetEnviron' function. */
 #undef HAVE__NSGETENVIRON
 
+/* Define to 1 if you have the `__clear_cache' function. */
+#undef HAVE___CLEAR_CACHE
+
 /* Define to 1 if you have the `__curbrk' function. */
 #undef HAVE___CURBRK
 
@@ -1118,9 +1184,6 @@
 
 /* Define to 1 if you have the `__malloc_initialize_hook' function. */
 #undef HAVE___MALLOC_INITIALIZE_HOOK
-
-/* Define to 1 if you have the `__mmap' function. */
-#undef HAVE___MMAP
 
 /* Define to 1 if you have the `__munmap' function. */
 #undef HAVE___MUNMAP
@@ -1269,17 +1332,12 @@
 /* Define to 1 if you have the `libxml2' library. */
 #undef HWLOC_HAVE_LIBXML2
 
-/* Define to 1 if building the Linux PCI component */
+/* Define to 1 if building the Linux I/O component */
+#undef HWLOC_HAVE_LINUXIO
+
+/* Define to 1 if enabling Linux-specific PCI discovery in the Linux I/O
+   component */
 #undef HWLOC_HAVE_LINUXPCI
-
-/* Define to 1 if mbind is available. */
-#undef HWLOC_HAVE_MBIND
-
-/* Define to 1 if migrate_pages is available. */
-#undef HWLOC_HAVE_MIGRATE_PAGES
-
-/* Define to 1 if move_pages is available. */
-#undef HWLOC_HAVE_MOVE_PAGES
 
 /* Define to 1 if you have the `NVML' library. */
 #undef HWLOC_HAVE_NVML
@@ -1304,13 +1362,10 @@
 /* Define to 1 if glibc provides a prototype of sched_setaffinity() */
 #undef HWLOC_HAVE_SCHED_SETAFFINITY
 
-/* Define to 1 if set_mempolicy is available. */
-#undef HWLOC_HAVE_SET_MEMPOLICY
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HWLOC_HAVE_STDINT_H
 
-/* Define to 1 if function `syscall' is available */
+/* Define to 1 if function `syscall' is available with 6 parameters */
 #undef HWLOC_HAVE_SYSCALL
 
 /* Define to 1 if you have the `windows.h' header. */
@@ -1326,7 +1381,7 @@
 #undef HWLOC_HPUX_SYS
 
 /* Version of hwloc */
-#undef HWLOC_HWLOC1117_HWLOC_VERSION
+#undef HWLOC_HWLOC201_HWLOC_VERSION
 
 /* Define to 1 on Irix */
 #undef HWLOC_IRIX_SYS
@@ -1336,9 +1391,6 @@
 
 /* Define to 1 on *NETBSD */
 #undef HWLOC_NETBSD_SYS
-
-/* Define to 1 on OSF */
-#undef HWLOC_OSF_SYS
 
 /* The size of `unsigned int', as computed by sizeof */
 #undef HWLOC_SIZEOF_UNSIGNED_INT
@@ -1389,12 +1441,15 @@
 /* Location of external hwloc OpenFabrics header */
 #undef MCA_hwloc_external_openfabrics_header
 
+/* Location of external hwloc shmem header */
+#undef MCA_hwloc_external_shmem_header
+
 /* Complete set of command line arguments given to ROMIOs configure script */
-#undef MCA_io_romio314_COMPLETE_CONFIGURE_FLAGS
+#undef MCA_io_romio321_COMPLETE_CONFIGURE_FLAGS
 
 /* Set of user-defined configure flags given to ROMIOs configure script via
    --with-io-romio-flags */
-#undef MCA_io_romio314_USER_CONFIGURE_FLAGS
+#undef MCA_io_romio321_USER_CONFIGURE_FLAGS
 
 /* Header to include for memcpy implementation */
 #undef MCA_memcpy_IMPLEMENTATION_HEADER
@@ -1563,6 +1618,12 @@
 /* Enable contributed software package libompitrace */
 #undef OMPI_ENABLE_CONTRIB_libompitrace
 
+/* whether we support Grequest extensions */
+#undef OMPI_ENABLE_GREQUEST_EXTENSIONS
+
+/* whether we want MPI-1.x support */
+#undef OMPI_ENABLE_MPI1_COMPAT
+
 /* Underlying Fortran compiler */
 #undef OMPI_FC
 
@@ -1689,7 +1750,7 @@
 /* Greek - alpha, beta, etc - release number of Open MPI */
 #undef OMPI_GREEK_VERSION
 
-/* Wether we want sparse process groups */
+/* Whether we want sparse process groups */
 #undef OMPI_GROUP_SPARSE
 
 /* Whether or not we have compiled with C++ exceptions support */
@@ -1908,6 +1969,9 @@
 
 /* Defined to 1 if the OMPI runtime component is ORTE */
 #undef OMPI_RTE_ORTE
+
+/* Defined to 1 if the OMPI runtime component is PMIX */
+#undef OMPI_RTE_PMIX
 
 /* Size of Fortran CHARACTER */
 #undef OMPI_SIZEOF_FORTRAN_CHARACTER
@@ -2196,6 +2260,9 @@
 /* Whether C compiler supports GCC style inline assembly */
 #undef OPAL_C_GCC_INLINE_ASSEMBLY
 
+/* Whether C compiler support atomic convenience variables in stdatomic.h */
+#undef OPAL_C_HAVE_ATOMIC_CONV_VAR
+
 /* Whether C compiler supports __builtin_clz */
 #undef OPAL_C_HAVE_BUILTIN_CLZ
 
@@ -2207,6 +2274,21 @@
 
 /* Whether C compiler supports symbol visibility or not */
 #undef OPAL_C_HAVE_VISIBILITY
+
+/* Whether C compiler supports __Atomic keyword */
+#undef OPAL_C_HAVE__ATOMIC
+
+/* Whether C compiler supports __Generic keyword */
+#undef OPAL_C_HAVE__GENERIC
+
+/* Whether C compiler support _Static_assert keyword */
+#undef OPAL_C_HAVE__STATIC_ASSERT
+
+/* Whether C compiler supports __Thread_local */
+#undef OPAL_C_HAVE__THREAD_LOCAL
+
+/* Whether C compiler supports __thread */
+#undef OPAL_C_HAVE___THREAD
 
 /* Whether we have lt_dladvise or not */
 #undef OPAL_DL_LIBLTDL_HAVE_LT_DLADVISE
@@ -2287,6 +2369,9 @@
 
 /* Whether your compiler has __attribute__ destructor or not */
 #undef OPAL_HAVE_ATTRIBUTE_DESTRUCTOR
+
+/* Whether your compiler has __attribute__ error or not */
+#undef OPAL_HAVE_ATTRIBUTE_ERROR
 
 /* Whether your compiler has __attribute__ extension or not */
 #undef OPAL_HAVE_ATTRIBUTE_EXTENSION
@@ -2383,9 +2468,6 @@
 
 /* whether gethostbyname is found and available */
 #undef OPAL_HAVE_GETHOSTBYNAME
-
-/* do we have Java support */
-#undef OPAL_HAVE_JAVA_SUPPORT
 
 /* Do not use outside of mpi.h. Define to 1 if the system has the type `long
    long'. */
@@ -2655,6 +2737,18 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* The size of `atomic_int', as computed by sizeof. */
+#undef SIZEOF_ATOMIC_INT
+
+/* The size of `atomic_llong', as computed by sizeof. */
+#undef SIZEOF_ATOMIC_LLONG
+
+/* The size of `atomic_long', as computed by sizeof. */
+#undef SIZEOF_ATOMIC_LONG
+
+/* The size of `atomic_short', as computed by sizeof. */
+#undef SIZEOF_ATOMIC_SHORT
+
 /* The size of `bool', as computed by sizeof. */
 #undef SIZEOF_BOOL
 
@@ -2723,6 +2817,9 @@
 
 /* defined to 1 if slurm cray env, 0 otherwise */
 #undef SLURM_CRAY_ENV
+
+/* If the software-based performance counters capability should be enabled. */
+#undef SPC_ENABLE
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

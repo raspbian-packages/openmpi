@@ -20,6 +20,9 @@ hello_show_help: hello_show_help.c
 xlib: xlib.c
 	$(CC) $(CFLAGS) $(CFLAGS_INTERNAL) $^ -o $@ -lpmix
 
+pinterlib: pinterlib.c
+	$(CC) $(CFLAGS) $(CFLAGS_INTERNAL) $^ -o $@ -lpmix
+
 CC = mpicc
 CFLAGS = -g --openmpi:linkall
 CFLAGS_INTERNAL = -I../../.. -I../../../orte/include -I../../../opal/include

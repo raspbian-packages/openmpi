@@ -485,9 +485,11 @@ static void _query(int sd, short args, void *cbdata)
     orte_pmix_server_op_caddy_t *cd = (orte_pmix_server_op_caddy_t*)cbdata;
     opal_pmix_query_t *q;
     opal_value_t *kv;
+    orte_jobid_t jobid;
     orte_job_t *jdata;
     orte_proc_t *proct;
-    int rc, i, num_replies;
+    orte_app_context_t *app;
+    int rc = ORTE_SUCCESS, i, k, num_replies;
     opal_list_t *results, targets, *array;
     size_t n;
     uint32_t key;
@@ -703,16 +705,117 @@ static void _query(int sd, short args, void *cbdata)
                 kv->type = OPAL_STRING;
                 kv->data.string = strdup(orte_process_info.my_hnp_uri);
                 opal_list_append(results, &kv->super);
+            } else if (0 == strcmp(q->keys[n], OPAL_PMIX_QUERY_PROC_TABLE)) {
+                /* the job they are asking about is in the qualifiers */
+                jobid = ORTE_JOBID_INVALID;
+                OPAL_LIST_FOREACH(kv, &q->qualifiers, opal_value_t) {
+                    if (0 == strcmp(kv->key, OPAL_PMIX_PROCID)) {
+                        /* save the id */
+                        jobid = kv->data.name.jobid;
+                        break;
+                    }
+                }
+                if (ORTE_JOBID_INVALID == jobid) {
+                    rc = ORTE_ERR_NOT_FOUND;
+                    goto done;
+                }
+                /* construct a list of values with opal_proc_info_t
+                 * entries for each proc in the indicated job */
+                jdata = orte_get_job_data_object(jobid);
+                if (NULL == jdata) {
+                    rc = ORTE_ERR_NOT_FOUND;
+                    goto done;
+                }
+                /* setup the reply */
+                kv = OBJ_NEW(opal_value_t);
+                kv->key = strdup(OPAL_PMIX_QUERY_PROC_TABLE);
+                kv->type = OPAL_PTR;
+                array = OBJ_NEW(opal_list_t);
+                kv->data.ptr = array;
+                opal_list_append(results, &kv->super);
+                /* cycle thru the job and create an entry for each proc */
+                for (k=0; k < jdata->procs->size; k++) {
+                    if (NULL == (proct = (orte_proc_t*)opal_pointer_array_get_item(jdata->procs, k))) {
+                        continue;
+                    }
+                    kv = OBJ_NEW(opal_value_t);
+                    kv->type = OPAL_PROC_INFO;
+                    kv->data.pinfo.name.jobid = jobid;
+                    kv->data.pinfo.name.vpid = proct->name.vpid;
+                    if (NULL != proct->node && NULL != proct->node->name) {
+                        kv->data.pinfo.hostname = strdup(proct->node->name);
+                    }
+                    app = (orte_app_context_t*)opal_pointer_array_get_item(jdata->apps, proct->app_idx);
+                    if (NULL != app && NULL != app->app) {
+                        kv->data.pinfo.executable_name = strdup(app->app);
+                    }
+                    kv->data.pinfo.pid = proct->pid;
+                    kv->data.pinfo.exit_code = proct->exit_code;
+                    kv->data.pinfo.state = proct->state;
+                    opal_list_append(array, &kv->super);
+                }
+            } else if (0 == strcmp(q->keys[n], OPAL_PMIX_QUERY_LOCAL_PROC_TABLE)) {
+                /* the job they are asking about is in the qualifiers */
+                jobid = ORTE_JOBID_INVALID;
+                OPAL_LIST_FOREACH(kv, &q->qualifiers, opal_value_t) {
+                    if (0 == strcmp(kv->key, OPAL_PMIX_PROCID)) {
+                        /* save the id */
+                        jobid = kv->data.name.jobid;
+                        break;
+                    }
+                }
+                if (ORTE_JOBID_INVALID == jobid) {
+                    rc = ORTE_ERR_BAD_PARAM;
+                    goto done;
+                }
+                /* construct a list of values with opal_proc_info_t
+                 * entries for each LOCAL proc in the indicated job */
+                jdata = orte_get_job_data_object(jobid);
+                if (NULL == jdata) {
+                    rc = ORTE_ERR_NOT_FOUND;
+                    goto done;
+                }
+                /* setup the reply */
+                kv = OBJ_NEW(opal_value_t);
+                kv->key = strdup(OPAL_PMIX_QUERY_LOCAL_PROC_TABLE);
+                kv->type = OPAL_PTR;
+                array = OBJ_NEW(opal_list_t);
+                kv->data.ptr = array;
+                opal_list_append(results, &kv->super);
+                /* cycle thru the job and create an entry for each proc */
+                for (k=0; k < jdata->procs->size; k++) {
+                    if (NULL == (proct = (orte_proc_t*)opal_pointer_array_get_item(jdata->procs, k))) {
+                        continue;
+                    }
+                    if (ORTE_FLAG_TEST(proct, ORTE_PROC_FLAG_LOCAL)) {
+                        kv = OBJ_NEW(opal_value_t);
+                        kv->type = OPAL_PROC_INFO;
+                        kv->data.pinfo.name.jobid = jobid;
+                        kv->data.pinfo.name.vpid = proct->name.vpid;
+                        if (NULL != proct->node && NULL != proct->node->name) {
+                            kv->data.pinfo.hostname = strdup(proct->node->name);
+                        }
+                        app = (orte_app_context_t*)opal_pointer_array_get_item(jdata->apps, proct->app_idx);
+                        if (NULL != app && NULL != app->app) {
+                            kv->data.pinfo.executable_name = strdup(app->app);
+                        }
+                        kv->data.pinfo.pid = proct->pid;
+                        kv->data.pinfo.exit_code = proct->exit_code;
+                        kv->data.pinfo.state = proct->state;
+                        opal_list_append(array, &kv->super);
+                    }
+                }
             }
         }
     }
 
-    if (0 == opal_list_get_size(results)) {
-        rc = ORTE_ERR_NOT_FOUND;
-    } else if (opal_list_get_size(results) < opal_list_get_size(cd->info)) {
-        rc = ORTE_ERR_PARTIAL_SUCCESS;
-    } else {
-        rc = ORTE_SUCCESS;
+  done:
+    if (ORTE_SUCCESS == rc) {
+        if (0 == opal_list_get_size(results)) {
+            rc = ORTE_ERR_NOT_FOUND;
+        } else if (opal_list_get_size(results) < opal_list_get_size(cd->info)) {
+            rc = ORTE_ERR_PARTIAL_SUCCESS;
+        }
     }
     cd->infocbfunc(rc, results, cd->cbdata, qrel, results);
 }
@@ -749,11 +852,12 @@ static void _toolconn(int sd, short args, void *cbdata)
     orte_job_t *jdata;
     orte_app_context_t *app;
     orte_proc_t *proc;
-    orte_node_t *node;
-    orte_process_name_t tool;
-    int rc;
+    orte_node_t *node, *nptr;
+    char *hostname = NULL;
+    orte_process_name_t tool = {ORTE_JOBID_INVALID, ORTE_VPID_INVALID};
+    int rc, i;
     opal_value_t *val;
-    bool flag;
+    bool flag = false, flag_given = false;;
 
     ORTE_ACQUIRE_OBJECT(cd);
 
@@ -761,100 +865,160 @@ static void _toolconn(int sd, short args, void *cbdata)
                         "%s TOOL CONNECTION PROCESSING",
                         ORTE_NAME_PRINT(ORTE_PROC_MY_NAME));
 
-   /* if we are the HNP, we can directly assign the jobid */
-    if (ORTE_PROC_IS_HNP) {
-        jdata = OBJ_NEW(orte_job_t);
-        rc = orte_plm_base_create_jobid(jdata);
-        opal_hash_table_set_value_uint32(orte_job_data, jdata->jobid, jdata);
-        /* setup some required job-level fields in case this
-         * tool calls spawn, or uses some other functions that
-         * need them */
-        /* must create a map for it (even though it has no
-         * info in it) so that the job info will be picked
-         * up in subsequent pidmaps or other daemons won't
-         * know how to route
-         */
-        jdata->map = OBJ_NEW(orte_job_map_t);
-
-        /* setup an app_context for the singleton */
-        app = OBJ_NEW(orte_app_context_t);
-        app->app = strdup("tool");
-        app->num_procs = 1;
-        opal_pointer_array_add(jdata->apps, app);
-        jdata->num_apps = 1;
-
-        /* setup a proc object for the singleton - since we
-         * -must- be the HNP, and therefore we stored our
-         * node on the global node pool, and since the singleton
-         * -must- be on the same node as us, indicate that
-         */
-        proc = OBJ_NEW(orte_proc_t);
-        proc->name.jobid = jdata->jobid;
-        proc->name.vpid = 0;
-        proc->parent = ORTE_PROC_MY_NAME->vpid;
-        ORTE_FLAG_SET(proc, ORTE_PROC_FLAG_ALIVE);
-        proc->state = ORTE_PROC_STATE_RUNNING;
-        proc->app_idx = 0;
-        /* obviously, it is on my node */
-        node = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, 0);
-        proc->node = node;
-        OBJ_RETAIN(node);  /* keep accounting straight */
-        opal_pointer_array_add(jdata->procs, proc);
-        jdata->num_procs = 1;
-        /* add the node to the job map */
-        OBJ_RETAIN(node);
-        opal_pointer_array_add(jdata->map->nodes, node);
-        jdata->map->num_nodes++;
-        /* and it obviously is on the node - note that
-         * we do _not_ increment the #procs on the node
-         * as the tool doesn't count against the slot
-         * allocation */
-        OBJ_RETAIN(proc);
-        opal_pointer_array_add(node->procs, proc);
-        /* set the trivial */
-        proc->local_rank = 0;
-        proc->node_rank = 0;
-        proc->app_rank = 0;
-        proc->state = ORTE_PROC_STATE_RUNNING;
-        proc->app_idx = 0;
-        ORTE_FLAG_SET(proc, ORTE_PROC_FLAG_LOCAL);
-
-        /* check for directives */
-        if (NULL != cd->info) {
-            OPAL_LIST_FOREACH(val, cd->info, opal_value_t) {
-                if (0 == strcmp(val->key, OPAL_PMIX_EVENT_SILENT_TERMINATION)) {
-                    if (OPAL_UNDEF == val->type || val->data.flag) {
-                        flag = true;
-                        orte_set_attribute(&jdata->attributes, ORTE_JOB_SILENT_TERMINATION,
-                                           ORTE_ATTR_GLOBAL, &flag, OPAL_BOOL);
-                    }
+   /* check for directives */
+   if (NULL != cd->info) {
+       OPAL_LIST_FOREACH(val, cd->info, opal_value_t) {
+            if (0 == strcmp(val->key, OPAL_PMIX_EVENT_SILENT_TERMINATION)) {
+                if (OPAL_UNDEF == val->type || val->data.flag) {
+                    flag = true;
+                    flag_given = true;
                 }
+            } else if (0 == strcmp(val->key, OPAL_PMIX_NSPACE)) {
+                tool.jobid = val->data.name.jobid;
+            } else if (0 == strcmp(val->key, OPAL_PMIX_RANK)) {
+                tool.vpid = val->data.name.vpid;
+            } else if (0 == strcmp(val->key, OPAL_PMIX_HOSTNAME)) {
+                if (NULL != hostname) {
+                    /* shouldn't happen, but just take the last one */
+                    free(hostname);
+                }
+                hostname = strdup(val->data.string);
             }
         }
+    }
+
+    /* if we are not the HNP or master, and the tool doesn't
+     * already have a name (i.e., we didn't spawn it), then
+     * there is nothing we can currently do.
+     * Eventually, when we switch to nspace instead of an
+     * integer jobid, we'll just locally assign this value */
+    if (ORTE_JOBID_INVALID == tool.jobid ||
+        ORTE_VPID_INVALID == tool.vpid) {
+        /* if we are the HNP, we can directly assign the jobid */
+        if (ORTE_PROC_IS_HNP || ORTE_PROC_IS_MASTER) {
+            jdata = OBJ_NEW(orte_job_t);
+            rc = orte_plm_base_create_jobid(jdata);
+            if (ORTE_SUCCESS != rc) {
+                OBJ_RELEASE(jdata);
+                if (NULL != cd->toolcbfunc) {
+                    cd->toolcbfunc(ORTE_ERROR, tool, cd->cbdata);
+                }
+                OBJ_RELEASE(cd);
+                if (NULL != hostname) {
+                    free(hostname);
+                }
+                return;
+            }
+            tool.jobid = jdata->jobid;
+            tool.vpid = 0;
+        } else {
+            /* we currently do not support connections to non-HNP/master
+             * daemons from tools that were not spawned by a daemon */
+            if (NULL != cd->toolcbfunc) {
+                cd->toolcbfunc(ORTE_ERR_NOT_SUPPORTED, tool, cd->cbdata);
+            }
+            OBJ_RELEASE(cd);
+            if (NULL != hostname) {
+                free(hostname);
+            }
+            return;
+        }
+    } else {
+        jdata = OBJ_NEW(orte_job_t);
+        jdata->jobid = tool.jobid;
+    }
+
+    opal_hash_table_set_value_uint32(orte_job_data, jdata->jobid, jdata);
+    /* setup some required job-level fields in case this
+     * tool calls spawn, or uses some other functions that
+     * need them */
+    /* must create a map for it (even though it has no
+     * info in it) so that the job info will be picked
+     * up in subsequent pidmaps or other daemons won't
+     * know how to route
+     */
+    jdata->map = OBJ_NEW(orte_job_map_t);
+
+    /* setup an app_context for the singleton */
+    app = OBJ_NEW(orte_app_context_t);
+    app->app = strdup("tool");
+    app->num_procs = 1;
+    opal_pointer_array_add(jdata->apps, app);
+    jdata->num_apps = 1;
+
+    /* setup a proc object for the singleton - since we
+     * -must- be the HNP, and therefore we stored our
+     * node on the global node pool, and since the singleton
+     * -must- be on the same node as us, indicate that
+     */
+    proc = OBJ_NEW(orte_proc_t);
+    proc->name.jobid = jdata->jobid;
+    proc->name.vpid = tool.vpid;
+    proc->parent = ORTE_PROC_MY_NAME->vpid;
+    ORTE_FLAG_SET(proc, ORTE_PROC_FLAG_ALIVE);
+    ORTE_FLAG_SET(proc, ORTE_PROC_FLAG_TOOL);
+    proc->state = ORTE_PROC_STATE_RUNNING;
+    /* set the trivial */
+    proc->local_rank = 0;
+    proc->node_rank = 0;
+    proc->app_rank = 0;
+    proc->app_idx = 0;
+    if (NULL == hostname) {
+        /* it is on my node */
+        node = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, 0);
+        ORTE_FLAG_SET(proc, ORTE_PROC_FLAG_LOCAL);
+    } else {
+        /* we need to locate it */
+        node = NULL;
+        for (i=0; i < orte_node_pool->size; i++) {
+            if (NULL == (nptr = (orte_node_t*)opal_pointer_array_get_item(orte_node_pool, i))) {
+                continue;
+            }
+            if (0 == strcmp(hostname, nptr->name)) {
+                node = nptr;
+                break;
+            }
+        }
+        if (NULL == node) {
+            /* not in our allocation - which is still okay */
+            node = OBJ_NEW(orte_node_t);
+            node->name = strdup(hostname);
+            ORTE_FLAG_SET(node, ORTE_NODE_NON_USABLE);
+            opal_pointer_array_add(orte_node_pool, node);
+        }
+        free(hostname);  // no longer needed
+    }
+    proc->node = node;
+    OBJ_RETAIN(node);  /* keep accounting straight */
+    opal_pointer_array_add(jdata->procs, proc);
+    jdata->num_procs = 1;
+    /* add the node to the job map */
+    OBJ_RETAIN(node);
+    opal_pointer_array_add(jdata->map->nodes, node);
+    jdata->map->num_nodes++;
+    /* and it obviously is on the node - note that
+     * we do _not_ increment the #procs on the node
+     * as the tool doesn't count against the slot
+     * allocation */
+    OBJ_RETAIN(proc);
+    opal_pointer_array_add(node->procs, proc);
+    /* if they indicated a preference for termination, set it */
+    if (flag_given) {
+        orte_set_attribute(&jdata->attributes, ORTE_JOB_SILENT_TERMINATION,
+                           ORTE_ATTR_GLOBAL, &flag, OPAL_BOOL);
+    } else {
+        /* we default to silence */
         flag = true;
         orte_set_attribute(&jdata->attributes, ORTE_JOB_SILENT_TERMINATION,
                            ORTE_ATTR_GLOBAL, &flag, OPAL_BOOL);
-
-        /* pass back the assigned jobid */
-        tool.jobid = jdata->jobid;
-        tool.vpid = 0;
-        if (NULL != cd->toolcbfunc) {
-            cd->toolcbfunc(rc, tool, cd->cbdata);
-        }
-        OBJ_RELEASE(cd);
-        return;
     }
 
-    /* otherwise, we have to send the request to the HNP.
-     * Eventually, when we switch to nspace instead of an
-     * integer jobid, we'll just locally assign this value */
-     tool.jobid = ORTE_JOBID_INVALID;
-     tool.vpid = ORTE_VPID_INVALID;
     if (NULL != cd->toolcbfunc) {
         cd->toolcbfunc(ORTE_ERR_NOT_SUPPORTED, tool, cd->cbdata);
     }
     OBJ_RELEASE(cd);
 }
+
 void pmix_tool_connected_fn(opal_list_t *info,
                             opal_pmix_tool_connection_cbfunc_t cbfunc,
                             void *cbdata)
@@ -1022,5 +1186,5 @@ int pmix_server_job_ctrl_fn(const opal_process_name_t *requestor,
         }
     }
 
-    return ORTE_SUCCESS;
+    return ORTE_OPERATION_SUCCEEDED;
 }

@@ -14,7 +14,7 @@
  * Copyright (c) 2008      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2015      Research Organization for Information Science
+ * Copyright (c) 2015-2018 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -56,6 +56,13 @@ int   ompi_coll_tuned_init_chain_fanout = 4;
 int   ompi_coll_tuned_init_max_requests = 128;
 int   ompi_coll_tuned_alltoall_small_msg = 200;
 int   ompi_coll_tuned_alltoall_intermediate_msg = 3000;
+
+/* Set it to the same value as intermediate msg by default, so it does not affect
+ * default algorithm selection. Changing this value will force using linear with
+ * sync algorithm on certain message sizes. */
+int   ompi_coll_tuned_alltoall_large_msg = 3000;
+int   ompi_coll_tuned_alltoall_min_procs = 0; /* disable by default */
+int   ompi_coll_tuned_alltoall_max_requests  = 0; /* no limit for alltoall by default */
 
 /* forced alogrithm variables */
 /* indices for the MCA parameters */
@@ -187,8 +194,11 @@ static int tuned_register(void)
     ompi_coll_tuned_bcast_intra_check_forced_init(&ompi_coll_tuned_forced_params[BCAST]);
     ompi_coll_tuned_reduce_intra_check_forced_init(&ompi_coll_tuned_forced_params[REDUCE]);
     ompi_coll_tuned_reduce_scatter_intra_check_forced_init(&ompi_coll_tuned_forced_params[REDUCESCATTER]);
+    ompi_coll_tuned_reduce_scatter_block_intra_check_forced_init(&ompi_coll_tuned_forced_params[REDUCESCATTERBLOCK]);
     ompi_coll_tuned_gather_intra_check_forced_init(&ompi_coll_tuned_forced_params[GATHER]);
     ompi_coll_tuned_scatter_intra_check_forced_init(&ompi_coll_tuned_forced_params[SCATTER]);
+    ompi_coll_tuned_exscan_intra_check_forced_init(&ompi_coll_tuned_forced_params[EXSCAN]);
+    ompi_coll_tuned_scan_intra_check_forced_init(&ompi_coll_tuned_forced_params[SCAN]);
 
     return OMPI_SUCCESS;
 }

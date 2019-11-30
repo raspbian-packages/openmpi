@@ -18,10 +18,28 @@
 extern "C" {
 #endif
 
+enum {
+    SHMEM_HINT_NONE           = 0,
+    SHMEM_HINT_LOW_LAT_MEM    = 1 << 0,
+    SHMEM_HINT_HIGH_BW_MEM    = 1 << 1,
+    SHMEM_HINT_NEAR_NIC_MEM   = 1 << 2,
+    SHMEM_HINT_DEVICE_GPU_MEM = 1 << 3,
+    SHMEM_HINT_DEVICE_NIC_MEM = 1 << 4,
+
+    SHMEM_HINT_PSYNC          = 1 << 16,
+    SHMEM_HINT_PWORK          = 1 << 17,
+    SHMEM_HINT_ATOMICS        = 1 << 18
+};
+
 /*
  * All OpenSHMEM extension APIs that are not part of this specification must be defined in the shmemx.h include
  * file. These extensions shall use the shmemx_ prefix for all routine, variable, and constant names.
  */
+
+/*
+ * Symmetric heap routines
+ */
+OSHMEM_DECLSPEC  void* shmemx_malloc_with_hint(size_t size, long hint);
 
 /*
  * Elemental put routines
@@ -76,6 +94,24 @@ OSHMEM_DECLSPEC int64_t shmemx_int64_cswap(int64_t *target, int64_t cond, int64_
 OSHMEM_DECLSPEC int32_t shmemx_int32_fadd(int32_t *target, int32_t value, int pe);
 OSHMEM_DECLSPEC int64_t shmemx_int64_fadd(int64_t *target, int64_t value, int pe);
 
+/* Atomic Fetch&And */
+OSHMEM_DECLSPEC int32_t shmemx_int32_atomic_fetch_and(int32_t *target, int32_t value, int pe);
+OSHMEM_DECLSPEC int64_t shmemx_int64_atomic_fetch_and(int64_t *target, int64_t value, int pe);
+OSHMEM_DECLSPEC uint32_t shmemx_uint32_atomic_fetch_and(uint32_t *target, uint32_t value, int pe);
+OSHMEM_DECLSPEC uint64_t shmemx_uint64_atomic_fetch_and(uint64_t *target, uint64_t value, int pe);
+
+/* Atomic Fetch&Or */
+OSHMEM_DECLSPEC int32_t shmemx_int32_atomic_fetch_or(int32_t *target, int32_t value, int pe);
+OSHMEM_DECLSPEC int64_t shmemx_int64_atomic_fetch_or(int64_t *target, int64_t value, int pe);
+OSHMEM_DECLSPEC uint32_t shmemx_uint32_atomic_fetch_or(uint32_t *target, uint32_t value, int pe);
+OSHMEM_DECLSPEC uint64_t shmemx_uint64_atomic_fetch_or(uint64_t *target, uint64_t value, int pe);
+
+/* Atomic Fetch&Xor */
+OSHMEM_DECLSPEC int32_t shmemx_int32_atomic_fetch_xor(int32_t *target, int32_t value, int pe);
+OSHMEM_DECLSPEC int64_t shmemx_int64_atomic_fetch_xor(int64_t *target, int64_t value, int pe);
+OSHMEM_DECLSPEC uint32_t shmemx_uint32_atomic_fetch_xor(uint32_t *target, uint32_t value, int pe);
+OSHMEM_DECLSPEC uint64_t shmemx_uint64_atomic_fetch_xor(uint64_t *target, uint64_t value, int pe);
+
 /* Atomic Fetch */
 OSHMEM_DECLSPEC int32_t shmemx_int32_fetch(const int32_t *target, int pe);
 OSHMEM_DECLSPEC int64_t shmemx_int64_fetch(const int64_t *target, int pe);
@@ -84,9 +120,27 @@ OSHMEM_DECLSPEC int64_t shmemx_int64_fetch(const int64_t *target, int pe);
 OSHMEM_DECLSPEC int32_t shmemx_int32_finc(int32_t *target, int pe);
 OSHMEM_DECLSPEC int64_t shmemx_int64_finc(int64_t *target, int pe);
 
-/* Atomic Add*/
+/* Atomic Add */
 OSHMEM_DECLSPEC void shmemx_int32_add(int32_t *target, int32_t value, int pe);
 OSHMEM_DECLSPEC void shmemx_int64_add(int64_t *target, int64_t value, int pe);
+
+/* Atomic And */
+OSHMEM_DECLSPEC void shmemx_int32_atomic_and(int32_t *target, int32_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_int64_atomic_and(int64_t *target, int64_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_uint32_atomic_and(uint32_t *target, uint32_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_uint64_atomic_and(uint64_t *target, uint64_t value, int pe);
+
+/* Atomic Or */
+OSHMEM_DECLSPEC void shmemx_int32_atomic_or(int32_t *target, int32_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_int64_atomic_or(int64_t *target, int64_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_uint32_atomic_or(uint32_t *target, uint32_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_uint64_atomic_or(uint64_t *target, uint64_t value, int pe);
+
+/* Atomic Xor */
+OSHMEM_DECLSPEC void shmemx_int32_atomic_xor(int32_t *target, int32_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_int64_atomic_xor(int64_t *target, int64_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_uint32_atomic_xor(uint32_t *target, uint32_t value, int pe);
+OSHMEM_DECLSPEC void shmemx_uint64_atomic_xor(uint64_t *target, uint64_t value, int pe);
 
 /* Atomic Inc */
 OSHMEM_DECLSPEC void shmemx_int32_inc(int32_t *target, int pe);
@@ -132,17 +186,24 @@ OSHMEM_DECLSPEC void shmemx_int16_prod_to_all(int16_t *target, const int16_t *so
 OSHMEM_DECLSPEC void shmemx_int32_prod_to_all(int32_t *target, const int32_t *source, int nreduce, int PE_start, int logPE_stride, int PE_size, int32_t *pWrk, long *pSync);
 OSHMEM_DECLSPEC void shmemx_int64_prod_to_all(int64_t *target, const int64_t *source, int nreduce, int PE_start, int logPE_stride, int PE_size, int64_t *pWrk, long *pSync);
 
+/* shmemx_alltoall_global_nb is a nonblocking collective routine, where each PE
+ * exchanges “size” bytes of data with all other PEs in the OpenSHMEM job.
+
+ *  @param dest        A symmetric data object that is large enough to receive
+ *                     “size” bytes of data from each PE in the OpenSHMEM job.
+ *  @param source      A symmetric data object that contains “size” bytes of data
+ *                     for each PE in the OpenSHMEM job.
+ *  @param size        The number of bytes to be sent to each PE in the job.
+ *  @param counter     A symmetric data object to be atomically incremented after
+ *                     the target buffer is updated.
+ *
+ *  @return            OSHMEM_SUCCESS or failure status.
+ */
+OSHMEM_DECLSPEC void shmemx_alltoall_global_nb(void *dest, const void *source, size_t size, long *counter);
+
 /*
  * Backward compatibility section
  */
-#define shmem_int16_p               shmemx_int16_p
-#define shmem_int32_p               shmemx_int32_p
-#define shmem_int64_p               shmemx_int64_p
-
-#define shmem_int16_g               shmemx_int16_g
-#define shmem_int32_g               shmemx_int32_g
-#define shmem_int64_g               shmemx_int64_g
-
 #define shmem_int32_swap            shmemx_int32_swap
 #define shmem_int64_swap            shmemx_int64_swap
 
@@ -168,8 +229,6 @@ OSHMEM_DECLSPEC void shmemx_int64_prod_to_all(int64_t *target, const int64_t *so
 
 #define shmem_int32_wait            shmemx_int32_wait
 #define shmem_int64_wait            shmemx_int64_wait
-#define shmem_int32_wait_until      shmemx_int32_wait_until
-#define shmem_int64_wait_until      shmemx_int64_wait_until
 
 #define shmem_int16_and_to_all      shmemx_int16_and_to_all
 #define shmem_int32_and_to_all      shmemx_int32_and_to_all

@@ -14,6 +14,11 @@
 
 #include "ompi/group/group.h"
 #include "ompi/communicator/communicator.h"
+#include "opal/mca/common/ucx/common_ucx.h"
+
+#define OSC_UCX_ASSERT  MCA_COMMON_UCX_ASSERT
+#define OSC_UCX_ERROR   MCA_COMMON_UCX_ERROR
+#define OSC_UCX_VERBOSE MCA_COMMON_UCX_VERBOSE
 
 #define OMPI_OSC_UCX_POST_PEER_MAX 32
 #define OMPI_OSC_UCX_ATTACH_MAX    32
@@ -31,7 +36,9 @@ typedef struct ompi_osc_ucx_component {
     ucp_worker_h ucp_worker;
     bool enable_mpi_threads;
     opal_free_list_t requests; /* request free list for the r* communication variants */
+    bool env_initialized; /* UCX environment is initialized or not */
     int num_incomplete_req_ops;
+    int num_modules;
     unsigned int priority;
 } ompi_osc_ucx_component_t;
 

@@ -15,7 +15,7 @@
 # Copyright (c) 2011-2013 Universite Bordeaux 1
 # Copyright (c) 2013-2014 Los Alamos National Security, LLC. All rights
 #                         reserved.
-# Copyright (c) 2015-2017 Research Organization for Information Science
+# Copyright (c) 2015-2018 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # $COPYRIGHT$
 #
@@ -45,7 +45,6 @@ linked_files = \
         padd_error_class_f.c \
         padd_error_code_f.c \
         padd_error_string_f.c \
-        paddress_f.c \
         paint_add_f.c \
         paint_diff_f.c \
         pallgather_f.c \
@@ -114,10 +113,7 @@ linked_files = \
         pdist_graph_create_f.c \
         pdist_graph_neighbors_f.c \
         pdist_graph_neighbors_count_f.c \
-        perrhandler_create_f.c \
         perrhandler_free_f.c \
-        perrhandler_get_f.c \
-        perrhandler_set_f.c \
         perror_class_f.c \
         perror_string_f.c \
         pexscan_f.c \
@@ -326,7 +322,6 @@ linked_files = \
         ptype_create_subarray_f.c \
         ptype_delete_attr_f.c \
         ptype_dup_f.c \
-        ptype_extent_f.c \
         ptype_free_f.c \
         ptype_free_keyval_f.c \
         ptype_get_attr_f.c \
@@ -337,17 +332,12 @@ linked_files = \
         ptype_get_name_f.c \
         ptype_get_true_extent_f.c \
         ptype_get_true_extent_x_f.c \
-        ptype_hindexed_f.c \
-        ptype_hvector_f.c \
         ptype_indexed_f.c \
-        ptype_lb_f.c \
         ptype_match_size_f.c \
         ptype_set_attr_f.c \
         ptype_set_name_f.c \
         ptype_size_f.c \
         ptype_size_x_f.c \
-        ptype_struct_f.c \
-        ptype_ub_f.c \
         ptype_vector_f.c \
         punpack_external_f.c \
         punpack_f.c \
@@ -406,6 +396,20 @@ linked_files = \
         pwin_flush_all_f.c \
         pwin_flush_local_f.c \
         pwin_flush_local_all_f.c
+
+# include all of the removed MPI functions in library
+# for v4.0.x regardless of state of OMPI_ENABLE_MPI1_COMPAT
+linked_files += \
+        paddress_f.c \
+        perrhandler_create_f.c \
+        perrhandler_get_f.c \
+        perrhandler_set_f.c \
+        ptype_extent_f.c \
+        ptype_hindexed_f.c \
+        ptype_hvector_f.c \
+        ptype_lb_f.c \
+        ptype_struct_f.c \
+        ptype_ub_f.c
 
 #
 # Sym link in the sources from the real MPI directory

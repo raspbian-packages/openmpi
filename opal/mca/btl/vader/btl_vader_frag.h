@@ -14,6 +14,7 @@
  * Copyright (c) 2009      Cisco Systems, Inc.  All rights reserved.
  * Copyright (c) 2011-2015 Los Alamos National Security, LLC. All rights
  *                         reserved.
+ * Copyright (c) 2019      Google, Inc. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -35,6 +36,23 @@ enum {
 
 struct mca_btl_vader_frag_t;
 struct mca_btl_vader_fbox_t;
+
+enum mca_btl_vader_sc_emu_type_t {
+    MCA_BTL_VADER_OP_PUT,
+    MCA_BTL_VADER_OP_GET,
+    MCA_BTL_VADER_OP_ATOMIC,
+    MCA_BTL_VADER_OP_CSWAP,
+};
+typedef enum mca_btl_vader_sc_emu_type_t mca_btl_vader_sc_emu_type_t;
+
+struct mca_btl_vader_sc_emu_hdr_t {
+    mca_btl_vader_sc_emu_type_t type;
+    uint64_t addr;
+    mca_btl_base_atomic_op_t op;
+    int flags;
+    int64_t operand[2];
+};
+typedef struct mca_btl_vader_sc_emu_hdr_t mca_btl_vader_sc_emu_hdr_t;
 
 /**
  * FIFO fragment header
@@ -71,6 +89,16 @@ struct mca_btl_vader_frag_t {
     mca_btl_vader_hdr_t *hdr;
     /** free list this fragment was allocated within */
     opal_free_list_t *my_list;
+    /** rdma callback data */
+    struct mca_btl_vader_rdma_cbdata_t {
+        void *local_address;
+        uint64_t remote_address;
+        mca_btl_base_rdma_completion_fn_t cbfunc;
+        void *context;
+        void *cbdata;
+        size_t remaining;
+        size_t sent;
+    } rdma;
 };
 
 typedef struct mca_btl_vader_frag_t mca_btl_vader_frag_t;
@@ -112,16 +140,114 @@ OBJ_CLASS_DECLARATION(mca_btl_vader_frag_t);
 
 
 static inline void mca_btl_vader_frag_complete (mca_btl_vader_frag_t *frag) {
-    if (OPAL_UNLIKELY(MCA_BTL_DES_SEND_ALWAYS_CALLBACK & frag->base.des_flags)) {
+    /* save the descriptor flags since the callback is allowed to free the frag */
+    int des_flags = frag->base.des_flags;
+
+    if (OPAL_UNLIKELY(MCA_BTL_DES_SEND_ALWAYS_CALLBACK & des_flags)) {
         /* completion callback */
         frag->base.des_cbfunc (&mca_btl_vader.super, frag->endpoint, &frag->base, OPAL_SUCCESS);
     }
 
-    if (OPAL_LIKELY(frag->base.des_flags & MCA_BTL_DES_FLAGS_BTL_OWNERSHIP)) {
+    if (OPAL_LIKELY(des_flags & MCA_BTL_DES_FLAGS_BTL_OWNERSHIP)) {
         MCA_BTL_VADER_FRAG_RETURN(frag);
     }
 }
 
 int mca_btl_vader_frag_init (opal_free_list_item_t *item, void *ctx);
+
+static inline void mca_btl_vader_rdma_frag_advance (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t *endpoint,
+                                                    mca_btl_vader_frag_t *frag, int status)
+{
+    mca_btl_vader_sc_emu_hdr_t *hdr = (mca_btl_vader_sc_emu_hdr_t *) frag->segments[0].seg_addr.pval;
+    mca_btl_base_rdma_completion_fn_t cbfunc = frag->rdma.cbfunc;
+    size_t hdr_size = sizeof (*hdr);
+    size_t len = frag->rdma.sent ? frag->segments[0].seg_len - hdr_size : 0;
+    void *context = frag->rdma.context;
+    void *cbdata = frag->rdma.cbdata;
+    void *data = (void *) (hdr + 1);
+
+    if (frag->rdma.sent) {
+        if (MCA_BTL_VADER_OP_GET == hdr->type) {
+            memcpy (frag->rdma.local_address, data, len);
+        } else if ((MCA_BTL_VADER_OP_ATOMIC == hdr->type || MCA_BTL_VADER_OP_CSWAP == hdr->type) &&
+                   frag->rdma.local_address) {
+            if (8 == len) {
+                *((int64_t *) frag->rdma.local_address) = hdr->operand[0];
+            } else {
+                *((int32_t *) frag->rdma.local_address) = (int32_t) hdr->operand[0];
+            }
+        }
+    }
+
+    if (frag->rdma.remaining) {
+        size_t packet_size = (frag->rdma.remaining + hdr_size) <= mca_btl_vader.super.btl_max_send_size ?
+            frag->rdma.remaining : mca_btl_vader.super.btl_max_send_size - hdr_size;
+
+        /* advance the local and remote pointers */
+        frag->rdma.local_address = (void *)((uintptr_t) frag->rdma.local_address + len);
+        frag->rdma.remote_address += len;
+
+        if (MCA_BTL_VADER_OP_PUT == hdr->type) {
+            /* copy the next block into the fragment buffer */
+            memcpy ((void *) (hdr + 1), frag->rdma.local_address, packet_size);
+        }
+
+        hdr->addr = frag->rdma.remote_address;
+        /* clear out the complete flag before sending the fragment again */
+        frag->hdr->flags &= ~MCA_BTL_VADER_FLAG_COMPLETE;
+        frag->segments[0].seg_len = packet_size + sizeof (*hdr);
+        frag->rdma.sent += packet_size;
+        frag->rdma.remaining -= packet_size;
+
+        /* send is always successful */
+        (void) mca_btl_vader_send (btl, endpoint, &frag->base, MCA_BTL_TAG_VADER);
+        return;
+    }
+
+    /* return the fragment before calling the callback */
+    MCA_BTL_VADER_FRAG_RETURN(frag);
+    cbfunc (btl, endpoint, (void *)((uintptr_t) frag->rdma.local_address - frag->rdma.sent), NULL,
+            context, cbdata, status);
+}
+
+static inline int
+mca_btl_vader_rdma_frag_start (mca_btl_base_module_t *btl, mca_btl_base_endpoint_t *endpoint, int type,
+                               uint64_t operand1, uint64_t operand2, mca_btl_base_atomic_op_t op, int order,
+                               int flags, size_t size, void *local_address, int64_t remote_address,
+                               mca_btl_base_rdma_completion_fn_t cbfunc, void *cbcontext, void *cbdata)
+{
+    mca_btl_vader_sc_emu_hdr_t *hdr;
+    size_t hdr_size = sizeof (*hdr);
+    size_t packet_size = (size + hdr_size) <= mca_btl_vader.super.btl_max_send_size ? size :
+        mca_btl_vader.super.btl_max_send_size - hdr_size;
+    mca_btl_vader_frag_t *frag;
+
+    frag = (mca_btl_vader_frag_t *) mca_btl_vader_alloc (btl, endpoint, order, packet_size + hdr_size,
+                                                         MCA_BTL_DES_SEND_ALWAYS_CALLBACK);
+    if (OPAL_UNLIKELY(NULL == frag)) {
+        return OPAL_ERR_OUT_OF_RESOURCE;
+    }
+
+    frag->base.des_cbfunc = (mca_btl_base_completion_fn_t) mca_btl_vader_rdma_frag_advance;
+    frag->rdma.local_address = local_address;
+    frag->rdma.remote_address = remote_address;
+    frag->rdma.cbfunc = cbfunc;
+    frag->rdma.context = cbcontext;
+    frag->rdma.cbdata = cbdata;
+    frag->rdma.remaining = size;
+    frag->rdma.sent = 0;
+
+    hdr = (mca_btl_vader_sc_emu_hdr_t *) frag->segments[0].seg_addr.pval;
+
+    hdr->type = type;
+    hdr->addr = remote_address;
+    hdr->op = op;
+    hdr->flags = flags;
+    hdr->operand[0] = operand1;
+    hdr->operand[1] = operand2;
+
+    mca_btl_vader_rdma_frag_advance (btl, endpoint, frag, OPAL_SUCCESS);
+    return OPAL_SUCCESS;
+}
 
 #endif /* MCA_BTL_VADER_SEND_FRAG_H */

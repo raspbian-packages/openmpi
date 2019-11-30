@@ -67,11 +67,17 @@ OSHMEM_DECLSPEC int mca_spml_base_wait(void* addr,
                                        void* value,
                                        int datatype);
 OSHMEM_DECLSPEC int mca_spml_base_wait_nb(void* handle);
-OSHMEM_DECLSPEC int mca_spml_base_oob_get_mkeys(int pe,
+OSHMEM_DECLSPEC int mca_spml_base_test(void* addr,
+                                       int cmp,
+                                       void* value,
+                                       int datatype,
+                                       int *out_value);
+OSHMEM_DECLSPEC int mca_spml_base_oob_get_mkeys(shmem_ctx_t ctx,
+                                                int pe,
                                                 uint32_t seg,
                                                 sshmem_mkey_t *mkeys);
 
-OSHMEM_DECLSPEC void mca_spml_base_rmkey_unpack(sshmem_mkey_t *mkey, uint32_t seg, int pe, int tr_id);
+OSHMEM_DECLSPEC void mca_spml_base_rmkey_unpack(shmem_ctx_t ctx, sshmem_mkey_t *mkey, uint32_t seg, int pe, int tr_id);
 OSHMEM_DECLSPEC void mca_spml_base_rmkey_free(sshmem_mkey_t *mkey);
 OSHMEM_DECLSPEC void *mca_spml_base_rmkey_ptr(const void *dst_addr, sshmem_mkey_t *mkey, int pe);
 
@@ -87,6 +93,10 @@ OSHMEM_DECLSPEC int mca_spml_base_get_nb(void *dst_addr,
                                          void **handle);
 
 OSHMEM_DECLSPEC void mca_spml_base_memuse_hook(void *addr, size_t length);
+
+OSHMEM_DECLSPEC int mca_spml_base_put_all_nb(void *target, const void *source,
+                                             size_t size, long *counter);
+
 /*
  * MCA framework
  */

@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2015 The University of Tennessee and The University
+ * Copyright (c) 2004-2018 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -28,6 +28,7 @@
 #include "pml_ob1_sendreq.h"
 #include "pml_ob1_recvreq.h"
 #include "ompi/peruse/peruse-internal.h"
+#include "ompi/runtime/ompi_spc.h"
 
 /**
  * Single usage request. As we allow recursive calls (as an
@@ -119,6 +120,19 @@ static inline int mca_pml_ob1_send_inline (const void *buf, size_t count,
     rc = mca_bml_base_sendi (bml_btl, &convertor, &match, OMPI_PML_OB1_MATCH_HDR_LEN,
                              size, MCA_BTL_NO_ORDER, MCA_BTL_DES_FLAGS_PRIORITY | MCA_BTL_DES_FLAGS_BTL_OWNERSHIP,
                              MCA_PML_OB1_HDR_TYPE_MATCH, NULL);
+
+    /* This #if is required due to an issue that arises with the IBM CI (XL Compiler).
+     * The compiler doesn't seem to like having a compiler hint attached to an if
+     * statement that only has a no-op inside and has the following error:
+     *
+     * 1586-494 (U) INTERNAL COMPILER ERROR: Signal 11.
+     */
+#if SPC_ENABLE == 1
+    if(OPAL_LIKELY(rc == OPAL_SUCCESS)) {
+        SPC_USER_OR_MPI(tag, (ompi_spc_value_t)size, OMPI_SPC_BYTES_SENT_USER, OMPI_SPC_BYTES_SENT_MPI);
+    }
+#endif
+
     if (count > 0) {
         opal_convertor_cleanup (&convertor);
     }
@@ -151,7 +165,7 @@ int mca_pml_ob1_isend(const void *buf,
     }
 
     if (!OMPI_COMM_CHECK_ASSERT_ALLOW_OVERTAKE(comm)) {
-        seqn = (uint16_t) OPAL_THREAD_ADD32(&ob1_proc->send_sequence, 1);
+        seqn = (uint16_t) OPAL_THREAD_ADD_FETCH32(&ob1_proc->send_sequence, 1);
     }
 
     if (MCA_PML_BASE_SEND_SYNCHRONOUS != sendmode) {
@@ -220,7 +234,7 @@ int mca_pml_ob1_send(const void *buf,
     }
 
     if (!OMPI_COMM_CHECK_ASSERT_ALLOW_OVERTAKE(comm)) {
-        seqn = (uint16_t) OPAL_THREAD_ADD32(&ob1_proc->send_sequence, 1);
+        seqn = (uint16_t) OPAL_THREAD_ADD_FETCH32(&ob1_proc->send_sequence, 1);
     }
 
     /**

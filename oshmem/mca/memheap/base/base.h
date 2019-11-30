@@ -36,17 +36,21 @@ OSHMEM_DECLSPEC int mca_memheap_base_select(void);
 #define MEMHEAP_BASE_MIN_ORDER         3                                /* forces 64 bit alignment */
 #define MEMHEAP_BASE_PAGE_ORDER        21
 #define MEMHEAP_BASE_PRIVATE_SIZE      (1ULL << MEMHEAP_BASE_PAGE_ORDER) /* should be at least the same as a huge page size */
-#define MEMHEAP_BASE_MIN_SIZE          (1ULL << MEMHEAP_BASE_PAGE_ORDER)    /* must fit into at least one huge page */
+#define MEMHEAP_BASE_MIN_SIZE          (1ULL << MEMHEAP_BASE_PAGE_ORDER) /* must fit into at least one huge page */
 
 extern int mca_memheap_base_already_opened;
 extern int mca_memheap_base_key_exchange;
 
-#define MCA_MEMHEAP_MAX_SEGMENTS    4 
-#define HEAP_SEG_INDEX  0
-#define SYMB_SEG_INDEX  1
-#define MCA_MEMHEAP_SEG_COUNT  (SYMB_SEG_INDEX+1)
+#define MCA_MEMHEAP_MAX_SEGMENTS    8
+#define HEAP_SEG_INDEX              0
+#define MCA_MEMHEAP_SEG_COUNT       2
 
 #define MEMHEAP_SEG_INVALID  0xFFFF
+
+
+typedef struct mca_memheap_base_config {
+    long            device_nic_mem_seg_size; /* Used for SHMEM_HINT_DEVICE_NIC_MEM */
+} mca_memheap_base_config_t;
 
 
 typedef struct mca_memheap_map {
@@ -56,8 +60,9 @@ typedef struct mca_memheap_map {
 } mca_memheap_map_t;
 
 extern mca_memheap_map_t mca_memheap_base_map;
+extern mca_memheap_base_config_t mca_memheap_base_config;
 
-int mca_memheap_base_alloc_init(mca_memheap_map_t *, size_t);
+int mca_memheap_base_alloc_init(mca_memheap_map_t *, size_t, long);
 void mca_memheap_base_alloc_exit(mca_memheap_map_t *);
 int mca_memheap_base_static_init(mca_memheap_map_t *);
 void mca_memheap_base_static_exit(mca_memheap_map_t *);
@@ -69,7 +74,8 @@ void memheap_oob_destruct(void);
 OSHMEM_DECLSPEC int mca_memheap_base_is_symmetric_addr(const void* va);
 OSHMEM_DECLSPEC sshmem_mkey_t *mca_memheap_base_get_mkey(void* va,
                                                            int tr_id);
-OSHMEM_DECLSPEC sshmem_mkey_t * mca_memheap_base_get_cached_mkey_slow(map_segment_t *s,
+OSHMEM_DECLSPEC sshmem_mkey_t * mca_memheap_base_get_cached_mkey_slow(shmem_ctx_t ctx,
+                                                                      map_segment_t *s,
                                                                       int pe,
                                                                       void* va,
                                                                       int btl_id,
@@ -172,10 +178,12 @@ static inline int memheap_is_va_in_segment(void *va, int segno)
 
 static inline int memheap_find_segnum(void *va)
 {
-    if (OPAL_LIKELY(memheap_is_va_in_segment(va, SYMB_SEG_INDEX))) {
-        return SYMB_SEG_INDEX;
-    } else if (memheap_is_va_in_segment(va, HEAP_SEG_INDEX)) {
-        return HEAP_SEG_INDEX;
+    int i;
+
+    for (i = 0; i < mca_memheap_base_map.n_segments; i++) {
+        if (memheap_is_va_in_segment(va, i)) {
+            return i;
+        }
     }
     return MEMHEAP_SEG_INVALID;
 }
@@ -192,18 +200,17 @@ static inline void *map_segment_va2rva(mkey_segment_t *seg, void *va)
     return memheap_va2rva(va, seg->super.va_base, seg->rva_base);
 }
 
-static inline map_base_segment_t *map_segment_find_va(map_base_segment_t *segs, size_t elem_size, void *va) 
+static inline map_base_segment_t *map_segment_find_va(map_base_segment_t *segs,
+                                                      size_t elem_size, void *va)
 {
     map_base_segment_t *rseg;
+    int i;
 
-    rseg = (map_base_segment_t *)((char *)segs + elem_size * HEAP_SEG_INDEX);
-    if (OPAL_LIKELY(map_segment_is_va_in(rseg, va))) {
-        return rseg;
-    } 
-
-    rseg = (map_base_segment_t *)((char *)segs + elem_size * SYMB_SEG_INDEX);
-    if (OPAL_LIKELY(map_segment_is_va_in(rseg, va))) {
-        return rseg;
+    for (i = 0; i < MCA_MEMHEAP_MAX_SEGMENTS; i++) {
+        rseg = (map_base_segment_t *)((char *)segs + elem_size * i);
+        if (OPAL_LIKELY(map_segment_is_va_in(rseg, va))) {
+            return rseg;
+        }
     }
 
     return NULL;
@@ -213,21 +220,14 @@ void mkey_segment_init(mkey_segment_t *seg, sshmem_mkey_t *mkey, uint32_t segno)
 
 static inline map_segment_t *memheap_find_va(void* va)
 {
-    map_segment_t *s;
+    map_segment_t *s = NULL;
+    int i;
 
-    /* most probably there will be only two segments: heap and global data */
-    if (OPAL_LIKELY(memheap_is_va_in_segment(va, SYMB_SEG_INDEX))) {
-        s = &memheap_map->mem_segs[SYMB_SEG_INDEX];
-    } else if (memheap_is_va_in_segment(va, HEAP_SEG_INDEX)) {
-        s = &memheap_map->mem_segs[HEAP_SEG_INDEX];
-    } else if (memheap_map->n_segments - 2 > 0) {
-        s = bsearch(va,
-                    &memheap_map->mem_segs[SYMB_SEG_INDEX+1],
-                    memheap_map->n_segments - 2,
-                    sizeof(*s),
-                    mca_memheap_seg_cmp);
-    } else {
-        s = NULL;
+    for (i = 0; i < memheap_map->n_segments; i++) {
+        if (memheap_is_va_in_segment(va, i)) {
+            s = &memheap_map->mem_segs[i];
+            break;
+        }
     }
 
 #if MEMHEAP_BASE_DEBUG == 1
@@ -243,7 +243,8 @@ static inline map_segment_t *memheap_find_va(void* va)
     return s;
 }
 
-static inline  sshmem_mkey_t *mca_memheap_base_get_cached_mkey(int pe,
+static inline  sshmem_mkey_t *mca_memheap_base_get_cached_mkey(shmem_ctx_t ctx,
+                                                               int pe,
                                                                 void* va,
                                                                 int btl_id,
                                                                 void** rva)
@@ -273,7 +274,7 @@ static inline  sshmem_mkey_t *mca_memheap_base_get_cached_mkey(int pe,
         return mkey;
     }
 
-    return mca_memheap_base_get_cached_mkey_slow(s, pe, va, btl_id, rva);
+    return mca_memheap_base_get_cached_mkey_slow(ctx, s, pe, va, btl_id, rva);
 }
 
 static inline int mca_memheap_base_num_transports(void) 

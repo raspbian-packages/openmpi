@@ -11,12 +11,13 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2006-2009 Sun Microsystems, Inc.  All rights reserved.
- * Copyright (c) 2008      Cisco Systems, Inc.  All rights reserved.
+ * Copyright (c) 2008-2018 Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2013      Los Alamos National Security, LLC.  All rights
  *                         reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * Copyright (c) 2017      IBM Corporation.  All rights reserved.
+ * Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -80,10 +81,10 @@ int MPI_Type_create_f90_real(int p, int r, MPI_Datatype *newtype)
      * cache.
      */
 
-    if( (LDBL_DIG < p) || (LDBL_MAX_10_EXP < r) )    *newtype = &ompi_mpi_datatype_null.dt;
-    else if( (DBL_DIG < p) || (DBL_MAX_10_EXP < r) ) *newtype = &ompi_mpi_long_double.dt;
-    else if( (FLT_DIG < p) || (FLT_MAX_10_EXP < r) ) *newtype = &ompi_mpi_double.dt;
-    else                                             *newtype = &ompi_mpi_float.dt;
+    if     ( (LDBL_DIG < p) || (LDBL_MAX_10_EXP < r) || (-LDBL_MIN_10_EXP < r) ) *newtype = &ompi_mpi_datatype_null.dt;
+    else if( (DBL_DIG  < p) || (DBL_MAX_10_EXP  < r) || (-DBL_MIN_10_EXP  < r) ) *newtype = &ompi_mpi_long_double.dt;
+    else if( (FLT_DIG  < p) || (FLT_MAX_10_EXP  < r) || (-FLT_MIN_10_EXP  < r) ) *newtype = &ompi_mpi_double.dt;
+    else                                                                         *newtype = &ompi_mpi_float.dt;
 
     if( *newtype != &ompi_mpi_datatype_null.dt ) {
         ompi_datatype_t* datatype;
@@ -107,8 +108,12 @@ int MPI_Type_create_f90_real(int p, int r, MPI_Datatype *newtype)
          */
         datatype->super.flags |= OMPI_DATATYPE_FLAG_PREDEFINED;
         /* Mark the datatype as a special F90 convenience type */
-        snprintf(datatype->name, MPI_MAX_OBJECT_NAME, "COMBINER %s",
-                 (*newtype)->name);
+        char *new_name;
+        asprintf(&new_name, "COMBINER %s", (*newtype)->name);
+        size_t max_len = MPI_MAX_OBJECT_NAME;
+        strncpy(datatype->name, new_name, max_len - 1);
+        datatype->name[max_len - 1] = '\0';
+        free(new_name);
 
         ompi_datatype_set_args( datatype, 2, a_i, 0, NULL, 0, NULL, MPI_COMBINER_F90_REAL );
 

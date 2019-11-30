@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2014-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2016      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -50,6 +50,7 @@ BEGIN_C_DECLS
 
 #define OPAL_PMIX_SERVER_TOOL_SUPPORT           "pmix.srvr.tool"        // (bool) The host RM wants to declare itself as willing to
                                                                         //        accept tool connection requests
+#define OPAL_PMIX_SERVER_REMOTE_CONNECTIONS     "pmix.srvr.remote"      // (bool) Allow connections from remote tools (do not use loopback device)
 #define OPAL_PMIX_SERVER_SYSTEM_SUPPORT         "pmix.srvr.sys"         // (bool) The host RM wants to declare itself as being the local
                                                                         //        system server for PMIx connection requests
 #define OPAL_PMIX_SERVER_TMPDIR                 "pmix.srvr.tmpdir"      // (char*) temp directory where PMIx server will place
@@ -117,6 +118,7 @@ BEGIN_C_DECLS
 
 
 /* information about relative ranks as assigned by the RM */
+#define OPAL_PMIX_CLUSTER_ID                    "pmix.clid"             // (char*) a string name for the cluster this proc is executing on
 #define OPAL_PMIX_PROCID                        "pmix.procid"           // (opal_process_name_t) process identifier
 #define OPAL_PMIX_NSPACE                        "pmix.nspace"           // (char*) nspace of a job
 #define OPAL_PMIX_JOBID                         "pmix.jobid"            // (uint32_t) jobid assigned by scheduler
@@ -188,6 +190,7 @@ BEGIN_C_DECLS
 #define OPAL_PMIX_NOTIFY_COMPLETION             "pmix.notecomp"         // (bool) notify parent process upon termination of child job
 #define OPAL_PMIX_RANGE                         "pmix.range"            // (int) opal_pmix_data_range_t value for calls to publish/lookup/unpublish
 #define OPAL_PMIX_PERSISTENCE                   "pmix.persist"          // (int) opal_pmix_persistence_t value for calls to publish
+#define OPAL_PMIX_DATA_SCOPE                    "pmix.scope"            // (pmix_scope_t) scope of the data to be found in a PMIx_Get call
 #define OPAL_PMIX_OPTIONAL                      "pmix.optional"         // (bool) look only in the immediate data store for the requested value - do
                                                                         //        not request data from the server if not found
 #define OPAL_PMIX_EMBED_BARRIER                 "pmix.embed.barrier"    // (bool) execute a blocking fence operation before executing the
@@ -251,9 +254,6 @@ BEGIN_C_DECLS
 #define OPAL_PMIX_PRELOAD_FILES                 "pmix.preloadfiles"     // (char*) comma-delimited list of files to pre-position
 #define OPAL_PMIX_NON_PMI                       "pmix.nonpmi"           // (bool) spawned procs will not call PMIx_Init
 #define OPAL_PMIX_STDIN_TGT                     "pmix.stdin"            // (uint32_t) spawned proc rank that is to receive stdin
-#define OPAL_PMIX_FWD_STDIN                     "pmix.fwd.stdin"        // (bool) forward my stdin to the designated proc
-#define OPAL_PMIX_FWD_STDOUT                    "pmix.fwd.stdout"       // (bool) forward stdout from spawned procs to me
-#define OPAL_PMIX_FWD_STDERR                    "pmix.fwd.stderr"       // (bool) forward stderr from spawned procs to me
 #define OPAL_PMIX_DEBUGGER_DAEMONS              "pmix.debugger"         // (bool) spawned app consists of debugger daemons
 #define OPAL_PMIX_COSPAWN_APP                   "pmix.cospawn"          // (bool) designated app is to be spawned as a disconnected
                                                                         //        job - i.e., not part of the "comm_world" of the job
@@ -274,6 +274,18 @@ BEGIN_C_DECLS
                                                                         //        be immediately restarted
 #define OPAL_PMIX_MAX_RESTARTS                  "pmix.maxrestarts"      // (uint32_t) max number of times to restart a job
 
+
+/* environmental variable operation attributes */
+#define OPAL_PMIX_SET_ENVAR                     "pmix.envar.set"        // (pmix_envar_t*) set the envar to the given value,
+                                                                        //                 overwriting any pre-existing one
+#define OPAL_PMIX_ADD_ENVAR                     "pmix.envar.add"        // (pmix_envar_t*) add envar, but do not overwrite any existing one
+#define OPAL_PMIX_UNSET_ENVAR                   "pmix.envar.unset"      // (char*) unset the envar, if present
+#define OPAL_PMIX_PREPEND_ENVAR                 "pmix.envar.prepnd"     // (pmix_envar_t*) prepend the given value to the
+                                                                        //                 specified envar using the separator
+                                                                        //                 character, creating the envar if it doesn't already exist
+#define OPAL_PMIX_APPEND_ENVAR                  "pmix.envar.appnd"      // (pmix_envar_t*) append the given value to the specified
+                                                                        //                 envar using the separator character,
+                                                                        //                 creating the envar if it doesn't already exist
 
 /* query attributes */
 #define OPAL_PMIX_QUERY_NAMESPACES              "pmix.qry.ns"           // (char*) request a comma-delimited list of active nspaces
@@ -315,16 +327,13 @@ BEGIN_C_DECLS
 #define OPAL_PMIX_DEBUG_WAIT_FOR_NOTIFY         "pmix.dbg.notify"       // (bool) block at desired point until receiving debugger release notification
 #define OPAL_PMIX_DEBUG_JOB                     "pmix.dbg.job"          // (char*) nspace of the job to be debugged - the RM/PMIx server are
 #define OPAL_PMIX_DEBUG_WAITING_FOR_NOTIFY      "pmix.dbg.waiting"      // (bool) job to be debugged is waiting for a release
+#define OPAL_PMIX_DEBUG_JOB_DIRECTIVES          "pmix.dbg.jdirs"        // (opal_list_t*) list of job-level directives
+#define OPAL_PMIX_DEBUG_APP_DIRECTIVES          "pmix.dbg.adirs"        // (opal_list_t*) list of app-level directives
 
 
 /* Resource Manager identification */
 #define OPAL_PMIX_RM_NAME                       "pmix.rm.name"          // (char*) string name of the resource manager
 #define OPAL_PMIX_RM_VERSION                    "pmix.rm.version"       // (char*) RM version string
-
-
-/* attributes for setting envars */
-#define OPAL_PMIX_SET_ENVAR                     "pmix.set.envar"        // (char*) string "key=value" value shall be put into the environment
-#define OPAL_PMIX_UNSET_ENVAR                   "pmix.unset.envar"      // (char*) unset envar specified in string
 
 
 /* attributes relating to allocations */
@@ -363,6 +372,16 @@ BEGIN_C_DECLS
 #define OPAL_PMIX_JOB_CTRL_PROVISION_IMAGE      "pmix.jctrl.pvnimg"     // (char*) name of the image that is to be provisioned
 #define OPAL_PMIX_JOB_CTRL_PREEMPTIBLE          "pmix.jctrl.preempt"    // (bool) job can be pre-empted
 #define OPAL_PMIX_JOB_CTRL_TERMINATE            "pmix.jctrl.term"       // (bool) politely terminate the specified procs
+#define OPAL_PMIX_REGISTER_CLEANUP              "pmix.reg.cleanup"      // (char*) comma-delimited list of files/directories to
+                                                                        //         be removed upon process termination
+#define OPAL_PMIX_CLEANUP_RECURSIVE             "pmix.clnup.recurse"    // (bool) recursively cleanup all subdirectories under the
+                                                                        //        specified one(s)
+#define OPAL_PMIX_CLEANUP_EMPTY                 "pmix.clnup.empty"      // (bool) only remove empty subdirectories
+#define OPAL_PMIX_CLEANUP_IGNORE                "pmix.clnup.ignore"     // (char*) comma-delimited list of filenames that are not
+                                                                        //         to be removed
+#define OPAL_PMIX_CLEANUP_LEAVE_TOPDIR          "pmix.clnup.lvtop"      // (bool) when recursively cleaning subdirs, do not remove
+                                                                        //        the top-level directory (the one given in the
+                                                                        //        cleanup request)
 
 
 /* monitoring attributes */
@@ -378,6 +397,39 @@ BEGIN_C_DECLS
 #define OPAL_PMIX_MONITOR_FILE_CHECK_TIME       "pmix.monitor.ftime"    // (uint32_t) time in seconds between checking file
 #define OPAL_PMIX_MONITOR_FILE_DROPS            "pmix.monitor.fdrop"    // (uint32_t) number of file checks that can be missed before taking
                                                                         //            specified action
+
+/* security attributes */
+#define OPAL_PMIX_CRED_TYPE                     "pmix.sec.ctype"        // (char*) when passed in PMIx_Get_credential, a prioritized,
+                                                                        // comma-delimited list of desired credential types for use
+                                                                        // in environments where multiple authentication mechanisms
+                                                                        // may be available. When returned in a callback function, a
+                                                                        // string identifier of the credential type
+
+/* IO Forwarding Attributes */
+#define OPAL_PMIX_IOF_CACHE_SIZE                "pmix.iof.csize"        // (uint32_t) requested size of the server cache in bytes for each specified channel.
+                                                                        //            By default, the server is allowed (but not required) to drop
+                                                                        //            all bytes received beyond the max size
+#define OPAL_PMIX_IOF_DROP_OLDEST               "pmix.iof.old"          // (bool) in an overflow situation, drop the oldest bytes to make room in the cache
+#define OPAL_PMIX_IOF_DROP_NEWEST               "pmix.iof.new"          // (bool) in an overflow situation, drop any new bytes received until room becomes
+                                                                        //        available in the cache (default)
+#define OPAL_PMIX_IOF_BUFFERING_SIZE            "pmix.iof.bsize"        // (uint32_t) basically controls grouping of IO on the specified channel(s) to
+                                                                        //            avoid being called every time a bit of IO arrives. The library
+                                                                        //            will execute the callback whenever the specified number of bytes
+                                                                        //            becomes available. Any remaining buffered data will be "flushed"
+                                                                        //            upon call to deregister the respective channel
+#define OPAL_PMIX_IOF_BUFFERING_TIME            "pmix.iof.btime"        // (uint32_t) max time in seconds to buffer IO before delivering it. Used in conjunction
+                                                                        //            with buffering size, this prevents IO from being held indefinitely
+                                                                        //            while waiting for another payload to arrive
+#define OPAL_PMIX_IOF_COMPLETE                  "pmix.iof.cmp"          // (bool) indicates whether or not the specified IO channel has been closed
+                                                                        //        by the source
+#define OPAL_PMIX_IOF_PUSH_STDIN                "pmix.iof.stdin"        // (bool) Used by a tool to request that the PMIx library collect
+                                                                        //        the tool's stdin and forward it to the procs specified in
+                                                                        //        the PMIx_IOF_push call
+
+/* Attributes for controlling contents of application setup data */
+#define OPAL_PMIX_SETUP_APP_ENVARS              "pmix.setup.env"        // (bool) harvest and include relevant envars
+#define OPAL_PMIX_SETUP_APP_NONENVARS           "pmix.setup.nenv"       // (bool) include all non-envar data
+#define OPAL_PMIX_SETUP_APP_ALL                 "pmix.setup.all"        // (bool) include all relevant data
 
 
 /* define a scope for data "put" by PMI per the following:
@@ -400,16 +452,16 @@ typedef enum {
 } opal_pmix_scope_t;
 
 /* define a range for data "published" by PMI */
-#define OPAL_PMIX_DATA_RANGE OPAL_UINT
-typedef enum {
-    OPAL_PMIX_RANGE_UNDEF = 0,
-    OPAL_PMIX_RANGE_RM,          // data is intended for the host resource manager
-    OPAL_PMIX_RANGE_LOCAL,       // available on local node only
-    OPAL_PMIX_RANGE_NAMESPACE,   // data is available to procs in the same nspace only
-    OPAL_PMIX_RANGE_SESSION,     // data available to all procs in session
-    OPAL_PMIX_RANGE_GLOBAL,      // data available to all procs
-    OPAL_PMIX_RANGE_CUSTOM       // range is specified in a opal_value_t
-} opal_pmix_data_range_t;
+#define OPAL_PMIX_DATA_RANGE OPAL_UINT8
+typedef uint8_t opal_pmix_data_range_t;
+#define OPAL_PMIX_RANGE_UNDEF        0
+#define OPAL_PMIX_RANGE_RM           1   // data is intended for the host resource manager
+#define OPAL_PMIX_RANGE_LOCAL        2   // available on local node only
+#define OPAL_PMIX_RANGE_NAMESPACE    3   // data is available to procs in the same nspace only
+#define OPAL_PMIX_RANGE_SESSION      4   // data available to all procs in session
+#define OPAL_PMIX_RANGE_GLOBAL       5   // data available to all procs
+#define OPAL_PMIX_RANGE_CUSTOM       6   // range is specified in a pmix_info_t
+#define OPAL_PMIX_RANGE_PROC_LOCAL   7   // restrict range to the local proc
 
 /* define a "persistence" policy for data published by clients */
 typedef enum {
@@ -429,6 +481,15 @@ typedef enum {
     OPAL_PMIX_ALLOC_RELEASE,
     OPAL_PMIX_ALLOC_REAQCUIRE
 } opal_pmix_alloc_directive_t;
+
+/* define a set of bit-mask flags for specifying IO
+ * forwarding channels. These can be OR'd together
+ * to reference multiple channels */
+typedef uint16_t opal_pmix_iof_channel_t;
+#define OPAL_PMIX_FWD_STDIN_CHANNEL      0x01
+#define OPAL_PMIX_FWD_STDOUT_CHANNEL     0x02
+#define OPAL_PMIX_FWD_STDERR_CHANNEL     0x04
+#define OPAL_PMIX_FWD_STDDIAG_CHANNEL    0x08
 
 
 /****    PMIX INFO STRUCT    ****/
@@ -473,7 +534,7 @@ OBJ_CLASS_DECLARATION(opal_pmix_modex_data_t);
 typedef struct {
     opal_list_item_t super;
     char **keys;
-    opal_list_t qualifiers;
+    opal_list_t qualifiers;  // list of opal_value_t
 } opal_pmix_query_t;
 OBJ_CLASS_DECLARATION(opal_pmix_query_t);
 

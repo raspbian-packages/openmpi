@@ -12,16 +12,111 @@ dnl Copyright (c) 2004-2006 The Regents of the University of California.
 dnl                         All rights reserved.
 dnl Copyright (c) 2007-2009 Sun Microsystems, Inc.  All rights reserved.
 dnl Copyright (c) 2008-2015 Cisco Systems, Inc.  All rights reserved.
-dnl Copyright (c) 2012      Los Alamos National Security, LLC. All rights
+dnl Copyright (c) 2012-2017 Los Alamos National Security, LLC. All rights
 dnl                         reserved.
-dnl Copyright (c) 2015      Research Organization for Information Science
-dnl                         and Technology (RIST). All rights reserved.
+dnl Copyright (c) 2015-2019 Research Organization for Information Science
+dnl                         and Technology (RIST).  All rights reserved.
 dnl $COPYRIGHT$
 dnl
 dnl Additional copyrights may follow
 dnl
 dnl $HEADER$
 dnl
+
+AC_DEFUN([OPAL_CC_HELPER],[
+    OPAL_VAR_SCOPE_PUSH([opal_cc_helper_result])
+    AC_MSG_CHECKING([$1])
+
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([$3],[$4])],
+                   [$2=1
+                    opal_cc_helper_result=yes],
+                   [$2=0
+                    opal_cc_helper_result=no])
+
+    AC_MSG_RESULT([$opal_cc_helper_result])
+    OPAL_VAR_SCOPE_POP
+])
+
+
+AC_DEFUN([OPAL_PROG_CC_C11_HELPER],[
+    OPAL_VAR_SCOPE_PUSH([opal_prog_cc_c11_helper_CFLAGS_save])
+
+    opal_prog_cc_c11_helper_CFLAGS_save=$CFLAGS
+    CFLAGS="$CFLAGS $1"
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 _Thread_local], [opal_prog_cc_c11_helper__Thread_local_available],
+                   [],[[static _Thread_local int  foo = 1;++foo;]])
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 atomic variables], [opal_prog_cc_c11_helper_atomic_var_available],
+                   [[#include <stdatomic.h>]], [[static atomic_long foo = 1;++foo;]])
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 _Atomic keyword], [opal_prog_cc_c11_helper__Atomic_available],
+                   [[#include <stdatomic.h>]],[[static _Atomic long foo = 1;++foo;]])
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 _Generic keyword], [opal_prog_cc_c11_helper__Generic_available],
+                   [[#define FOO(x) (_Generic (x, int: 1))]], [[static int x, y; y = FOO(x);]])
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 _Static_assert], [opal_prog_cc_c11_helper__static_assert_available],
+                   [[#include <stdint.h>]],[[_Static_assert(sizeof(int64_t) == 8, "WTH");]])
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 atomic_fetch_xor_explicit], [opal_prog_cc_c11_helper_atomic_fetch_xor_explicit_available],
+                   [[#include <stdatomic.h>
+#include <stdint.h>]],[[_Atomic uint32_t a; uint32_t b; atomic_fetch_xor_explicit(&a, b, memory_order_relaxed);]])
+
+    AS_IF([test $opal_prog_cc_c11_helper__Thread_local_available -eq 1 && test $opal_prog_cc_c11_helper_atomic_var_available -eq 1 && test $opal_prog_cc_c11_helper_atomic_fetch_xor_explicit_available -eq 1],
+          [$2],
+          [$3])
+
+    CFLAGS=$opal_prog_cc_c11_helper_CFLAGS_save
+
+    OPAL_VAR_SCOPE_POP
+])
+
+AC_DEFUN([OPAL_PROG_CC_C11],[
+    OPAL_VAR_SCOPE_PUSH([opal_prog_cc_c11_flags])
+    if test -z "$opal_cv_c11_supported" ; then
+        opal_cv_c11_supported=no
+        opal_cv_c11_flag_required=yes
+
+        AC_MSG_CHECKING([if $CC requires a flag for C11])
+
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#if __STDC_VERSION__ < 201112L
+#error "Without any CLI flags, this compiler does not support C11"
+#endif
+                                           ]],[])],
+                          [opal_cv_c11_flag_required=no])
+
+        AC_MSG_RESULT([$opal_cv_c11_flag_required])
+
+        if test "x$opal_cv_c11_flag_required" = "xno" ; then
+            AC_MSG_NOTICE([verifying $CC supports C11 without a flag])
+            OPAL_PROG_CC_C11_HELPER([], [], [opal_cv_c11_flag_required=yes])
+        fi
+
+        if test "x$opal_cv_c11_flag_required" = "xyes" ; then
+            opal_prog_cc_c11_flags="-std=gnu11 -std=c11 -c11"
+
+            AC_MSG_NOTICE([checking if $CC supports C11 with a flag])
+            opal_cv_c11_flag=
+            for flag in $(echo $opal_prog_cc_c11_flags | tr ' ' '\n') ; do
+                OPAL_PROG_CC_C11_HELPER([$flag],[opal_cv_c11_flag=$flag],[])
+                if test "x$opal_cv_c11_flag" != "x" ; then
+                    CFLAGS="$CFLAGS $opal_cv_c11_flag"
+                    AC_MSG_NOTICE([using $flag to enable C11 support])
+                    opal_cv_c11_supported=yes
+                    break
+                fi
+            done
+        else
+            AC_MSG_NOTICE([no flag required for C11 support])
+            opal_cv_c11_supported=yes
+        fi
+    fi
+
+    OPAL_VAR_SCOPE_POP
+])
+
 
 # OPAL_SETUP_CC()
 # ---------------
@@ -36,19 +131,59 @@ AC_DEFUN([OPAL_SETUP_CC],[
     AC_REQUIRE([_OPAL_PROG_CC])
     AC_REQUIRE([AM_PROG_CC_C_O])
 
+    OPAL_VAR_SCOPE_PUSH([opal_prog_cc_c11_helper__Thread_local_available opal_prog_cc_c11_helper_atomic_var_available opal_prog_cc_c11_helper__Atomic_available opal_prog_cc_c11_helper__static_assert_available opal_prog_cc_c11_helper__Generic_available opal_prog_cc__thread_available opal_prog_cc_c11_helper_atomic_fetch_xor_explicit_available])
+
     # AC_PROG_CC_C99 changes CC (instead of CFLAGS) so save CC (without c99
     # flags) for use in our wrappers.
     WRAPPER_CC="$CC"
     AC_SUBST([WRAPPER_CC])
 
-    # From Open MPI 1.7 on we require a C99 compiant compiler
-    AC_PROG_CC_C99
-    # The result of AC_PROG_CC_C99 is stored in ac_cv_prog_cc_c99
-    if test "x$ac_cv_prog_cc_c99" = xno ; then
-        AC_MSG_WARN([Open MPI requires a C99 compiler])
-        AC_MSG_ERROR([Aborting.])
+    OPAL_PROG_CC_C11
+
+    if test $opal_cv_c11_supported = no ; then
+        # It is not currently an error if C11 support is not available. Uncomment the
+        # following lines and update the warning when we require a C11 compiler.
+        # AC_MSG_WARNING([Open MPI requires a C11 (or newer) compiler])
+        # AC_MSG_ERROR([Aborting.])
+        # From Open MPI 1.7 on we require a C99 compiant compiler
+        AC_PROG_CC_C99
+        # The result of AC_PROG_CC_C99 is stored in ac_cv_prog_cc_c99
+        if test "x$ac_cv_prog_cc_c99" = xno ; then
+            AC_MSG_WARN([Open MPI requires a C99 (or newer) compiler. C11 is recommended.])
+            AC_MSG_ERROR([Aborting.])
+        fi
+
+        # Get the correct result for C11 support flags now that the compiler flags have
+        # changed
+        OPAL_PROG_CC_C11_HELPER([], [], [])
     fi
 
+    # Check if compiler support __thread
+    OPAL_CC_HELPER([if $CC $1 supports __thread], [opal_prog_cc__thread_available],
+               [],[[static __thread int  foo = 1;++foo;]])
+
+    OPAL_CC_HELPER([if $CC $1 supports C11 _Thread_local], [opal_prog_cc_c11_helper__Thread_local_available],
+                   [],[[static _Thread_local int  foo = 1;++foo;]])
+
+    dnl At this time Open MPI only needs thread local and the atomic convenience types for C11 support. These
+    dnl will likely be required in the future.
+    AC_DEFINE_UNQUOTED([OPAL_C_HAVE__THREAD_LOCAL], [$opal_prog_cc_c11_helper__Thread_local_available],
+                       [Whether C compiler supports __Thread_local])
+
+    AC_DEFINE_UNQUOTED([OPAL_C_HAVE_ATOMIC_CONV_VAR], [$opal_prog_cc_c11_helper_atomic_var_available],
+                       [Whether C compiler support atomic convenience variables in stdatomic.h])
+
+    AC_DEFINE_UNQUOTED([OPAL_C_HAVE__ATOMIC], [$opal_prog_cc_c11_helper__Atomic_available],
+                       [Whether C compiler supports __Atomic keyword])
+
+    AC_DEFINE_UNQUOTED([OPAL_C_HAVE__GENERIC], [$opal_prog_cc_c11_helper__Generic_available],
+                       [Whether C compiler supports __Generic keyword])
+
+    AC_DEFINE_UNQUOTED([OPAL_C_HAVE__STATIC_ASSERT], [$opal_prog_cc_c11_helper__static_assert_available],
+                       [Whether C compiler support _Static_assert keyword])
+
+    AC_DEFINE_UNQUOTED([OPAL_C_HAVE___THREAD], [$opal_prog_cc__thread_available],
+                       [Whether C compiler supports __thread])
 
     OPAL_C_COMPILER_VENDOR([opal_c_vendor])
 
@@ -345,6 +480,7 @@ AC_DEFUN([OPAL_SETUP_CC],[
     OPAL_ENSURE_CONTAINS_OPTFLAGS(["$CFLAGS"])
     AC_MSG_RESULT([$co_result])
     CFLAGS="$co_result"
+    OPAL_VAR_SCOPE_POP
 ])
 
 

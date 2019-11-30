@@ -92,7 +92,7 @@
             .osc_flush_local = ompi_osc_monitoring_## template ##_flush_local, \
             .osc_flush_local_all = ompi_osc_monitoring_## template ##_flush_local_all, \
         };                                                              \
-        if ( 1 == opal_atomic_add_32(&init_done, 1) ) {                 \
+        if ( 1 == opal_atomic_add_fetch_32(&init_done, 1) ) {           \
             /* Saves the original module functions in                   \
              * ompi_osc_monitoring_module_## template ##_template       \
              */                                                         \

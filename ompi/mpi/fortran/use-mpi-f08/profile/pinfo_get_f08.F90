@@ -3,6 +3,7 @@
 ! Copyright (c) 2010-2013 Cisco Systems, Inc.  All rights reserved.
 ! Copyright (c) 2009-2012 Los Alamos National Security, LLC.
 !               All Rights reserved.
+! Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
 ! $COPYRIGHT$
 
 subroutine PMPI_Info_get_f08(info,key,valuelen,value,flag,ierror)

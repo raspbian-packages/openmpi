@@ -14,7 +14,7 @@
  *                         reserved.
  * Copyright (c) 2009      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
- * Copyright (c) 2017      Research Organization for Information Science
+ * Copyright (c) 2017-2018 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
  *
@@ -64,7 +64,7 @@ BEGIN_C_DECLS
 /* flags for the datatypes. */
 #define OPAL_DATATYPE_FLAG_UNAVAILABLE   0x0001  /**< datatypes unavailable on the build (OS or compiler dependant) */
 #define OPAL_DATATYPE_FLAG_PREDEFINED    0x0002  /**< cannot be removed: initial and predefined datatypes */
-#define OPAL_DATATYPE_FLAG_COMMITTED      0x0004  /**< ready to be used for a send/recv operation */
+#define OPAL_DATATYPE_FLAG_COMMITTED     0x0004  /**< ready to be used for a send/recv operation */
 #define OPAL_DATATYPE_FLAG_OVERLAP       0x0008  /**< datatype is unpropper for a recv operation */
 #define OPAL_DATATYPE_FLAG_CONTIGUOUS    0x0010  /**< contiguous datatype */
 #define OPAL_DATATYPE_FLAG_NO_GAPS       0x0020  /**< no gaps around the datatype, aka OPAL_DATATYPE_FLAG_CONTIGUOUS and extent == size */
@@ -81,13 +81,12 @@ BEGIN_C_DECLS
                                           OPAL_DATATYPE_FLAG_DATA |       \
                                           OPAL_DATATYPE_FLAG_COMMITTED)
 
-
 /**
  * The number of supported entries in the data-type definition and the
  * associated type.
  */
 #define MAX_DT_COMPONENT_COUNT UINT_MAX
-typedef uint32_t opal_datatype_count_t;
+typedef size_t opal_datatype_count_t;
 
 typedef union dt_elem_desc dt_elem_desc_t;
 
@@ -120,7 +119,6 @@ struct opal_datatype_t {
 
     /* Attribute fields */
     char               name[OPAL_MAX_OBJECT_NAME];  /**< name of the datatype */
-    /* --- cacheline 2 boundary (128 bytes) was 8-12 bytes ago --- */
     dt_type_desc_t     desc;     /**< the data description */
     dt_type_desc_t     opt_desc; /**< short description of the data used when conversion is useless
                                       or in the send case (without conversion) */
@@ -187,6 +185,7 @@ OPAL_DECLSPEC opal_datatype_t* opal_datatype_create( int32_t expectedSize );
 OPAL_DECLSPEC int32_t opal_datatype_create_desc( opal_datatype_t * datatype, int32_t expectedSize );
 OPAL_DECLSPEC int32_t opal_datatype_commit( opal_datatype_t * pData );
 OPAL_DECLSPEC int32_t opal_datatype_destroy( opal_datatype_t** );
+OPAL_DECLSPEC int32_t opal_datatype_is_monotonic( opal_datatype_t* type);
 
 static inline int32_t
 opal_datatype_is_committed( const opal_datatype_t* type )
@@ -225,13 +224,41 @@ opal_datatype_is_contiguous_memory_layout( const opal_datatype_t* datatype, int3
 }
 
 
-OPAL_DECLSPEC void opal_datatype_dump( const opal_datatype_t* pData );
+OPAL_DECLSPEC void
+opal_datatype_dump( const opal_datatype_t* pData );
+
 /* data creation functions */
-OPAL_DECLSPEC int32_t opal_datatype_clone( const opal_datatype_t * src_type, opal_datatype_t * dest_type );
-OPAL_DECLSPEC int32_t opal_datatype_create_contiguous( int count, const opal_datatype_t* oldType, opal_datatype_t** newType );
-OPAL_DECLSPEC int32_t opal_datatype_resize( opal_datatype_t* type, ptrdiff_t lb, ptrdiff_t extent );
-OPAL_DECLSPEC int32_t opal_datatype_add( opal_datatype_t* pdtBase, const opal_datatype_t* pdtAdd, size_t count,
-                                         ptrdiff_t disp, ptrdiff_t extent );
+
+/**
+ * Create a duplicate of the source datatype.
+ */
+OPAL_DECLSPEC int32_t
+opal_datatype_clone( const opal_datatype_t* src_type,
+                     opal_datatype_t* dest_type );
+/**
+ * A contiguous array of identical datatypes.
+ */
+OPAL_DECLSPEC int32_t
+opal_datatype_create_contiguous( int count, const opal_datatype_t* oldType,
+                                 opal_datatype_t** newType );
+/**
+ * Add a new datatype to the base type description. The count is the number
+ * repetitions of the same element to be added, and the extent is the extent
+ * of each element. The displacement is the initial displacement of the
+ * first element.
+ */
+OPAL_DECLSPEC int32_t
+opal_datatype_add( opal_datatype_t* pdtBase,
+                   const opal_datatype_t* pdtAdd, size_t count,
+                   ptrdiff_t disp, ptrdiff_t extent );
+
+/**
+ * Alter the lb and extent of an existing datatype in place.
+ */
+OPAL_DECLSPEC int32_t
+opal_datatype_resize( opal_datatype_t* type,
+                      ptrdiff_t lb,
+                      ptrdiff_t extent );
 
 static inline int32_t
 opal_datatype_type_lb( const opal_datatype_t* pData, ptrdiff_t* disp )
@@ -349,13 +376,13 @@ static inline ptrdiff_t
 opal_datatype_span( const opal_datatype_t* pData, int64_t count,
                     ptrdiff_t* gap)
 {
-    ptrdiff_t extent = (pData->ub - pData->lb);
-    ptrdiff_t true_extent = (pData->true_ub - pData->true_lb);
     if (OPAL_UNLIKELY(0 == pData->size) || (0 == count)) {
         *gap = 0;
         return 0;
     }
     *gap = pData->true_lb;
+    ptrdiff_t extent = (pData->ub - pData->lb);
+    ptrdiff_t true_extent = (pData->true_ub - pData->true_lb);
     return true_extent + (count - 1) * extent;
 }
 

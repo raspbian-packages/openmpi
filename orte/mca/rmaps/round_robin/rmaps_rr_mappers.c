@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2011 The University of Tennessee and The University
+ * Copyright (c) 2004-2018 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -10,7 +10,7 @@
  * Copyright (c) 2004-2005 The Regents of the University of California.
  *                         All rights reserved.
  * Copyright (c) 2009-2013 Cisco Systems, Inc.  All rights reserved.
- * Copyright (c) 2013-2017 Intel, Inc.  All rights reserved.
+ * Copyright (c) 2013-2018 Intel, Inc. All rights reserved.
  * Copyright (c) 2015      Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
  * $COPYRIGHT$
@@ -85,8 +85,21 @@ int orte_rmaps_rr_byslot(orte_job_t *jdata,
                                 node->name);
             continue;
         }
-        /* assign a number of procs equal to the number of available slots */
-        num_procs_to_assign = node->slots - node->slots_inuse;
+        if (orte_rmaps_base_pernode) {
+            num_procs_to_assign = 1;
+        } else if (0 < orte_rmaps_base_n_pernode) {
+            num_procs_to_assign = orte_rmaps_base_n_pernode;
+        } else if (0 < orte_rmaps_base_n_persocket) {
+            if (NULL == node->topology) {
+                orte_show_help("help-orte-rmaps-ppr.txt", "ppr-topo-missing",
+                               true, node->name);
+                return ORTE_ERR_SILENT;
+            }
+            num_procs_to_assign = orte_rmaps_base_n_persocket * opal_hwloc_base_get_nbobjs_by_type(node->topology->topo, HWLOC_OBJ_PACKAGE, 0, OPAL_HWLOC_AVAILABLE);
+        } else {
+            /* assign a number of procs equal to the number of available slots */
+            num_procs_to_assign = node->slots - node->slots_inuse;
+        }
         opal_output_verbose(2, orte_rmaps_base_framework.framework_output,
                             "mca:rmaps:rr:slot assigning %d procs to node %s",
                             (int)num_procs_to_assign, node->name);
@@ -159,7 +172,14 @@ int orte_rmaps_rr_byslot(orte_job_t *jdata,
                 --nxtra_nodes;
             }
         }
-        num_procs_to_assign = node->slots - node->slots_inuse + extra_procs_to_assign;
+        if(node->slots <= node->slots_inuse) {
+            /* nodes are already oversubscribed */
+            num_procs_to_assign = extra_procs_to_assign;
+        }
+        else {
+            /* nodes have some room */
+            num_procs_to_assign = node->slots - node->slots_inuse + extra_procs_to_assign;
+        }
         opal_output_verbose(2, orte_rmaps_base_framework.framework_output,
                             "mca:rmaps:rr:slot adding up to %d procs to node %s",
                             num_procs_to_assign, node->name);
@@ -184,7 +204,7 @@ int orte_rmaps_rr_byslot(orte_job_t *jdata,
                 /* if we weren't given a directive either way, then we will error out
                  * as the #slots were specifically given, either by the host RM or
                  * via hostfile/dash-host */
-                if (!(ORTE_MAPPING_SUBSCRIBE_GIVEN & ORTE_GET_MAPPING_DIRECTIVE(orte_rmaps_base.mapping))) {
+                if (!(ORTE_MAPPING_SUBSCRIBE_GIVEN & ORTE_GET_MAPPING_DIRECTIVE(jdata->map->mapping))) {
                     orte_show_help("help-orte-rmaps-base.txt", "orte-rmaps-base:alloc-error",
                                    true, app->num_procs, app->app, orte_process_info.nodename);
                     ORTE_UPDATE_EXIT_STATUS(ORTE_ERROR_DEFAULT_EXIT_CODE);
@@ -292,7 +312,13 @@ int orte_rmaps_rr_bynode(orte_job_t *jdata,
                 opal_pointer_array_add(jdata->map->nodes, node);
                 ++(jdata->map->num_nodes);
             }
-            if (oversubscribed) {
+            if (orte_rmaps_base_pernode) {
+                num_procs_to_assign = 1;
+            } else if (0 < orte_rmaps_base_n_pernode) {
+                num_procs_to_assign = orte_rmaps_base_n_pernode;
+            } else if (0 < orte_rmaps_base_n_persocket) {
+                num_procs_to_assign = orte_rmaps_base_n_persocket * opal_hwloc_base_get_nbobjs_by_type(node->topology->topo, HWLOC_OBJ_PACKAGE, 0, OPAL_HWLOC_AVAILABLE);
+            } else  if (oversubscribed) {
                 /* compute the number of procs to go on this node */
                 if (add_one) {
                     if (0 == nxtra_nodes) {
@@ -366,7 +392,7 @@ int orte_rmaps_rr_bynode(orte_job_t *jdata,
                     /* if we weren't given a directive either way, then we will error out
                      * as the #slots were specifically given, either by the host RM or
                      * via hostfile/dash-host */
-                    if (!(ORTE_MAPPING_SUBSCRIBE_GIVEN & ORTE_GET_MAPPING_DIRECTIVE(orte_rmaps_base.mapping))) {
+                    if (!(ORTE_MAPPING_SUBSCRIBE_GIVEN & ORTE_GET_MAPPING_DIRECTIVE(jdata->map->mapping))) {
                         orte_show_help("help-orte-rmaps-base.txt", "orte-rmaps-base:alloc-error",
                                        true, app->num_procs, app->app, orte_process_info.nodename);
                         ORTE_UPDATE_EXIT_STATUS(ORTE_ERROR_DEFAULT_EXIT_CODE);
@@ -518,7 +544,19 @@ int orte_rmaps_rr_byobj(orte_job_t *jdata,
                 start = (jdata->bkmark_obj + 1) % nobjs;
             }
             /* compute the number of procs to go on this node */
-            nprocs = node->slots - node->slots_inuse;
+            if (orte_rmaps_base_pernode) {
+                nprocs = 1;
+            } else if (0 < orte_rmaps_base_n_pernode) {
+                nprocs = orte_rmaps_base_n_pernode;
+            } else if (0 < orte_rmaps_base_n_persocket) {
+                if (HWLOC_OBJ_PACKAGE == target) {
+                    nprocs = orte_rmaps_base_n_persocket * nobjs;
+                } else {
+                    nprocs = orte_rmaps_base_n_persocket * opal_hwloc_base_get_nbobjs_by_type(node->topology->topo, HWLOC_OBJ_PACKAGE, 0, OPAL_HWLOC_AVAILABLE);
+                }
+            } else {
+                nprocs = node->slots - node->slots_inuse;
+            }
             opal_output_verbose(2, orte_rmaps_base_framework.framework_output,
                                 "mca:rmaps:rr: calculated nprocs %d", nprocs);
             if (nprocs < 1) {
@@ -584,7 +622,7 @@ int orte_rmaps_rr_byobj(orte_job_t *jdata,
                     /* if we weren't given a directive either way, then we will error out
                      * as the #slots were specifically given, either by the host RM or
                      * via hostfile/dash-host */
-                    if (!(ORTE_MAPPING_SUBSCRIBE_GIVEN & ORTE_GET_MAPPING_DIRECTIVE(orte_rmaps_base.mapping))) {
+                    if (!(ORTE_MAPPING_SUBSCRIBE_GIVEN & ORTE_GET_MAPPING_DIRECTIVE(jdata->map->mapping))) {
                         orte_show_help("help-orte-rmaps-base.txt", "orte-rmaps-base:alloc-error",
                                        true, app->num_procs, app->app, orte_process_info.nodename);
                         ORTE_UPDATE_EXIT_STATUS(ORTE_ERROR_DEFAULT_EXIT_CODE);
@@ -708,7 +746,19 @@ static int byobj_span(orte_job_t *jdata,
                 return ORTE_ERR_SILENT;
             }
             /* determine how many to map */
-            nprocs = navg;
+            if (orte_rmaps_base_pernode) {
+                nprocs = 1;
+            } else if (0 < orte_rmaps_base_n_pernode) {
+                nprocs = orte_rmaps_base_n_pernode;
+            } else if (0 < orte_rmaps_base_n_persocket) {
+                if (HWLOC_OBJ_PACKAGE == target) {
+                    nprocs = orte_rmaps_base_n_persocket * nobjs;
+                } else {
+                    nprocs = orte_rmaps_base_n_persocket * opal_hwloc_base_get_nbobjs_by_type(node->topology->topo, HWLOC_OBJ_PACKAGE, 0, OPAL_HWLOC_AVAILABLE);
+                }
+            } else {
+                nprocs = navg;
+            }
             if (0 < nxtra_objs) {
                 nprocs++;
                 nxtra_objs--;
