@@ -4,6 +4,7 @@ etc/openmpi/*
 usr/bin/ompi-clean
 usr/bin/ompi_info
 usr/bin/ompi-server
+usr/bin/orte-server
 usr/bin/orte-clean
 usr/bin/orted
 usr/bin/orterun

@@ -1,10 +1,17 @@
-openmpi (4.0.2-4+rpi1) bullseye-staging; urgency=medium
+openmpi (4.0.2-5+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Sat, 30 Nov 2019 13:42:09 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Fri, 27 Dec 2019 11:17:41 +0000
+
+openmpi (4.0.2-5) unstable; urgency=medium
+
+  * Fix typos in d/changelog
+  * Ship orte-server. Closes: #946542
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 18 Dec 2019 13:41:29 +0000
 
 openmpi (4.0.2-4) unstable; urgency=medium
 
