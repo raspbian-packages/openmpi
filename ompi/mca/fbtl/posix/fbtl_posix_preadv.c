@@ -28,6 +28,10 @@
 #include "ompi/constants.h"
 #include "ompi/mca/fbtl/fbtl.h"
 
+#ifndef IOV_MAX
+#define IOV_MAX 1024
+#endif
+
 ssize_t mca_fbtl_posix_preadv (ompio_file_t *fh )
 {
     /*int *fp = NULL;*/
