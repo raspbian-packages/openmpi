@@ -15,7 +15,7 @@
 @SET_MAKE@
 
 #
-# Copyright (c) 2012      Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2012-2019 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2017      Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
@@ -24,11 +24,6 @@
 # Additional copyrights may follow
 #
 # $HEADER$
-#
-
-#
-# Only do the stuff in this file if we're going to build
-# the mpi_f08 ext modules.
 #
 
 VPATH = @srcdir@
@@ -517,7 +512,12 @@ CFLAGS_WITHOUT_OPTFLAGS = @CFLAGS_WITHOUT_OPTFLAGS@
 CLEANFILES = @CLEANFILES@ $(am__append_2)
 CONFIGURE_DEPENDENCIES = @CONFIGURE_DEPENDENCIES@
 CPP = @CPP@
-CPPFLAGS = @CPPFLAGS@
+
+# Note that Automake's Fortran-buidling rules uses CPPFLAGS and
+# AM_CPPFLAGS.  This can cause weirdness (e.g.,
+# https://github.com/open-mpi/ompi/issues/7253).  Let's just zero
+# those out and rely on AM_FCFLAGS.
+CPPFLAGS = 
 CRAY_ALPSLLI_CFLAGS = @CRAY_ALPSLLI_CFLAGS@
 CRAY_ALPSLLI_LIBS = @CRAY_ALPSLLI_LIBS@
 CRAY_ALPSLLI_STATIC_LIBS = @CRAY_ALPSLLI_STATIC_LIBS@
@@ -1148,7 +1148,6 @@ OMPI_FORTRAN_HAVE_ISO_C_BINDING = @OMPI_FORTRAN_HAVE_ISO_C_BINDING@
 OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV = @OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV@
 OMPI_FORTRAN_HAVE_PRIVATE = @OMPI_FORTRAN_HAVE_PRIVATE@
 OMPI_FORTRAN_HAVE_PROCEDURE = @OMPI_FORTRAN_HAVE_PROCEDURE@
-OMPI_FORTRAN_HAVE_PROTECTED = @OMPI_FORTRAN_HAVE_PROTECTED@
 OMPI_FORTRAN_HAVE_STORAGE_SIZE = @OMPI_FORTRAN_HAVE_STORAGE_SIZE@
 OMPI_FORTRAN_HAVE_USE_ONLY = @OMPI_FORTRAN_HAVE_USE_ONLY@
 OMPI_FORTRAN_IGNORE_TKR_PREDECL = @OMPI_FORTRAN_IGNORE_TKR_PREDECL@
@@ -1684,12 +1683,19 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
+AM_CPPFLAGS = 
+
+#
+# Only do the stuff in this file if we're going to build
+# the mpi_f08 ext modules.
+#
 
 # Setup
 @OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@AM_FCFLAGS = -I$(top_builddir)/ompi/include -I$(top_srcdir)/ompi/include \
 @OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@             $(OMPI_FC_MODULE_FLAG)$(top_builddir)/ompi/mpi/fortran/base \
 @OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@             $(OMPI_FC_MODULE_FLAG)$(top_builddir)/ompi/mpi/fortran/use-mpi-f08/mod \
-@OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@             -I$(top_srcdir) $(FCFLAGS_f90)
+@OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@             $(OMPI_FC_MODULE_FLAG)$(top_builddir)/ompi/mpi/fortran/use-mpi-f08 \
+@OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@             -I$(top_srcdir) -I$(top_builddir) $(FCFLAGS_f90)
 
 @OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@flibs = $(am__append_1)
 @OMPI_BUILD_FORTRAN_USEMPIF08_EXT_TRUE@@OMPI_BUILD_FORTRAN_USEMPI_OR_USEMPIF08_EXT_TRUE@libforce_usempif08_module_to_be_built_la_SOURCES = mpi-f08-ext-module.F90

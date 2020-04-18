@@ -1,3 +1,5 @@
+pkg-config.patch
+mpifort.patch
 manpage_macros
 build_hurd
 libdir.patch

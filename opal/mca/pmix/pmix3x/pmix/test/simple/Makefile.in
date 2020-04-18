@@ -115,7 +115,7 @@ noinst_PROGRAMS = simptest$(EXEEXT) simpclient$(EXEEXT) \
 	simpdmodex$(EXEEXT) test_pmix$(EXEEXT) simptool$(EXEEXT) \
 	simpdie$(EXEEXT) simplegacy$(EXEEXT) simptimeout$(EXEEXT) \
 	gwtest$(EXEEXT) gwclient$(EXEEXT) stability$(EXEEXT) \
-	quietclient$(EXEEXT) simpjctrl$(EXEEXT)
+	quietclient$(EXEEXT) simpjctrl$(EXEEXT) pmitest$(EXEEXT)
 subdir = test/simple
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -160,6 +160,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/src/mca/pdl/configure.m4 \
 	$(top_srcdir)/src/mca/pinstalldirs/configure.m4 \
 	$(top_srcdir)/src/mca/common/dstore/configure.m4 \
+	$(top_srcdir)/src/mca/gds/ds12/configure.m4 \
+	$(top_srcdir)/src/mca/gds/ds21/configure.m4 \
 	$(top_srcdir)/src/mca/pdl/pdlopen/configure.m4 \
 	$(top_srcdir)/src/mca/pdl/plibltdl/configure.m4 \
 	$(top_srcdir)/src/mca/pif/bsdx_ipv4/configure.m4 \
@@ -199,6 +201,12 @@ gwtest_DEPENDENCIES = $(top_builddir)/src/libpmix.la
 gwtest_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(gwtest_LDFLAGS) $(LDFLAGS) -o $@
+am_pmitest_OBJECTS = pmitest.$(OBJEXT)
+pmitest_OBJECTS = $(am_pmitest_OBJECTS)
+pmitest_DEPENDENCIES = $(top_builddir)/src/libpmi.la
+pmitest_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(pmitest_LDFLAGS) $(LDFLAGS) -o $@
 am_quietclient_OBJECTS = $(am__objects_1) quietclient.$(OBJEXT)
 quietclient_OBJECTS = $(am_quietclient_OBJECTS)
 quietclient_DEPENDENCIES = $(top_builddir)/src/libpmix.la
@@ -317,18 +325,19 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(gwclient_SOURCES) $(gwtest_SOURCES) $(quietclient_SOURCES) \
-	$(simpclient_SOURCES) $(simpdie_SOURCES) $(simpdmodex_SOURCES) \
-	$(simpdyn_SOURCES) $(simpft_SOURCES) $(simpjctrl_SOURCES) \
-	$(simplegacy_SOURCES) $(simppub_SOURCES) $(simptest_SOURCES) \
-	$(simptimeout_SOURCES) $(simptool_SOURCES) \
-	$(stability_SOURCES) $(test_pmix_SOURCES)
-DIST_SOURCES = $(gwclient_SOURCES) $(gwtest_SOURCES) \
+SOURCES = $(gwclient_SOURCES) $(gwtest_SOURCES) $(pmitest_SOURCES) \
 	$(quietclient_SOURCES) $(simpclient_SOURCES) \
 	$(simpdie_SOURCES) $(simpdmodex_SOURCES) $(simpdyn_SOURCES) \
 	$(simpft_SOURCES) $(simpjctrl_SOURCES) $(simplegacy_SOURCES) \
 	$(simppub_SOURCES) $(simptest_SOURCES) $(simptimeout_SOURCES) \
 	$(simptool_SOURCES) $(stability_SOURCES) $(test_pmix_SOURCES)
+DIST_SOURCES = $(gwclient_SOURCES) $(gwtest_SOURCES) \
+	$(pmitest_SOURCES) $(quietclient_SOURCES) \
+	$(simpclient_SOURCES) $(simpdie_SOURCES) $(simpdmodex_SOURCES) \
+	$(simpdyn_SOURCES) $(simpft_SOURCES) $(simpjctrl_SOURCES) \
+	$(simplegacy_SOURCES) $(simppub_SOURCES) $(simptest_SOURCES) \
+	$(simptimeout_SOURCES) $(simptool_SOURCES) \
+	$(stability_SOURCES) $(test_pmix_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -558,6 +567,7 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SOURCE_DATE_EPOCH = @SOURCE_DATE_EPOCH@
 STRIP = @STRIP@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
@@ -753,6 +763,13 @@ simpjctrl_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
 simpjctrl_LDADD = \
     $(top_builddir)/src/libpmix.la
 
+pmitest_SOURCES = \
+        pmitest.c
+
+pmitest_LDFLAGS = $(PMIX_PKG_CONFIG_LDFLAGS)
+pmitest_LDADD = \
+    $(top_builddir)/src/libpmi.la
+
 all: all-am
 
 .SUFFIXES:
@@ -803,6 +820,10 @@ gwclient$(EXEEXT): $(gwclient_OBJECTS) $(gwclient_DEPENDENCIES) $(EXTRA_gwclient
 gwtest$(EXEEXT): $(gwtest_OBJECTS) $(gwtest_DEPENDENCIES) $(EXTRA_gwtest_DEPENDENCIES) 
 	@rm -f gwtest$(EXEEXT)
 	$(AM_V_CCLD)$(gwtest_LINK) $(gwtest_OBJECTS) $(gwtest_LDADD) $(LIBS)
+
+pmitest$(EXEEXT): $(pmitest_OBJECTS) $(pmitest_DEPENDENCIES) $(EXTRA_pmitest_DEPENDENCIES) 
+	@rm -f pmitest$(EXEEXT)
+	$(AM_V_CCLD)$(pmitest_LINK) $(pmitest_OBJECTS) $(pmitest_LDADD) $(LIBS)
 
 quietclient$(EXEEXT): $(quietclient_OBJECTS) $(quietclient_DEPENDENCIES) $(EXTRA_quietclient_DEPENDENCIES) 
 	@rm -f quietclient$(EXEEXT)
@@ -868,6 +889,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gwclient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gwtest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pmitest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quietclient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simpclient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/simpdie.Po@am__quote@

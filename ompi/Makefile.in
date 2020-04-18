@@ -25,7 +25,7 @@
 #                         University of Stuttgart.  All rights reserved.
 # Copyright (c) 2004-2005 The Regents of the University of California.
 #                         All rights reserved.
-# Copyright (c) 2008-2017 Cisco Systems, Inc.  All rights reserved
+# Copyright (c) 2008-2019 Cisco Systems, Inc.  All rights reserved
 # Copyright (c) 2008      Sun Microsystems, Inc.  All rights reserved.
 # Copyright (c) 2010-2011 Sandia National Laboratories. All rights reserved.
 # Copyright (c) 2013-2015 Los Alamos National Security, LLC. All rights
@@ -1845,7 +1845,6 @@ OMPI_FORTRAN_HAVE_ISO_C_BINDING = @OMPI_FORTRAN_HAVE_ISO_C_BINDING@
 OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV = @OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV@
 OMPI_FORTRAN_HAVE_PRIVATE = @OMPI_FORTRAN_HAVE_PRIVATE@
 OMPI_FORTRAN_HAVE_PROCEDURE = @OMPI_FORTRAN_HAVE_PROCEDURE@
-OMPI_FORTRAN_HAVE_PROTECTED = @OMPI_FORTRAN_HAVE_PROTECTED@
 OMPI_FORTRAN_HAVE_STORAGE_SIZE = @OMPI_FORTRAN_HAVE_STORAGE_SIZE@
 OMPI_FORTRAN_HAVE_USE_ONLY = @OMPI_FORTRAN_HAVE_USE_ONLY@
 OMPI_FORTRAN_IGNORE_TKR_PREDECL = @OMPI_FORTRAN_IGNORE_TKR_PREDECL@
@@ -2425,9 +2424,10 @@ SUBDIRS = include datatype debuggers etc mpi/c mpi/tool \
 	$(MCA_ompi_FRAMEWORK_COMPONENT_STATIC_SUBDIRS) . mpi/cxx \
 	$(OMPI_MPIEXT_MPIFH_DIRS) mpi/fortran/mpif-h \
 	$(OMPI_MPIEXT_USEMPI_DIR) $(OMPI_FORTRAN_USEMPI_DIR) \
-	mpi/fortran/mpiext-use-mpi mpi/fortran/use-mpi-f08/mod \
-	mpi/fortran/use-mpi-f08/bindings $(OMPI_MPIEXT_USEMPIF08_DIRS) \
-	mpi/fortran/use-mpi-f08 mpi/fortran/mpiext-use-mpi-f08 \
+	mpi/fortran/mpiext-use-mpi mpi/fortran/use-mpi-f08/base \
+	mpi/fortran/use-mpi-f08/mod mpi/fortran/use-mpi-f08/bindings \
+	$(OMPI_MPIEXT_USEMPIF08_DIRS) mpi/fortran/use-mpi-f08 \
+	mpi/fortran/mpiext-use-mpi-f08 \
 	$(MCA_ompi_FRAMEWORK_COMPONENT_DSO_SUBDIRS) \
 	$(OMPI_CONTRIB_SUBDIRS) $(am__append_1) tools/ompi_info \
 	tools/wrappers tools/mpisync
@@ -2439,8 +2439,8 @@ SUBDIRS = include datatype debuggers etc mpi/c mpi/tool \
 DIST_SUBDIRS = include datatype debuggers etc mpi/c mpi/tool mpi/cxx \
 	mpi/fortran/base mpi/fortran/mpif-h mpi/fortran/use-mpi-tkr \
 	mpi/fortran/use-mpi-ignore-tkr mpi/fortran/mpiext-use-mpi \
-	mpi/fortran/use-mpi-f08 mpi/fortran/use-mpi-f08/mod \
-	mpi/fortran/use-mpi-f08/bindings \
+	mpi/fortran/use-mpi-f08 mpi/fortran/use-mpi-f08/base \
+	mpi/fortran/use-mpi-f08/mod mpi/fortran/use-mpi-f08/bindings \
 	mpi/fortran/mpiext-use-mpi-f08 mpi/java \
 	$(OMPI_MPIEXT_ALL_SUBDIRS) $(MCA_ompi_FRAMEWORKS_SUBDIRS) \
 	$(MCA_ompi_FRAMEWORK_COMPONENT_ALL_SUBDIRS) \

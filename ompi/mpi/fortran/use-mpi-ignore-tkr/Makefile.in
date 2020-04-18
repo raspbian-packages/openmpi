@@ -16,7 +16,7 @@
 
 # -*- makefile -*-
 #
-# Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2006-2019 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2015-2018 Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
@@ -580,7 +580,12 @@ CFLAGS_WITHOUT_OPTFLAGS = @CFLAGS_WITHOUT_OPTFLAGS@
 CLEANFILES = @CLEANFILES@ $(am__append_5)
 CONFIGURE_DEPENDENCIES = @CONFIGURE_DEPENDENCIES@
 CPP = @CPP@
-CPPFLAGS = @CPPFLAGS@
+
+# Note that Automake's Fortran-buidling rules uses CPPFLAGS and
+# AM_CPPFLAGS.  This can cause weirdness (e.g.,
+# https://github.com/open-mpi/ompi/issues/7253).  Let's just zero
+# those out and rely on AM_FCFLAGS.
+CPPFLAGS = 
 CRAY_ALPSLLI_CFLAGS = @CRAY_ALPSLLI_CFLAGS@
 CRAY_ALPSLLI_LIBS = @CRAY_ALPSLLI_LIBS@
 CRAY_ALPSLLI_STATIC_LIBS = @CRAY_ALPSLLI_STATIC_LIBS@
@@ -1211,7 +1216,6 @@ OMPI_FORTRAN_HAVE_ISO_C_BINDING = @OMPI_FORTRAN_HAVE_ISO_C_BINDING@
 OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV = @OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV@
 OMPI_FORTRAN_HAVE_PRIVATE = @OMPI_FORTRAN_HAVE_PRIVATE@
 OMPI_FORTRAN_HAVE_PROCEDURE = @OMPI_FORTRAN_HAVE_PROCEDURE@
-OMPI_FORTRAN_HAVE_PROTECTED = @OMPI_FORTRAN_HAVE_PROTECTED@
 OMPI_FORTRAN_HAVE_STORAGE_SIZE = @OMPI_FORTRAN_HAVE_STORAGE_SIZE@
 OMPI_FORTRAN_HAVE_USE_ONLY = @OMPI_FORTRAN_HAVE_USE_ONLY@
 OMPI_FORTRAN_IGNORE_TKR_PREDECL = @OMPI_FORTRAN_IGNORE_TKR_PREDECL@
@@ -1762,10 +1766,10 @@ ompi__v_MKDIR_0 = @echo "  MKDIR   " $@;
 OMPI_V_GEN = $(ompi__v_GEN_$V)
 ompi__v_GEN_ = $(ompi__v_GEN_$AM_DEFAULT_VERBOSITY)
 ompi__v_GEN_0 = @echo "  GENERATE" $@;
+AM_CPPFLAGS = 
 
 # This Makefile is only relevant if we're building the ignore-TKR "use
 # mpi" MPI bindings.
-@OMPI_BUILD_FORTRAN_USEMPI_IGNORE_TKR_BINDINGS_TRUE@AM_CPPFLAGS = -DOMPI_PROFILE_LAYER=0 -DOMPI_COMPILING_FORTRAN_WRAPPERS=1
 @OMPI_BUILD_FORTRAN_USEMPI_IGNORE_TKR_BINDINGS_TRUE@AM_FCFLAGS = -I$(top_builddir)/ompi/include -I$(top_srcdir)/ompi/include \
 @OMPI_BUILD_FORTRAN_USEMPI_IGNORE_TKR_BINDINGS_TRUE@             -I$(top_builddir) -I$(top_srcdir) $(FCFLAGS_f90)
 

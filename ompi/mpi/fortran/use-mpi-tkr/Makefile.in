@@ -26,7 +26,7 @@
 #                         University of Stuttgart.  All rights reserved.
 # Copyright (c) 2004-2005 The Regents of the University of California.
 #                         All rights reserved.
-# Copyright (c) 2006-2018 Cisco Systems, Inc.  All rights reserved
+# Copyright (c) 2006-2019 Cisco Systems, Inc.  All rights reserved
 # Copyright (c) 2007      Los Alamos National Security, LLC.  All rights
 #                         reserved.
 # Copyright (c) 2014-2016 Research Organization for Information Science
@@ -595,7 +595,18 @@ CFLAGS_WITHOUT_OPTFLAGS = @CFLAGS_WITHOUT_OPTFLAGS@
 CLEANFILES = @CLEANFILES@ $(am__append_5)
 CONFIGURE_DEPENDENCIES = @CONFIGURE_DEPENDENCIES@
 CPP = @CPP@
-CPPFLAGS = @CPPFLAGS@
+
+# THIS MAKEFILE IS OLD AND ONLY TO SUPPORT FORTRAN COMPILERS THAT DO
+# NOT SUPPORT "IGNORE TKR" FUNCTIONALITY (i.e., gfortran before v4.9).
+# All other Fortran compilers support ignore TKR and don't compile
+# this directory -- instead, they compile
+# ompi/fortran/use-mpi-ignore-tkr.
+
+# Note that Automake's Fortran-buidling rules uses CPPFLAGS and
+# AM_CPPFLAGS.  This can cause weirdness (e.g.,
+# https://github.com/open-mpi/ompi/issues/7253).  Let's just zero
+# those out and rely on AM_FCFLAGS.
+CPPFLAGS = 
 CRAY_ALPSLLI_CFLAGS = @CRAY_ALPSLLI_CFLAGS@
 CRAY_ALPSLLI_LIBS = @CRAY_ALPSLLI_LIBS@
 CRAY_ALPSLLI_STATIC_LIBS = @CRAY_ALPSLLI_STATIC_LIBS@
@@ -1226,7 +1237,6 @@ OMPI_FORTRAN_HAVE_ISO_C_BINDING = @OMPI_FORTRAN_HAVE_ISO_C_BINDING@
 OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV = @OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV@
 OMPI_FORTRAN_HAVE_PRIVATE = @OMPI_FORTRAN_HAVE_PRIVATE@
 OMPI_FORTRAN_HAVE_PROCEDURE = @OMPI_FORTRAN_HAVE_PROCEDURE@
-OMPI_FORTRAN_HAVE_PROTECTED = @OMPI_FORTRAN_HAVE_PROTECTED@
 OMPI_FORTRAN_HAVE_STORAGE_SIZE = @OMPI_FORTRAN_HAVE_STORAGE_SIZE@
 OMPI_FORTRAN_HAVE_USE_ONLY = @OMPI_FORTRAN_HAVE_USE_ONLY@
 OMPI_FORTRAN_IGNORE_TKR_PREDECL = @OMPI_FORTRAN_IGNORE_TKR_PREDECL@
@@ -1777,12 +1787,7 @@ ompi__v_MKDIR_0 = @echo "  MKDIR   " $@;
 OMPI_V_GEN = $(ompi__v_GEN_$V)
 ompi__v_GEN_ = $(ompi__v_GEN_$AM_DEFAULT_VERBOSITY)
 ompi__v_GEN_0 = @echo "  GENERATE" $@;
-
-# THIS MAKEFILE IS OLD AND ONLY TO SUPPORT FORTRAN COMPILERS THAT DO
-# NOT SUPPORT "IGNORE TKR" FUNCTIONALITY (i.e., gfortran before v4.9).
-# All other Fortran compilers support ignore TKR and don't compile
-# this directory -- instead, they compile
-# ompi/fortran/use-mpi-ignore-tkr.
+AM_CPPFLAGS = 
 
 ########################################################################
 
@@ -1790,7 +1795,7 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 # mpi-f90-interfaces.h, which will be in the build tree (i.e., the
 # current directory) because it is generated.
 @OMPI_BUILD_FORTRAN_USEMPI_TKR_BINDINGS_TRUE@AM_FCFLAGS = -I$(top_builddir)/ompi/include -I$(top_srcdir)/ompi/include \
-@OMPI_BUILD_FORTRAN_USEMPI_TKR_BINDINGS_TRUE@             $(OMPI_FC_MODULE_FLAG). -I$(srcdir) -I. \
+@OMPI_BUILD_FORTRAN_USEMPI_TKR_BINDINGS_TRUE@             $(OMPI_FC_MODULE_FLAG). -I$(top_srcdir) -I$(top_builddir) -I. \
 @OMPI_BUILD_FORTRAN_USEMPI_TKR_BINDINGS_TRUE@             -I$(top_builddir)/ompi/mpi/fortran/use-mpi-tkr $(FCFLAGS_f90)
 
 

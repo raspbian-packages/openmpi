@@ -16,8 +16,8 @@
 
 #
 # Copyright (c) 2011-2012 Cisco Systems, Inc.  All rights reserved.
-# Copyright (c) 2017-2018 Research Organization for Information Science
-#                         and Technology (RIST). All rights reserved.
+# Copyright (c) 2017-2019 Research Organization for Information Science
+#                         and Technology (RIST).  All rights reserved.
 # Copyright (c) 2018      FUJITSU LIMITED.  All rights reserved.
 # $COPYRIGHT$
 #
@@ -589,7 +589,12 @@ CFLAGS_WITHOUT_OPTFLAGS = @CFLAGS_WITHOUT_OPTFLAGS@
 CLEANFILES = @CLEANFILES@
 CONFIGURE_DEPENDENCIES = @CONFIGURE_DEPENDENCIES@
 CPP = @CPP@
-CPPFLAGS = @CPPFLAGS@
+
+# Note that Automake's Fortran-buidling rules uses CPPFLAGS and
+# AM_CPPFLAGS.  This can cause weirdness (e.g.,
+# https://github.com/open-mpi/ompi/issues/7253).  Let's just zero
+# those out and rely on AM_FCFLAGS.
+CPPFLAGS = 
 CRAY_ALPSLLI_CFLAGS = @CRAY_ALPSLLI_CFLAGS@
 CRAY_ALPSLLI_LIBS = @CRAY_ALPSLLI_LIBS@
 CRAY_ALPSLLI_STATIC_LIBS = @CRAY_ALPSLLI_STATIC_LIBS@
@@ -1220,7 +1225,6 @@ OMPI_FORTRAN_HAVE_ISO_C_BINDING = @OMPI_FORTRAN_HAVE_ISO_C_BINDING@
 OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV = @OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV@
 OMPI_FORTRAN_HAVE_PRIVATE = @OMPI_FORTRAN_HAVE_PRIVATE@
 OMPI_FORTRAN_HAVE_PROCEDURE = @OMPI_FORTRAN_HAVE_PROCEDURE@
-OMPI_FORTRAN_HAVE_PROTECTED = @OMPI_FORTRAN_HAVE_PROTECTED@
 OMPI_FORTRAN_HAVE_STORAGE_SIZE = @OMPI_FORTRAN_HAVE_STORAGE_SIZE@
 OMPI_FORTRAN_HAVE_USE_ONLY = @OMPI_FORTRAN_HAVE_USE_ONLY@
 OMPI_FORTRAN_IGNORE_TKR_PREDECL = @OMPI_FORTRAN_IGNORE_TKR_PREDECL@
@@ -1756,11 +1760,12 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
+AM_CPPFLAGS = 
 
 # We must set these #defines and include paths so that the inner OMPI
 # MPI prototype header files do the Right Thing.
 AM_FCFLAGS = $(OMPI_FC_MODULE_FLAG)$(top_builddir)/ompi/mpi/fortran/use-mpi-f08/mod \
-             -I$(top_srcdir) $(FCFLAGS_f90)
+             -I$(top_builddir) -I$(top_srcdir) $(FCFLAGS_f90)
 
 
 # Note that the mpi_f08-based bindings are optional -- they can only

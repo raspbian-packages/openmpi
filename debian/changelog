@@ -1,10 +1,70 @@
-openmpi (4.0.2-5+rpi1) bullseye-staging; urgency=medium
+openmpi (4.0.3-6+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Fri, 27 Dec 2019 11:17:41 +0000
+ -- Peter Michael Green <plugwash@raspbian.org>  Sat, 18 Apr 2020 19:54:21 +0000
+
+openmpi (4.0.3-6) unstable; urgency=medium
+
+  * libopenmpi-dev now depends on zlib1g-dev
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 12 Apr 2020 12:47:29 +0100
+
+openmpi (4.0.3-5) unstable; urgency=medium
+
+  * Fix autopkgtest scripts to run in right directory; dep on gcc, gfortran
+  * Correct JAVA condition so its not built on hppa. Closes: #956161
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 10 Apr 2020 14:02:54 +0100
+
+openmpi (4.0.3-4) unstable; urgency=medium
+
+  * Hard-code GFORTRAN_VERSION as gfortran-mod-15 for the moment to avoid
+    pulling arch-dep stuff into openmpi-common (mpi wrappers)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 08 Apr 2020 14:19:09 +0100
+
+openmpi (4.0.3-3) unstable; urgency=medium
+
+  * Fix broken link for libmpi_usempi_ignore_tkr.so
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 07 Apr 2020 13:56:17 +0100
+
+openmpi (4.0.3-2) unstable; urgency=medium
+
+  * Fix broken psm conditional that causes FTBFS on non-intel archs
+  * Use gcc rather than patchelf to change sonames for gfortan libs;
+    patchelf causes ldconfig to create wierd files and breaks dwz
+    Closes: #955708
+  * Ensure mpif*.h headers are also present in the fortran mod dir that
+    mpif90/mpif77 now searches. Closes: #955749
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 05 Apr 2020 11:56:15 +0100
+
+openmpi (4.0.3-1) unstable; urgency=medium
+
+  * New upstream release. Closes: #954932
+    Some lib changes: 
+    - libmpi    40.20.2 -> 40.20.3
+    - libopen-pal  40.20.2 -> 40.20.3
+    - libopen-rte 40.20.2 -> 40.20.3
+    - libmpi_usempif08  40.20.1 -> 40.21.0
+    - libmca_common_ompio.so. 41.19.2 -> 41.19.3
+  * Standards-Version: 4.5.0
+  * Enable java build on riscv64. Closes: #933738
+  * Build with both gfortran and flang (where possible)
+    But don't depend on flang until it supports llvm-9
+  * Drop B-D on gcc >= 4, Obsolete
+  * Don't have openmpi-bin depend on libopenmpi-dev.
+    THIS MAY BREAK THINGS EXPECTING libopenmpi-dev TO SHIP mpicc*, etc.
+    THEY SHOULD DEPEND ON MPI-DEFAULT-DEV instead.
+  * Build without '--with-ltdl'; 4.* uses dlopen directly.
+  * Use dh-sequence-fortran-mod instead of --with fortran_mod
+  * Add initial hello_world sanity package tests
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 30 Mar 2020 15:10:13 +0100
 
 openmpi (4.0.2-5) unstable; urgency=medium
 

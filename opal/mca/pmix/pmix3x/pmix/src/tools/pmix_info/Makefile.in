@@ -156,6 +156,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/src/mca/pdl/configure.m4 \
 	$(top_srcdir)/src/mca/pinstalldirs/configure.m4 \
 	$(top_srcdir)/src/mca/common/dstore/configure.m4 \
+	$(top_srcdir)/src/mca/gds/ds12/configure.m4 \
+	$(top_srcdir)/src/mca/gds/ds21/configure.m4 \
 	$(top_srcdir)/src/mca/pdl/pdlopen/configure.m4 \
 	$(top_srcdir)/src/mca/pdl/plibltdl/configure.m4 \
 	$(top_srcdir)/src/mca/pif/bsdx_ipv4/configure.m4 \
@@ -483,6 +485,7 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SOURCE_DATE_EPOCH = @SOURCE_DATE_EPOCH@
 STRIP = @STRIP@
 VERSION = @VERSION@
 abs_builddir = @abs_builddir@
@@ -564,13 +567,18 @@ target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+@SOURCE_DATE_EPOCH_SET_TRUE@USER = @PMIX_CONFIGURE_USER@
+@SOURCE_DATE_EPOCH_SET_FALSE@PMIX_BUILD_HOST = `(hostname || uname -n) 2> /dev/null | sed 1q`
+@SOURCE_DATE_EPOCH_SET_TRUE@PMIX_BUILD_HOST = @PMIX_CONFIGURE_HOST@
+@SOURCE_DATE_EPOCH_SET_FALSE@PMIX_BUILD_DATE = `date +%Y-%m-%dT%H:%M:%S`
+@SOURCE_DATE_EPOCH_SET_TRUE@PMIX_BUILD_DATE = @PMIX_CONFIGURE_DATE@
 AM_CFLAGS = \
             -DPMIX_CONFIGURE_USER="\"@PMIX_CONFIGURE_USER@\"" \
             -DPMIX_CONFIGURE_HOST="\"@PMIX_CONFIGURE_HOST@\"" \
             -DPMIX_CONFIGURE_DATE="\"@PMIX_CONFIGURE_DATE@\"" \
-            -DPMIX_BUILD_USER="\"$$USER\"" \
-            -DPMIX_BUILD_HOST="\"`(hostname || uname -n) 2> /dev/null | sed 1q`\"" \
-            -DPMIX_BUILD_DATE="\"`date`\"" \
+            -DPMIX_BUILD_USER="\"$(USER)\"" \
+            -DPMIX_BUILD_HOST="\"$(PMIX_BUILD_HOST)\"" \
+            -DPMIX_BUILD_DATE="\"$(PMIX_BUILD_DATE)\"" \
             -DPMIX_BUILD_CFLAGS="\"@CFLAGS@\"" \
             -DPMIX_BUILD_CPPFLAGS="\"@CPPFLAGS@\"" \
             -DPMIX_BUILD_LDFLAGS="\"@LDFLAGS@\"" \

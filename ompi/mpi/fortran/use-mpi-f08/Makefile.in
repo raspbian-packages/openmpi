@@ -16,7 +16,7 @@
 
 # -*- makefile.am -*-
 #
-# Copyright (c) 2006-2015 Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2006-2019 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2012-2013 The University of Tennessee and The University
 #                         of Tennessee Research Foundation.  All rights
 #                         reserved.
@@ -849,8 +849,7 @@ am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST = abort_f08.F90 \
 	profile/pwin_shared_query_f08.F90 profile/pwin_start_f08.F90 \
 	profile/pwin_sync_f08.F90 profile/pwin_test_f08.F90 \
 	profile/pwin_unlock_f08.F90 profile/pwin_unlock_all_f08.F90 \
-	profile/pwin_wait_f08.F90 mpi-f08.F90 buffer_detach.c \
-	constants.h constants.c
+	profile/pwin_wait_f08.F90 mpi-f08.F90
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_1 =  \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	abort_f08.lo \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	accumulate_f08.lo \
@@ -1552,9 +1551,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am_lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS =  \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_1) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	$(am__objects_2) \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	mpi-f08.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	buffer_detach.lo \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	constants.lo
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	mpi-f08.lo
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am__objects_3 = sizeof_f08.lo \
 @BUILD_FORTRAN_SIZEOF_TRUE@@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	profile/psizeof_f08.lo
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@nodist_lib@OMPI_LIBMPI_NAME@_usempif08_la_OBJECTS =  \
@@ -1585,9 +1582,6 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/opal/include -I$(top_builddir)/ompi/include -I$(top_builddir)/oshmem/include -I$(top_builddir)/opal/mca/hwloc/hwloc201/hwloc/include/private/autogen -I$(top_builddir)/opal/mca/hwloc/hwloc201/hwloc/include/hwloc/autogen -I$(top_builddir)/ompi/mpiext/cuda/c
-depcomp = $(SHELL) $(top_srcdir)/config/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
 PPFCCOMPILE = $(FC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_FCFLAGS) $(FCFLAGS)
 LTPPFCCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=FC $(AM_LIBTOOLFLAGS) \
@@ -1606,6 +1600,13 @@ AM_V_FCLD = $(am__v_FCLD_@AM_V@)
 am__v_FCLD_ = $(am__v_FCLD_@AM_DEFAULT_V@)
 am__v_FCLD_0 = @echo "  FCLD    " $@;
 am__v_FCLD_1 = 
+FCCOMPILE = $(FC) $(AM_FCFLAGS) $(FCFLAGS)
+LTFCCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=FC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(FC) $(AM_FCFLAGS) $(FCFLAGS)
+AM_V_FC = $(am__v_FC_@AM_V@)
+am__v_FC_ = $(am__v_FC_@AM_DEFAULT_V@)
+am__v_FC_0 = @echo "  FC      " $@;
+am__v_FC_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -1624,13 +1625,6 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-FCCOMPILE = $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-LTFCCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=FC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-AM_V_FC = $(am__v_FC_@AM_V@)
-am__v_FC_ = $(am__v_FC_@AM_DEFAULT_V@)
-am__v_FC_0 = @echo "  FC      " $@;
-am__v_FC_1 = 
 SOURCES = $(lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES) \
 	$(nodist_lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES)
 DIST_SOURCES = $(am__lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES_DIST)
@@ -1641,7 +1635,7 @@ am__can_run_installinfo = \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 am__DIST_COMMON = $(srcdir)/Makefile.in \
-	$(top_srcdir)/Makefile.ompi-rules $(top_srcdir)/config/depcomp
+	$(top_srcdir)/Makefile.ompi-rules
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMCA_PARAM_SETS_DIR = @AMCA_PARAM_SETS_DIR@
@@ -1664,7 +1658,12 @@ CFLAGS_WITHOUT_OPTFLAGS = @CFLAGS_WITHOUT_OPTFLAGS@
 CLEANFILES = @CLEANFILES@ $(am__append_4)
 CONFIGURE_DEPENDENCIES = @CONFIGURE_DEPENDENCIES@
 CPP = @CPP@
-CPPFLAGS = @CPPFLAGS@
+
+# Note that Automake's Fortran-buidling rules uses CPPFLAGS and
+# AM_CPPFLAGS.  This can cause weirdness (e.g.,
+# https://github.com/open-mpi/ompi/issues/7253).  Let's just zero
+# those out and rely on AM_FCFLAGS.
+CPPFLAGS = 
 CRAY_ALPSLLI_CFLAGS = @CRAY_ALPSLLI_CFLAGS@
 CRAY_ALPSLLI_LIBS = @CRAY_ALPSLLI_LIBS@
 CRAY_ALPSLLI_STATIC_LIBS = @CRAY_ALPSLLI_STATIC_LIBS@
@@ -2295,7 +2294,6 @@ OMPI_FORTRAN_HAVE_ISO_C_BINDING = @OMPI_FORTRAN_HAVE_ISO_C_BINDING@
 OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV = @OMPI_FORTRAN_HAVE_ISO_FORTRAN_ENV@
 OMPI_FORTRAN_HAVE_PRIVATE = @OMPI_FORTRAN_HAVE_PRIVATE@
 OMPI_FORTRAN_HAVE_PROCEDURE = @OMPI_FORTRAN_HAVE_PROCEDURE@
-OMPI_FORTRAN_HAVE_PROTECTED = @OMPI_FORTRAN_HAVE_PROTECTED@
 OMPI_FORTRAN_HAVE_STORAGE_SIZE = @OMPI_FORTRAN_HAVE_STORAGE_SIZE@
 OMPI_FORTRAN_HAVE_USE_ONLY = @OMPI_FORTRAN_HAVE_USE_ONLY@
 OMPI_FORTRAN_IGNORE_TKR_PREDECL = @OMPI_FORTRAN_IGNORE_TKR_PREDECL@
@@ -2846,6 +2844,7 @@ ompi__v_MKDIR_0 = @echo "  MKDIR   " $@;
 OMPI_V_GEN = $(ompi__v_GEN_$V)
 ompi__v_GEN_ = $(ompi__v_GEN_$AM_DEFAULT_VERBOSITY)
 ompi__v_GEN_0 = @echo "  GENERATE" $@;
+AM_CPPFLAGS = 
 
 # This Makefile is only relevant if we're building the "use mpi_f08"
 # MPI bindings.
@@ -2854,7 +2853,7 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@             $(OMPI_FC_MODULE_FLAG)$(top_builddir)/ompi/$(OMPI_FORTRAN_USEMPI_DIR) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@             $(OMPI_FC_MODULE_FLAG)mod \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@             $(OMPI_FC_MODULE_FLAG)bindings \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@             -I$(top_srcdir) $(FCFLAGS_f90)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@             -I$(top_srcdir) -I$(top_builddir) $(FCFLAGS_f90)
 
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@MOSTLYCLEANFILES = *.mod
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib_LTLIBRARIES = lib@OMPI_LIBMPI_NAME@_usempif08.la
@@ -3576,10 +3575,7 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_usempif08_la_SOURCES = \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(mpi_api_files) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(pmpi_api_files) \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        mpi-f08.F90 \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        buffer_detach.c \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        constants.h \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        constants.c
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        mpi-f08.F90
 
 
 # These are generated; do not ship them
@@ -3590,13 +3586,18 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 #
 # Include the mpi_f08-based MPI extensions in libmpi_usempif08, too.
 #
+# Also include the one .c file that we need in this library -- because
+# we zero out CPPFLAGS and AM_CPPFLAGS in this Makefile.am, we have to
+# compile that .c file in a separate directory / Makefile.
+#
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_usempif08_la_LIBADD = \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(module_sentinel_file) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(OMPI_MPIEXT_USEMPIF08_LIBS) \
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(top_builddir)/ompi/mpi/fortran/mpif-h/lib@OMPI_LIBMPI_NAME@_mpifh.la \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        base/libusempif08_ccode.la
 
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_usempif08_la_DEPENDENCIES = $(module_sentinel_file)
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_usempif08_la_DEPENDENCIES = $(module_sentinel_files)
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_usempif08_la_LDFLAGS = -version-info $(libmpi_usempif08_so_version)
 
 #
@@ -3608,7 +3609,7 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .1 .1in .3 .3in .7 .7in .F90 .c .f90 .lo .o .obj
+.SUFFIXES: .1 .1in .3 .3in .7 .7in .F90 .f90 .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/Makefile.ompi-rules $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -4390,9 +4391,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer_detach.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constants.Plo@am__quote@
-
 .F90.o:
 	$(AM_V_PPFC)$(PPFCCOMPILE) -c -o $@ $<
 
@@ -4401,30 +4399,6 @@ distclean-compile:
 
 .F90.lo:
 	$(AM_V_PPFC)$(LTPPFCCOMPILE) -c -o $@ $<
-
-.c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
-
-.c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.c.lo:
-@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
 .f90.o:
 	$(AM_V_FC)$(FCCOMPILE) -c -o $@ $(FCFLAGS_f90) $<
@@ -4527,7 +4501,6 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic
 
@@ -4573,7 +4546,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
