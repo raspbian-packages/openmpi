@@ -26,6 +26,13 @@
 
 #include "opal_config.h"
 
+#ifndef PATH_MAX /* Hurd */
+#define PATH_MAX 65535
+#endif
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 65535
+#endif
+
 #define ORTE_IDENT_STRING OPAL_IDENT_STRING
 
 #  if OPAL_C_HAVE_VISIBILITY
