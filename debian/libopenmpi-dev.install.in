@@ -1,0 +1,7 @@
+## Library headers
+usr/lib/*/openmpi/include/*
+usr/lib/*/openmpi/include/*		/usr/lib/@TRIPLET@/fortran/@GFORTRAN_VERSION@/openmpi
+## .so symlinks
+usr/lib/*/openmpi/lib/*.so
+## pkg-config .pc files
+usr/lib/*/openmpi/lib/pkgconfig/*.pc
