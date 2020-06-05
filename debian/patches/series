@@ -7,6 +7,6 @@ hppa.patch
 opal_fifo.patch
 verbose-ompi-rules.patch
 fix-underlinking.patch
-# version-script.patch
+#version-script.patch
 no-warning-unused.patch
 raspbian.diff

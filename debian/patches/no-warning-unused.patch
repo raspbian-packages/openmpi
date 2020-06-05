@@ -4,10 +4,10 @@ Author: Alastair McKinstry <mckinstry@debian.org>
 Last-Updated: 2019-11-19
 Forwarded: no
 
-Index: openmpi-4.0.2/opal/etc/openmpi-mca-params.conf
+Index: openmpi-4.0.3/opal/etc/openmpi-mca-params.conf
 ===================================================================
---- openmpi-4.0.2.orig/opal/etc/openmpi-mca-params.conf
-+++ openmpi-4.0.2/opal/etc/openmpi-mca-params.conf
+--- openmpi-4.0.3.orig/opal/etc/openmpi-mca-params.conf
++++ openmpi-4.0.3/opal/etc/openmpi-mca-params.conf
 @@ -57,3 +57,7 @@
  
  # See "ompi_info --param all all --level 9" for a full listing of Open
