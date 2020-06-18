@@ -9,4 +9,5 @@ verbose-ompi-rules.patch
 fix-underlinking.patch
 #version-script.patch
 no-warning-unused.patch
+use-openib.patch
 raspbian.diff
