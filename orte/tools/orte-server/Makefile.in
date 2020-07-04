@@ -163,6 +163,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_logical_array.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_max_array_rank.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_optional_args.m4 \
+	$(top_srcdir)/config/ompi_fortran_check_preprocess_f90.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_private.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_procedure.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_protected.m4 \

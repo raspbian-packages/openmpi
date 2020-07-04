@@ -16,8 +16,8 @@ Build-Depends: dpkg-dev (>= 1.16.1~),
  libfabric-dev [amd64 i386],
  libpsm-infinipath1-dev [amd64 i386],
  libpsm2-dev [amd64],
- libnuma-dev [amd64 i386 ia64 mips mipsel mipsn32 mipsn32el mips64 mips64el ppc64el],
- default-jdk [!hppa !hurd-i386 !ia64] <!stage1>,
+ libnuma-dev [amd64 i386 mips mipsel mipsn32 mipsn32el mips64 mips64el ppc64el],
+ default-jdk [!hppa !hurd-i386] <!stage1>,
  flex
 Build-Conflicts: libmpich-dev, libopenmpi-dev
 Standards-Version: 4.5.0

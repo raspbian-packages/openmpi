@@ -24,9 +24,8 @@ PSM_ARCH:= amd64 i386
 PSM2_ARCH:= amd64
 ATOMICS_ARCH:= s390x riscv64
 NO_CMA_ARCH:= s390x mipsel hppa alpha armhf armel m68k sparc64
-NO_JAVA_ARCH:= hppa hurd-i386 ia64
+NO_JAVA_ARCH:= hppa hurd-i386
 NO_TEST_ARCH:= hppa hurd-i386
-GCC7_ARCH:= ia64
 
 
 VERBS:=   $(if $(filter $(DEB_TARGET_ARCH), $(NO_VERBS_ARCH)), , --with-verbs ) 
@@ -37,7 +36,8 @@ ATOMICS:= $(if $(filter $(DEB_TARGET_ARCH), $(ATOMICS_ARCH)), --enable-builtin-a
 CMA:=     $(if $(filter $(DEB_TARGET_ARCH), $(NO_CMA_ARCH)), --without-cma , )
 DO_TEST:= $(if $(filter $(DEB_TARGET_ARCH), $(NO_TEST_ARCH)), false, true)
 BTL_TESTS:= $(if $(DO_TEST), --enable-opal-btl-usnic-unit-tests, )
-DO_FLANG:=$(if $(wildcard /usr/bin/flang),true, false)
+# DO_FLANG:=$(if $(wildcard /usr/bin/flang),true, false)
+DO_FLANG := false
 
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
        JAVA := $(if $(filter $(DEB_TARGET_ARCH), $(NO_JAVA_ARCH)), \
@@ -172,14 +172,14 @@ override_dh_install:
 	mkdir -p $(DESTDIR)/$(LIBDIR)/openmpi/lib/
 	cp $(BUILDDIR)/ompi/mpi/fortran/*/.libs/libmpi_mpifh.so.40.20.2  $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_mpifh.so.40.20.2
 	cp $(BUILDDIR)/ompi/mpi/fortran/*/.libs/libmpi_usempi_ignore_tkr.so.40.20.0 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr.so.40.20.0
-	cp $(BUILDDIR)/ompi/mpi/fortran/*/.libs/libmpi_usempif08.so.40.21.0 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08.so.40.21.0
+	cp $(BUILDDIR)/ompi/mpi/fortran/*/.libs/libmpi_usempif08.so.40.21.1 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08.so.40.21.1
 	gcc -shared -fPIC -Wl,-soname,libmpi_mpifh-gfortran.so.40 -o $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_mpifh-gfortran.so.40.20.2 \
 		$(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_mpifh.so.40.20.2
 	gcc -shared -fPIC -Wl,-soname,libmpi_usempi_ignore_tkr-gfortran.so.40 \
 		-o $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr-gfortran.so.40.20.0 \
 		   $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr.so.40.20.0
-	gcc -shared -fPIC -Wl,-soname,libmpi_usempif08-gfortran.so.40 -o $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08-gfortran.so.40.21.0 \
-		$(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08.so.40.21.0
+	gcc -shared -fPIC -Wl,-soname,libmpi_usempif08-gfortran.so.40 -o $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08-gfortran.so.40.21.1 \
+		$(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08.so.40.21.1
 	# Flang, if present
 	$(DO_FLANG) && ( \
 		mkdir -p $(DESTDIR)/$(FLANG_MODDIR) ; \
@@ -190,17 +190,17 @@ override_dh_install:
 		dh_fortran_mod -p libopenmpi-dev  $(BUILDDIR_FLANG)/ompi/mpi/fortran/mpiext-use-mpi/*.mod openmpi ; \
 		cp $(BUILDDIR_FLANG)/ompi/mpi/fortran/*/.libs/libmpi_mpifh.so.40.20.2 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_mpifh-flang.so.40.20.2 ; \
 		cp $(BUILDDIR_FLANG)/ompi/mpi/fortran/*/.libs/libmpi_usempi_ignore_tkr.so.40.20.0 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr-flang.so.40.20.0 ; \
-		cp $(BUILDDIR_FLANG)/ompi/mpi/fortran/*/.libs/libmpi_usempif08.so.40.21.0  $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08-flang.so.40.21.0 ; \
-		#patchelf  --set-soname libmpi_mpifh-flang.so.40 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_mpifh-flang.so.40.20.2 ; \
-		#patchelf  --set-soname libmpi_usempi_ignore_tkr-flang.so.40 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr-flang.so.40.20.0 ; \
-		#patchelf  --set-soname libmpi_usempif08-flang.so.40 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08-flang.so.40.21.0 ; \
+		cp $(BUILDDIR_FLANG)/ompi/mpi/fortran/*/.libs/libmpi_usempif08.so.40.21.1 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08-flang.so.40.21.1 ; \
 		dh_link -p libopenmpi3 $(LIBDIR)/libmpi_mpifh-flang.so.40.20.2           $(LIBDIR)/openmpi/lib/libmpi_mpifh-flang.so.40 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_mpifh-flang.so.40.20.2   $(FLANG_LIBDIR)/openmpi/lib/libmpi_mpifh-flang.so ; \
-		dh_link -p libopenmpi3 $(LIBDIR)/libmpi_usempif08-flang.so.40.21.0           $(LIBDIR)/openmpi/lib/libmpi_usempif08-flang.so.40   ; \
-		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_usempif08-flang.so.40.21.0   $(FLANG_LIBDIR)/openmpi/lib/libmpi_usempif08.so ; \
+		dh_link -p libopenmpi3 $(LIBDIR)/libmpi_usempif08-flang.so.40.21.1           $(LIBDIR)/openmpi/lib/libmpi_usempif08-flang.so.40   ; \
+		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_usempif08-flang.so.40.21.1   $(FLANG_LIBDIR)/openmpi/lib/libmpi_usempif08.so ; \
 		dh_link -p libopenmpi3 $(LIBDIR)/libmpi_usempi_ignore_tkr-flang.so.40.20.0          $(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr-flang.so.40 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_usempi_ignore_tkr-flang.so.40.20.0   $(FLANG_LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr.so ; \
 		) || true
+#		patchelf  --set-soname libmpi_mpifh-flang.so.40 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_mpifh-flang.so.40.20.2 ; \
+#		patchelf  --set-soname libmpi_usempi_ignore_tkr-flang.so.40 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempi_ignore_tkr-flang.so.40.20.0 ; \
+#		patchelf  --set-soname libmpi_usempif08-flang.so.40 $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmpi_usempif08-flang.so.40.21.1 ; \
 	# Strip rpath info from all executables and libraries.
 	find $(DESTDIR) -type f -perm -+x -a ! -name '*.la' -a ! -name '*.mod' -exec chrpath -d '{}' \; || true
 # Rename orte-bootproxy.sh to orte-bootproxy

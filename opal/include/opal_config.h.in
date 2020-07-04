@@ -336,9 +336,21 @@
    to 0 if you don't. */
 #undef HAVE_DECL_UCP_REQUEST_CHECK_STATUS
 
+/* Define to 1 if you have the declaration of `ucp_tag_recv_nbx', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCP_TAG_RECV_NBX
+
 /* Define to 1 if you have the declaration of `ucp_tag_send_nbr', and to 0 if
    you don't. */
 #undef HAVE_DECL_UCP_TAG_SEND_NBR
+
+/* Define to 1 if you have the declaration of `ucp_tag_send_nbx', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCP_TAG_SEND_NBX
+
+/* Define to 1 if you have the declaration of `ucp_tag_send_sync_nbx', and to
+   0 if you don't. */
+#undef HAVE_DECL_UCP_TAG_SEND_SYNC_NBX
 
 /* Define to 1 if you have the declaration of
    `UCP_WORKER_ATTR_FIELD_ADDRESS_FLAGS', and to 0 if you don't. */
@@ -565,8 +577,8 @@
 /* Define to 1 if you have the <kstat.h> header file. */
 #undef HAVE_KSTAT_H
 
-/* Define to 1 if you have the `event' library (-levent). */
-#undef HAVE_LIBEVENT
+/* Define to 1 if you have the `event_core' library (-levent_core). */
+#undef HAVE_LIBEVENT_CORE
 
 /* Define to 1 if you have the `event_pthreads' library (-levent_pthreads). */
 #undef HAVE_LIBEVENT_PTHREADS
@@ -1084,6 +1096,9 @@
 
 /* Define to 1 if you have the <ucp/api/ucp.h> header file. */
 #undef HAVE_UCP_API_UCP_H
+
+/* Define to 1 if the system has the type `ucp_request_param_t'. */
+#undef HAVE_UCP_REQUEST_PARAM_T
 
 /* have ucp_tag_send_nbr() */
 #undef HAVE_UCP_TAG_SEND_NBR

@@ -17,6 +17,8 @@
 # -*- makefile -*-
 #
 # Copyright (c) 2019 Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2020      Research Organization for Information Science
+#                         and Technology (RIST).  All rights reserved.
 #
 # $COPYRIGHT$
 #
@@ -152,6 +154,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_logical_array.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_max_array_rank.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_optional_args.m4 \
+	$(top_srcdir)/config/ompi_fortran_check_preprocess_f90.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_private.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_procedure.m4 \
 	$(top_srcdir)/config/ompi_fortran_check_protected.m4 \
@@ -422,9 +425,11 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libusempif08_ccode_la_LIBADD =
-am__libusempif08_ccode_la_SOURCES_DIST = buffer_detach.c
+am__libusempif08_ccode_la_SOURCES_DIST = buffer_detach.c constants.c \
+	constants.h
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@am_libusempif08_ccode_la_OBJECTS =  \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	buffer_detach.lo
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	buffer_detach.lo \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@	constants.lo
 libusempif08_ccode_la_OBJECTS = $(am_libusempif08_ccode_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -1712,7 +1717,9 @@ ompi__v_GEN_0 = @echo "  GENERATE" $@;
 # AM_CPPFLAGS are *not* zeroed out.
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@noinst_LTLIBRARIES = libusempif08_ccode.la
 @OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@libusempif08_ccode_la_SOURCES = \
-@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        buffer_detach.c
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        buffer_detach.c \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        constants.c \
+@OMPI_BUILD_FORTRAN_USEMPIF08_BINDINGS_TRUE@        constants.h
 
 all: all-am
 
@@ -1770,6 +1777,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buffer_detach.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constants.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
