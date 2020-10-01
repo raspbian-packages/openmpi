@@ -5,13 +5,13 @@ set -e
 if [ "$1" = "configure" ]; then
 
 update-alternatives \
-	--install /usr/include/@TRIPLET@/mpi mpi-@TRIPLET@ /usr/lib/@TRIPLET@/openmpi/include 50 \
-	--slave /usr/lib/@TRIPLET@/libmpi.so libmpi.so-@TRIPLET@ /usr/lib/@TRIPLET@/openmpi/lib/libmpi.so \
-	--slave /usr/lib/@TRIPLET@/libmpi++.so libmpi++.so-@TRIPLET@ /usr/lib/@TRIPLET@/openmpi/lib/libmpi_cxx.so \
-	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi.pc mpi.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi.pc \
-	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi-fort.pc mpi-fort.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi-fort.pc \
-	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi-c.pc mpi-c.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi-c.pc \
-	--slave /usr/lib/@TRIPLET@/pkgconfig/mpi-cxx.pc mpi-cxx.pc-@TRIPLET@ /usr/lib/@TRIPLET@/pkgconfig/ompi-cxx.pc
+	--install /usr/include/@DEB_HOST_MULTIARCH@/mpi mpi-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/openmpi/include 50 \
+	--slave /usr/lib/@DEB_HOST_MULTIARCH@/libmpi.so libmpi.so-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/openmpi/lib/libmpi.so \
+	--slave /usr/lib/@DEB_HOST_MULTIARCH@/libmpi++.so libmpi++.so-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/openmpi/lib/libmpi_cxx.so \
+	--slave /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/mpi.pc mpi.pc-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/ompi.pc \
+	--slave /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/mpi-fort.pc mpi-fort.pc-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/ompi-fort.pc \
+	--slave /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/mpi-c.pc mpi-c.pc-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/ompi-c.pc \
+	--slave /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/mpi-cxx.pc mpi-cxx.pc-@DEB_HOST_MULTIARCH@ /usr/lib/@DEB_HOST_MULTIARCH@/pkgconfig/ompi-cxx.pc
 
 fi
 

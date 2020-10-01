@@ -112,7 +112,8 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                   ucp_request_check_status, ucp_put_nb, ucp_get_nb],
                                  [], [],
                                  [#include <ucp/api/ucp.h>])
-                  AC_CHECK_DECLS([ucm_test_events],
+                  AC_CHECK_DECLS([ucm_test_events,
+                                  ucm_test_external_events],
                                  [], [],
                                  [#include <ucm/api/ucm.h>])
                   AC_CHECK_DECLS([UCP_ATOMIC_POST_OP_AND,
@@ -127,6 +128,10 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                   AC_CHECK_DECLS([UCP_WORKER_ATTR_FIELD_ADDRESS_FLAGS],
                                  [AC_DEFINE([HAVE_UCP_WORKER_ADDRESS_FLAGS], [1],
                                             [have worker address attribute])], [],
+                                 [#include <ucp/api/ucp.h>])
+                  AC_CHECK_DECLS([UCP_ATTR_FIELD_MEMORY_TYPES],
+                                 [AC_DEFINE([HAVE_UCP_ATTR_MEMORY_TYPES], [1],
+                                            [have memory types attribute])], [],
                                  [#include <ucp/api/ucp.h>])
                   AC_CHECK_DECLS([ucp_tag_send_nbx,
                                   ucp_tag_send_sync_nbx,

@@ -292,6 +292,10 @@
    you don't. */
 #undef HAVE_DECL_UCM_TEST_EVENTS
 
+/* Define to 1 if you have the declaration of `ucm_test_external_events', and
+   to 0 if you don't. */
+#undef HAVE_DECL_UCM_TEST_EXTERNAL_EVENTS
+
 /* Define to 1 if you have the declaration of `UCP_ATOMIC_FETCH_OP_FAND', and
    to 0 if you don't. */
 #undef HAVE_DECL_UCP_ATOMIC_FETCH_OP_FAND
@@ -315,6 +319,10 @@
 /* Define to 1 if you have the declaration of `UCP_ATOMIC_POST_OP_XOR', and to
    0 if you don't. */
 #undef HAVE_DECL_UCP_ATOMIC_POST_OP_XOR
+
+/* Define to 1 if you have the declaration of `UCP_ATTR_FIELD_MEMORY_TYPES',
+   and to 0 if you don't. */
+#undef HAVE_DECL_UCP_ATTR_FIELD_MEMORY_TYPES
 
 /* Define to 1 if you have the declaration of `ucp_ep_flush_nb', and to 0 if
    you don't. */
@@ -1096,6 +1104,9 @@
 
 /* Define to 1 if you have the <ucp/api/ucp.h> header file. */
 #undef HAVE_UCP_API_UCP_H
+
+/* have memory types attribute */
+#undef HAVE_UCP_ATTR_MEMORY_TYPES
 
 /* Define to 1 if the system has the type `ucp_request_param_t'. */
 #undef HAVE_UCP_REQUEST_PARAM_T

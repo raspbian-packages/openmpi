@@ -1,6 +1,8 @@
 ## Configuration files
 etc/openmpi/*
 ## Executables
+usr/bin/aggregate_profile.pl
+usr/bin/profile2mat.pl
 usr/bin/ompi-clean
 usr/bin/ompi_info
 usr/bin/ompi-server
@@ -8,6 +10,10 @@ usr/bin/orte-server
 usr/bin/orte-clean
 usr/bin/orted
 usr/bin/orterun
+usr/bin/orte-info
+usr/bin/ortecc
+usr/bin/mpiexec.openmpi
+usr/bin/mpirun.openmpi
 ## Compiler wrappers (symlinks) and man pages
 usr/bin/mpic++.openmpi
 usr/share/man/man1/mpic++.openmpi.1
