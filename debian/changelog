@@ -1,10 +1,25 @@
-openmpi (4.0.5-5+rpi1) bullseye-staging; urgency=medium
+openmpi (4.0.5-7+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Peter Michael Green <plugwash@raspbian.org>  Thu, 01 Oct 2020 15:59:39 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sun, 18 Oct 2020 12:36:05 +0000
+
+openmpi (4.0.5-7) unstable; urgency=medium
+
+  * Undo NO_PMIX_ARCH for armel, mipsel no longer needed as atomic
+    primitives now provided in external pmix. Closes: #971669
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 14 Oct 2020 20:08:08 +0100
+
+openmpi (4.0.5-6) unstable; urgency=medium
+
+  * Update VCS-* headers to point to debian/latest branch. Closes: #970707
+  * Rebuild to drop build of mca_pmix_pmix3.so on armel/mipsel (triggered by
+    misconfig in pmix package) ?
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 12 Oct 2020 08:46:30 +0100
 
 openmpi (4.0.5-5) unstable; urgency=medium
 

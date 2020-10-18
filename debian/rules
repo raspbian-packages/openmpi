@@ -23,7 +23,6 @@ ATOMICS_ARCH:= s390x riscv64
 NO_CMA_ARCH:= s390x mipsel hppa alpha armhf armel m68k sparc64
 NO_JAVA_ARCH:= hppa hurd-i386
 NO_TEST_ARCH:= hppa hurd-i386
-NO_PMIX_ARCH:= armel mipsel
 
 
 UCX:=     $(if $(filter $(DEB_TARGET_ARCH), $(UCX_ARCH)),  --with-ucx,  )
@@ -35,7 +34,6 @@ ATOMICS:= $(if $(filter $(DEB_TARGET_ARCH), $(ATOMICS_ARCH)), --enable-builtin-a
 CMA:=     $(if $(filter $(DEB_TARGET_ARCH), $(NO_CMA_ARCH)), --without-cma , )
 DO_TEST:= $(if $(filter $(DEB_TARGET_ARCH), $(NO_TEST_ARCH)), false, true)
 BTL_TESTS:= $(if $(DO_TEST), --enable-opal-btl-usnic-unit-tests, )
-PMIX:=    $(if $(filter $(DEB_TARGET_ARCH), $(NO_PMIX_ARCH)),,--with-pmix=$(LIBDIR)/pmix2)
 DO_FLANG:=$(if $(wildcard /usr/bin/flang),true, false)
 
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
@@ -85,7 +83,7 @@ extra_flags = \
 		--with-package-string="Debian OpenMPI" \
 		$(VERBS) $(FABRIC) $(PSM) $(PSM2) $(CMA) \
 		$(UCX) \
-		$(PMIX) \
+		--with-pmix=$(LIBDIR)/pmix2 \
 		$(ATOMICS) \
 		$(JAVA) \
 		$(STATIC_CONFIG_PARAMS) \
