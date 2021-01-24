@@ -174,16 +174,16 @@ mca_coll_sm_comm_query(struct ompi_communicator_t *comm, int *priority)
     if (OMPI_COMM_IS_INTER(comm) || 1 == ompi_comm_size(comm) || ompi_group_have_remote_peers (comm->c_local_group)) {
         opal_output_verbose(10, ompi_coll_base_framework.framework_output,
                             "coll:sm:comm_query (%d/%s): intercomm, comm is too small, or not all peers local; disqualifying myself", comm->c_contextid, comm->c_name);
-	return NULL;
+        return NULL;
     }
 
     /* Get the priority level attached to this module. If priority is less
      * than or equal to 0, then the module is unavailable. */
     *priority = mca_coll_sm_component.sm_priority;
-    if (mca_coll_sm_component.sm_priority <= 0) {
+    if (mca_coll_sm_component.sm_priority < 0) {
         opal_output_verbose(10, ompi_coll_base_framework.framework_output,
                             "coll:sm:comm_query (%d/%s): priority too low; disqualifying myself", comm->c_contextid, comm->c_name);
-	return NULL;
+        return NULL;
     }
 
     sm_module = OBJ_NEW(mca_coll_sm_module_t);

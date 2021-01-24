@@ -229,6 +229,10 @@
    don't. */
 #undef HAVE_DECL_PF_UNSPEC
 
+/* Define to 1 if you have the declaration of `PMIX_PACKAGE_RANK', and to 0 if
+   you don't. */
+#undef HAVE_DECL_PMIX_PACKAGE_RANK
+
 /* Define to 1 if you have the declaration of `pthread_getaffinity_np', and to
    0 if you don't. */
 #undef HAVE_DECL_PTHREAD_GETAFFINITY_NP
@@ -308,6 +312,10 @@
    to 0 if you don't. */
 #undef HAVE_DECL_UCP_ATOMIC_FETCH_OP_FXOR
 
+/* Define to 1 if you have the declaration of `ucp_atomic_op_nbx', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCP_ATOMIC_OP_NBX
+
 /* Define to 1 if you have the declaration of `UCP_ATOMIC_POST_OP_AND', and to
    0 if you don't. */
 #undef HAVE_DECL_UCP_ATOMIC_POST_OP_AND
@@ -320,10 +328,6 @@
    0 if you don't. */
 #undef HAVE_DECL_UCP_ATOMIC_POST_OP_XOR
 
-/* Define to 1 if you have the declaration of `UCP_ATTR_FIELD_MEMORY_TYPES',
-   and to 0 if you don't. */
-#undef HAVE_DECL_UCP_ATTR_FIELD_MEMORY_TYPES
-
 /* Define to 1 if you have the declaration of `ucp_ep_flush_nb', and to 0 if
    you don't. */
 #undef HAVE_DECL_UCP_EP_FLUSH_NB
@@ -332,6 +336,10 @@
    don't. */
 #undef HAVE_DECL_UCP_GET_NB
 
+/* Define to 1 if you have the declaration of `ucp_get_nbx', and to 0 if you
+   don't. */
+#undef HAVE_DECL_UCP_GET_NBX
+
 /* Define to 1 if you have the declaration of
    `UCP_PARAM_FIELD_ESTIMATED_NUM_PPN', and to 0 if you don't. */
 #undef HAVE_DECL_UCP_PARAM_FIELD_ESTIMATED_NUM_PPN
@@ -339,6 +347,10 @@
 /* Define to 1 if you have the declaration of `ucp_put_nb', and to 0 if you
    don't. */
 #undef HAVE_DECL_UCP_PUT_NB
+
+/* Define to 1 if you have the declaration of `ucp_put_nbx', and to 0 if you
+   don't. */
+#undef HAVE_DECL_UCP_PUT_NBX
 
 /* Define to 1 if you have the declaration of `ucp_request_check_status', and
    to 0 if you don't. */
@@ -415,6 +427,10 @@
 /* Define to 1 if you have the declaration of `__func__', and to 0 if you
    don't. */
 #undef HAVE_DECL___FUNC__
+
+/* Define to 1 if you have the declaration of `__mmap', and to 0 if you don't.
+   */
+#undef HAVE_DECL___MMAP
 
 /* Define to 1 if you have the declaration of `__syscall', and to 0 if you
    don't. */
@@ -495,6 +511,9 @@
 /* Define to 1 if you have the `GNI_GetJobResInfo' function. */
 #undef HAVE_GNI_GETJOBRESINFO
 
+/* Define to 1 if you have the <gpfs.h> header file. */
+#undef HAVE_GPFS_H
+
 /* Define to 1 if the system has the type `GROUP_AFFINITY'. */
 #undef HAVE_GROUP_AFFINITY
 
@@ -542,6 +561,9 @@
 
 /* Define to 1 if you have the <ifaddrs.h> header file. */
 #undef HAVE_IFADDRS_H
+
+/* Define to 1 if you have the <ime_native.h> header file. */
+#undef HAVE_IME_NATIVE_H
 
 /* Define to 1 if you have the <infiniband/driver.h> header file. */
 #undef HAVE_INFINIBAND_DRIVER_H
@@ -1105,9 +1127,6 @@
 /* Define to 1 if you have the <ucp/api/ucp.h> header file. */
 #undef HAVE_UCP_API_UCP_H
 
-/* have memory types attribute */
-#undef HAVE_UCP_ATTR_MEMORY_TYPES
-
 /* Define to 1 if the system has the type `ucp_request_param_t'. */
 #undef HAVE_UCP_REQUEST_PARAM_T
 
@@ -1210,6 +1229,9 @@
 
 /* Define to 1 if you have the `__malloc_initialize_hook' function. */
 #undef HAVE___MALLOC_INITIALIZE_HOOK
+
+/* Define to 1 if you have the `__mmap' function. */
+#undef HAVE___MMAP
 
 /* Define to 1 if you have the `__munmap' function. */
 #undef HAVE___MUNMAP
@@ -1929,6 +1951,21 @@
 /* Major release number of Open MPI */
 #undef OMPI_MAJOR_VERSION
 
+/* AVX supported in the current build */
+#undef OMPI_MCA_OP_HAVE_AVX
+
+/* AVX2 supported in the current build */
+#undef OMPI_MCA_OP_HAVE_AVX2
+
+/* AVX512 supported in the current build */
+#undef OMPI_MCA_OP_HAVE_AVX512
+
+/* SSE3 supported in the current build */
+#undef OMPI_MCA_OP_HAVE_SSE3
+
+/* SSE4.1 supported in the current build */
+#undef OMPI_MCA_OP_HAVE_SSE41
+
 /* Minor release number of Open MPI */
 #undef OMPI_MINOR_VERSION
 
@@ -2608,6 +2645,9 @@
 
 /* Minor release number of Open Portable Access Layer */
 #undef OPAL_MINOR_VERSION
+
+/* check if pci data is available in ofi */
+#undef OPAL_OFI_PCI_DATA_AVAILABLE
 
 /* Add padding bytes to the openib BTL control header */
 #undef OPAL_OPENIB_PAD_HDR

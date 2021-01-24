@@ -4,10 +4,11 @@
 #ifndef PMIX_FRAMEWORKS_H
 #define PMIX_FRAMEWORKS_H
 
-#include <src/mca/base/pmix_mca_base_framework.h>
+#include "src/mca/base/pmix_mca_base_framework.h"
 
 extern pmix_mca_base_framework_t pmix_bfrops_base_framework;
 extern pmix_mca_base_framework_t pmix_gds_base_framework;
+extern pmix_mca_base_framework_t pmix_pcompress_base_framework;
 extern pmix_mca_base_framework_t pmix_pdl_base_framework;
 extern pmix_mca_base_framework_t pmix_pif_base_framework;
 extern pmix_mca_base_framework_t pmix_pinstalldirs_base_framework;
@@ -17,11 +18,13 @@ extern pmix_mca_base_framework_t pmix_preg_base_framework;
 extern pmix_mca_base_framework_t pmix_psec_base_framework;
 extern pmix_mca_base_framework_t pmix_psensor_base_framework;
 extern pmix_mca_base_framework_t pmix_pshmem_base_framework;
+extern pmix_mca_base_framework_t pmix_psquash_base_framework;
 extern pmix_mca_base_framework_t pmix_ptl_base_framework;
 
 static pmix_mca_base_framework_t *pmix_frameworks[] = {
     &pmix_bfrops_base_framework,
     &pmix_gds_base_framework,
+    &pmix_pcompress_base_framework,
     &pmix_pdl_base_framework,
     &pmix_pif_base_framework,
     &pmix_pinstalldirs_base_framework,
@@ -31,6 +34,7 @@ static pmix_mca_base_framework_t *pmix_frameworks[] = {
     &pmix_psec_base_framework,
     &pmix_psensor_base_framework,
     &pmix_pshmem_base_framework,
+    &pmix_psquash_base_framework,
     &pmix_ptl_base_framework,
     NULL
 };

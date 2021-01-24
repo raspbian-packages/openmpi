@@ -16,6 +16,7 @@
  *                         reserved.
  * Copyright (c) 2015-2018 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2019      Mellanox Technologies. All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -63,6 +64,12 @@ int   ompi_coll_tuned_alltoall_intermediate_msg = 3000;
 int   ompi_coll_tuned_alltoall_large_msg = 3000;
 int   ompi_coll_tuned_alltoall_min_procs = 0; /* disable by default */
 int   ompi_coll_tuned_alltoall_max_requests  = 0; /* no limit for alltoall by default */
+
+/* Disable by default */
+int   ompi_coll_tuned_scatter_intermediate_msg = 0;
+int   ompi_coll_tuned_scatter_large_msg = 0;
+int   ompi_coll_tuned_scatter_min_procs = 0;
+int   ompi_coll_tuned_scatter_blocking_send_ratio = 0;
 
 /* forced alogrithm variables */
 /* indices for the MCA parameters */
@@ -208,17 +215,8 @@ static int tuned_open(void)
     int rc;
 
 #if OPAL_ENABLE_DEBUG
-    {
-        int param;
-
-        param = mca_base_var_find("ompi", "coll", "base", "verbose");
-        if (param >= 0) {
-            const int *verbose = NULL;
-            mca_base_var_get_value(param, &verbose, NULL, NULL);
-            if (verbose && verbose[0] > 0) {
-                ompi_coll_tuned_stream = opal_output_open(NULL);
-            }
-        }
+    if (ompi_coll_base_framework.framework_verbose) {
+        ompi_coll_tuned_stream = opal_output_open(NULL);
     }
 #endif  /* OPAL_ENABLE_DEBUG */
 

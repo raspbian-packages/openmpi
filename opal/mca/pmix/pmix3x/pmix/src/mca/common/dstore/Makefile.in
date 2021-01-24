@@ -121,7 +121,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/pmix_check_lock.m4 \
 	$(top_srcdir)/config/pmix_check_os_flavors.m4 \
 	$(top_srcdir)/config/pmix_check_package.m4 \
-	$(top_srcdir)/config/pmix_check_psm2.m4 \
 	$(top_srcdir)/config/pmix_check_pthread_pids.m4 \
 	$(top_srcdir)/config/pmix_check_vendor.m4 \
 	$(top_srcdir)/config/pmix_check_visibility.m4 \
@@ -151,6 +150,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/src/mca/common/dstore/configure.m4 \
 	$(top_srcdir)/src/mca/gds/ds12/configure.m4 \
 	$(top_srcdir)/src/mca/gds/ds21/configure.m4 \
+	$(top_srcdir)/src/mca/pcompress/zlib/configure.m4 \
 	$(top_srcdir)/src/mca/pdl/pdlopen/configure.m4 \
 	$(top_srcdir)/src/mca/pdl/plibltdl/configure.m4 \
 	$(top_srcdir)/src/mca/pif/bsdx_ipv4/configure.m4 \
@@ -161,7 +161,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/src/mca/pinstalldirs/config/configure.m4 \
 	$(top_srcdir)/src/mca/pinstalldirs/env/configure.m4 \
 	$(top_srcdir)/src/mca/plog/syslog/configure.m4 \
-	$(top_srcdir)/src/mca/pnet/opa/configure.m4 \
 	$(top_srcdir)/src/mca/psec/munge/configure.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -370,6 +369,13 @@ MCA_pmix_gds_DSO_SUBDIRS = @MCA_pmix_gds_DSO_SUBDIRS@
 MCA_pmix_gds_STATIC_COMPONENTS = @MCA_pmix_gds_STATIC_COMPONENTS@
 MCA_pmix_gds_STATIC_LTLIBS = @MCA_pmix_gds_STATIC_LTLIBS@
 MCA_pmix_gds_STATIC_SUBDIRS = @MCA_pmix_gds_STATIC_SUBDIRS@
+MCA_pmix_pcompress_ALL_COMPONENTS = @MCA_pmix_pcompress_ALL_COMPONENTS@
+MCA_pmix_pcompress_ALL_SUBDIRS = @MCA_pmix_pcompress_ALL_SUBDIRS@
+MCA_pmix_pcompress_DSO_COMPONENTS = @MCA_pmix_pcompress_DSO_COMPONENTS@
+MCA_pmix_pcompress_DSO_SUBDIRS = @MCA_pmix_pcompress_DSO_SUBDIRS@
+MCA_pmix_pcompress_STATIC_COMPONENTS = @MCA_pmix_pcompress_STATIC_COMPONENTS@
+MCA_pmix_pcompress_STATIC_LTLIBS = @MCA_pmix_pcompress_STATIC_LTLIBS@
+MCA_pmix_pcompress_STATIC_SUBDIRS = @MCA_pmix_pcompress_STATIC_SUBDIRS@
 MCA_pmix_pdl_ALL_COMPONENTS = @MCA_pmix_pdl_ALL_COMPONENTS@
 MCA_pmix_pdl_ALL_SUBDIRS = @MCA_pmix_pdl_ALL_SUBDIRS@
 MCA_pmix_pdl_DSO_COMPONENTS = @MCA_pmix_pdl_DSO_COMPONENTS@
@@ -433,6 +439,13 @@ MCA_pmix_pshmem_DSO_SUBDIRS = @MCA_pmix_pshmem_DSO_SUBDIRS@
 MCA_pmix_pshmem_STATIC_COMPONENTS = @MCA_pmix_pshmem_STATIC_COMPONENTS@
 MCA_pmix_pshmem_STATIC_LTLIBS = @MCA_pmix_pshmem_STATIC_LTLIBS@
 MCA_pmix_pshmem_STATIC_SUBDIRS = @MCA_pmix_pshmem_STATIC_SUBDIRS@
+MCA_pmix_psquash_ALL_COMPONENTS = @MCA_pmix_psquash_ALL_COMPONENTS@
+MCA_pmix_psquash_ALL_SUBDIRS = @MCA_pmix_psquash_ALL_SUBDIRS@
+MCA_pmix_psquash_DSO_COMPONENTS = @MCA_pmix_psquash_DSO_COMPONENTS@
+MCA_pmix_psquash_DSO_SUBDIRS = @MCA_pmix_psquash_DSO_SUBDIRS@
+MCA_pmix_psquash_STATIC_COMPONENTS = @MCA_pmix_psquash_STATIC_COMPONENTS@
+MCA_pmix_psquash_STATIC_LTLIBS = @MCA_pmix_psquash_STATIC_LTLIBS@
+MCA_pmix_psquash_STATIC_SUBDIRS = @MCA_pmix_psquash_STATIC_SUBDIRS@
 MCA_pmix_ptl_ALL_COMPONENTS = @MCA_pmix_ptl_ALL_COMPONENTS@
 MCA_pmix_ptl_ALL_SUBDIRS = @MCA_pmix_ptl_ALL_SUBDIRS@
 MCA_pmix_ptl_DSO_COMPONENTS = @MCA_pmix_ptl_DSO_COMPONENTS@
@@ -455,6 +468,8 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PC_PRIVATE_LIBS = @PC_PRIVATE_LIBS@
+PC_REQUIRES = @PC_REQUIRES@
 PERL = @PERL@
 PMIX_ASM_GSYM = @PMIX_ASM_GSYM@
 PMIX_ASM_LSYM = @PMIX_ASM_LSYM@
@@ -473,6 +488,7 @@ PMIX_CONFIGURE_CLI = @PMIX_CONFIGURE_CLI@
 PMIX_CONFIGURE_DATE = @PMIX_CONFIGURE_DATE@
 PMIX_CONFIGURE_HOST = @PMIX_CONFIGURE_HOST@
 PMIX_CONFIGURE_USER = @PMIX_CONFIGURE_USER@
+PMIX_DEFAULT_MCA_PARAM_CONF = @PMIX_DEFAULT_MCA_PARAM_CONF@
 PMIX_EMBEDDED_CPPFLAGS = @PMIX_EMBEDDED_CPPFLAGS@
 PMIX_EMBEDDED_LDFLAGS = @PMIX_EMBEDDED_LDFLAGS@
 PMIX_EMBEDDED_LIBS = @PMIX_EMBEDDED_LIBS@
@@ -481,9 +497,9 @@ PMIX_EXTRA_LTLIB = @PMIX_EXTRA_LTLIB@
 PMIX_GREEK_VERSION = @PMIX_GREEK_VERSION@
 PMIX_MAJOR_VERSION = @PMIX_MAJOR_VERSION@
 PMIX_MINOR_VERSION = @PMIX_MINOR_VERSION@
+PMIX_PARAM_FROM_PLATFORM = @PMIX_PARAM_FROM_PLATFORM@
 PMIX_RELEASE_DATE = @PMIX_RELEASE_DATE@
 PMIX_RELEASE_VERSION = @PMIX_RELEASE_VERSION@
-PMIX_RENAME = @PMIX_RENAME@
 PMIX_REPO_REV = @PMIX_REPO_REV@
 PMIX_TOP_BUILDDIR = @PMIX_TOP_BUILDDIR@
 PMIX_TOP_SRCDIR = @PMIX_TOP_SRCDIR@
@@ -497,6 +513,7 @@ SHELL = @SHELL@
 SOURCE_DATE_EPOCH = @SOURCE_DATE_EPOCH@
 STRIP = @STRIP@
 VERSION = @VERSION@
+WRAPPER_CC = @WRAPPER_CC@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -542,6 +559,10 @@ localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pcompress_zlib_CFLAGS = @pcompress_zlib_CFLAGS@
+pcompress_zlib_CPPFLAGS = @pcompress_zlib_CPPFLAGS@
+pcompress_zlib_LDFLAGS = @pcompress_zlib_LDFLAGS@
+pcompress_zlib_LIBS = @pcompress_zlib_LIBS@
 pdfdir = @pdfdir@
 pmix_pdl_pdlopen_LIBS = @pmix_pdl_pdlopen_LIBS@
 pmix_pdl_plibltdl_CPPFLAGS = @pmix_pdl_plibltdl_CPPFLAGS@
@@ -554,10 +575,6 @@ pmixmajor = @pmixmajor@
 pmixminor = @pmixminor@
 pmixnumeric = @pmixnumeric@
 pmixrelease = @pmixrelease@
-pnet_opa_CFLAGS = @pnet_opa_CFLAGS@
-pnet_opa_CPPFLAGS = @pnet_opa_CPPFLAGS@
-pnet_opa_LDFLAGS = @pnet_opa_LDFLAGS@
-pnet_opa_LIBS = @pnet_opa_LIBS@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@

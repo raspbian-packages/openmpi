@@ -21,6 +21,7 @@ Copyright (c) 2017-2018 Los Alamos National Security, LLC.  All rights
                         reserved.
 Copyright (c) 2017      Research Organization for Information Science
                         and Technology (RIST). All rights reserved.
+Copyright (c) 2020      Google, LLC. All rights reserved.
 Copyright (c) 2019-2020 Triad National Security, LLC. All rights
                         reserved.
 
@@ -66,10 +67,19 @@ Much, much more information is also available in the Open MPI FAQ:
 ===========================================================================
 
 The following abbreviated list of release notes applies to this code
-base as of this writing (May 2020):
+base as of this writing (December 2020):
 
 General notes
 -------------
+
+- Prior to Open MPI v4.1.0, the OMPIO IO component was used for MPI-IO
+  support on all filesystems except Lustre.  Instead, when using
+  Lustre filesystems, the ROMIO IO component was used for MPI-IO
+  support.  Starting with Open MPI v4.1.0, OMPIO is now used by
+  default for MPI-IO support on all filesystems (including Lustre).
+  As with any Open MPI MCA component, the selection of which component
+  is used can be set at run time by setting the "io" MCA param to
+  either "ompio" or "romio".  For example: "mpirun --mca io ompio ..."
 
 - Open MPI v4.0.4 fixed an issue with the memory patcher's ability to
   intercept shmat and shmdt that could cause wrong answers.  This was
@@ -166,6 +176,19 @@ General notes
   - Problems have been reported when building Open MPI on FreeBSD 11.1
     using the clang-4.0 system compiler. A workaround is to build
     Open MPI using the GNU compiler.
+
+- Open MPI has taken some steps towards Reproducible Builds
+  (https://reproducible-builds.org/).  Specifically, Open MPI's
+  "configure" and "make" process, by default, records the build date
+  and some system-specific information such as the hostname where Open
+  MPI was built and the username who built it.  If you desire a
+  Reproducible Build, set the $SOURCE_DATE_EPOCH, $USER and $HOSTNAME
+  environment variables before invoking "configure" and "make", and
+  Open MPI will use those values instead of invoking "whoami" and/or
+  "hostname", respectively.  See
+  https://reproducible-builds.org/docs/source-date-epoch/ for
+  information on the expected format and content of the
+  $SOURCE_DATE_EPOCH variable.
 
 Platform Notes
 --------------
@@ -696,7 +719,7 @@ Network Support
   - "cm" supports a smaller number of networks (and they cannot be
     used together), but may provide better overall MPI performance:
 
-    - Intel Omni-Path PSM2
+    - Intel Omni-Path PSM2 (version 11.2.173 or later)
     - Intel True Scale PSM (QLogic InfiniPath)
     - OpenFabrics Interfaces ("libfabric" tag matching)
     - Portals 4
@@ -758,8 +781,7 @@ Network Support
   There is a known issue when using UCX with very old Mellanox Infiniband
   HCAs, in particular HCAs preceding the introduction of the ConnectX
   product line, which can result in Open MPI crashing in MPI_Finalize.
-  This issue will be address by UCX release 1.10 and newer.
-
+  This issue will be addressed by UCX release 1.9.0 and newer.
 
 - The main OpenSHMEM network model is "ucx"; it interfaces directly
   with UCX.

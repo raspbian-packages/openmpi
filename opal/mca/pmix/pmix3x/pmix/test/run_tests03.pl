@@ -43,7 +43,7 @@ my $timeout_cmd = "";
 # components.
 my @myfullpaths;
 my $mybuilddir = "/home/ec2-user/workspace/open-mpi.dist.create-tarball/ompi/opal/mca/pmix/pmix3x/pmix";
-my $mypathstr = "src/mca/bfrops/v12:src/mca/bfrops/v20:src/mca/bfrops/v21:src/mca/bfrops/v3:src/mca/common/dstore:src/mca/gds/ds12:src/mca/gds/ds21:src/mca/gds/hash:src/mca/pdl/pdlopen:src/mca/pdl/plibltdl:src/mca/pif/bsdx_ipv4:src/mca/pif/bsdx_ipv6:src/mca/pif/linux_ipv6:src/mca/pif/posix_ipv4:src/mca/pif/solaris_ipv6:src/mca/pinstalldirs/config:src/mca/pinstalldirs/env:src/mca/plog/default:src/mca/plog/stdfd:src/mca/plog/syslog:src/mca/pnet/opa:src/mca/pnet/tcp:src/mca/pnet/test:src/mca/preg/native:src/mca/psec/dummy_handshake:src/mca/psec/munge:src/mca/psec/native:src/mca/psec/none:src/mca/psensor/file:src/mca/psensor/heartbeat:src/mca/pshmem/mmap:src/mca/ptl/tcp:src/mca/ptl/usock";
+my $mypathstr = "src/mca/bfrops/v12:src/mca/bfrops/v20:src/mca/bfrops/v21:src/mca/bfrops/v3:src/mca/common/dstore:src/mca/gds/ds12:src/mca/gds/ds21:src/mca/gds/hash:src/mca/pcompress/zlib:src/mca/pdl/pdlopen:src/mca/pdl/plibltdl:src/mca/pif/bsdx_ipv4:src/mca/pif/bsdx_ipv6:src/mca/pif/linux_ipv6:src/mca/pif/posix_ipv4:src/mca/pif/solaris_ipv6:src/mca/pinstalldirs/config:src/mca/pinstalldirs/env:src/mca/plog/default:src/mca/plog/stdfd:src/mca/plog/syslog:src/mca/preg/compress:src/mca/preg/native:src/mca/psec/dummy_handshake:src/mca/psec/munge:src/mca/psec/native:src/mca/psec/none:src/mca/psensor/file:src/mca/psensor/heartbeat:src/mca/pshmem/mmap:src/mca/psquash/flex128:src/mca/psquash/native:src/mca/ptl/tcp:src/mca/ptl/usock";
 my @splitstr = split(':', $mypathstr);
 foreach my $path (@splitstr) {
     # Note that the component is actually built in the ".libs"
@@ -70,12 +70,12 @@ my @paths = split(/:/, $ENV{PATH});
 foreach my $p (@paths) {
     my $fullpath = $p . "/" . "gtimeout";
     if ((-e $fullpath) && (-f $fullpath)) {
-        $timeout_cmd = $fullpath . " --preserve-status -k 35 30 ";
+        $timeout_cmd = $fullpath . " --preserve-status -k 500 450 ";
         last;
     } else {
         my $fullpath = $p . "/" . "timeout";
         if ((-e $fullpath) && (-f $fullpath)) {
-            $timeout_cmd = $fullpath . " --preserve-status -k 35 30 ";
+            $timeout_cmd = $fullpath . " --preserve-status -k 500 450 ";
             last;
         }
     }

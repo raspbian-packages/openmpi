@@ -25,7 +25,7 @@
 #ifndef PMIX_CONFIG_H
 #define PMIX_CONFIG_H
 
-#include <src/include/pmix_config_top.h>
+#include "src/include/pmix_config_top.h"
 
 
 
@@ -70,8 +70,14 @@
 /* Define to 1 if you have the <event.h> header file. */
 #undef HAVE_EVENT_H
 
+/* Define to 1 if you have the `execve' function. */
+#undef HAVE_EXECVE
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
+
+/* Define to 1 if you have the `fork' function. */
+#undef HAVE_FORK
 
 /* Define to 1 if you have the `getpeereid' function. */
 #undef HAVE_GETPEEREID
@@ -79,8 +85,8 @@
 /* Define to 1 if you have the `getpeerucred' function. */
 #undef HAVE_GETPEERUCRED
 
-/* Define to 1 if you have the <glob.h> header file. */
-#undef HAVE_GLOB_H
+/* Define to 1 if you have the <grp.h> header file. */
+#undef HAVE_GRP_H
 
 /* Define to 1 if you have the <hostLib.h> header file. */
 #undef HAVE_HOSTLIB_H
@@ -112,14 +118,17 @@
 /* Define to 1 if you have the <ioLib.h> header file. */
 #undef HAVE_IOLIB_H
 
-/* Define to 1 if you have the `event' library (-levent). */
-#undef HAVE_LIBEVENT
+/* Define to 1 if you have the `event_core' library (-levent_core). */
+#undef HAVE_LIBEVENT_CORE
 
 /* Define to 1 if you have the `event_pthreads' library (-levent_pthreads). */
 #undef HAVE_LIBEVENT_PTHREADS
 
 /* Define to 1 if you have the <libgen.h> header file. */
 #undef HAVE_LIBGEN_H
+
+/* Define to 1 if you have the <libutil.h> header file. */
+#undef HAVE_LIBUTIL_H
 
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
@@ -151,23 +160,20 @@
 /* Define to 1 if you have the <net/uio.h> header file. */
 #undef HAVE_NET_UIO_H
 
-/* Define to 1 if you have the <opamgt.h> header file. */
-#undef HAVE_OPAMGT_H
-
 /* Define to 1 if you have the `openpty' function. */
 #undef HAVE_OPENPTY
 
 /* Define to 1 if you have the `posix_fallocate' function. */
 #undef HAVE_POSIX_FALLOCATE
 
-/* Define to 1 if you have the <psm2.h> header file. */
-#undef HAVE_PSM2_H
-
 /* Define to 1 if the system has the type `ptrdiff_t'. */
 #undef HAVE_PTRDIFF_T
 
 /* Define to 1 if you have the `ptsname' function. */
 #undef HAVE_PTSNAME
+
+/* Define to 1 if you have the <pty.h> header file. */
+#undef HAVE_PTY_H
 
 /* Define to 1 if you have the `setenv' function. */
 #undef HAVE_SETENV
@@ -229,6 +235,9 @@
 /* Define to 1 if you have the `strnlen' function. */
 #undef HAVE_STRNLEN
 
+/* Define to 1 if you have the <stropts.h> header file. */
+#undef HAVE_STROPTS_H
+
 /* Define to 1 if you have the `strsignal' function. */
 #undef HAVE_STRSIGNAL
 
@@ -283,6 +292,12 @@
 /* Define to 1 if you have the <sys/auxv.h> header file. */
 #undef HAVE_SYS_AUXV_H
 
+/* Define to 1 if you have the <sys/cdefs.h> header file. */
+#undef HAVE_SYS_CDEFS_H
+
+/* Define to 1 if you have the <sys/fcntl.h> header file. */
+#undef HAVE_SYS_FCNTL_H
+
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
 
@@ -325,11 +340,20 @@
 /* Define to 1 if you have the <sys/un.h> header file. */
 #undef HAVE_SYS_UN_H
 
+/* Define to 1 if you have the <sys/utsname.h> header file. */
+#undef HAVE_SYS_UTSNAME_H
+
 /* Define to 1 if you have the <sys/wait.h> header file. */
 #undef HAVE_SYS_WAIT_H
 
 /* Define to 1 if you have the `tcgetpgrp' function. */
 #undef HAVE_TCGETPGRP
+
+/* Define to 1 if you have the <termios.h> header file. */
+#undef HAVE_TERMIOS_H
+
+/* Define to 1 if you have the <termio.h> header file. */
+#undef HAVE_TERMIO_H
 
 /* Define to 1 if you have the <time.h> header file. */
 #undef HAVE_TIME_H
@@ -365,11 +389,20 @@
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
 
+/* Define to 1 if you have the <util.h> header file. */
+#undef HAVE_UTIL_H
+
+/* Define to 1 if you have the <utmp.h> header file. */
+#undef HAVE_UTMP_H
+
 /* Define to 1 if you have the `vasprintf' function. */
 #undef HAVE_VASPRINTF
 
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
+
+/* Define to 1 if you have the `waitpid' function. */
+#undef HAVE_WAITPID
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
@@ -471,9 +504,6 @@
    outside of the assembly header files */
 #undef PMIX_ASM_SUPPORT_64BIT
 
-/* Whether 64-bit is supported by the __sync builtin atomics */
-#undef PMIX_ASM_SYNC_HAVE_64BIT
-
 /* Assembly directive for setting text section */
 #undef PMIX_ASM_TEXT
 
@@ -557,6 +587,9 @@
 
 /* Whether we should enable thread support within the PMIX code base */
 #undef PMIX_ENABLE_MULTI_THREADS
+
+/* Whether user wants PTY support or not */
+#undef PMIX_ENABLE_PTY_SUPPORT
 
 /* Whether we want developer-level timing support or not */
 #undef PMIX_ENABLE_TIMING
@@ -769,9 +802,6 @@
 /* Default value for mca_base_component_show_load_errors MCA variable */
 #undef PMIX_SHOW_LOAD_ERRORS_DEFAULT
 
-/* The pmix symbol rename include directive */
-#undef PMIX_SYMBOL_RENAME
-
 /* Whether to use <stdbool.h> or not */
 #undef PMIX_USE_STDBOOL_H
 
@@ -780,9 +810,6 @@
 
 /* Enable per-user config files */
 #undef PMIX_WANT_HOME_CONFIG_FILES
-
-/* Whether or not to include OmniPath Fabric Manager support */
-#undef PMIX_WANT_OPAMGT
 
 /* if want pretty-print stack trace feature */
 #undef PMIX_WANT_PRETTY_PRINT_STACKTRACE
@@ -892,6 +919,6 @@
 #endif
 
 
-#include <src/include/pmix_config_bottom.h>
+#include "src/include/pmix_config_bottom.h"
 #endif /* PMIX_CONFIG_H */
 

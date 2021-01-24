@@ -35,9 +35,9 @@ usr/share/man/man1/oshmem_info.1
 usr/share/man/man1/shmemrun.1
 usr/share/man/man1/oshcc.1
 usr/share/man/man1/oshrun.1
-usr/share/man/man1/shmemc++.1
 usr/share/man/man1/oshCC.1
 usr/share/man/man1/oshfort.1
+usr/share/man/man1/shmemc++.1
 ### TODO:
 # Need to handle binary-indep builds with dh_missing
 /usr/bin/*

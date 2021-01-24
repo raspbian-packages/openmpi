@@ -45,11 +45,13 @@ static void mca_coll_hcoll_module_clear(mca_coll_hcoll_module_t *hcoll_module)
     hcoll_module->previous_allgatherv = NULL;
     hcoll_module->previous_gather     = NULL;
     hcoll_module->previous_gatherv    = NULL;
+    hcoll_module->previous_scatterv   = NULL;
     hcoll_module->previous_alltoall   = NULL;
     hcoll_module->previous_alltoallv  = NULL;
     hcoll_module->previous_alltoallw  = NULL;
     hcoll_module->previous_reduce     = NULL;
     hcoll_module->previous_reduce_scatter  = NULL;
+    hcoll_module->previous_reduce_scatter_block  = NULL;
     hcoll_module->previous_ibarrier    = NULL;
     hcoll_module->previous_ibcast      = NULL;
     hcoll_module->previous_iallreduce  = NULL;
@@ -68,6 +70,7 @@ static void mca_coll_hcoll_module_clear(mca_coll_hcoll_module_t *hcoll_module)
     hcoll_module->previous_allgatherv_module = NULL;
     hcoll_module->previous_gather_module     = NULL;
     hcoll_module->previous_gatherv_module    = NULL;
+    hcoll_module->previous_scatterv_module    = NULL;
     hcoll_module->previous_alltoall_module   = NULL;
     hcoll_module->previous_alltoallv_module  = NULL;
     hcoll_module->previous_alltoallw_module  = NULL;
@@ -117,9 +120,12 @@ static void mca_coll_hcoll_module_destruct(mca_coll_hcoll_module_t *hcoll_module
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_barrier_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_bcast_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_allreduce_module);
+        OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_reduce_scatter_block_module);
+        OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_reduce_scatter_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_allgather_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_allgatherv_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_gatherv_module);
+        OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_scatterv_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_alltoall_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_alltoallv_module);
         OBJ_RELEASE_IF_NOT_NULL(hcoll_module->previous_reduce_module);
@@ -170,10 +176,13 @@ static int mca_coll_hcoll_save_coll_handlers(mca_coll_hcoll_module_t *hcoll_modu
     HCOL_SAVE_PREV_COLL_API(barrier);
     HCOL_SAVE_PREV_COLL_API(bcast);
     HCOL_SAVE_PREV_COLL_API(allreduce);
+    HCOL_SAVE_PREV_COLL_API(reduce_scatter_block);
+    HCOL_SAVE_PREV_COLL_API(reduce_scatter);
     HCOL_SAVE_PREV_COLL_API(reduce);
     HCOL_SAVE_PREV_COLL_API(allgather);
     HCOL_SAVE_PREV_COLL_API(allgatherv);
     HCOL_SAVE_PREV_COLL_API(gatherv);
+    HCOL_SAVE_PREV_COLL_API(scatterv);
     HCOL_SAVE_PREV_COLL_API(alltoall);
     HCOL_SAVE_PREV_COLL_API(alltoallv);
 
@@ -392,6 +401,7 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
     hcoll_module->super.coll_alltoall = hcoll_collectives.coll_alltoall ? mca_coll_hcoll_alltoall : NULL;
     hcoll_module->super.coll_alltoallv = hcoll_collectives.coll_alltoallv ? mca_coll_hcoll_alltoallv : NULL;
     hcoll_module->super.coll_gatherv = hcoll_collectives.coll_gatherv ? mca_coll_hcoll_gatherv : NULL;
+    hcoll_module->super.coll_scatterv = hcoll_collectives.coll_scatterv ? mca_coll_hcoll_scatterv : NULL;
     hcoll_module->super.coll_reduce = hcoll_collectives.coll_reduce ? mca_coll_hcoll_reduce : NULL;
     hcoll_module->super.coll_ibarrier = hcoll_collectives.coll_ibarrier ? mca_coll_hcoll_ibarrier : NULL;
     hcoll_module->super.coll_ibcast = hcoll_collectives.coll_ibcast ? mca_coll_hcoll_ibcast : NULL;
@@ -414,6 +424,12 @@ mca_coll_hcoll_comm_query(struct ompi_communicator_t *comm, int *priority)
     hcoll_module->super.coll_ialltoallv = hcoll_collectives.coll_ialltoallv ? mca_coll_hcoll_ialltoallv : NULL;
 #else
     hcoll_module->super.coll_ialltoallv = NULL;
+#endif
+#if HCOLL_API > HCOLL_VERSION(4,5)
+    hcoll_module->super.coll_reduce_scatter_block = hcoll_collectives.coll_reduce_scatter_block ?
+        mca_coll_hcoll_reduce_scatter_block : NULL;
+    hcoll_module->super.coll_reduce_scatter = hcoll_collectives.coll_reduce_scatter ?
+        mca_coll_hcoll_reduce_scatter : NULL;
 #endif
     *priority = cm->hcoll_priority;
     module = &hcoll_module->super;

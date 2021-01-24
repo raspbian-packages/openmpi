@@ -31,8 +31,8 @@
 #                         All rights reserved.
 # Copyright (c) 2014      Artem Polyakov <artpol84@gmail.com>
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
-# Copyright (c) 2017      Research Organization for Information Science
-#                         and Technology (RIST). All rights reserved.
+# Copyright (c) 2017-2020 Research Organization for Information Science
+#                         and Technology (RIST).  All rights reserved.
 #
 # $COPYRIGHT$
 #
@@ -141,6 +141,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ltsugar.m4 \
 	$(top_srcdir)/config/ltversion.m4 \
 	$(top_srcdir)/config/lt~obsolete.m4 \
+	$(top_srcdir)/config/ompi_check_gpfs.m4 \
+	$(top_srcdir)/config/ompi_check_ime.m4 \
 	$(top_srcdir)/config/ompi_check_libfca.m4 \
 	$(top_srcdir)/config/ompi_check_libhcoll.m4 \
 	$(top_srcdir)/config/ompi_check_lustre.m4 \
@@ -274,6 +276,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/ucx/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
@@ -281,6 +284,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/backtrace/execinfo/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/none/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/printstack/configure.m4 \
+	$(top_srcdir)/opal/mca/btl/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/openib/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/portals4/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/sm/configure.m4 \
@@ -361,6 +365,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
+	$(top_srcdir)/orte/mca/schizo/jsm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/slurm/configure.m4 \
@@ -384,8 +389,11 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
+	$(top_srcdir)/ompi/mca/fbtl/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/posix/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/pvfs2/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/gpfs/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/lustre/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/pvfs2/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/ufs/configure.m4 \
@@ -395,6 +403,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/op/avx/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
@@ -673,6 +682,9 @@ LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
+MCA_BUILD_OP_AVX2_FLAGS = @MCA_BUILD_OP_AVX2_FLAGS@
+MCA_BUILD_OP_AVX512_FLAGS = @MCA_BUILD_OP_AVX512_FLAGS@
+MCA_BUILD_OP_AVX_FLAGS = @MCA_BUILD_OP_AVX_FLAGS@
 MCA_PROJECT_DIST_SUBDIRS = @MCA_PROJECT_DIST_SUBDIRS@
 MCA_PROJECT_SUBDIRS = @MCA_PROJECT_SUBDIRS@
 MCA_ompi_FRAMEWORKS = @MCA_ompi_FRAMEWORKS@
@@ -1525,9 +1537,18 @@ ess_tm_CPPFLAGS = @ess_tm_CPPFLAGS@
 ess_tm_LDFLAGS = @ess_tm_LDFLAGS@
 ess_tm_LIBS = @ess_tm_LIBS@
 exec_prefix = @exec_prefix@
+fbtl_ime_CPPFLAGS = @fbtl_ime_CPPFLAGS@
+fbtl_ime_LDFLAGS = @fbtl_ime_LDFLAGS@
+fbtl_ime_LIBS = @fbtl_ime_LIBS@
 fbtl_pvfs2_CPPFLAGS = @fbtl_pvfs2_CPPFLAGS@
 fbtl_pvfs2_LDFLAGS = @fbtl_pvfs2_LDFLAGS@
 fbtl_pvfs2_LIBS = @fbtl_pvfs2_LIBS@
+fs_gpfs_CPPFLAGS = @fs_gpfs_CPPFLAGS@
+fs_gpfs_LDFLAGS = @fs_gpfs_LDFLAGS@
+fs_gpfs_LIBS = @fs_gpfs_LIBS@
+fs_ime_CPPFLAGS = @fs_ime_CPPFLAGS@
+fs_ime_LDFLAGS = @fs_ime_LDFLAGS@
+fs_ime_LIBS = @fs_ime_LIBS@
 fs_lustre_CPPFLAGS = @fs_lustre_CPPFLAGS@
 fs_lustre_LDFLAGS = @fs_lustre_LDFLAGS@
 fs_lustre_LIBS = @fs_lustre_LIBS@
@@ -1548,6 +1569,7 @@ libexecdir = @libexecdir@
 libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ucx_so_version = @libmca_opal_common_ucx_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
@@ -1739,8 +1761,8 @@ AM_CFLAGS = \
             -DOPAL_CONFIGURE_HOST="\"@OPAL_CONFIGURE_HOST@\"" \
             -DOPAL_CONFIGURE_DATE="\"@OPAL_CONFIGURE_DATE@\"" \
             -DOMPI_BUILD_USER="\"$$USER\"" \
-            -DOMPI_BUILD_HOST="\"`(hostname || uname -n) | sed 1q`\"" \
-            -DOMPI_BUILD_DATE="\"`date`\"" \
+            -DOMPI_BUILD_HOST="\"$${HOSTNAME:-`(hostname || uname -n) | sed 1q`}\"" \
+            -DOMPI_BUILD_DATE="\"`$(top_srcdir)/config/getdate.sh`\"" \
             -DOMPI_BUILD_CFLAGS="\"@CFLAGS@\"" \
             -DOMPI_BUILD_CPPFLAGS="\"@CPPFLAGS@\"" \
             -DOMPI_BUILD_CXXFLAGS="\"@CXXFLAGS@\"" \

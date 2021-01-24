@@ -116,6 +116,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ltsugar.m4 \
 	$(top_srcdir)/config/ltversion.m4 \
 	$(top_srcdir)/config/lt~obsolete.m4 \
+	$(top_srcdir)/config/ompi_check_gpfs.m4 \
+	$(top_srcdir)/config/ompi_check_ime.m4 \
 	$(top_srcdir)/config/ompi_check_libfca.m4 \
 	$(top_srcdir)/config/ompi_check_libhcoll.m4 \
 	$(top_srcdir)/config/ompi_check_lustre.m4 \
@@ -249,6 +251,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/ucx/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
@@ -256,6 +259,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/backtrace/execinfo/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/none/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/printstack/configure.m4 \
+	$(top_srcdir)/opal/mca/btl/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/openib/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/portals4/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/sm/configure.m4 \
@@ -336,6 +340,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
+	$(top_srcdir)/orte/mca/schizo/jsm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/slurm/configure.m4 \
@@ -359,8 +364,11 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
+	$(top_srcdir)/ompi/mca/fbtl/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/posix/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/pvfs2/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/gpfs/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/lustre/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/pvfs2/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/ufs/configure.m4 \
@@ -370,6 +378,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/op/avx/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
@@ -423,7 +432,8 @@ CONFIG_CLEAN_VPATH_FILES =
 @PROJECT_OMPI_TRUE@	large_data$(EXEEXT)
 am__EXEEXT_2 = opal_datatype_test$(EXEEXT) unpack_hetero$(EXEEXT) \
 	$(am__EXEEXT_1)
-@PROJECT_OMPI_TRUE@am__EXEEXT_3 = to_self$(EXEEXT)
+@PROJECT_OMPI_TRUE@am__EXEEXT_3 = to_self$(EXEEXT) \
+@PROJECT_OMPI_TRUE@	reduce_local$(EXEEXT)
 am_checksum_OBJECTS = checksum.$(OBJEXT)
 checksum_OBJECTS = $(am_checksum_OBJECTS)
 checksum_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
@@ -504,6 +514,14 @@ position_noncontig_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(position_noncontig_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_reduce_local_OBJECTS = reduce_local.$(OBJEXT)
+reduce_local_OBJECTS = $(am_reduce_local_OBJECTS)
+reduce_local_DEPENDENCIES =  \
+	$(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+reduce_local_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(reduce_local_LDFLAGS) $(LDFLAGS) -o $@
 am_to_self_OBJECTS = to_self.$(OBJEXT)
 to_self_OBJECTS = $(am_to_self_OBJECTS)
 to_self_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la
@@ -563,14 +581,15 @@ SOURCES = $(checksum_SOURCES) $(ddt_pack_SOURCES) $(ddt_raw_SOURCES) \
 	$(ddt_raw2_SOURCES) $(ddt_test_SOURCES) $(external32_SOURCES) \
 	$(large_data_SOURCES) $(opal_datatype_test_SOURCES) \
 	$(position_SOURCES) $(position_noncontig_SOURCES) \
-	$(to_self_SOURCES) $(unpack_hetero_SOURCES) \
-	$(unpack_ooo_SOURCES)
+	$(reduce_local_SOURCES) $(to_self_SOURCES) \
+	$(unpack_hetero_SOURCES) $(unpack_ooo_SOURCES)
 DIST_SOURCES = $(checksum_SOURCES) $(ddt_pack_SOURCES) \
 	$(ddt_raw_SOURCES) $(ddt_raw2_SOURCES) $(ddt_test_SOURCES) \
 	$(external32_SOURCES) $(large_data_SOURCES) \
 	$(opal_datatype_test_SOURCES) $(position_SOURCES) \
-	$(position_noncontig_SOURCES) $(to_self_SOURCES) \
-	$(unpack_hetero_SOURCES) $(unpack_ooo_SOURCES)
+	$(position_noncontig_SOURCES) $(reduce_local_SOURCES) \
+	$(to_self_SOURCES) $(unpack_hetero_SOURCES) \
+	$(unpack_ooo_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -928,6 +947,9 @@ LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
+MCA_BUILD_OP_AVX2_FLAGS = @MCA_BUILD_OP_AVX2_FLAGS@
+MCA_BUILD_OP_AVX512_FLAGS = @MCA_BUILD_OP_AVX512_FLAGS@
+MCA_BUILD_OP_AVX_FLAGS = @MCA_BUILD_OP_AVX_FLAGS@
 MCA_PROJECT_DIST_SUBDIRS = @MCA_PROJECT_DIST_SUBDIRS@
 MCA_PROJECT_SUBDIRS = @MCA_PROJECT_SUBDIRS@
 MCA_ompi_FRAMEWORKS = @MCA_ompi_FRAMEWORKS@
@@ -1780,9 +1802,18 @@ ess_tm_CPPFLAGS = @ess_tm_CPPFLAGS@
 ess_tm_LDFLAGS = @ess_tm_LDFLAGS@
 ess_tm_LIBS = @ess_tm_LIBS@
 exec_prefix = @exec_prefix@
+fbtl_ime_CPPFLAGS = @fbtl_ime_CPPFLAGS@
+fbtl_ime_LDFLAGS = @fbtl_ime_LDFLAGS@
+fbtl_ime_LIBS = @fbtl_ime_LIBS@
 fbtl_pvfs2_CPPFLAGS = @fbtl_pvfs2_CPPFLAGS@
 fbtl_pvfs2_LDFLAGS = @fbtl_pvfs2_LDFLAGS@
 fbtl_pvfs2_LIBS = @fbtl_pvfs2_LIBS@
+fs_gpfs_CPPFLAGS = @fs_gpfs_CPPFLAGS@
+fs_gpfs_LDFLAGS = @fs_gpfs_LDFLAGS@
+fs_gpfs_LIBS = @fs_gpfs_LIBS@
+fs_ime_CPPFLAGS = @fs_ime_CPPFLAGS@
+fs_ime_LDFLAGS = @fs_ime_LDFLAGS@
+fs_ime_LIBS = @fs_ime_LIBS@
 fs_lustre_CPPFLAGS = @fs_lustre_CPPFLAGS@
 fs_lustre_LDFLAGS = @fs_lustre_LDFLAGS@
 fs_lustre_LIBS = @fs_lustre_LIBS@
@@ -1803,6 +1834,7 @@ libexecdir = @libexecdir@
 libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ucx_so_version = @libmca_opal_common_ucx_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
@@ -1990,7 +2022,7 @@ ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
 @PROJECT_OMPI_TRUE@MPI_TESTS = checksum position position_noncontig ddt_test ddt_raw ddt_raw2 unpack_ooo ddt_pack external32 large_data
-@PROJECT_OMPI_TRUE@MPI_CHECKS = to_self
+@PROJECT_OMPI_TRUE@MPI_CHECKS = to_self reduce_local
 unpack_ooo_SOURCES = unpack_ooo.c ddt_lib.c ddt_lib.h
 unpack_ooo_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
 unpack_ooo_LDADD = \
@@ -2062,6 +2094,12 @@ external32_LDADD = \
 unpack_hetero_SOURCES = unpack_hetero.c
 unpack_hetero_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
 unpack_hetero_LDADD = \
+        $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
+reduce_local_SOURCES = reduce_local.c
+reduce_local_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+reduce_local_LDADD = \
+        $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
         $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
 
 all: all-am
@@ -2147,6 +2185,10 @@ position_noncontig$(EXEEXT): $(position_noncontig_OBJECTS) $(position_noncontig_
 	@rm -f position_noncontig$(EXEEXT)
 	$(AM_V_CCLD)$(position_noncontig_LINK) $(position_noncontig_OBJECTS) $(position_noncontig_LDADD) $(LIBS)
 
+reduce_local$(EXEEXT): $(reduce_local_OBJECTS) $(reduce_local_DEPENDENCIES) $(EXTRA_reduce_local_DEPENDENCIES) 
+	@rm -f reduce_local$(EXEEXT)
+	$(AM_V_CCLD)$(reduce_local_LINK) $(reduce_local_OBJECTS) $(reduce_local_LDADD) $(LIBS)
+
 to_self$(EXEEXT): $(to_self_OBJECTS) $(to_self_DEPENDENCIES) $(EXTRA_to_self_DEPENDENCIES) 
 	@rm -f to_self$(EXEEXT)
 	$(AM_V_CCLD)$(to_self_LINK) $(to_self_OBJECTS) $(to_self_LDADD) $(LIBS)
@@ -2177,6 +2219,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_ddt_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/position.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/position_noncontig.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce_local.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/to_self.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpack_hetero.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unpack_ooo.Po@am__quote@

@@ -1,7 +1,7 @@
-Index: openmpi-4.0.4/opal/include/opal/sys/timer.h
+Index: openmpi-4.1.0/opal/include/opal/sys/timer.h
 ===================================================================
---- openmpi-4.0.4.orig/opal/include/opal/sys/timer.h
-+++ openmpi-4.0.4/opal/include/opal/sys/timer.h
+--- openmpi-4.1.0.orig/opal/include/opal/sys/timer.h
++++ openmpi-4.1.0/opal/include/opal/sys/timer.h
 @@ -78,8 +78,6 @@ BEGIN_C_DECLS
  #include "opal/sys/arm64/timer.h"
  #elif OPAL_ASSEMBLY_ARCH == OPAL_IA32

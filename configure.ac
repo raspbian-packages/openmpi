@@ -111,6 +111,44 @@ AM_SILENT_RULES([yes])
 # Make configure depend on the VERSION file, since it's used in AC_INIT
 AC_SUBST([CONFIGURE_DEPENDENCIES], ['$(top_srcdir)/VERSION'])
 
+# Sanity checks
+AC_DEFUN([OMPI_CHECK_DIR_FOR_SPACES],[
+    dir="$1"
+    article="$2"
+    label="$3"
+
+    AC_MSG_CHECKING([directory of $label])
+    AC_MSG_RESULT([$dir])
+    AS_IF([test -n "`echo $dir | grep ' '`"],
+          [AC_MSG_WARN([This version of Open MPI does not support $article $label])
+           AC_MSG_WARN([with a path that contains spaces])
+           AC_MSG_ERROR([Cannot continue.])])
+])
+
+AC_DEFUN([OMPI_CANONICALIZE_PATH],[
+    case $host_os in
+    darwin*)
+        # MacOS does not have "readlink -f" or realpath (at least as
+        # of MacOS Cataline / 10.15).  Instead, use Python, because we
+        # know MacOS comes with a /usr/bin/python that has
+        # os.path.realpath.
+        $2=`/usr/bin/python -c 'import os; print os.path.realpath("'$1'")'`
+        ;;
+    *)
+        $2=`readlink -f $1`
+        ;;
+    esac
+])
+
+OMPI_CHECK_DIR_FOR_SPACES([$srcdir], [a], [source tree])
+OMPI_CANONICALIZE_PATH([$srcdir], [ompi_dir])
+OMPI_CHECK_DIR_FOR_SPACES([$ompi_dir], [an], [absolute source tree])
+OMPI_CANONICALIZE_PATH([.], [ompi_dir])
+OMPI_CHECK_DIR_FOR_SPACES([$ompi_dir], [a], [build tree])
+OMPI_CHECK_DIR_FOR_SPACES([$prefix], [a], [prefix])
+OMPI_CANONICALIZE_PATH([$prefix], [ompi_dir])
+OMPI_CHECK_DIR_FOR_SPACES([$ompi_dir], [an], [absolute prefix])
+
 opal_show_subtitle "Checking versions"
 
 # Get the version of OMPI that we are installing
@@ -154,6 +192,7 @@ AC_SUBST(libopen_pal_so_version)
 # transparently by adding some intelligence in autogen.pl
 # and/or opal_mca.m4, but I don't have the cycles to do this
 # right now.
+AC_SUBST(libmca_opal_common_ofi_so_version)
 AC_SUBST(libmca_opal_common_cuda_so_version)
 AC_SUBST(libmca_opal_common_sm_so_version)
 AC_SUBST(libmca_opal_common_ugni_so_version)

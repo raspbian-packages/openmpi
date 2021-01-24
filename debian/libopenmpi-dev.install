@@ -2,6 +2,6 @@
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/*
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/*		/usr/lib/${DEB_HOST_MULTIARCH}/fortran/${env:GFORTRAN_VERSION}/openmpi
 ## .so symlinks
-usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/*.so
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/lib*.so
 ## pkg-config .pc files
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/*.pc

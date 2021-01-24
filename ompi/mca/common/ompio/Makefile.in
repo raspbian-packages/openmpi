@@ -115,8 +115,6 @@ host_triplet = @host@
 target_triplet = @target@
 @MCA_BUILD_ompi_common_ompio_DSO_TRUE@am__append_1 = $(comp_inst)
 @MCA_BUILD_ompi_common_ompio_DSO_FALSE@am__append_2 = $(comp_noinst)
-@OPAL_cuda_support_TRUE@am__append_3 = common_ompio_cuda.h
-@OPAL_cuda_support_TRUE@am__append_4 = common_ompio_cuda.c
 subdir = ompi/mca/common/ompio
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -126,6 +124,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ltsugar.m4 \
 	$(top_srcdir)/config/ltversion.m4 \
 	$(top_srcdir)/config/lt~obsolete.m4 \
+	$(top_srcdir)/config/ompi_check_gpfs.m4 \
+	$(top_srcdir)/config/ompi_check_ime.m4 \
 	$(top_srcdir)/config/ompi_check_libfca.m4 \
 	$(top_srcdir)/config/ompi_check_libhcoll.m4 \
 	$(top_srcdir)/config/ompi_check_lustre.m4 \
@@ -259,6 +259,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/ucx/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
@@ -266,6 +267,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/backtrace/execinfo/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/none/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/printstack/configure.m4 \
+	$(top_srcdir)/opal/mca/btl/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/openib/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/portals4/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/sm/configure.m4 \
@@ -346,6 +348,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
+	$(top_srcdir)/orte/mca/schizo/jsm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/slurm/configure.m4 \
@@ -369,8 +372,11 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
+	$(top_srcdir)/ompi/mca/fbtl/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/posix/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/pvfs2/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/gpfs/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/lustre/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/pvfs2/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/ufs/configure.m4 \
@@ -380,6 +386,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/op/avx/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
@@ -456,25 +463,16 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(ompidir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libmca_common_ompio_la_DEPENDENCIES =
-am__libmca_common_ompio_la_SOURCES_DIST = common_ompio_aggregators.h \
-	common_ompio_print_queue.h common_ompio_request.h \
-	common_ompio.h common_ompio_cuda.h common_ompio_aggregators.c \
-	common_ompio_print_queue.c common_ompio_request.c \
-	common_ompio_file_open.c common_ompio_file_view.c \
-	common_ompio_file_read.c common_ompio_file_write.c \
-	common_ompio_cuda.c
 am__objects_1 =
-am__objects_2 = $(am__objects_1)
-@OPAL_cuda_support_TRUE@am__objects_3 = libmca_common_ompio_la-common_ompio_cuda.lo
-am__objects_4 = libmca_common_ompio_la-common_ompio_aggregators.lo \
+am__objects_2 = libmca_common_ompio_la-common_ompio_aggregators.lo \
 	libmca_common_ompio_la-common_ompio_print_queue.lo \
 	libmca_common_ompio_la-common_ompio_request.lo \
 	libmca_common_ompio_la-common_ompio_file_open.lo \
 	libmca_common_ompio_la-common_ompio_file_view.lo \
 	libmca_common_ompio_la-common_ompio_file_read.lo \
-	libmca_common_ompio_la-common_ompio_file_write.lo \
-	$(am__objects_3)
-am_libmca_common_ompio_la_OBJECTS = $(am__objects_2) $(am__objects_4)
+	libmca_common_ompio_la-common_ompio_buffer.lo \
+	libmca_common_ompio_la-common_ompio_file_write.lo
+am_libmca_common_ompio_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libmca_common_ompio_la_OBJECTS = $(am_libmca_common_ompio_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -487,21 +485,13 @@ libmca_common_ompio_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 @MCA_BUILD_ompi_common_ompio_DSO_TRUE@am_libmca_common_ompio_la_rpath =  \
 @MCA_BUILD_ompi_common_ompio_DSO_TRUE@	-rpath $(libdir)
 libmca_common_ompio_noinst_la_LIBADD =
-am__libmca_common_ompio_noinst_la_SOURCES_DIST =  \
-	common_ompio_aggregators.h common_ompio_print_queue.h \
-	common_ompio_request.h common_ompio.h common_ompio_cuda.h \
-	common_ompio_aggregators.c common_ompio_print_queue.c \
-	common_ompio_request.c common_ompio_file_open.c \
-	common_ompio_file_view.c common_ompio_file_read.c \
-	common_ompio_file_write.c common_ompio_cuda.c
-@OPAL_cuda_support_TRUE@am__objects_5 = common_ompio_cuda.lo
-am__objects_6 = common_ompio_aggregators.lo \
+am__objects_3 = common_ompio_aggregators.lo \
 	common_ompio_print_queue.lo common_ompio_request.lo \
 	common_ompio_file_open.lo common_ompio_file_view.lo \
-	common_ompio_file_read.lo common_ompio_file_write.lo \
-	$(am__objects_5)
-am_libmca_common_ompio_noinst_la_OBJECTS = $(am__objects_2) \
-	$(am__objects_6)
+	common_ompio_file_read.lo common_ompio_buffer.lo \
+	common_ompio_file_write.lo
+am_libmca_common_ompio_noinst_la_OBJECTS = $(am__objects_1) \
+	$(am__objects_3)
 libmca_common_ompio_noinst_la_OBJECTS =  \
 	$(am_libmca_common_ompio_noinst_la_OBJECTS)
 @MCA_BUILD_ompi_common_ompio_DSO_FALSE@am_libmca_common_ompio_noinst_la_rpath =
@@ -541,8 +531,8 @@ am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libmca_common_ompio_la_SOURCES) \
 	$(libmca_common_ompio_noinst_la_SOURCES)
-DIST_SOURCES = $(am__libmca_common_ompio_la_SOURCES_DIST) \
-	$(am__libmca_common_ompio_noinst_la_SOURCES_DIST)
+DIST_SOURCES = $(libmca_common_ompio_la_SOURCES) \
+	$(libmca_common_ompio_noinst_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -550,7 +540,7 @@ am__can_run_installinfo = \
   esac
 am__ompi_HEADERS_DIST = common_ompio_aggregators.h \
 	common_ompio_print_queue.h common_ompio_request.h \
-	common_ompio.h common_ompio_cuda.h
+	common_ompio_buffer.h common_ompio.h
 HEADERS = $(ompi_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -699,6 +689,9 @@ LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
+MCA_BUILD_OP_AVX2_FLAGS = @MCA_BUILD_OP_AVX2_FLAGS@
+MCA_BUILD_OP_AVX512_FLAGS = @MCA_BUILD_OP_AVX512_FLAGS@
+MCA_BUILD_OP_AVX_FLAGS = @MCA_BUILD_OP_AVX_FLAGS@
 MCA_PROJECT_DIST_SUBDIRS = @MCA_PROJECT_DIST_SUBDIRS@
 MCA_PROJECT_SUBDIRS = @MCA_PROJECT_SUBDIRS@
 MCA_ompi_FRAMEWORKS = @MCA_ompi_FRAMEWORKS@
@@ -1551,9 +1544,18 @@ ess_tm_CPPFLAGS = @ess_tm_CPPFLAGS@
 ess_tm_LDFLAGS = @ess_tm_LDFLAGS@
 ess_tm_LIBS = @ess_tm_LIBS@
 exec_prefix = @exec_prefix@
+fbtl_ime_CPPFLAGS = @fbtl_ime_CPPFLAGS@
+fbtl_ime_LDFLAGS = @fbtl_ime_LDFLAGS@
+fbtl_ime_LIBS = @fbtl_ime_LIBS@
 fbtl_pvfs2_CPPFLAGS = @fbtl_pvfs2_CPPFLAGS@
 fbtl_pvfs2_LDFLAGS = @fbtl_pvfs2_LDFLAGS@
 fbtl_pvfs2_LIBS = @fbtl_pvfs2_LIBS@
+fs_gpfs_CPPFLAGS = @fs_gpfs_CPPFLAGS@
+fs_gpfs_LDFLAGS = @fs_gpfs_LDFLAGS@
+fs_gpfs_LIBS = @fs_gpfs_LIBS@
+fs_ime_CPPFLAGS = @fs_ime_CPPFLAGS@
+fs_ime_LDFLAGS = @fs_ime_LDFLAGS@
+fs_ime_LIBS = @fs_ime_LIBS@
 fs_lustre_CPPFLAGS = @fs_lustre_CPPFLAGS@
 fs_lustre_LDFLAGS = @fs_lustre_LDFLAGS@
 fs_lustre_LIBS = @fs_lustre_LIBS@
@@ -1574,6 +1576,7 @@ libexecdir = @libexecdir@
 libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ucx_so_version = @libmca_opal_common_ucx_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
@@ -1760,12 +1763,23 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
-headers = common_ompio_aggregators.h common_ompio_print_queue.h \
-	common_ompio_request.h common_ompio.h $(am__append_3)
-sources = common_ompio_aggregators.c common_ompio_print_queue.c \
-	common_ompio_request.c common_ompio_file_open.c \
-	common_ompio_file_view.c common_ompio_file_read.c \
-	common_ompio_file_write.c $(am__append_4)
+headers = \
+	common_ompio_aggregators.h \
+	common_ompio_print_queue.h \
+	common_ompio_request.h \
+	common_ompio_buffer.h  \
+	common_ompio.h
+
+sources = \
+	common_ompio_aggregators.c \
+	common_ompio_print_queue.c \
+	common_ompio_request.c \
+	common_ompio_file_open.c   \
+	common_ompio_file_view.c   \
+	common_ompio_file_read.c   \
+	common_ompio_buffer.c      \
+	common_ompio_file_write.c
+
 
 # To simplify components that link to this library, we will *always*
 # have an output libtool library named libmca_<type>_<name>.la -- even
@@ -1893,7 +1907,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_aggregators.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_cuda.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_file_open.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_file_read.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_file_view.Plo@am__quote@
@@ -1901,7 +1915,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_print_queue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common_ompio_request.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_ompio_la-common_ompio_aggregators.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_ompio_la-common_ompio_cuda.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_ompio_la-common_ompio_buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_ompio_la-common_ompio_file_open.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_ompio_la-common_ompio_file_read.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_ompio_la-common_ompio_file_view.Plo@am__quote@
@@ -1975,19 +1989,19 @@ libmca_common_ompio_la-common_ompio_file_read.lo: common_ompio_file_read.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmca_common_ompio_la-common_ompio_file_read.lo `test -f 'common_ompio_file_read.c' || echo '$(srcdir)/'`common_ompio_file_read.c
 
+libmca_common_ompio_la-common_ompio_buffer.lo: common_ompio_buffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmca_common_ompio_la-common_ompio_buffer.lo -MD -MP -MF $(DEPDIR)/libmca_common_ompio_la-common_ompio_buffer.Tpo -c -o libmca_common_ompio_la-common_ompio_buffer.lo `test -f 'common_ompio_buffer.c' || echo '$(srcdir)/'`common_ompio_buffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmca_common_ompio_la-common_ompio_buffer.Tpo $(DEPDIR)/libmca_common_ompio_la-common_ompio_buffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='common_ompio_buffer.c' object='libmca_common_ompio_la-common_ompio_buffer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmca_common_ompio_la-common_ompio_buffer.lo `test -f 'common_ompio_buffer.c' || echo '$(srcdir)/'`common_ompio_buffer.c
+
 libmca_common_ompio_la-common_ompio_file_write.lo: common_ompio_file_write.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmca_common_ompio_la-common_ompio_file_write.lo -MD -MP -MF $(DEPDIR)/libmca_common_ompio_la-common_ompio_file_write.Tpo -c -o libmca_common_ompio_la-common_ompio_file_write.lo `test -f 'common_ompio_file_write.c' || echo '$(srcdir)/'`common_ompio_file_write.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmca_common_ompio_la-common_ompio_file_write.Tpo $(DEPDIR)/libmca_common_ompio_la-common_ompio_file_write.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='common_ompio_file_write.c' object='libmca_common_ompio_la-common_ompio_file_write.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmca_common_ompio_la-common_ompio_file_write.lo `test -f 'common_ompio_file_write.c' || echo '$(srcdir)/'`common_ompio_file_write.c
-
-libmca_common_ompio_la-common_ompio_cuda.lo: common_ompio_cuda.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmca_common_ompio_la-common_ompio_cuda.lo -MD -MP -MF $(DEPDIR)/libmca_common_ompio_la-common_ompio_cuda.Tpo -c -o libmca_common_ompio_la-common_ompio_cuda.lo `test -f 'common_ompio_cuda.c' || echo '$(srcdir)/'`common_ompio_cuda.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libmca_common_ompio_la-common_ompio_cuda.Tpo $(DEPDIR)/libmca_common_ompio_la-common_ompio_cuda.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='common_ompio_cuda.c' object='libmca_common_ompio_la-common_ompio_cuda.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libmca_common_ompio_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmca_common_ompio_la-common_ompio_cuda.lo `test -f 'common_ompio_cuda.c' || echo '$(srcdir)/'`common_ompio_cuda.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

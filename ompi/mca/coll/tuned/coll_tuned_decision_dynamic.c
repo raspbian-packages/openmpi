@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2015 The University of Tennessee and The University
+ * Copyright (c) 2004-2020 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -12,6 +12,8 @@
  * Copyright (c) 2008      Sun Microsystems, Inc.  All rights reserved.
  * Copyright (c) 2015-2018 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2020      Amazon.com, Inc. or its affiliates.
+ *                         All Rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -95,7 +97,7 @@ ompi_coll_tuned_allreduce_intra_dec_dynamic (const void *sbuf, void *rbuf, int c
  *
  *    Function:    - seletects alltoall algorithm to use
  *    Accepts:    - same arguments as MPI_Alltoall()
- *    Returns:    - MPI_SUCCESS or error code (passed from the bcast implementation)
+ *    Returns:    - MPI_SUCCESS or error code (passed from the alltoall implementation)
  */
 
 int ompi_coll_tuned_alltoall_intra_dec_dynamic(const void *sbuf, int scount,
@@ -236,7 +238,7 @@ int ompi_coll_tuned_barrier_intra_dec_dynamic(struct ompi_communicator_t *comm,
 /*
  *   bcast_intra_dec
  *
- *   Function:   - seletects broadcast algorithm to use
+ *   Function:   - selects broadcast algorithm to use
  *   Accepts:   - same arguments as MPI_Bcast()
  *   Returns:   - MPI_SUCCESS or error code (passed from the bcast implementation)
  */
@@ -526,15 +528,17 @@ int ompi_coll_tuned_allgatherv_intra_dec_dynamic(const void *sbuf, int scount,
            - calculate message size and other necessary information */
         int comsize, i;
         int alg, faninout, segsize, ignoreme;
-        size_t dsize, total_size;
+        size_t dsize, total_size, per_rank_size;
 
         comsize = ompi_comm_size(comm);
         ompi_datatype_type_size (sdtype, &dsize);
         total_size = 0;
         for (i = 0; i < comsize; i++) { total_size += dsize * rcounts[i]; }
 
+        per_rank_size = total_size / comsize;
+
         alg = ompi_coll_tuned_get_target_method_params (tuned_module->com_rules[ALLGATHERV],
-                                                        total_size, &faninout, &segsize, &ignoreme);
+                                                        per_rank_size, &faninout, &segsize, &ignoreme);
         if (alg) {
             /* we have found a valid choice from the file based rules for
                this message size */
@@ -586,7 +590,7 @@ int ompi_coll_tuned_gather_intra_dec_dynamic(const void *sbuf, int scount,
 
         comsize = ompi_comm_size(comm);
         ompi_datatype_type_size (sdtype, &dsize);
-        dsize *= comsize;
+        dsize *= scount * comsize;
 
         alg = ompi_coll_tuned_get_target_method_params (tuned_module->com_rules[GATHER],
                                                         dsize, &faninout, &segsize, &max_requests);
@@ -635,7 +639,7 @@ int ompi_coll_tuned_scatter_intra_dec_dynamic(const void *sbuf, int scount,
 
         comsize = ompi_comm_size(comm);
         ompi_datatype_type_size (sdtype, &dsize);
-        dsize *= comsize;
+        dsize *= scount * comsize;
 
         alg = ompi_coll_tuned_get_target_method_params (tuned_module->com_rules[SCATTER],
                                                         dsize, &faninout, &segsize, &max_requests);

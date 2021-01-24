@@ -9,6 +9,8 @@ verbose-ompi-rules.patch
 fix-underlinking.patch
 #version-script.patch
 no-warning-unused.patch
-# use-openib.patch
 ia64.patch
+missing-symbol.patch
+external-pmix-fix.patch
+grequest-fix.patch
 raspbian.diff

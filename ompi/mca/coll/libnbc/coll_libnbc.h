@@ -70,6 +70,13 @@ BEGIN_C_DECLS
 #define NBC_NUM_COLL 17
 
 extern bool libnbc_ibcast_skip_dt_decision;
+extern int libnbc_iallgather_algorithm;
+extern int libnbc_iallreduce_algorithm;
+extern int libnbc_ibcast_algorithm;
+extern int libnbc_ibcast_knomial_radix;
+extern int libnbc_iexscan_algorithm;
+extern int libnbc_ireduce_algorithm;
+extern int libnbc_iscan_algorithm;
 
 struct ompi_coll_libnbc_component_t {
     mca_coll_base_component_2_0_0_t super;
@@ -87,7 +94,6 @@ struct ompi_coll_libnbc_module_t {
     mca_coll_base_module_t super;
     opal_mutex_t mutex;
     bool comm_registered;
-    int tag;
 #ifdef NBC_CACHE_SCHEDULE
   void *NBC_Dict[NBC_NUM_COLL]; /* this should point to a struct
                                       hb_tree, but since this is a

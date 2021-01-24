@@ -34,6 +34,7 @@
 #include "opal/mca/pmix/base/base.h"
 #include "pmix_server.h"
 #include "pmix_common.h"
+#include "pmix.h"
 
 BEGIN_C_DECLS
 

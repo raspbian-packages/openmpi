@@ -107,7 +107,8 @@ host_triplet = @host@
 target_triplet = @target@
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@am__append_1 = $(component_install) \
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	ompi_monitoring_prof.la
-@MCA_BUILD_ompi_common_monitoring_DSO_FALSE@am__append_2 = $(component_noinst)
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@@OMPI_BUILD_FORTRAN_MPIFH_BINDINGS_TRUE@am__append_2 = monitoring_prof_f.c
+@MCA_BUILD_ompi_common_monitoring_DSO_FALSE@am__append_3 = $(component_noinst)
 subdir = ompi/mca/common/monitoring
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
@@ -117,6 +118,8 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ltsugar.m4 \
 	$(top_srcdir)/config/ltversion.m4 \
 	$(top_srcdir)/config/lt~obsolete.m4 \
+	$(top_srcdir)/config/ompi_check_gpfs.m4 \
+	$(top_srcdir)/config/ompi_check_ime.m4 \
 	$(top_srcdir)/config/ompi_check_libfca.m4 \
 	$(top_srcdir)/config/ompi_check_libhcoll.m4 \
 	$(top_srcdir)/config/ompi_check_lustre.m4 \
@@ -250,6 +253,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/pstat/configure.m4 \
 	$(top_srcdir)/opal/mca/timer/configure.m4 \
 	$(top_srcdir)/opal/mca/common/cuda/configure.m4 \
+	$(top_srcdir)/opal/mca/common/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/common/sm/configure.m4 \
 	$(top_srcdir)/opal/mca/common/ucx/configure.m4 \
 	$(top_srcdir)/opal/mca/common/verbs/configure.m4 \
@@ -257,6 +261,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/opal/mca/backtrace/execinfo/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/none/configure.m4 \
 	$(top_srcdir)/opal/mca/backtrace/printstack/configure.m4 \
+	$(top_srcdir)/opal/mca/btl/ofi/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/openib/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/portals4/configure.m4 \
 	$(top_srcdir)/opal/mca/btl/sm/configure.m4 \
@@ -337,6 +342,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/orte/mca/ras/slurm/configure.m4 \
 	$(top_srcdir)/orte/mca/ras/tm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/alps/configure.m4 \
+	$(top_srcdir)/orte/mca/schizo/jsm/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/moab/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/singularity/configure.m4 \
 	$(top_srcdir)/orte/mca/schizo/slurm/configure.m4 \
@@ -360,8 +366,11 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
+	$(top_srcdir)/ompi/mca/fbtl/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/posix/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/pvfs2/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/gpfs/configure.m4 \
+	$(top_srcdir)/ompi/mca/fs/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/lustre/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/pvfs2/configure.m4 \
 	$(top_srcdir)/ompi/mca/fs/ufs/configure.m4 \
@@ -371,6 +380,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/mtl/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm/configure.m4 \
 	$(top_srcdir)/ompi/mca/mtl/psm2/configure.m4 \
+	$(top_srcdir)/ompi/mca/op/avx/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/portals4/configure.m4 \
 	$(top_srcdir)/ompi/mca/osc/pt2pt/configure.m4 \
@@ -472,9 +482,12 @@ libmca_common_monitoring_noinst_la_OBJECTS =  \
 @MCA_BUILD_ompi_common_monitoring_DSO_FALSE@am_libmca_common_monitoring_noinst_la_rpath =
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@ompi_monitoring_prof_la_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
-am__ompi_monitoring_prof_la_SOURCES_DIST = monitoring_prof.c
+am__ompi_monitoring_prof_la_SOURCES_DIST = monitoring_prof.c \
+	monitoring_prof_f.c
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@@OMPI_BUILD_FORTRAN_MPIFH_BINDINGS_TRUE@am__objects_4 = monitoring_prof_f.lo
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@am_ompi_monitoring_prof_la_OBJECTS =  \
-@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	monitoring_prof.lo
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	monitoring_prof.lo \
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	$(am__objects_4)
 ompi_monitoring_prof_la_OBJECTS =  \
 	$(am_ompi_monitoring_prof_la_OBJECTS)
 ompi_monitoring_prof_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -677,6 +690,9 @@ LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
+MCA_BUILD_OP_AVX2_FLAGS = @MCA_BUILD_OP_AVX2_FLAGS@
+MCA_BUILD_OP_AVX512_FLAGS = @MCA_BUILD_OP_AVX512_FLAGS@
+MCA_BUILD_OP_AVX_FLAGS = @MCA_BUILD_OP_AVX_FLAGS@
 MCA_PROJECT_DIST_SUBDIRS = @MCA_PROJECT_DIST_SUBDIRS@
 MCA_PROJECT_SUBDIRS = @MCA_PROJECT_SUBDIRS@
 MCA_ompi_FRAMEWORKS = @MCA_ompi_FRAMEWORKS@
@@ -1529,9 +1545,18 @@ ess_tm_CPPFLAGS = @ess_tm_CPPFLAGS@
 ess_tm_LDFLAGS = @ess_tm_LDFLAGS@
 ess_tm_LIBS = @ess_tm_LIBS@
 exec_prefix = @exec_prefix@
+fbtl_ime_CPPFLAGS = @fbtl_ime_CPPFLAGS@
+fbtl_ime_LDFLAGS = @fbtl_ime_LDFLAGS@
+fbtl_ime_LIBS = @fbtl_ime_LIBS@
 fbtl_pvfs2_CPPFLAGS = @fbtl_pvfs2_CPPFLAGS@
 fbtl_pvfs2_LDFLAGS = @fbtl_pvfs2_LDFLAGS@
 fbtl_pvfs2_LIBS = @fbtl_pvfs2_LIBS@
+fs_gpfs_CPPFLAGS = @fs_gpfs_CPPFLAGS@
+fs_gpfs_LDFLAGS = @fs_gpfs_LDFLAGS@
+fs_gpfs_LIBS = @fs_gpfs_LIBS@
+fs_ime_CPPFLAGS = @fs_ime_CPPFLAGS@
+fs_ime_LDFLAGS = @fs_ime_LDFLAGS@
+fs_ime_LIBS = @fs_ime_LIBS@
 fs_lustre_CPPFLAGS = @fs_lustre_CPPFLAGS@
 fs_lustre_LDFLAGS = @fs_lustre_LDFLAGS@
 fs_lustre_LIBS = @fs_lustre_LIBS@
@@ -1552,6 +1577,7 @@ libexecdir = @libexecdir@
 libmca_ompi_common_monitoring_so_version = @libmca_ompi_common_monitoring_so_version@
 libmca_ompi_common_ompio_so_version = @libmca_ompi_common_ompio_so_version@
 libmca_opal_common_cuda_so_version = @libmca_opal_common_cuda_so_version@
+libmca_opal_common_ofi_so_version = @libmca_opal_common_ofi_so_version@
 libmca_opal_common_sm_so_version = @libmca_opal_common_sm_so_version@
 libmca_opal_common_ucx_so_version = @libmca_opal_common_ucx_so_version@
 libmca_opal_common_ugni_so_version = @libmca_opal_common_ugni_so_version@
@@ -1742,10 +1768,12 @@ EXTRA_DIST = profile2mat.pl aggregate_profile.pl
 sources = common_monitoring.c common_monitoring_coll.c
 headers = common_monitoring.h common_monitoring_coll.h
 lib_LTLIBRARIES = $(am__append_1)
-noinst_LTLIBRARIES = $(am__append_2)
+noinst_LTLIBRARIES = $(am__append_3)
 component_install = libmca_common_monitoring.la
 component_noinst = libmca_common_monitoring_noinst.la
-@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@ompi_monitoring_prof_la_SOURCES = monitoring_prof.c
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@ompi_monitoring_prof_la_SOURCES =  \
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	monitoring_prof.c \
+@MCA_BUILD_ompi_common_monitoring_DSO_TRUE@	$(am__append_2)
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@ompi_monitoring_prof_la_LDFLAGS = \
 @MCA_BUILD_ompi_common_monitoring_DSO_TRUE@    -module -avoid-version -shared $(WRAPPER_EXTRA_LDFLAGS)
 
@@ -1905,6 +1933,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_monitoring_la-common_monitoring.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmca_common_monitoring_la-common_monitoring_coll.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monitoring_prof.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monitoring_prof_f.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

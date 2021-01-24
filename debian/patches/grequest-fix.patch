@@ -1,0 +1,19 @@
+Description: Backport of grequest fix
+Author: Alastair McKinstry <mckinstry@debian.org>
+Bug-Origin:  https://github.com/open-mpi/ompi/pull/8347
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=979480
+Forwarded: not-needed
+Last-Updated: 2021-01-20
+
+Index: openmpi-4.1.0/ompi/request/grequest.c
+===================================================================
+--- openmpi-4.1.0.orig/ompi/request/grequest.c
++++ openmpi-4.1.0/ompi/request/grequest.c
+@@ -163,6 +163,7 @@ int ompi_grequest_start(
+     greq->greq_free.c_free = gfree_fn;
+     greq->greq_cancel.c_cancel = gcancel_fn;
+     greq->greq_base.req_status = ompi_status_empty;
++    greq->greq_base.req_complete = REQUEST_PENDING;
+ 
+     *request = &greq->greq_base;
+     return OMPI_SUCCESS;

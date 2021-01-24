@@ -1,10 +1,70 @@
-openmpi (4.0.5-7+rpi1) bullseye-staging; urgency=medium
+openmpi (4.1.0-7+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Sun, 18 Oct 2020 12:36:05 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sun, 24 Jan 2021 23:29:37 +0000
+
+openmpi (4.1.0-7) unstable; urgency=medium
+
+  * Also disable ofi BTL to avoid libfabric issues
+    (user can re-enable on systems with RDMA hardware)
+    Closes: #979041
+  * Backport grequest fix from 4.1.x. Closes: #979480
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 20 Jan 2021 17:22:18 +0000
+
+openmpi (4.1.0-6) unstable; urgency=medium
+
+  * Disable UCX by default to avoid spurious errors on systems
+    without rdmacm hardware. Closes: #90033
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 14 Jan 2021 11:43:39 +0000
+
+openmpi (4.1.0-5) unstable; urgency=medium
+
+  * libfabric-dev now available on all bar hurd, kfreebsd
+  * libnuma-dev now available on all bar hurd, kfreebsd
+  * Exclude openib by default, update README.Debian to explain.
+  * Patch to detect pmix 4.  Closes: #979041
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 09 Jan 2021 19:42:23 +0000
+
+openmpi (4.1.0-4) unstable; urgency=mediuzm
+
+  * Rename some scripts to drop language suffix
+    - aggregate_profile.pl -> aggregate_profile
+    - profile2mat.pl -> profile2man
+  * Drop dependencies on libpmix* as we use the internal version
+  * Fix for missing plugin mca_op_avx.so. Closes: #979041, #978496
+  * Update shymlink to jquery.js for version number change
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 03 Jan 2021 22:22:09 +0000
+
+openmpi (4.1.0-3) unstable; urgency=medium
+
+  * Set -latomic on some archs for pmix
+  * Fix overreaching find in d/rules
+  * Make install of shmemc++.1 conditional
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 28 Dec 2020 17:17:04 +0000
+
+openmpi (4.1.0-2) unstable; urgency=medium
+
+  * Update d/watch file
+  * Use internal pmix until pmix 4.0 supported.
+    Closes: #978022,  #978308, #978203, #978066
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 27 Dec 2020 14:38:05 +0000
+
+openmpi (4.1.0-1) unstable; urgency=medium
+
+  * New upstream release
+    - minor lib versions updated to 40.30.0
+  * Standards-Version: 4.5.1
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 21 Dec 2020 10:56:34 +0000
 
 openmpi (4.0.5-7) unstable; urgency=medium
 

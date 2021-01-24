@@ -57,7 +57,6 @@ struct mca_pml_ucx_module {
     mca_pml_ucx_freelist_t    convs;
 
     int                       priority;
-    bool                      cuda_initialized;
 };
 
 extern mca_pml_base_component_2_0_0_t mca_pml_ucx_component;
