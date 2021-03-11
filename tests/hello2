@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+cd debian/tests
+
+### Compile and run a simple MPI application
+
+mpif90 -o hello hello.f90
+
+mpirun -n 1 ./hello
+
+rm ./hello
