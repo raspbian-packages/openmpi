@@ -18,7 +18,6 @@ usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libompitrace.so.40
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi.so.40
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/mpi.jar
 usr/bin/shmemrun
-usr/bin/mpijavac.pl
 usr/bin/mpirun.openmpi
 usr/bin/oshrun
 usr/share/man/man1/ompi-server.1
