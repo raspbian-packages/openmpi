@@ -1,3 +1,4 @@
+pr8827.patch
 pkg-config.patch
 mpifort.patch
 manpage_macros
@@ -13,4 +14,5 @@ ia64.patch
 missing-symbol.patch
 external-pmix-fix.patch
 grequest-fix.patch
+pr8596.patch
 raspbian.diff

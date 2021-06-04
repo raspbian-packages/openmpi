@@ -1186,6 +1186,14 @@ int pmix3x_value_unload(opal_value_t *kv,
         kv->type = OPAL_PTR;
         kv->data.ptr = (void*)lt;
         for (n=0; n < v->data.darray->size; n++) {
+            if (PMIX_INFO == v->data.darray->type) {
+                pmix_info_t *iptr = (pmix_info_t*)v->data.darray->array;
+                if (0 == strcmp("pmix.topo2", iptr[n].key)) {
+                    /* we do not know (yet) how to convert the pmix.topo2 key from PMIx 4.0.0
+                     * but since we are not going to use it, simply ignore it and move on */
+                    continue;
+                }
+            }
             ival = OBJ_NEW(opal_value_t);
             opal_list_append(lt, &ival->super);
             /* handle the various types */

@@ -1,10 +1,25 @@
-openmpi (4.1.0-8+rpi1) bullseye-staging; urgency=medium
+openmpi (4.1.0-10+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 18 Mar 2021 18:16:48 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Fri, 04 Jun 2021 00:39:13 +0000
+
+openmpi (4.1.0-10) unstable; urgency=medium
+
+  * Rebuild against ucx 1.10.1~rc1+really.1.10.0-1 for buster
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 27 May 2021 09:16:24 +0100
+
+openmpi (4.1.0-9) unstable; urgency=medium
+
+  * Pull fix for Memory leak in MPI_Allreduce when using a repeatedly created
+    and freed MPI_Datatype. Closes: #987261
+  * Workaround for mpirun crashes when trying to schedule a task on
+    a foreign host. Closes: #984956
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 13 May 2021 14:01:44 +0100
 
 openmpi (4.1.0-8) unstable; urgency=medium
 
