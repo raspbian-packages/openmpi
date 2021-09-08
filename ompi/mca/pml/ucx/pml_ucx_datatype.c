@@ -222,6 +222,7 @@ ucp_datatype_t mca_pml_ucx_init_datatype(ompi_datatype_t *datatype)
         ompi_mpi_abort(&ompi_mpi_comm_world.comm, 1);
     }
 
+ out:
     /* Add custom attribute, to clean up UCX resources when OMPI datatype is
      * released.
      */
@@ -238,7 +239,6 @@ ucp_datatype_t mca_pml_ucx_init_datatype(ompi_datatype_t *datatype)
             ompi_mpi_abort(&ompi_mpi_comm_world.comm, 1);
         }
     }
-out:
     PML_UCX_VERBOSE(7, "created generic UCX datatype 0x%"PRIx64, ucp_datatype)
 
 #ifdef HAVE_UCP_REQUEST_PARAM_T
