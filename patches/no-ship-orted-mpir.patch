@@ -1,0 +1,20 @@
+Description: Don't ship lib
+ The orted-mpir library was split to avoid global CFLAGS, which might
+ optimize out MPIR functionality. The library has been made a `noinst`
+ libtool convenience library to prevent its installation or appearance as
+ a  dependency of other libraries.
+Bug-Origin: https://github.com/open-mpi/ompi/pull/8892/commits/952328c3827b9d9b0b54d0a0a068d494bfef1974
+Last-Updated: 2021-09-02
+Forwarded: not-needed
+
+--- a/orte/orted/orted-mpir/Makefile.am
++++ b/orte/orted/orted-mpir/Makefile.am
+@@ -15,7 +15,7 @@
+ 
+ CFLAGS = $(CFLAGS_WITHOUT_OPTFLAGS) $(DEBUGGER_CFLAGS)
+ 
+-lib_LTLIBRARIES = lib@ORTE_LIB_PREFIX@open-orted-mpir.la
++noinst_LTLIBRARIES = lib@ORTE_LIB_PREFIX@open-orted-mpir.la
+ lib@ORTE_LIB_PREFIX@open_orted_mpir_la_SOURCES = \
+         orted_mpir_breakpoint.c \
+         orted_mpir.h
