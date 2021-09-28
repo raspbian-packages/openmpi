@@ -37,8 +37,10 @@ BTL_TESTS:= $(if $(DO_TEST), --enable-opal-btl-usnic-unit-tests, )
 DO_FLANG:=$(if $(wildcard /usr/bin/flang),true, false)
 
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
+ifeq ($(filter nojava,$(DEB_BUILD_PROFILES)),)
        JAVA := $(if $(filter $(DEB_TARGET_ARCH), $(NO_JAVA_ARCH)), \
 		 ,--with-jdk-dir=/usr/lib/jvm/default-java --enable-mpi-java )
+endif
 endif
 
 FLANG_FCFLAGS= $(filter '-g', $(shell dpkg-buildflags --get FCFLAGS))
@@ -73,6 +75,9 @@ FCFLAGS += -O3
 #STATIC_CONFIG_PARAMS = --enable-static
 STATIC_CONFIG_PARAMS =  
 
+# Do not embed build username or build system hostname, see README
+export HOSTNAME=hostname
+export USER=username
 
 %:
 	dh $@ 
@@ -92,6 +97,7 @@ extra_flags = \
 		--with-hwloc=external  \
 		--disable-silent-rules \
 		--enable-mpi-cxx \
+		--enable-ipv6  \
 		--with-devel-headers \
 		--with-slurm \
 		--with-sge \
@@ -241,8 +247,8 @@ override_dh_install:
 		dh_installman -p openmpi-bin $(DESTDIR)/usr/share/man/man1/oshCC.1 ; \
 		dh_installman -p openmpi-bin $(DESTDIR)/usr/share/man/man1/oshc++.1 ; \
 		dh_installman -p openmpi-bin $(DESTDIR)/usr/share/man/man1/oshcxx.1 ; \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/liboshmem.so.40.30.0 $(LIBDIR) ; \
-                dh_link -p libopenmpi3 $(LIBDIR)/liboshmem.so.40.30.0  $(LIBDIR)/liboshmem.so.40 ; \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/liboshmem.so.40.30.1 $(LIBDIR) ; \
+                dh_link -p libopenmpi3 $(LIBDIR)/liboshmem.so.40.30.1  $(LIBDIR)/liboshmem.so.40 ; \
 		dh_link -p libopenmpi-dev   $(LIBDIR)/liboshmem.so.40  $(LIBDIR)/openmpi/lib/liboshmem.so ; \
 		dh_link -p libopenmpi-dev   $(LIBDIR)/liboshmem.so.40  $(LIBDIR)/liboshmem.so ; \
 	fi
@@ -254,9 +260,9 @@ override_dh_install:
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_java.so.40	$(LIBDIR)/openmpi/lib/libmpi_java.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_java.so.40	$(LIBDIR)/libmpi_java.so ; \
 	fi
-	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.0 ; then \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.0 $(LIBDIR); \
-		dh_link -p libopenmpi3 $(LIBDIR)/libmca_common_ucx.so.40.30.0  $(LIBDIR)/libmca_common_ucx.so.40 ; \
+	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.1 ; then \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.1 $(LIBDIR); \
+		dh_link -p libopenmpi3 $(LIBDIR)/libmca_common_ucx.so.40.30.1  $(LIBDIR)/libmca_common_ucx.so.40 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ucx.so.40	$(LIBDIR)/openmpi/lib/libmca_common_ucx.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ucx.so.40	$(LIBDIR)/libmca_common_ucx.so ; \
 	fi
@@ -267,15 +273,15 @@ override_dh_install:
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_monitoring.so.50	$(LIBDIR)/libmca_common_monitoring.so ; \
 	fi
 	# No longer needed ? 
-	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ofi.so.10.0.0 ; then  \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ofi.so.10.0.0 $(LIBDIR) ; \
-		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ofi.so.10.0.0  $(LIBDIR)/libmca_common_ofi.so.10 ; \
+	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ofi.so.10.0.1 ; then  \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ofi.so.10.0. $(LIBDIR) ; \
+		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ofi.so.10.0.1  $(LIBDIR)/libmca_common_ofi.so.10 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ofi.so.10	$(LIBDIR)/openmpi/lib/libmca_common_ofi.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ofi.so.10	$(LIBDIR)/libmca_common_ofi.so ; \
 	fi
-	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.0; then  \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.0 $(LIBDIR) ; \
-		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ompio.so.41.29.0  $(LIBDIR)/libmca_common_ompio.so.41 ; \
+	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.1; then  \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.1 $(LIBDIR) ; \
+		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ompio.so.41.29.1  $(LIBDIR)/libmca_common_ompio.so.41 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ompio.so.41	$(LIBDIR)/openmpi/lib/libmca_common_ompio.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ompio.so.41	$(LIBDIR)/libmca_common_ompio.so ; \
 	fi
@@ -316,13 +322,17 @@ override_dh_auto_test:
 	$(DO_TEST) && dh_auto_test || echo "Tests disabled on ${NO_TEST_ARCH} systems for the moment"	
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(CURDIR)/$(DESTDIR)/$(LIBDIR)/openmpi/lib -- --ignore-missing-info
+	dh_shlibdeps -l$(DESTDIR)/$(LIBDIR)/openmpi/lib -- --ignore-missing-info
 
 override_dh_installdocs:
 	dh_installdocs --all NEWS README
+ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
+ifeq ($(filter nojava,$(DEB_BUILD_PROFILES)),)
 	dh_link -p libopenmpi-dev /usr/share/javascript/jquery/jquery.js			/usr/share/doc/libopenmpi-dev/javadoc-openmpi/jquery/external/jquery/jquery.js
 	dh_link -p libopenmpi-dev /usr/share/javascript/jquery/jquery.js			/usr/share/doc/libopenmpi-dev/javadoc-openmpi/jquery/jquery-3.5.1.js
 	dh_link -p libopenmpi-dev /usr/share/javascript/jquery-ui/themes/base/jquery-ui.css  /usr/share/doc/libopenmpi-dev/javadoc-openmpi/jquery/jquery-ui.css
 	dh_link -p libopenmpi-dev /usr/share/javascript/jquery-ui/jquery-ui.js		  /usr/share/doc/libopenmpi-dev/javadoc-openmpi/jquery/jquery-ui.js
 	dh_link -p libopenmpi-dev /usr/share/javascript/jquery-ui/themes/base/jquery-ui.min.css /usr/share/doc/libopenmpi-dev/javadoc-openmpi/jquery/jquery-ui.min.css
 	dh_link -p libopenmpi-dev /usr/share/javascript/jquery-ui/jquery-ui.min.js         /usr/share/doc/libopenmpi-dev/javadoc-openmpi/jquery/jquery-ui.min.js
+endif
+endif

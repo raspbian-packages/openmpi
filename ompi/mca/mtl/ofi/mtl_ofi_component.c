@@ -629,6 +629,10 @@ ompi_mtl_ofi_component_init(bool enable_progress_threads,
         hints->domain_attr->threading = FI_THREAD_DOMAIN;
     }
 
+    if ((MTL_OFI_TAG_AUTO == ofi_tag_mode) || (MTL_OFI_TAG_FULL == ofi_tag_mode)) {
+        hints->domain_attr->cq_data_size = sizeof(int);
+    }
+
     switch (control_progress) {
     case MTL_OFI_PROG_AUTO:
 	hints->domain_attr->control_progress = FI_PROGRESS_AUTO;
@@ -895,6 +899,19 @@ select_prov:
     if (!strncmp(prov->fabric_attr->prov_name,"gni",3)) {
          prov->domain_attr->mr_mode = FI_MR_BASIC;
     }
+
+#if OPAL_CUDA_SUPPORT
+    /**
+     * Some providers do not require the use of the CUDA convertor
+     * in OMPI and its use will cause performance degradation. The
+     * following providers will disable it when selected.
+     */
+    if (!strncmp(prov->fabric_attr->prov_name, "psm3", 4)
+        || !strncmp(prov->fabric_attr->prov_name, "psm2", 4))
+    {
+        ompi_mtl_ofi.base.mtl_flags |= MCA_MTL_BASE_FLAG_CUDA_INIT_DISABLE;
+    }
+#endif /* OPAL_CUDA_SUPPORT */
 
     /**
      * Create the access domain, which is the physical or virtual network or

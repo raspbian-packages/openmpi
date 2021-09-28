@@ -11,8 +11,6 @@ fix-underlinking.patch
 #version-script.patch
 no-warning-unused.patch
 ia64.patch
-missing-symbol.patch
-external-pmix-fix.patch
-grequest-fix.patch
+no-ship-orted-mpir.patch
 pr8596.patch
 raspbian.diff

@@ -28,6 +28,7 @@
 # Copyright (c) 2009-2014 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2015      Los Alamos National Security, LLC. All rights
 #                         reserved.
+# Copyright (c) 2021      IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -134,7 +135,7 @@
 #                         All rights reserved.
 # Copyright (c) 2014      Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2015      Intel, Inc. All rights reserved.
-# Copyright (c) 2018      IBM Corporation.  All rights reserved.
+# Copyright (c) 2018-2021 IBM Corporation.  All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -683,8 +684,8 @@ am_lib@ORTE_LIB_PREFIX@open_rte_la_OBJECTS = $(am__objects_1) \
 	util/hostfile/hostfile_lex.lo util/hostfile/hostfile.lo \
 	util/dash_host/dash_host.lo util/comm/comm.lo util/attr.lo \
 	util/listener.lo util/compress.lo orted/orted_main.lo \
-	orted/orted_comm.lo orted/pmix/pmix_server.lo \
-	orted/pmix/pmix_server_fence.lo \
+	orted/orted_comm.lo orted/orted_submit.lo \
+	orted/pmix/pmix_server.lo orted/pmix/pmix_server_fence.lo \
 	orted/pmix/pmix_server_register_fns.lo \
 	orted/pmix/pmix_server_dyn.lo orted/pmix/pmix_server_pub.lo \
 	orted/pmix/pmix_server_gen.lo
@@ -698,13 +699,6 @@ lib@ORTE_LIB_PREFIX@open_rte_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) \
 	$(lib@ORTE_LIB_PREFIX@open_rte_la_LDFLAGS) $(LDFLAGS) -o $@
-liborted_mpir_la_LIBADD =
-am_liborted_mpir_la_OBJECTS = orted/liborted_mpir_la-orted_submit.lo
-liborted_mpir_la_OBJECTS = $(am_liborted_mpir_la_OBJECTS)
-liborted_mpir_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(liborted_mpir_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
 libruntime_mpir_la_LIBADD =
 am_libruntime_mpir_la_OBJECTS =  \
 	runtime/libruntime_mpir_la-orte_init.lo
@@ -756,9 +750,9 @@ am__v_LEX_0 = @echo "  LEX     " $@;
 am__v_LEX_1 = 
 YLWRAP = $(top_srcdir)/config/ylwrap
 SOURCES = $(lib@ORTE_LIB_PREFIX@open_rte_la_SOURCES) \
-	$(liborted_mpir_la_SOURCES) $(libruntime_mpir_la_SOURCES)
+	$(libruntime_mpir_la_SOURCES)
 DIST_SOURCES = $(lib@ORTE_LIB_PREFIX@open_rte_la_SOURCES) \
-	$(liborted_mpir_la_SOURCES) $(libruntime_mpir_la_SOURCES)
+	$(libruntime_mpir_la_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -2054,11 +2048,12 @@ ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
 SUBDIRS = include $(MCA_orte_FRAMEWORKS_SUBDIRS) \
-	$(MCA_orte_FRAMEWORK_COMPONENT_STATIC_SUBDIRS) etc . \
-	$(MCA_orte_FRAMEWORK_COMPONENT_DSO_SUBDIRS) tools/orte-clean \
-	tools/orted tools/orterun tools/wrappers tools/orte-info \
-	tools/orte-server
-DIST_SUBDIRS = include etc $(MCA_orte_FRAMEWORKS_SUBDIRS) \
+	$(MCA_orte_FRAMEWORK_COMPONENT_STATIC_SUBDIRS) etc \
+	orted/orted-mpir . $(MCA_orte_FRAMEWORK_COMPONENT_DSO_SUBDIRS) \
+	tools/orte-clean tools/orted tools/orterun tools/wrappers \
+	tools/orte-info tools/orte-server
+DIST_SUBDIRS = include etc orted/orted-mpir \
+	$(MCA_orte_FRAMEWORKS_SUBDIRS) \
 	$(MCA_orte_FRAMEWORK_COMPONENT_ALL_SUBDIRS) tools/orte-clean \
 	tools/orted tools/orterun tools/wrappers tools/orte-info \
 	tools/orte-server
@@ -2082,14 +2077,15 @@ lib@ORTE_LIB_PREFIX@open_rte_la_SOURCES = $(headers) \
 	util/hostfile/hostfile_lex.l util/hostfile/hostfile.c \
 	util/dash_host/dash_host.c util/comm/comm.c util/attr.c \
 	util/listener.c util/compress.c orted/orted_main.c \
-	orted/orted_comm.c orted/pmix/pmix_server.c \
-	orted/pmix/pmix_server_fence.c \
+	orted/orted_comm.c orted/orted_submit.c \
+	orted/pmix/pmix_server.c orted/pmix/pmix_server_fence.c \
 	orted/pmix/pmix_server_register_fns.c \
 	orted/pmix/pmix_server_dyn.c orted/pmix/pmix_server_pub.c \
 	orted/pmix/pmix_server_gen.c
 lib@ORTE_LIB_PREFIX@open_rte_la_LIBADD = $(MCA_orte_FRAMEWORK_LIBS) \
 	$(ORTE_TOP_BUILDDIR)/opal/lib@OPAL_LIB_PREFIX@open-pal.la \
-	libruntime_mpir.la liborted_mpir.la
+	orted/orted-mpir/lib@ORTE_LIB_PREFIX@open-orted-mpir.la \
+	libruntime_mpir.la
 lib@ORTE_LIB_PREFIX@open_rte_la_DEPENDENCIES = $(libopen_rte_la_LIBADD)
 lib@ORTE_LIB_PREFIX@open_rte_la_LDFLAGS = -version-info $(libopen_rte_so_version)
 
@@ -2115,11 +2111,7 @@ headers = runtime/runtime.h runtime/orte_locks.h \
 # The MPIR portion of the library must be built with flags to
 # enable stepping out of MPI_INIT into main.
 # Use an intermediate library to isolate the debug object.
-
-# The MPIR portion of the library must be built with -g, even if
-# the rest of the library has other optimization flags.
-# Use an intermediate library to isolate the debug object.
-noinst_LTLIBRARIES = libruntime_mpir.la liborted_mpir.la
+noinst_LTLIBRARIES = libruntime_mpir.la
 dist_ortedata_DATA = runtime/help-orte-runtime.txt \
 	util/hostfile/help-hostfile.txt \
 	util/dash_host/help-dash-host.txt util/help-regex.txt \
@@ -2171,10 +2163,6 @@ ompi__v_GEN_ = $(ompi__v_GEN_$AM_DEFAULT_VERBOSITY)
 ompi__v_GEN_0 = @echo "  GENERATE" $@;
 nodist_man_MANS = util/hostfile/orte_hosts.7
 AM_LFLAGS = -Porte_util_hostfile_
-liborted_mpir_la_SOURCES = \
-	orted/orted_submit.c
-
-liborted_mpir_la_CFLAGS = $(CFLAGS_WITHOUT_OPTFLAGS) $(DEBUGGER_CFLAGS)
 all: all-recursive
 
 .SUFFIXES:
@@ -2360,6 +2348,8 @@ orted/orted_main.lo: orted/$(am__dirstamp) \
 	orted/$(DEPDIR)/$(am__dirstamp)
 orted/orted_comm.lo: orted/$(am__dirstamp) \
 	orted/$(DEPDIR)/$(am__dirstamp)
+orted/orted_submit.lo: orted/$(am__dirstamp) \
+	orted/$(DEPDIR)/$(am__dirstamp)
 orted/pmix/$(am__dirstamp):
 	@$(MKDIR_P) orted/pmix
 	@: > orted/pmix/$(am__dirstamp)
@@ -2381,11 +2371,6 @@ orted/pmix/pmix_server_gen.lo: orted/pmix/$(am__dirstamp) \
 
 lib@ORTE_LIB_PREFIX@open-rte.la: $(lib@ORTE_LIB_PREFIX@open_rte_la_OBJECTS) $(lib@ORTE_LIB_PREFIX@open_rte_la_DEPENDENCIES) $(EXTRA_lib@ORTE_LIB_PREFIX@open_rte_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(lib@ORTE_LIB_PREFIX@open_rte_la_LINK) -rpath $(libdir) $(lib@ORTE_LIB_PREFIX@open_rte_la_OBJECTS) $(lib@ORTE_LIB_PREFIX@open_rte_la_LIBADD) $(LIBS)
-orted/liborted_mpir_la-orted_submit.lo: orted/$(am__dirstamp) \
-	orted/$(DEPDIR)/$(am__dirstamp)
-
-liborted_mpir.la: $(liborted_mpir_la_OBJECTS) $(liborted_mpir_la_DEPENDENCIES) $(EXTRA_liborted_mpir_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(liborted_mpir_la_LINK)  $(liborted_mpir_la_OBJECTS) $(liborted_mpir_la_LIBADD) $(LIBS)
 runtime/libruntime_mpir_la-orte_init.lo: runtime/$(am__dirstamp) \
 	runtime/$(DEPDIR)/$(am__dirstamp)
 
@@ -2414,9 +2399,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@orted/$(DEPDIR)/liborted_mpir_la-orted_submit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@orted/$(DEPDIR)/orted_comm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@orted/$(DEPDIR)/orted_main.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@orted/$(DEPDIR)/orted_submit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@orted/pmix/$(DEPDIR)/pmix_server.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@orted/pmix/$(DEPDIR)/pmix_server_dyn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@orted/pmix/$(DEPDIR)/pmix_server_fence.Plo@am__quote@
@@ -2478,13 +2463,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
-
-orted/liborted_mpir_la-orted_submit.lo: orted/orted_submit.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liborted_mpir_la_CFLAGS) $(CFLAGS) -MT orted/liborted_mpir_la-orted_submit.lo -MD -MP -MF orted/$(DEPDIR)/liborted_mpir_la-orted_submit.Tpo -c -o orted/liborted_mpir_la-orted_submit.lo `test -f 'orted/orted_submit.c' || echo '$(srcdir)/'`orted/orted_submit.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) orted/$(DEPDIR)/liborted_mpir_la-orted_submit.Tpo orted/$(DEPDIR)/liborted_mpir_la-orted_submit.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='orted/orted_submit.c' object='orted/liborted_mpir_la-orted_submit.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(liborted_mpir_la_CFLAGS) $(CFLAGS) -c -o orted/liborted_mpir_la-orted_submit.lo `test -f 'orted/orted_submit.c' || echo '$(srcdir)/'`orted/orted_submit.c
 
 runtime/libruntime_mpir_la-orte_init.lo: runtime/orte_init.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libruntime_mpir_la_CFLAGS) $(CFLAGS) -MT runtime/libruntime_mpir_la-orte_init.lo -MD -MP -MF runtime/$(DEPDIR)/libruntime_mpir_la-orte_init.Tpo -c -o runtime/libruntime_mpir_la-orte_init.lo `test -f 'runtime/orte_init.c' || echo '$(srcdir)/'`runtime/orte_init.c

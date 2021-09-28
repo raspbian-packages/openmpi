@@ -17,6 +17,7 @@ dnl Copyright (c) 2014-2017 Los Alamos National Security, LLC. All rights
 dnl                         reserved.
 dnl Copyright (c) 2017      Amazon.com, Inc. or its affiliates.  All Rights
 dnl                         reserved.
+dnl Copyright (c) 2021      Google, LLC. All rights reserved.
 dnl $COPYRIGHT$
 dnl
 dnl Additional copyrights may follow
@@ -1022,7 +1023,7 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
 
     AC_ARG_ENABLE([builtin-atomics],
       [AC_HELP_STRING([--enable-builtin-atomics],
-         [Enable use of __sync builtin atomics (default: enabled)])])
+         [Enable use of __atomic builtin atomics (default: enabled)])])
 
     opal_cv_asm_builtin="BUILTIN_NO"
     AS_IF([test "$opal_cv_asm_builtin" = "BUILTIN_NO" && test "$enable_builtin_atomics" != "no"],
@@ -1075,6 +1076,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
             OPAL_ASM_ARM_VERSION=8
             AC_DEFINE_UNQUOTED([OPAL_ASM_ARM_VERSION], [$OPAL_ASM_ARM_VERSION],
                                [What ARM assembly version to use])
+	    # If built-in atomics were not specifically request then disable the
+	    # use of built-in atomics. The performance of Open MPI when using the
+	    # built-ins is worse than when they are not in use.
+	    if test "$enable_builtin_atomics" != "yes" ; then
+		opal_cv_asm_builtin="BUILTIN_NO"
+	    fi
             OPAL_GCC_INLINE_ASSIGN='"mov %0, #0" : "=&r"(ret)'
             ;;
 
@@ -1134,6 +1141,18 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
                 AC_MSG_ERROR([Could not determine PowerPC word size: $ac_cv_sizeof_long])
             fi
             OPAL_GCC_INLINE_ASSIGN='"1: li %0,0" : "=&r"(ret)'
+
+            # See the following github PR and some performance numbers/discussion:
+            # https://github.com/open-mpi/ompi/pull/8649
+            AC_MSG_CHECKING([$opal_cv_asm_arch: Checking if force gcc atomics requested])
+            if test $force_gcc_atomics_ppc = 0 ; then
+                AC_MSG_RESULT([no])
+                opal_cv_asm_builtin="BUILTIN_NO"
+            else
+                AC_MSG_RESULT([Yes])
+                AC_MSG_WARN([$opal_cv_asm_arch: gcc atomics have been known to perform poorly on powerpc.])
+            fi
+
             ;;
         # There is no current difference between s390 and s390x
         # But use two different defines in case some come later

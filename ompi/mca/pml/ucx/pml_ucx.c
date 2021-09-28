@@ -20,6 +20,9 @@
 #include "ompi/message/message.h"
 #include "ompi/mca/pml/base/pml_base_bsend.h"
 #include "opal/mca/common/ucx/common_ucx.h"
+#if OPAL_CUDA_SUPPORT
+#include "opal/mca/common/cuda/common_cuda.h"
+#endif /* OPAL_CUDA_SUPPORT */
 #include "pml_ucx_request.h"
 
 #include <inttypes.h>
@@ -183,12 +186,23 @@ static int mca_pml_ucx_recv_worker_address(ompi_proc_t *proc,
 
 int mca_pml_ucx_open(void)
 {
+    unsigned major_version, minor_version, release_number;
     ucp_context_attr_t attr;
     ucp_params_t params;
     ucp_config_t *config;
     ucs_status_t status;
 
-    PML_UCX_VERBOSE(1, "mca_pml_ucx_open");
+    /* Check version */
+    ucp_get_version(&major_version, &minor_version, &release_number);
+    PML_UCX_VERBOSE(1, "mca_pml_ucx_open: UCX version %u.%u.%u",
+                    major_version, minor_version, release_number);
+
+    if ((major_version == 1) && (minor_version == 8)) {
+        /* disabled due to issue #8321 */
+        PML_UCX_VERBOSE(1, "UCX PML is disabled because the run-time UCX version "
+                           "is 1.8, which has a known catastrophic issue");
+        return OMPI_ERROR;
+    }
 
     /* Read options */
     status = ucp_config_read("MPI", NULL, &config);
@@ -227,6 +241,9 @@ int mca_pml_ucx_open(void)
 
     /* Query UCX attributes */
     attr.field_mask        = UCP_ATTR_FIELD_REQUEST_SIZE;
+#if HAVE_UCP_ATTR_MEMORY_TYPES
+    attr.field_mask       |= UCP_ATTR_FIELD_MEMORY_TYPES;
+#endif
     status = ucp_context_query(ompi_pml_ucx.ucp_context, &attr);
     if (UCS_OK != status) {
         ucp_cleanup(ompi_pml_ucx.ucp_context);
@@ -234,8 +251,15 @@ int mca_pml_ucx_open(void)
         return OMPI_ERROR;
     }
 
-    ompi_pml_ucx.request_size = attr.request_size;
+    ompi_pml_ucx.request_size     = attr.request_size;
+    ompi_pml_ucx.cuda_initialized = false;
 
+#if HAVE_UCP_ATTR_MEMORY_TYPES && OPAL_CUDA_SUPPORT
+    if (attr.memory_types & UCS_BIT(UCS_MEMORY_TYPE_CUDA)) {
+        mca_common_cuda_stage_one_init();
+        ompi_pml_ucx.cuda_initialized = true;
+    }
+#endif
     return OMPI_SUCCESS;
 }
 
@@ -243,6 +267,11 @@ int mca_pml_ucx_close(void)
 {
     PML_UCX_VERBOSE(1, "mca_pml_ucx_close");
 
+#if OPAL_CUDA_SUPPORT
+    if (ompi_pml_ucx.cuda_initialized) {
+        mca_common_cuda_fini();
+    }
+#endif
     if (ompi_pml_ucx.ucp_context != NULL) {
         ucp_cleanup(ompi_pml_ucx.ucp_context);
         ompi_pml_ucx.ucp_context = NULL;
@@ -266,6 +295,13 @@ int mca_pml_ucx_init(int enable_mpi_threads)
     } else {
         params.thread_mode = UCS_THREAD_MODE_SINGLE;
     }
+
+#if HAVE_DECL_UCP_WORKER_FLAG_IGNORE_REQUEST_LEAK
+    if (!ompi_pml_ucx.request_leak_check) {
+        params.field_mask |= UCP_WORKER_PARAM_FIELD_FLAGS;
+        params.flags      |= UCP_WORKER_FLAG_IGNORE_REQUEST_LEAK;
+    }
+#endif
 
     status = ucp_worker_create(ompi_pml_ucx.ucp_context, &params,
                                &ompi_pml_ucx.ucp_worker);
@@ -392,17 +428,7 @@ static ucp_ep_h mca_pml_ucx_add_proc_common(ompi_proc_t *proc)
 
 static ucp_ep_h mca_pml_ucx_add_proc(ompi_communicator_t *comm, int dst)
 {
-    ompi_proc_t *proc0     = ompi_comm_peer_lookup(comm, 0);
     ompi_proc_t *proc_peer = ompi_comm_peer_lookup(comm, dst);
-    int ret;
-
-    /* Note, mca_pml_base_pml_check_selected, doesn't use 3rd argument */
-    if (OMPI_SUCCESS != (ret = mca_pml_base_pml_check_selected("ucx",
-                                                               &proc0,
-                                                               dst))) {
-        return NULL;
-    }
-
     return mca_pml_ucx_add_proc_common(proc_peer);
 }
 
@@ -411,13 +437,6 @@ int mca_pml_ucx_add_procs(struct ompi_proc_t **procs, size_t nprocs)
     ompi_proc_t *proc;
     ucp_ep_h ep;
     size_t i;
-    int ret;
-
-    if (OMPI_SUCCESS != (ret = mca_pml_base_pml_check_selected("ucx",
-                                                               procs,
-                                                               nprocs))) {
-        return ret;
-    }
 
     for (i = 0; i < nprocs; ++i) {
         proc = procs[(i + OMPI_PROC_MY_NAME->vpid) % nprocs];
@@ -693,7 +712,7 @@ int mca_pml_ucx_isend_init(const void *buf, size_t count, ompi_datatype_t *datat
 }
 
 static ucs_status_ptr_t
-mca_pml_ucx_bsend(ucp_ep_h ep, const void *buf, size_t count, 
+mca_pml_ucx_bsend(ucp_ep_h ep, const void *buf, size_t count,
                   ompi_datatype_t *datatype, uint64_t pml_tag)
 {
     ompi_request_t *req;
@@ -716,7 +735,7 @@ mca_pml_ucx_bsend(ucp_ep_h ep, const void *buf, size_t count,
         PML_UCX_ERROR("bsend: failed to allocate buffer");
         return UCS_STATUS_PTR(OMPI_ERROR);
     }
-    
+
     iov_count    = 1;
     iov.iov_base = packed_data;
     iov.iov_len  = packed_length;
@@ -804,8 +823,8 @@ int mca_pml_ucx_isend(const void *buf, size_t count, ompi_datatype_t *datatype,
     ompi_request_t *req;
     ucp_ep_h ep;
 
-    PML_UCX_TRACE_SEND("i%ssend request *%p", 
-                       buf, count, datatype, dst, tag, mode, comm, 
+    PML_UCX_TRACE_SEND("i%ssend request *%p",
+                       buf, count, datatype, dst, tag, mode, comm,
                        mode == MCA_PML_BASE_SEND_BUFFERED ? "b" : "",
                        (void*)request)
 

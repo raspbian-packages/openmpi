@@ -449,11 +449,12 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(mcacomponentdir)"
 LTLIBRARIES = $(mcacomponent_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libmca_coll_han_la_LIBADD =
-am__objects_1 = coll_han_bcast.lo coll_han_reduce.lo \
-	coll_han_scatter.lo coll_han_gather.lo coll_han_allreduce.lo \
-	coll_han_allgather.lo coll_han_component.lo coll_han_module.lo \
-	coll_han_trigger.lo coll_han_dynamic.lo \
-	coll_han_dynamic_file.lo coll_han_topo.lo coll_han_subcomms.lo
+am__objects_1 = coll_han_barrier.lo coll_han_bcast.lo \
+	coll_han_reduce.lo coll_han_scatter.lo coll_han_gather.lo \
+	coll_han_allreduce.lo coll_han_allgather.lo \
+	coll_han_component.lo coll_han_module.lo coll_han_trigger.lo \
+	coll_han_dynamic.lo coll_han_dynamic_file.lo coll_han_topo.lo \
+	coll_han_subcomms.lo
 am_libmca_coll_han_la_OBJECTS = $(am__objects_1)
 libmca_coll_han_la_OBJECTS = $(am_libmca_coll_han_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -1742,6 +1743,7 @@ coll_han.h \
 coll_han_trigger.h \
 coll_han_dynamic.h \
 coll_han_dynamic_file.h \
+coll_han_barrier.c \
 coll_han_bcast.c \
 coll_han_reduce.c \
 coll_han_scatter.c \
@@ -1867,6 +1869,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coll_han_allgather.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coll_han_allreduce.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coll_han_barrier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coll_han_bcast.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coll_han_component.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coll_han_dynamic.Plo@am__quote@

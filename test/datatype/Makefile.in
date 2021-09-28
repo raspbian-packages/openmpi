@@ -429,7 +429,7 @@ CONFIG_CLEAN_VPATH_FILES =
 @PROJECT_OMPI_TRUE@	ddt_test$(EXEEXT) ddt_raw$(EXEEXT) \
 @PROJECT_OMPI_TRUE@	ddt_raw2$(EXEEXT) unpack_ooo$(EXEEXT) \
 @PROJECT_OMPI_TRUE@	ddt_pack$(EXEEXT) external32$(EXEEXT) \
-@PROJECT_OMPI_TRUE@	large_data$(EXEEXT)
+@PROJECT_OMPI_TRUE@	large_data$(EXEEXT) partial$(EXEEXT)
 am__EXEEXT_2 = opal_datatype_test$(EXEEXT) unpack_hetero$(EXEEXT) \
 	$(am__EXEEXT_1)
 @PROJECT_OMPI_TRUE@am__EXEEXT_3 = to_self$(EXEEXT) \
@@ -498,6 +498,13 @@ opal_datatype_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(opal_datatype_test_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_partial_OBJECTS = partial.$(OBJEXT)
+partial_OBJECTS = $(am_partial_OBJECTS)
+partial_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+partial_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(partial_LDFLAGS) $(LDFLAGS) -o $@
 am_position_OBJECTS = position.$(OBJEXT)
 position_OBJECTS = $(am_position_OBJECTS)
 position_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
@@ -580,16 +587,17 @@ am__v_CCLD_1 =
 SOURCES = $(checksum_SOURCES) $(ddt_pack_SOURCES) $(ddt_raw_SOURCES) \
 	$(ddt_raw2_SOURCES) $(ddt_test_SOURCES) $(external32_SOURCES) \
 	$(large_data_SOURCES) $(opal_datatype_test_SOURCES) \
-	$(position_SOURCES) $(position_noncontig_SOURCES) \
-	$(reduce_local_SOURCES) $(to_self_SOURCES) \
-	$(unpack_hetero_SOURCES) $(unpack_ooo_SOURCES)
-DIST_SOURCES = $(checksum_SOURCES) $(ddt_pack_SOURCES) \
-	$(ddt_raw_SOURCES) $(ddt_raw2_SOURCES) $(ddt_test_SOURCES) \
-	$(external32_SOURCES) $(large_data_SOURCES) \
-	$(opal_datatype_test_SOURCES) $(position_SOURCES) \
+	$(partial_SOURCES) $(position_SOURCES) \
 	$(position_noncontig_SOURCES) $(reduce_local_SOURCES) \
 	$(to_self_SOURCES) $(unpack_hetero_SOURCES) \
 	$(unpack_ooo_SOURCES)
+DIST_SOURCES = $(checksum_SOURCES) $(ddt_pack_SOURCES) \
+	$(ddt_raw_SOURCES) $(ddt_raw2_SOURCES) $(ddt_test_SOURCES) \
+	$(external32_SOURCES) $(large_data_SOURCES) \
+	$(opal_datatype_test_SOURCES) $(partial_SOURCES) \
+	$(position_SOURCES) $(position_noncontig_SOURCES) \
+	$(reduce_local_SOURCES) $(to_self_SOURCES) \
+	$(unpack_hetero_SOURCES) $(unpack_ooo_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -2021,7 +2029,7 @@ top_srcdir = @top_srcdir@
 ucx_CFLAGS = @ucx_CFLAGS@
 ucx_LIBS = @ucx_LIBS@
 ucx_STATIC_LIBS = @ucx_STATIC_LIBS@
-@PROJECT_OMPI_TRUE@MPI_TESTS = checksum position position_noncontig ddt_test ddt_raw ddt_raw2 unpack_ooo ddt_pack external32 large_data
+@PROJECT_OMPI_TRUE@MPI_TESTS = checksum position position_noncontig ddt_test ddt_raw ddt_raw2 unpack_ooo ddt_pack external32 large_data partial
 @PROJECT_OMPI_TRUE@MPI_CHECKS = to_self reduce_local
 unpack_ooo_SOURCES = unpack_ooo.c ddt_lib.c ddt_lib.h
 unpack_ooo_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
@@ -2102,6 +2110,12 @@ reduce_local_LDADD = \
         $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
         $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
 
+partial_SOURCES = partial.c
+partial_LDFLAGS = $(OMPI_PKG_CONFIG_LDFLAGS)
+partial_LDADD = \
+        $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+        $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
 all: all-am
 
 .SUFFIXES:
@@ -2177,6 +2191,10 @@ opal_datatype_test$(EXEEXT): $(opal_datatype_test_OBJECTS) $(opal_datatype_test_
 	@rm -f opal_datatype_test$(EXEEXT)
 	$(AM_V_CCLD)$(opal_datatype_test_LINK) $(opal_datatype_test_OBJECTS) $(opal_datatype_test_LDADD) $(LIBS)
 
+partial$(EXEEXT): $(partial_OBJECTS) $(partial_DEPENDENCIES) $(EXTRA_partial_DEPENDENCIES) 
+	@rm -f partial$(EXEEXT)
+	$(AM_V_CCLD)$(partial_LINK) $(partial_OBJECTS) $(partial_LDADD) $(LIBS)
+
 position$(EXEEXT): $(position_OBJECTS) $(position_DEPENDENCIES) $(EXTRA_position_DEPENDENCIES) 
 	@rm -f position$(EXEEXT)
 	$(AM_V_CCLD)$(position_LINK) $(position_OBJECTS) $(position_LDADD) $(LIBS)
@@ -2217,6 +2235,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/large_data.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_datatype_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/opal_ddt_lib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/partial.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/position.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/position_noncontig.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce_local.Po@am__quote@
@@ -2527,6 +2546,13 @@ external32.log: external32$(EXEEXT)
 large_data.log: large_data$(EXEEXT)
 	@p='large_data$(EXEEXT)'; \
 	b='large_data'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+partial.log: partial$(EXEEXT)
+	@p='partial$(EXEEXT)'; \
+	b='partial'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

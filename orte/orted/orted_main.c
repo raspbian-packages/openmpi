@@ -19,6 +19,7 @@
  * Copyright (c) 2013-2018 Intel, Inc.  All rights reserved.
  * Copyright (c) 2015-2017 Research Organization for Information Science
  *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2021      IBM Corporation.  All rights reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -300,6 +301,14 @@ int orte_daemon(int argc, char *argv[])
     opal_unsetenv(OPAL_MCA_PREFIX"ess", &orte_launch_environ);
     opal_unsetenv(OPAL_MCA_PREFIX"pmix", &orte_launch_environ);
 
+    /* We need to parse the MCA parameters to read the debug MCA
+     * parameters used by the plm to relay the debug options.
+     */
+    if (ORTE_SUCCESS != (ret = orte_register_params())) {
+        ORTE_ERROR_LOG(ret);
+        return ret;
+    }
+
     /* if orte_daemon_debug is set, let someone know we are alive right
      * away just in case we have a problem along the way
      */
@@ -369,6 +378,12 @@ int orte_daemon(int argc, char *argv[])
      * we continue to have a reference count on them. So we have to finalize them twice...
      */
     opal_finalize_util();
+
+    /* orted uses multiple threads, thus need to enable opal's multi-thread support,
+     * otherwise, OPAL_RELEASE will not use atomic operations to update object's
+     * reference counter, which will lead to double free issue.
+     */
+    opal_set_using_threads(true);
 
     /* bind ourselves if so directed */
     if (NULL != orte_daemon_cores) {
@@ -747,7 +762,7 @@ int orte_daemon(int argc, char *argv[])
 
         /* define the target jobid */
         target.jobid = ORTE_PROC_MY_NAME->jobid;
-        if (orte_fwd_mpirun_port || orte_static_ports || NULL != orte_parent_uri) {
+        if (NULL != orte_parent_uri) {
             /* we start by sending to ourselves */
             target.vpid = ORTE_PROC_MY_NAME->vpid;
             /* since we will be waiting for any children to send us

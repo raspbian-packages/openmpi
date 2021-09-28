@@ -1,10 +1,57 @@
-openmpi (4.1.0-10+rpi1) bullseye-staging; urgency=medium
+openmpi (4.1.1-5+rpi1) bookworm-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Fri, 04 Jun 2021 00:39:13 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Tue, 28 Sep 2021 20:21:58 +0000
+
+openmpi (4.1.1-5) unstable; urgency=medium
+
+  * Include pr8596.patch from 4.1.0-9 in 4.1.1
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 08 Sep 2021 14:07:52 +0100
+
+openmpi (4.1.1-4) unstable; urgency=medium
+
+  * Don't ship libopen-orted-mpir.so. Patch from upstream for 4.1.2
+    internal lib only.
+  * Also exclude mtl ofi to deal with libfabric fork in tests.
+    Closes: #979041
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 02 Sep 2021 13:31:02 +0100
+
+openmpi (4.1.1-3) unstable; urgency=medium
+
+  * Don't embed username, hostname in binaries. Closes: #990254.
+    Thanks, Vagrant Cascadian
+  * Ship libopen-orted-mpir.so in -dev pkg only. Closes: #993041, #993038
+  * Close bug fixed in previous release. Closes: #945120
+  * Fix FTBFS with missing javadocs in stage1/no java builds.
+    Closes: #979877, #975995
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Fri, 27 Aug 2021 12:04:06 +0100
+
+openmpi (4.1.1-2) unstable; urgency=medium
+
+  * Ensure libopen-orted-mpir.so is shipped
+  * Update so minor versions on libmca_common_ofi, libmca_common_ompio.
+    Closes: #989111
+  * Enable IPv6. Closes: #989694.
+  * Standards-Version: 4.6.0; no changes required
+  * Build with autoconf 2.71 ; Closes: #978878
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 26 Aug 2021 09:28:50 +0100
+
+openmpi (4.1.1-1) experimental; urgency=medium
+
+  * New upstream release
+  * Patches merged upstream: 
+     - external-pmix-fix.patch
+     - external-pmix-fix.patch
+     - grequest-fix.patch
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 11 May 2021 10:11:22 +0100
 
 openmpi (4.1.0-10) unstable; urgency=medium
 
