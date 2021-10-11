@@ -109,7 +109,7 @@ int ompi_coll_base_barrier_intra_doublering(struct ompi_communicator_t *comm,
 
     OPAL_OUTPUT((ompi_coll_base_framework.framework_output,"ompi_coll_base_barrier_intra_doublering rank %d", rank));
 
-    left = ((rank-1)%size);
+    left = ((size+rank-1)%size);
     right = ((rank+1)%size);
 
     if (rank > 0) { /* receive message from the left */
@@ -384,8 +384,10 @@ int ompi_coll_base_barrier_intra_basic_linear(struct ompi_communicator_t *comm,
             for( i = 0; i < size; i++ ) {
                 if (MPI_REQUEST_NULL == requests[i]) continue;
                 if (MPI_ERR_PENDING == requests[i]->req_status.MPI_ERROR) continue;
-                err = requests[i]->req_status.MPI_ERROR;
-                break;
+                if (requests[i]->req_status.MPI_ERROR != MPI_SUCCESS) {
+                    err = requests[i]->req_status.MPI_ERROR;
+                    break;
+                }
             }
         }
         ompi_coll_base_free_reqs(requests, size);

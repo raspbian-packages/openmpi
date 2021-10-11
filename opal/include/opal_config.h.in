@@ -806,6 +806,9 @@
 /* Define to 1 if you have the <psm2.h> header file. */
 #undef HAVE_PSM2_H
 
+/* have PSM2_LIB_REFCOUNT_CAP in psm2.h */
+#undef HAVE_PSM2_LIB_REFCOUNT_CAP
+
 /* Define to 1 if you have the <psm.h> header file. */
 #undef HAVE_PSM_H
 
@@ -2663,6 +2666,9 @@
 
 /* Minor release number of Open Portable Access Layer */
 #undef OPAL_MINOR_VERSION
+
+/* Whether libfabric supports monitor import */
+#undef OPAL_OFI_IMPORT_MONITOR_SUPPORT
 
 /* check if pci data is available in ofi */
 #undef OPAL_OFI_PCI_DATA_AVAILABLE

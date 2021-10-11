@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2001-2011 Mellanox Technologies Ltd. 2001-2011.  ALL RIGHTS RESERVED.
- * Copyright (c) 2016      The University of Tennessee and The University
+ * Copyright (c) 2016-2021 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2018      Research Organization for Information Science
@@ -564,7 +564,9 @@ int mca_pml_ucx_irecv_init(void *buf, size_t count, ompi_datatype_t *datatype,
     req->flags                    = 0;
     req->buffer                   = buf;
     req->count                    = count;
-    req->datatype.datatype        = mca_pml_ucx_get_datatype(datatype);
+    req->ompi_datatype            = datatype;
+    req->datatype                 = mca_pml_ucx_get_datatype(datatype);
+    OMPI_DATATYPE_RETAIN(datatype);
 
     PML_UCX_MAKE_RECV_TAG(req->tag, req->recv.tag_mask, tag, src, comm);
 
@@ -644,7 +646,7 @@ int mca_pml_ucx_recv(void *buf, size_t count, ompi_datatype_t *datatype, int src
     MCA_COMMON_UCX_PROGRESS_LOOP(ompi_pml_ucx.ucp_worker) {
         status = ucp_request_test(req, &info);
         if (status != UCS_INPROGRESS) {
-            return mca_pml_ucx_set_recv_status_safe(mpi_status, status, &info);
+            return mca_pml_ucx_set_recv_status_public(mpi_status, status, &info);
         }
     }
 }
@@ -699,12 +701,13 @@ int mca_pml_ucx_isend_init(const void *buf, size_t count, ompi_datatype_t *datat
     req->tag                      = PML_UCX_MAKE_SEND_TAG(tag, comm);
     req->send.mode                = mode;
     req->send.ep                  = ep;
+    req->ompi_datatype            = datatype;
+    OMPI_DATATYPE_RETAIN(datatype);
 
     if (MCA_PML_BASE_SEND_BUFFERED == mode) {
-        req->datatype.ompi_datatype = datatype;
-        OBJ_RETAIN(datatype);
+        req->datatype = NULL;
     } else {
-        req->datatype.datatype = mca_pml_ucx_get_datatype(datatype);
+        req->datatype = mca_pml_ucx_get_datatype(datatype);
     }
 
     *request = &req->ompi;
@@ -965,7 +968,7 @@ int mca_pml_ucx_iprobe(int src, int tag, struct ompi_communicator_t* comm,
                                0, &info);
     if (ucp_msg != NULL) {
         *matched = 1;
-        mca_pml_ucx_set_recv_status_safe(mpi_status, UCS_OK, &info);
+        mca_pml_ucx_set_recv_status_public(mpi_status, UCS_OK, &info);
     } else  {
         (++progress_count % opal_common_ucx.progress_iterations) ?
             (void)ucp_worker_progress(ompi_pml_ucx.ucp_worker) : opal_progress();
@@ -989,7 +992,7 @@ int mca_pml_ucx_probe(int src, int tag, struct ompi_communicator_t* comm,
         ucp_msg = ucp_tag_probe_nb(ompi_pml_ucx.ucp_worker, ucp_tag,
                                    ucp_tag_mask, 0, &info);
         if (ucp_msg != NULL) {
-            mca_pml_ucx_set_recv_status_safe(mpi_status, UCS_OK, &info);
+            mca_pml_ucx_set_recv_status_public(mpi_status, UCS_OK, &info);
             return OMPI_SUCCESS;
         }
     }
@@ -1014,7 +1017,7 @@ int mca_pml_ucx_improbe(int src, int tag, struct ompi_communicator_t* comm,
         PML_UCX_MESSAGE_NEW(comm, ucp_msg, &info, message);
         PML_UCX_VERBOSE(8, "got message %p (%p)", (void*)*message, (void*)ucp_msg);
         *matched         = 1;
-        mca_pml_ucx_set_recv_status_safe(mpi_status, UCS_OK, &info);
+        mca_pml_ucx_set_recv_status_public(mpi_status, UCS_OK, &info);
     } else  {
         (++progress_count % opal_common_ucx.progress_iterations) ?
             (void)ucp_worker_progress(ompi_pml_ucx.ucp_worker) : opal_progress();
@@ -1040,7 +1043,7 @@ int mca_pml_ucx_mprobe(int src, int tag, struct ompi_communicator_t* comm,
         if (ucp_msg != NULL) {
             PML_UCX_MESSAGE_NEW(comm, ucp_msg, &info, message);
             PML_UCX_VERBOSE(8, "got message %p (%p)", (void*)*message, (void*)ucp_msg);
-            mca_pml_ucx_set_recv_status_safe(mpi_status, UCS_OK, &info);
+            mca_pml_ucx_set_recv_status_public(mpi_status, UCS_OK, &info);
             return OMPI_SUCCESS;
         }
     }
@@ -1113,8 +1116,8 @@ int mca_pml_ucx_start(size_t count, ompi_request_t** requests)
             tmp_req = (ompi_request_t*)mca_pml_ucx_common_send(preq->send.ep,
                                                                preq->buffer,
                                                                preq->count,
-                                                               preq->datatype.ompi_datatype,
-                                                               preq->datatype.datatype,
+                                                               preq->ompi_datatype,
+                                                               preq->datatype,
                                                                preq->tag,
                                                                preq->send.mode,
                                                                mca_pml_ucx_psend_completion);
@@ -1122,7 +1125,7 @@ int mca_pml_ucx_start(size_t count, ompi_request_t** requests)
             PML_UCX_VERBOSE(8, "start recv request %p", (void*)preq);
             tmp_req = (ompi_request_t*)ucp_tag_recv_nb(ompi_pml_ucx.ucp_worker,
                                                        preq->buffer, preq->count,
-                                                       preq->datatype.datatype,
+                                                       preq->datatype,
                                                        preq->tag,
                                                        preq->recv.tag_mask,
                                                        mca_pml_ucx_precv_completion);

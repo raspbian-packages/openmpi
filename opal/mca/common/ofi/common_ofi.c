@@ -4,9 +4,12 @@
  *                         reserved.
  * Copyright (c) 2020      Triad National Security, LLC. All rights
  *                         reserved.
- * Copyright (c) 2020      Cisco Systems, Inc.  All rights reserved
  * Copyright (c) 2021      Research Organization for Information Science
  *                         and Technology (RIST).  All rights reserved.
+ * Copyright (c) 2020-2021 Cisco Systems, Inc.  All rights reserved
+ * Copyright (c) 2021      Nanook Consulting.  All rights reserved.
+ * Copyright (c) 2021      Amazon.com, Inc. or its affiliates. All rights
+ *                         reserved.
  * $COPYRIGHT$
  *
  * Additional copyrights may follow
@@ -36,7 +39,121 @@ OPAL_DECLSPEC opal_common_ofi_module_t opal_common_ofi = {
     .verbose = 0
 };
 
-static const char default_prov_exclude_list[] = "shm,sockets,tcp,udp,rstream";
+static const char default_prov_exclude_list[] = "shm,sockets,tcp,udp,rstream,usnic";
+static bool opal_common_ofi_initialized = false;
+static int opal_common_ofi_init_ref_cnt = 0;
+
+#if OPAL_OFI_IMPORT_MONITOR_SUPPORT
+
+static int opal_common_ofi_monitor_start(struct fid_mem_monitor *monitor)
+{
+    return 0;
+}
+static void opal_common_ofi_monitor_stop(struct fid_mem_monitor *monitor)
+{
+    return;
+}
+static int opal_common_ofi_monitor_subscribe(struct fid_mem_monitor *monitor,
+                                             const void *addr, size_t len)
+{
+    return 0;
+}
+static void opal_common_ofi_monitor_unsubscribe(struct fid_mem_monitor *monitor,
+                                                const void *addr, size_t len)
+{
+    return;
+}
+static bool opal_common_ofi_monitor_valid(struct fid_mem_monitor *monitor,
+                                     const void *addr, size_t len)
+{
+    return true;
+}
+
+static struct fid_mem_monitor *opal_common_ofi_monitor;
+static struct fid *opal_common_ofi_cache_fid;
+static struct fi_ops_mem_monitor opal_common_ofi_export_ops = {
+    .size = sizeof(struct fi_ops_mem_monitor),
+    .start = opal_common_ofi_monitor_start,
+    .stop = opal_common_ofi_monitor_stop,
+    .subscribe = opal_common_ofi_monitor_subscribe,
+    .unsubscribe = opal_common_ofi_monitor_unsubscribe,
+    .valid = opal_common_ofi_monitor_valid,
+};
+
+OPAL_DECLSPEC void opal_common_ofi_mem_release_cb(void *buf, size_t length,
+                                                  void *cbdata, bool from_alloc)
+{
+    opal_common_ofi_monitor->import_ops->notify(opal_common_ofi_monitor,
+                                                buf, length);
+}
+#endif /* OPAL_OFI_IMPORT_MONITOR_SUPPORT */
+
+OPAL_DECLSPEC int opal_common_ofi_init(void)
+{
+    int ret;
+
+    opal_common_ofi_init_ref_cnt++;
+    if (opal_common_ofi_initialized) {
+        return OPAL_SUCCESS;
+    }
+#if OPAL_OFI_IMPORT_MONITOR_SUPPORT
+
+    mca_base_framework_open(&opal_memory_base_framework, 0);
+    if ((OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_MUNMAP_SUPPORT)
+        != (((OPAL_MEMORY_FREE_SUPPORT | OPAL_MEMORY_MUNMAP_SUPPORT))
+        & opal_mem_hooks_support_level())) {
+        return OPAL_SUCCESS;
+    }
+
+    ret = fi_open(FI_VERSION(1,13), "mr_cache", NULL, 0, 0, &opal_common_ofi_cache_fid, NULL);
+    if (ret) {
+        goto err;
+    }
+
+    opal_common_ofi_monitor = calloc(1, sizeof(*opal_common_ofi_monitor));
+    if (!opal_common_ofi_monitor) {
+        goto err;
+    }
+
+    opal_common_ofi_monitor->fid.fclass = FI_CLASS_MEM_MONITOR;
+    opal_common_ofi_monitor->export_ops = &opal_common_ofi_export_ops;
+    ret = fi_import_fid(opal_common_ofi_cache_fid, &opal_common_ofi_monitor->fid, 0);
+    if (ret) {
+        goto err;
+    }
+    opal_mem_hooks_register_release(opal_common_ofi_mem_release_cb, NULL);
+    opal_common_ofi_initialized = true;
+
+    return OPAL_SUCCESS;
+err:
+    if (opal_common_ofi_cache_fid) {
+        fi_close(opal_common_ofi_cache_fid);
+    }
+    if (opal_common_ofi_monitor) {
+        free(opal_common_ofi_monitor);
+    }
+
+    return OPAL_ERROR;
+#else
+    opal_common_ofi_initialized = true;
+    return OPAL_SUCCESS;
+#endif
+}
+
+OPAL_DECLSPEC int opal_common_ofi_fini(void)
+{
+    if (opal_common_ofi_initialized && !--opal_common_ofi_init_ref_cnt) {
+#if OPAL_OFI_IMPORT_MONITOR_SUPPORT
+        opal_mem_hooks_unregister_release(opal_common_ofi_mem_release_cb);
+        fi_close(opal_common_ofi_cache_fid);
+        fi_close(&opal_common_ofi_monitor->fid);
+        free(opal_common_ofi_monitor);
+#endif
+        opal_common_ofi_initialized = false;
+    }
+
+    return OPAL_SUCCESS;
+}
 
 OPAL_DECLSPEC int opal_common_ofi_is_in_list(char **list, char *item)
 {
@@ -304,26 +421,24 @@ static uint32_t get_package_rank(int32_t num_local_peers, uint16_t my_local_rank
     int i;
     uint16_t relative_locality;
     uint16_t current_package_rank = 0;
-    uint16_t package_ranks[num_local_peers];
+    uint16_t package_ranks[num_local_peers + 1];
     opal_process_name_t pname;
     opal_status_t rc;
     char **peers = NULL;
     char *local_peers = NULL;
     char *locality_string = NULL;
     char *mylocality = NULL;
+    uint16_t *package_rank_ptr;
 
     pname.jobid = OPAL_PROC_MY_NAME.jobid;
     pname.vpid = OPAL_VPID_WILDCARD;
 
-#if HAVE_DECL_PMIX_PACKAGE_RANK
-    uint16_t *package_rank_ptr;
     // Try to get the PACKAGE_RANK from PMIx
-    OPAL_MODEX_RECV_VALUE_OPTIONAL(rc, PMIX_PACKAGE_RANK,
+    OPAL_MODEX_RECV_VALUE_OPTIONAL(rc, OPAL_PMIX_PACKAGE_RANK,
                                    &pname, &package_rank_ptr, OPAL_UINT16);
     if (OPAL_SUCCESS == rc) {
         return (uint32_t)*package_rank_ptr;
     }
-#endif
 
     // Get the local peers
     OPAL_MODEX_RECV_VALUE(rc, OPAL_PMIX_LOCAL_PEERS,

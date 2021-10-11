@@ -28,8 +28,8 @@
 #                         All rights reserved.
 # Copyright (c) 2007-2012 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2016      IBM Corporation.  All rights reserved.
-# Copyright (c) 2017      Research Organization for Information Science
-#                         and Technology (RIST). All rights reserved.
+# Copyright (c) 2017-2021 Research Organization for Information Science
+#                         and Technology (RIST).  All rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -460,7 +460,8 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(ompidir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
-@OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_cxx_la_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la
+@OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_cxx_la_DEPENDENCIES = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@	$(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
 am__lib@OMPI_LIBMPI_NAME@_cxx_la_SOURCES_DIST = mpicxx.cc \
 	intercepts.cc comm.cc datatype.cc file.cc win.cc cxx_glue.c
 @OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@am_lib@OMPI_LIBMPI_NAME@_cxx_la_OBJECTS =  \
@@ -1785,7 +1786,9 @@ AM_CPPFLAGS = -DOMPI_BUILDING_CXX_BINDINGS_LIBRARY=1 -DOMPI_SKIP_MPICXX=1
 @OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@	win.cc \
 @OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@	cxx_glue.c
 
-@OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_cxx_la_LIBADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la
+@OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_cxx_la_LIBADD = $(top_builddir)/ompi/lib@OMPI_LIBMPI_NAME@.la \
+@OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@                                      $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la
+
 @OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@lib@OMPI_LIBMPI_NAME@_cxx_la_LDFLAGS = -version-info $(libmpi_cxx_so_version)
 @OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@headers = \
 @OMPI_BUILD_MPI_CXX_BINDINGS_TRUE@	mpicxx.h \

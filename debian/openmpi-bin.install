@@ -14,7 +14,6 @@ usr/bin/orte-info
 usr/bin/ortecc
 usr/bin/mpiexec.openmpi
 usr/bin/mpirun.openmpi
-usr/bin/mpijavac.pl
 ## Compiler wrappers (symlinks) and man pages
 usr/bin/mpic++.openmpi
 usr/share/man/man1/mpic++.openmpi.1

@@ -14,7 +14,7 @@
  *                         reserved.
  * Copyright (c) 2018      Intel, Inc, All rights reserved
  *
- * Copyright (c) 2018      Amazon.com, Inc. or its affiliates.  All Rights reserved.
+ * Copyright (c) 2018-2021 Amazon.com, Inc. or its affiliates.  All Rights reserved.
  * Copyright (c) 2020      Triad National Security, LLC. All rights
  *                         reserved.
  * $COPYRIGHT$
@@ -219,7 +219,7 @@ static int mca_btl_ofi_component_register(void)
 static int mca_btl_ofi_component_open(void)
 {
     mca_btl_ofi_component.module_count = 0;
-    return OPAL_SUCCESS;
+    return opal_common_ofi_init();
 }
 
 /*
@@ -228,6 +228,7 @@ static int mca_btl_ofi_component_open(void)
 static int mca_btl_ofi_component_close(void)
 {
     opal_common_ofi_mca_deregister();
+    opal_common_ofi_fini();
     /* If we don't sleep, sockets provider freaks out. Ummm this is a scary comment */
     sleep(1);
     return OPAL_SUCCESS;
@@ -332,10 +333,9 @@ static mca_btl_base_module_t **mca_btl_ofi_component_init (int *num_btl_modules,
     /* ask for capabilities */
     /* TODO: catch the caps here. */
     hints.caps = required_caps;
-    hints.mode = FI_CONTEXT;
 
     /* Ask for completion context */
-    hints.mode = FI_CONTEXT;
+    hints.mode = FI_CONTEXT | FI_CONTEXT2;
 
     hints.fabric_attr = &fabric_attr;
     hints.domain_attr = &domain_attr;

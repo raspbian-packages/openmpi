@@ -1,10 +1,54 @@
-openmpi (4.1.1-5+rpi1) bookworm-staging; urgency=medium
+openmpi (4.1.2~rc1-4+rpi1) bookworm-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Tue, 28 Sep 2021 20:21:58 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 11 Oct 2021 13:45:07 +0000
+
+openmpi (4.1.2~rc1-4) unstable; urgency=medium
+
+  * Move java docs to openmpi-doc package
+  * Add Breaks/Replaces for file move libopenmpi-dev -> openmpi-doc
+  * Delete obsolete breaks/replaces
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 29 Sep 2021 11:49:06 +0100
+
+openmpi (4.1.2~rc1-3) unstable; urgency=medium
+
+  * Update versions: 
+    - libmca_common_ompio.so 41.29.1 ->  41.29.2
+    - libmca_common_ofi.so 10.0.1 -> 10.0.2
+    Closes: #995150
+  * Add autopkg test for unlinked shared libs
+  * Add alpha, ppc64, sparc64 to the 'nojava' arch list
+  * Only install javadocs via d/rules inside conditional
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Tue, 28 Sep 2021 08:11:18 +0100
+
+openmpi (4.1.2~rc1-2) unstable; urgency=medium
+
+  * Drop deprecated "stage1" build profile in favour of "nojava"
+  * Don't depend on libfabric-dev on sh4, powerpc, x32
+  * Only install java wrapper script on java platforms (not hurd)
+  * Don't try to build java support on kfreebsd-*
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 26 Sep 2021 10:55:45 +0100
+
+openmpi (4.1.2~rc1-1) experimental; urgency=medium
+
+  * New upstream release
+  * Drop merged patches:
+    - pr8827.patch
+    - no-ship-orted-mpir.patch
+    - pr8596.patch
+  * Update libversions:
+    - libmpi.so.40.30.1 -> libmpi.so.40.30.2
+    - libmpi_cxx.so.40.30.0 -> libmpi_cxx.so.40.30.1
+    - libopen-pal.so.40.30.1 -> libopen-pal.so.40.30.2
+    - libopen-rte.so.40.30.1 -> libopen-rte.so.40.30.2
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sat, 25 Sep 2021 13:20:47 +0100
 
 openmpi (4.1.1-5) unstable; urgency=medium
 

@@ -1,5 +1,43 @@
+#if 0
+
+# NOTE: The comments below cannot use tokens that will be intepreted
+# as C++ preprocessor directives.  So when you read "if 0", the reader
+# must mentally prepend a # to the "if" token.
+#
+# This file is carefully constructed so that it can be a) run as a
+# Bourne shell script and b) compiled as a C/C++ header file.
+#
+# Specifically, this file is used in the following ways:
+#
+# 1. This file is executed as a Bourne shell script to assign version
+#    numbers to shell variables in config/opal_get_version.* and
+#    configure.ac.
+# 2. On case-insensitive filesystems, this file can get included by
+#    C++ STL header files when compiling the MPI C++ bindings (i.e.,
+#    when they "include <version>", that will end up including this
+#    file).
+#
+# Case #2 was discovered in
+# https://github.com/open-mpi/ompi/issues/9122.  The obvious fix for
+# this issue would be to rename VERSION (e.g., VERSION.sh).  However,
+# since the MPI C++ bindings were removed in Open MPI v5.0.0, this
+# issue issue only affects legacy Open MPI release series (namely:
+# v4.1.x and v4.0.x).  As such, do something simple / safe to fix it:
+# protect the main body of this file with an "if" preprocessor
+# directive.
+#
+# 1. For case 1, C++ preprocessor directives become Bourne shell comments.
+# 2. For case 2, we "if 0" the main body of the file and in the "else"
+#    block, "include_next<version>" to get the "real" <version> file.
+#
+# This is a bit of a gross (or clever, depending on your viewpoint)
+# hack, but it makes both cases work with minimal changes to the
+# legacy v4.0.x and v4.1.x release series.
+
+############################################################################
+
 # Copyright (c) 2008      Sun Microsystems, Inc.  All rights reserved.
-# Copyright (c) 2008-2019 Cisco Systems, Inc.  All rights reserved.
+# Copyright (c) 2008-2021 Cisco Systems, Inc.  All rights reserved.
 # Copyright (c) 2011      NVIDIA Corporation.  All rights reserved.
 # Copyright (c) 2013      Mellanox Technologies, Inc.
 #                         All rights reserved.
@@ -23,7 +61,7 @@
 
 major=4
 minor=1
-release=1
+release=2
 
 # greek is generally used for alpha or beta release tags.  If it is
 # non-empty, it will be appended to the version number.  It does not
@@ -32,14 +70,14 @@ release=1
 # requirement is that it must be entirely printable ASCII characters
 # and have no white space.
 
-greek=
+greek=rc1
 
 # If repo_rev is empty, then the repository version number will be
 # obtained during "make dist" via the "git describe --tags --always"
 # command, or with the date (if "git describe" fails) in the form of
 # "date<date>".
 
-repo_rev=v4.1.1
+repo_rev=v4.1.2rc1
 
 # If tarball_version is not empty, it is used as the version string in
 # the tarball filename, regardless of all other versions listed in
@@ -53,7 +91,7 @@ tarball_version=
 
 # The date when this release was created
 
-date="Apr 24, 2021"
+date="Sep 24, 2021"
 
 # The shared library version of each of Open MPI's public libraries.
 # These versions are maintained in accordance with the "Library
@@ -90,14 +128,14 @@ date="Apr 24, 2021"
 # Version numbers are described in the Libtool current:revision:age
 # format.
 
-libmpi_so_version=70:1:30
-libmpi_cxx_so_version=70:0:30
+libmpi_so_version=70:2:30
+libmpi_cxx_so_version=70:1:30
 libmpi_mpifh_so_version=70:0:30
 libmpi_usempi_tkr_so_version=70:0:30
 libmpi_usempi_ignore_tkr_so_version=70:0:30
 libmpi_usempif08_so_version=70:0:30
-libopen_rte_so_version=70:1:30
-libopen_pal_so_version=70:1:30
+libopen_rte_so_version=70:2:30
+libopen_pal_so_version=70:2:30
 libmpi_java_so_version=70:0:30
 liboshmem_so_version=70:1:30
 libompitrace_so_version=70:0:30
@@ -108,7 +146,7 @@ libompitrace_so_version=70:0:30
 # components-don't-affect-the-build-system abstraction.
 
 # OMPI layer
-libmca_ompi_common_ompio_so_version=70:1:29
+libmca_ompi_common_ompio_so_version=70:2:29
 libmca_ompi_common_monitoring_so_version=70:0:20
 
 # ORTE layer
@@ -116,8 +154,14 @@ libmca_orte_common_alps_so_version=70:0:30
 
 # OPAL layer
 libmca_opal_common_cuda_so_version=70:0:30
-libmca_opal_common_ofi_so_version=10:1:0
+libmca_opal_common_ofi_so_version=10:2:0
 libmca_opal_common_sm_so_version=70:0:30
 libmca_opal_common_ucx_so_version=70:1:30
 libmca_opal_common_ugni_so_version=70:0:30
 libmca_opal_common_verbs_so_version=70:0:30
+
+#else
+
+#include_next <version>
+
+#endif

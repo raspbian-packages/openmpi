@@ -7,3 +7,5 @@ Depends: gfortran, libopenmpi-dev, openmpi-bin
 Tests: hello4
 Depends: gfortran, libopenmpi-dev, openmpi-bin
 
+Tests: check_shared_objs
+Depends: openmpi-bin

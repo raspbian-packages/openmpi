@@ -1,4 +1,3 @@
-pr8827.patch
 pkg-config.patch
 mpifort.patch
 manpage_macros
@@ -11,6 +10,4 @@ fix-underlinking.patch
 #version-script.patch
 no-warning-unused.patch
 ia64.patch
-no-ship-orted-mpir.patch
-pr8596.patch
 raspbian.diff

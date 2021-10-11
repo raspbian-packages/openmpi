@@ -42,3 +42,5 @@ usr/share/man/man1/shmemc++.1
 /usr/bin/*
 /usr/lib/*/openmpi/lib/*
 usr/share/pmix/*
+# These will not be installed on binary-only builds
+usr/share/doc/openmpi/javadoc-openmpi/*

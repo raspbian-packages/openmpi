@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2020 The University of Tennessee and The University
+ * Copyright (c) 2004-2021 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
@@ -201,6 +201,28 @@ do {                                                                    \
     }                                                                   \
 } while (0);
 
+/*
+ * Except in procedures that return MPI_ERR_IN_STATUS, the MPI_ERROR
+ * field of a status object shall never be modified
+ * See MPI-1.1 doc, sec 3.2.5, p.22
+ *
+ * Add a small macro that helps setting the status appropriately
+ * depending on the use case
+ */
+#define OMPI_COPY_STATUS(pdst, src, is_err_in_status)                   \
+do {                                                                    \
+    if (is_err_in_status) {                                             \
+        *(pdst) = (src);                                                \
+    }                                                                   \
+    else {                                                              \
+        (pdst)->MPI_TAG = (src).MPI_TAG;                                \
+        (pdst)->MPI_SOURCE = (src).MPI_SOURCE;                          \
+        (pdst)->_ucount = (src)._ucount;                                \
+        (pdst)->_cancelled = (src)._cancelled;                          \
+    }                                                                   \
+} while(0);
+
+
 /**
  * Non-blocking test for request completion.
  *
@@ -395,21 +417,24 @@ static inline int ompi_request_free(ompi_request_t** request)
 
 static inline void ompi_request_wait_completion(ompi_request_t *req)
 {
-    if (opal_using_threads () && !REQUEST_COMPLETE(req)) {
-        void *_tmp_ptr = REQUEST_PENDING;
-        ompi_wait_sync_t sync;
+    if (opal_using_threads ()) {
+        if(!REQUEST_COMPLETE(req)) {
+            void *_tmp_ptr = REQUEST_PENDING;
+            ompi_wait_sync_t sync;
 
-        WAIT_SYNC_INIT(&sync, 1);
+            WAIT_SYNC_INIT(&sync, 1);
 
-        if (OPAL_ATOMIC_COMPARE_EXCHANGE_STRONG_PTR(&req->req_complete, &_tmp_ptr, &sync)) {
-            SYNC_WAIT(&sync);
-        } else {
-            /* completed before we had a chance to swap in the sync object */
-            WAIT_SYNC_SIGNALLED(&sync);
+            if (OPAL_ATOMIC_COMPARE_EXCHANGE_STRONG_PTR(&req->req_complete, &_tmp_ptr, &sync)) {
+                SYNC_WAIT(&sync);
+            } else {
+                /* completed before we had a chance to swap in the sync object */
+                WAIT_SYNC_SIGNALLED(&sync);
+            }
+
+            assert(REQUEST_COMPLETE(req));
+            WAIT_SYNC_RELEASE(&sync);
         }
-
-        assert(REQUEST_COMPLETE(req));
-        WAIT_SYNC_RELEASE(&sync);
+        opal_atomic_rmb();
     } else {
         while(!REQUEST_COMPLETE(req)) {
             opal_progress();
