@@ -1,0 +1,14 @@
+# Compatibility links to /usr/bin
+# SONAME symlinks
+usr/lib/${DEB_HOST_MULTIARCH}/libmca_common_sm.so.40.30.0              usr/lib/${DEB_HOST_MULTIARCH}/libmca_common_sm.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_cxx.so.40.30.1                    usr/lib/${DEB_HOST_MULTIARCH}/libmpi_cxx.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so.40.30.0			usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so.40.30.0			usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi.so.40.30.2                       usr/lib/${DEB_HOST_MULTIARCH}/libmpi.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so.40.30.0		usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so.40.30.0   	usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so.40.30.0		usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so.40.30.0   	usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libompitrace.so.40.30.0                   usr/lib/${DEB_HOST_MULTIARCH}/libompitrace.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so.40.30.2                   usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libopen-rte.so.40.30.2                   usr/lib/${DEB_HOST_MULTIARCH}/libopen-rte.so.40
