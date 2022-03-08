@@ -123,7 +123,8 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                         [#include <ucp/api/ucp.h>])
                          AC_CHECK_DECLS([ucp_ep_flush_nb, ucp_worker_flush_nb,
                                          ucp_request_check_status, ucp_put_nb, ucp_get_nb,
-                                         ucp_put_nbx, ucp_get_nbx, ucp_atomic_op_nbx],
+                                         ucp_put_nbx, ucp_get_nbx, ucp_atomic_op_nbx,
+                                         ucp_ep_flush_nbx],
                                         [], [],
                                         [#include <ucp/api/ucp.h>])
                          AC_CHECK_DECLS([ucm_test_events,
@@ -137,7 +138,8 @@ AC_DEFUN([OMPI_CHECK_UCX],[
                                          UCP_ATOMIC_FETCH_OP_FOR,
                                          UCP_ATOMIC_FETCH_OP_FXOR,
                                          UCP_PARAM_FIELD_ESTIMATED_NUM_PPN,
-                                         UCP_WORKER_FLAG_IGNORE_REQUEST_LEAK],
+                                         UCP_WORKER_FLAG_IGNORE_REQUEST_LEAK,
+                                         UCP_OP_ATTR_FLAG_MULTI_SEND],
                                         [], [],
                                         [#include <ucp/api/ucp.h>])
                          AC_CHECK_DECLS([UCP_WORKER_ATTR_FIELD_ADDRESS_FLAGS],

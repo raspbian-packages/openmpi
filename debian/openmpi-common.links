@@ -4,3 +4,4 @@ usr/share/openmpi/mpicxx-wrapper-data.txt	usr/share/openmpi/mpicxx.openmpi-wrapp
 usr/share/openmpi/mpiCC-wrapper-data.txt	usr/share/openmpi/mpiCC.openmpi-wrapper-data.txt
 usr/share/openmpi/mpif77-wrapper-data.txt	usr/share/openmpi/mpif77.openmpi-wrapper-data.txt
 usr/share/openmpi/mpif90-wrapper-data.txt	usr/share/openmpi/mpif90.openmpi-wrapper-data.txt
+usr/share/openmpi/mpifort-wrapper-data.txt	usr/share/openmpi/mpifort.openmpi-wrapper-data.txt

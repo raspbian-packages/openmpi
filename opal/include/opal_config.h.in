@@ -340,6 +340,10 @@
    you don't. */
 #undef HAVE_DECL_UCP_EP_FLUSH_NB
 
+/* Define to 1 if you have the declaration of `ucp_ep_flush_nbx', and to 0 if
+   you don't. */
+#undef HAVE_DECL_UCP_EP_FLUSH_NBX
+
 /* Define to 1 if you have the declaration of `ucp_get_nb', and to 0 if you
    don't. */
 #undef HAVE_DECL_UCP_GET_NB
@@ -347,6 +351,10 @@
 /* Define to 1 if you have the declaration of `ucp_get_nbx', and to 0 if you
    don't. */
 #undef HAVE_DECL_UCP_GET_NBX
+
+/* Define to 1 if you have the declaration of `UCP_OP_ATTR_FLAG_MULTI_SEND',
+   and to 0 if you don't. */
+#undef HAVE_DECL_UCP_OP_ATTR_FLAG_MULTI_SEND
 
 /* Define to 1 if you have the declaration of
    `UCP_PARAM_FIELD_ESTIMATED_NUM_PPN', and to 0 if you don't. */
@@ -848,6 +856,9 @@
 /* Define to 1 if you have the <rdma/fabric.h> header file. */
 #undef HAVE_RDMA_FABRIC_H
 
+/* Define to 1 if you have the <rdma/fi_ext.h> header file. */
+#undef HAVE_RDMA_FI_EXT_H
+
 /* Define to 1 if you have the <rdma/rdma_cma.h> header file. */
 #undef HAVE_RDMA_RDMA_CMA_H
 
@@ -958,6 +969,9 @@
 
 /* Define to 1 if `speed_hi' is a member of `struct ethtool_cmd'. */
 #undef HAVE_STRUCT_ETHTOOL_CMD_SPEED_HI
+
+/* Define to 1 if the system has the type `struct fi_ops_mem_monitor'. */
+#undef HAVE_STRUCT_FI_OPS_MEM_MONITOR
 
 /* Define to 1 if `transport_type' is a member of `struct ibv_device'. */
 #undef HAVE_STRUCT_IBV_DEVICE_TRANSPORT_TYPE
@@ -2666,9 +2680,6 @@
 
 /* Minor release number of Open Portable Access Layer */
 #undef OPAL_MINOR_VERSION
-
-/* Whether libfabric supports monitor import */
-#undef OPAL_OFI_IMPORT_MONITOR_SUPPORT
 
 /* check if pci data is available in ofi */
 #undef OPAL_OFI_PCI_DATA_AVAILABLE
