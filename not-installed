@@ -1,0 +1,46 @@
+/usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/openmpi3/*.la
+/usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/*.la
+# Installed, but dh_install doesn't handle the mv well
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_monitoring.so.50
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libopen-pal.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/liboshmem.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_mpifh.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_cxx.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libopen-rte.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_ompio.so.41
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_usempif08.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_ucx.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_java.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_usempi_ignore_tkr.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_sm.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_verbs.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libompitrace.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/mpi.jar
+usr/bin/shmemrun
+usr/bin/mpirun.openmpi
+usr/bin/oshrun
+usr/share/man/man1/ompi-server.1
+usr/share/man/man1/mpijavac.1
+usr/share/man/man1/oshc++.1
+usr/share/man/man1/orte-info.1
+usr/share/man/man1/oshcxx.1
+usr/share/man/man1/shmemCC.1
+usr/share/man/man1/shmemcc.1
+usr/share/man/man1/shmemfort.1
+usr/share/man/man1/shmemcxx.1
+usr/share/man/man1/orte-server.1
+usr/share/man/man1/oshmem_info.1
+usr/share/man/man1/shmemrun.1
+usr/share/man/man1/oshcc.1
+usr/share/man/man1/oshrun.1
+usr/share/man/man1/oshCC.1
+usr/share/man/man1/oshfort.1
+usr/share/man/man1/shmemc++.1
+### TODO:
+# Need to handle binary-indep builds with dh_missing
+/usr/bin/*
+/usr/lib/*/openmpi/lib/*
+usr/share/pmix/*
+# These will not be installed on binary-only builds
+usr/share/doc/openmpi/javadoc-openmpi/*
