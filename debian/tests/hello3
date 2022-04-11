@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+### Compile and run a simple MPI application, via pkg-config
+
+
+cc -o hello  `pkg-config mpi --libs --cflags` hello.c
+
+mpirun -n 1 ./hello
