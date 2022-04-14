@@ -1638,9 +1638,6 @@ opal_pmix_pmix3x_CPPFLAGS = @opal_pmix_pmix3x_CPPFLAGS@
 opal_pmix_pmix3x_DEPENDENCIES = @opal_pmix_pmix3x_DEPENDENCIES@
 opal_pmix_pmix3x_LDFLAGS = @opal_pmix_pmix3x_LDFLAGS@
 opal_pmix_pmix3x_LIBS = @opal_pmix_pmix3x_LIBS@
-opal_reachable_netlink_CPPFLAGS = @opal_reachable_netlink_CPPFLAGS@
-opal_reachable_netlink_LDFLAGS = @opal_reachable_netlink_LDFLAGS@
-opal_reachable_netlink_LIBS = @opal_reachable_netlink_LIBS@
 opaldatadir = @opaldatadir@
 opalincludedir = @opalincludedir@
 opallibdir = @opallibdir@
@@ -1701,6 +1698,9 @@ ras_tm_LIBS = @ras_tm_LIBS@
 rcache_udreg_CPPFLAGS = @rcache_udreg_CPPFLAGS@
 rcache_udreg_LDFLAGS = @rcache_udreg_LDFLAGS@
 rcache_udreg_LIBS = @rcache_udreg_LIBS@
+reachable_netlink_CPPFLAGS = @reachable_netlink_CPPFLAGS@
+reachable_netlink_LDFLAGS = @reachable_netlink_LDFLAGS@
+reachable_netlink_LIBS = @reachable_netlink_LIBS@
 sbindir = @sbindir@
 schizo_alps_CPPFLAGS = @schizo_alps_CPPFLAGS@
 schizo_moab_CPPFLAGS = @schizo_moab_CPPFLAGS@
@@ -1757,7 +1757,7 @@ sources = \
 @MCA_BUILD_opal_reachable_netlink_DSO_FALSE@component_install = 
 @MCA_BUILD_opal_reachable_netlink_DSO_TRUE@component_install = mca_reachable_netlink.la
 AM_CPPFLAGS = \
-        $(opal_reachable_netlink_CPPFLAGS) \
+        $(reachable_netlink_CPPFLAGS) \
         -DOPAL_HAVE_LIBNL3=$(OPAL_HAVE_LIBNL3)
 
 mcacomponentdir = $(opallibdir)
@@ -1765,12 +1765,12 @@ mcacomponent_LTLIBRARIES = $(component_install)
 mca_reachable_netlink_la_SOURCES = $(sources)
 mca_reachable_netlink_la_LDFLAGS = -module -avoid-version
 mca_reachable_netlink_la_LIBADD = $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la \
-	$(opal_reachable_netlink_LIBS)
+	$(reachable_netlink_LIBS)
 
 noinst_LTLIBRARIES = $(component_noinst)
 libmca_reachable_netlink_la_SOURCES = $(sources)
 libmca_reachable_netlink_la_LDFLAGS = -module -avoid-version
-libmca_reachable_netlink_la_LIBADD = $(opal_reachable_netlink_LIBS)
+libmca_reachable_netlink_la_LIBADD = $(reachable_netlink_LIBS)
 all: all-am
 
 .SUFFIXES:

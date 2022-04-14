@@ -10,7 +10,7 @@
  *
  * Copyright (c) 2012      Oracle and/or its affiliates.  All rights reserved.
  * Copyright (c) 2014      NVIDIA Corporation.  All rights reserved.
- * Copyright (c) 2015-2018 Research Organization for Information Science
+ * Copyright (c) 2015-2021 Research Organization for Information Science
  *                         and Technology (RIST).  All rights reserved.
  * Copyright (c) 2015      Los Alamos National Security, LLC. All rights
  *                         reserved.
@@ -51,8 +51,15 @@
 extern "C" {
 #endif
 
-/* log(2) */
-#define LOG2 0.69314718055994530941
+/* Dividing very close floats may lead to unexpected roundings */
+static inline int
+ceil_of_log2 (int val) {
+    int ret = 0;
+    while (1 << ret < val) {
+        ret ++;
+    }
+    return ret;
+}
 
 /* true/false */
 #define true 1
@@ -565,7 +572,7 @@ static inline void NBC_SchedCache_dictwipe(hb_tree *dict, int *size) {
 #define NBC_IN_PLACE(sendbuf, recvbuf, inplace) \
 { \
   inplace = 0; \
-  if(recvbuf == sendbuf) { \
+  if(recvbuf == sendbuf && MPI_BOTTOM != sendbuf) { \
     inplace = 1; \
   } else \
   if(sendbuf == MPI_IN_PLACE) { \

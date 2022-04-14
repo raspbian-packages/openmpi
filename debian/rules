@@ -259,9 +259,9 @@ override_dh_install:
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_java.so.40	$(LIBDIR)/openmpi/lib/libmpi_java.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmpi_java.so.40	$(LIBDIR)/libmpi_java.so ; \
 	fi
-	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.1 ; then \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.1 $(LIBDIR); \
-		dh_link -p libopenmpi3 $(LIBDIR)/libmca_common_ucx.so.40.30.1  $(LIBDIR)/libmca_common_ucx.so.40 ; \
+	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.2 ; then \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ucx.so.40.30.2 $(LIBDIR); \
+		dh_link -p libopenmpi3 $(LIBDIR)/libmca_common_ucx.so.40.30.2  $(LIBDIR)/libmca_common_ucx.so.40 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ucx.so.40	$(LIBDIR)/openmpi/lib/libmca_common_ucx.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ucx.so.40	$(LIBDIR)/libmca_common_ucx.so ; \
 	fi
@@ -278,9 +278,9 @@ override_dh_install:
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ofi.so.10	$(LIBDIR)/openmpi/lib/libmca_common_ofi.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ofi.so.10	$(LIBDIR)/libmca_common_ofi.so ; \
 	fi
-	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.2; then  \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.2 $(LIBDIR) ; \
-		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ompio.so.41.29.2  $(LIBDIR)/libmca_common_ompio.so.41 ; \
+	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.3; then  \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.3 $(LIBDIR) ; \
+		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ompio.so.41.29.3  $(LIBDIR)/libmca_common_ompio.so.41 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ompio.so.41	$(LIBDIR)/openmpi/lib/libmca_common_ompio.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ompio.so.41	$(LIBDIR)/libmca_common_ompio.so ; \
 	fi

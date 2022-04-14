@@ -3,7 +3,7 @@
 
 # Ensure all mca shared objects, etc are ok
 
-ompi_info --all 2>&1 | grep -q "cannot open shared object file"
+ompi_info --all 2>&1 | grep  "cannot open shared object file"
 
 [ $? -eq 1 ]
 

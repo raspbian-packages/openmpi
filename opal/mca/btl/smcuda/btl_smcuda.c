@@ -3,7 +3,7 @@
  * Copyright (c) 2004-2011 The Trustees of Indiana University and Indiana
  *                         University Research and Technology
  *                         Corporation.  All rights reserved.
- * Copyright (c) 2004-2014 The University of Tennessee and The University
+ * Copyright (c) 2004-2022 The University of Tennessee and The University
  *                         of Tennessee Research Foundation.  All rights
  *                         reserved.
  * Copyright (c) 2004-2007 High Performance Computing Center Stuttgart,
@@ -925,10 +925,7 @@ int mca_btl_smcuda_sendi( struct mca_btl_base_module_t* btl,
     }
     /* We do not want to use this path when we have CUDA IPC support */
     if ((convertor->flags & CONVERTOR_CUDA) && (IPC_ACKED == endpoint->ipcstate)) {
-        if (NULL != descriptor) {
-            *descriptor = mca_btl_smcuda_alloc(btl, endpoint, order, payload_size+header_size, flags);
-        }
-        return OPAL_ERR_RESOURCE_BUSY;
+        goto return_resource_busy;
     }
 #endif /* OPAL_CUDA_SUPPORT */
 
@@ -938,9 +935,8 @@ int mca_btl_smcuda_sendi( struct mca_btl_base_module_t* btl,
         /* allocate a fragment, giving up if we can't get one */
         /* note that frag==NULL is equivalent to rc returning an error code */
         MCA_BTL_SMCUDA_FRAG_ALLOC_EAGER(frag);
-        if( OPAL_UNLIKELY(NULL == frag) ) {
-            *descriptor = NULL;
-            return OPAL_ERR_OUT_OF_RESOURCE;
+        if (OPAL_UNLIKELY(NULL == frag)) {
+            goto return_resource_busy;
         }
 
         /* fill in fragment fields */
@@ -987,9 +983,10 @@ int mca_btl_smcuda_sendi( struct mca_btl_base_module_t* btl,
         return OPAL_SUCCESS;
     }
 
-    /* presumably, this code path will never get executed */
-    *descriptor = mca_btl_smcuda_alloc( btl, endpoint, order,
-                                    payload_size + header_size, flags);
+  return_resource_busy:
+    if (NULL != descriptor) {
+        *descriptor = mca_btl_smcuda_alloc(btl, endpoint, order, length, flags);
+    }
     return OPAL_ERR_RESOURCE_BUSY;
 }
 

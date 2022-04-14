@@ -8,7 +8,7 @@ Copyright (c) 2004-2008 High Performance Computing Center Stuttgart,
                         University of Stuttgart.  All rights reserved.
 Copyright (c) 2004-2007 The Regents of the University of California.
                         All rights reserved.
-Copyright (c) 2006-2020 Cisco Systems, Inc.  All rights reserved.
+Copyright (c) 2006-2022 Cisco Systems, Inc.  All rights reserved.
 Copyright (c) 2006-2011 Mellanox Technologies. All rights reserved.
 Copyright (c) 2006-2012 Oracle and/or its affiliates.  All rights reserved.
 Copyright (c) 2007      Myricom, Inc.  All rights reserved.
@@ -333,6 +333,22 @@ Compiler Notes
   MPI applications.  As of 1 Feb 2012, if you upgrade to the latest
   version of the Intel 12.1 Linux compiler suite, the problem will go
   away.
+
+- Users have reported (see
+  https://github.com/open-mpi/ompi/issues/7615) that the Intel Fortran
+  compiler will fail to link Fortran-based MPI applications on macOS
+  with linker errors similar to this:
+
+      Undefined symbols for architecture x86_64:
+        "_ompi_buffer_detach_f08", referenced from:
+            import-atom in libmpi_usempif08.dylib
+      ld: symbol(s) not found for architecture x86_64
+
+  It appears that setting the environment variable
+  lt_cx_ld_force_load=no before invoking Open MPI's configure script
+  works around the issue.  For example:
+
+      shell$ lt_cv_ld_force_load=no ./configure ...
 
 - Early versions of the Portland Group 6.0 compiler have problems
   creating the C++ MPI bindings as a shared library (e.g., v6.0-1).
@@ -1513,14 +1529,30 @@ MISCELLANEOUS FUNCTIONALITY
   Enable the PERUSE MPI data analysis interface.
 
 --enable-heterogeneous
-  Enable support for running on heterogeneous clusters (e.g., machines
-  with different endian representations).  Heterogeneous support is
-  disabled by default because it imposes a minor performance penalty.
+  Enable support for running on heterogeneous clusters where data
+  types are equivalent sizes across nodes, but may have differing
+  endian representations.  Heterogeneous support is disabled by
+  default because it imposes a minor performance penalty.
 
- --enable-spc
+  Note that the MPI standard does not guarantee that all
+  heterogeneous communication will function properly, especially
+  when the conversion between the different representations leads to
+  loss of accuracy or range.  For example, if a message with a
+  16-bit integer datatype is sent with value 0x10000 to a receiver
+  where the same integer datatype is only 8 bits, the value will be
+  truncated at the receiver.  Similarly, problems can occur if a
+  floating point datatype in one MPI process uses X1 bits for its
+  mantissa and Y1 bits for its exponent, but the same floating point
+  datatype in another MPI process uses X2 and Y2 bits, respectively
+  (where X1 != X2 and/or Y1 != Y2).  Type size differences like this
+  can lead to unexpected behavior.
+
+  Open MPI's heterogeneous support correctly handles endian
+  differences between datatype representations that are otherwise
+  compatible.
+
+--enable-spc
   Enable software-based performance counters capability.
-
-  *** THIS FUNCTIONALITY IS CURRENTLY BROKEN - DO NOT USE ***
 
 --with-wrapper-cflags=<cflags>
 --with-wrapper-cxxflags=<cxxflags>
