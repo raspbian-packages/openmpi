@@ -33,6 +33,10 @@
 static ssize_t mca_fbtl_posix_pwritev_datasieving (ompio_file_t *fh );
 static ssize_t mca_fbtl_posix_pwritev_generic (ompio_file_t *fh );
 
+#ifndef IOV_MAX
+#define IOV_MAX 1024
+#endif
+
 ssize_t  mca_fbtl_posix_pwritev(ompio_file_t *fh )
 {
     ssize_t bytes_written=0, ret_code=0;
