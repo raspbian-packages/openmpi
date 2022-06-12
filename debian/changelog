@@ -1,10 +1,20 @@
-openmpi (4.1.3-2+rpi1) bookworm-staging; urgency=medium
+openmpi (4.1.4-1+rpi1) bookworm-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 14 Apr 2022 14:59:18 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sun, 12 Jun 2022 12:25:50 +0000
+
+openmpi (4.1.4-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update links:
+    - libmpi.so.40.30.3 -> libmpi.so.40.30.4
+    - /libmca_common_ompio.so.41.29.3 -> /libmca_common_ompio.so.41.29.4
+  * Standards-Versoin: 4.6.1
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Sun, 29 May 2022 10:51:27 +0100
 
 openmpi (4.1.3-2) unstable; urgency=medium
 

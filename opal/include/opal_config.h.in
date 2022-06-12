@@ -1150,6 +1150,12 @@
 /* Define to 1 if you have the <tm_tree.h> header file. */
 #undef HAVE_TM_TREE_H
 
+/* Define to 1 if you have the <ucc/api/ucc.h> header file. */
+#undef HAVE_UCC_API_UCC_H
+
+/* Define to 1 if you have the `ucc_comm_free' function. */
+#undef HAVE_UCC_COMM_FREE
+
 /* Define to 1 if you have the <ucontext.h> header file. */
 #undef HAVE_UCONTEXT_H
 

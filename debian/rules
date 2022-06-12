@@ -278,9 +278,9 @@ override_dh_install:
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ofi.so.10	$(LIBDIR)/openmpi/lib/libmca_common_ofi.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ofi.so.10	$(LIBDIR)/libmca_common_ofi.so ; \
 	fi
-	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.3; then  \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.3 $(LIBDIR) ; \
-		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ompio.so.41.29.3  $(LIBDIR)/libmca_common_ompio.so.41 ; \
+	if test -f $(DESTDIR)/$(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.4; then  \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/libmca_common_ompio.so.41.29.4 $(LIBDIR) ; \
+		dh_link -p libopenmpi3    $(LIBDIR)/libmca_common_ompio.so.41.29.4  $(LIBDIR)/libmca_common_ompio.so.41 ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ompio.so.41	$(LIBDIR)/openmpi/lib/libmca_common_ompio.so ; \
 		dh_link -p libopenmpi-dev $(LIBDIR)/libmca_common_ompio.so.41	$(LIBDIR)/libmca_common_ompio.so ; \
 	fi

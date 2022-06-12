@@ -19,6 +19,7 @@
 # Copyright (c) 2016      Research Organization for Information Science
 #                         and Technology (RIST). All rights reserved.
 # Copyright (c) 2017      IBM Corporation.  All rights reserved.
+# Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
 # $COPYRIGHT$
 #
 # Additional copyrights may follow
@@ -119,6 +120,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/ompi_check_psm.m4 \
 	$(top_srcdir)/config/ompi_check_psm2.m4 \
 	$(top_srcdir)/config/ompi_check_pvfs2.m4 \
+	$(top_srcdir)/config/ompi_check_ucc.m4 \
 	$(top_srcdir)/config/ompi_check_ucx.m4 \
 	$(top_srcdir)/config/ompi_config_files.m4 \
 	$(top_srcdir)/config/ompi_configure_options.m4 \
@@ -357,6 +359,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/ompi/mca/coll/hcoll/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/monitoring/configure.m4 \
 	$(top_srcdir)/ompi/mca/coll/portals4/configure.m4 \
+	$(top_srcdir)/ompi/mca/coll/ucc/configure.m4 \
 	$(top_srcdir)/ompi/mca/crcp/bkmrk/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/ime/configure.m4 \
 	$(top_srcdir)/ompi/mca/fbtl/posix/configure.m4 \
@@ -393,6 +396,7 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/oshmem/mca/atomic/mxm/configure.m4 \
 	$(top_srcdir)/oshmem/mca/atomic/ucx/configure.m4 \
 	$(top_srcdir)/oshmem/mca/scoll/fca/configure.m4 \
+	$(top_srcdir)/oshmem/mca/scoll/ucc/configure.m4 \
 	$(top_srcdir)/oshmem/mca/spml/ikrit/configure.m4 \
 	$(top_srcdir)/oshmem/mca/spml/ucx/configure.m4 \
 	$(top_srcdir)/oshmem/mca/sshmem/mmap/configure.m4 \
@@ -1489,6 +1493,10 @@ coll_hcoll_LIBS = @coll_hcoll_LIBS@
 coll_portals4_CPPFLAGS = @coll_portals4_CPPFLAGS@
 coll_portals4_LDFLAGS = @coll_portals4_LDFLAGS@
 coll_portals4_LIBS = @coll_portals4_LIBS@
+coll_ucc_CFLAGS = @coll_ucc_CFLAGS@
+coll_ucc_CPPFLAGS = @coll_ucc_CPPFLAGS@
+coll_ucc_LDFLAGS = @coll_ucc_LDFLAGS@
+coll_ucc_LIBS = @coll_ucc_LIBS@
 common_alps_CPPFLAGS = @common_alps_CPPFLAGS@
 common_alps_LDFLAGS = @common_alps_LDFLAGS@
 common_alps_LIBS = @common_alps_LIBS@
@@ -1714,6 +1722,10 @@ scoll_fca_CPPFLAGS = @scoll_fca_CPPFLAGS@
 scoll_fca_HOME = @scoll_fca_HOME@
 scoll_fca_LDFLAGS = @scoll_fca_LDFLAGS@
 scoll_fca_LIBS = @scoll_fca_LIBS@
+scoll_ucc_CFLAGS = @scoll_ucc_CFLAGS@
+scoll_ucc_CPPFLAGS = @scoll_ucc_CPPFLAGS@
+scoll_ucc_LDFLAGS = @scoll_ucc_LDFLAGS@
+scoll_ucc_LIBS = @scoll_ucc_LIBS@
 sharedstatedir = @sharedstatedir@
 spml_ikrit_CFLAGS = @spml_ikrit_CFLAGS@
 spml_ikrit_CPPFLAGS = @spml_ikrit_CPPFLAGS@
@@ -1763,13 +1775,13 @@ AM_CPPFLAGS = \
 mcacomponentdir = $(opallibdir)
 mcacomponent_LTLIBRARIES = $(component_install)
 mca_reachable_netlink_la_SOURCES = $(sources)
-mca_reachable_netlink_la_LDFLAGS = -module -avoid-version
+mca_reachable_netlink_la_LDFLAGS = -module -avoid-version $(reachable_netlink_LDFLAGS)
 mca_reachable_netlink_la_LIBADD = $(top_builddir)/opal/lib@OPAL_LIB_PREFIX@open-pal.la \
 	$(reachable_netlink_LIBS)
 
 noinst_LTLIBRARIES = $(component_noinst)
 libmca_reachable_netlink_la_SOURCES = $(sources)
-libmca_reachable_netlink_la_LDFLAGS = -module -avoid-version
+libmca_reachable_netlink_la_LDFLAGS = -module -avoid-version $(reachable_netlink_LDFLAGS)
 libmca_reachable_netlink_la_LIBADD = $(reachable_netlink_LIBS)
 all: all-am
 
