@@ -245,8 +245,8 @@ override_dh_install:
 		dh_installman -p openmpi-bin $(DESTDIR)/usr/share/man/man1/oshCC.1 ; \
 		dh_installman -p openmpi-bin $(DESTDIR)/usr/share/man/man1/oshc++.1 ; \
 		dh_installman -p openmpi-bin $(DESTDIR)/usr/share/man/man1/oshcxx.1 ; \
-		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/liboshmem.so.40.30.1 $(LIBDIR) ; \
-                dh_link -p libopenmpi3 $(LIBDIR)/liboshmem.so.40.30.1  $(LIBDIR)/liboshmem.so.40 ; \
+		dh_install -p libopenmpi3 $(LIBDIR)/openmpi/lib/liboshmem.so.40.30.2 $(LIBDIR) ; \
+                dh_link -p libopenmpi3 $(LIBDIR)/liboshmem.so.40.30.2  $(LIBDIR)/liboshmem.so.40 ; \
 		dh_link -p libopenmpi-dev   $(LIBDIR)/liboshmem.so.40  $(LIBDIR)/openmpi/lib/liboshmem.so ; \
 		dh_link -p libopenmpi-dev   $(LIBDIR)/liboshmem.so.40  $(LIBDIR)/liboshmem.so ; \
 	fi
