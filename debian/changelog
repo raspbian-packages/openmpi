@@ -1,10 +1,16 @@
-openmpi (4.1.4-2+rpi1) bookworm-staging; urgency=medium
+openmpi (4.1.4-3+rpi1) bookworm-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Fri, 14 Oct 2022 07:39:54 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 31 Oct 2022 01:54:19 +0000
+
+openmpi (4.1.4-3) unstable; urgency=medium
+
+  * Rebuild against latest dh-fortran-mod, pmix 4.2.1
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 12 Oct 2022 12:52:34 +0100
 
 openmpi (4.1.4-2) unstable; urgency=medium
 
