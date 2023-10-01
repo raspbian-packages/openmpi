@@ -595,6 +595,12 @@ AC_DEFUN([OPAL_CONFIG_ASM],[
               [AC_MSG_ERROR([No atomic primitives available for $host])])
             ;;
 
+        hppa*)
+            opal_cv_asm_arch="HPPA"
+            OPAL_ASM_SUPPORT_64BIT=0
+            OPAL_GCC_INLINE_ASSIGN='"copy 0,%0" : "=&r"(ret)'
+            ;;
+
         mips-*|mips64*)
             # Should really find some way to make sure that we are on
             # a MIPS III machine (r4000 and later)
