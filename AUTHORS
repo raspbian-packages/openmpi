@@ -29,6 +29,8 @@ Alejandro Vilches
   alejandro.vilches@intel.com
 Aleksey Senin
   alekseys@mellanox.com
+Alex
+  93376818+sashashura@users.noreply.github.com
 Alex Anenkov
   anenkov.ru@gmail.com
 Alex Margolin
@@ -53,6 +55,8 @@ Andrew Lumsdaine
   lums@cs.indiana.edu
 Andrey Maslennikov
   andreyma@mellanox.com
+Andrii Bilokur
+  abilokur@nvidia.com
 Annapurna Dasari
   annapurna.dasari@intel.com
 Antoine Dechaume
@@ -73,6 +77,8 @@ Austen Lauria
   awlauria@us.ibm.com
 Avneesh Pant
   avneesh.pant@qlogic.com
+Azat Khuzhin
+  a3at.mail@gmail.com
 Ben Menadue
   ben.menadue@nci.org.au
 Benoît Legat
@@ -237,8 +243,12 @@ Jie Zhang
   zhngaj@amazon.com
 Jijo Varghese
   jijo733@gmail.com
+Jingyin Tang
+  jytang@amazon.com
 Jithin Jose
   jithin.jose@intel.com
+Joe Downs
+  joe@dwns.dev
 John L. Jolly
   jjolly@suse.com
 John Westlund
@@ -254,6 +264,8 @@ Jose Roman
 Joseph Schuchart
   schuchart@hlrs.de
   schuchart@icl.utk.edu
+Josh Fisher
+  josh.fisher@cornelisnetworks.com
 Josh Hursey
   jhursey@us.ibm.com
   jjhursey@open-mpi.org
@@ -263,6 +275,8 @@ Joshua Gerrard
 Joshua Ladd
   jladd.mlnx@gmail.com
   joshual@mellanox.com
+João Batista Fernandes
+  jotabe.150@gmail.com
 KAWASHIMA Takahiro
   rivis.kawashima@nifty.com
   t-kawashima@jp.fujitsu.com
@@ -292,6 +306,12 @@ Leonid Genkin
   lgenkin@nvidia.com
 Li-Ta Lo
   ollie@lanl.gov
+Lisandro Dalcin
+  dalcinl@gmail.com
+Luke Robison
+  lrbison@amazon.com
+Mamzi Bayatpour
+  mbayatpour@nvidia.com
 Mamzi Bayatpour  mbayatpour@nvidia.com ()
   mbayatpour@helios001.hpcadvisorycouncil.com
 Mangala Jyothi Bhaskar
@@ -313,6 +333,8 @@ Matias A Cabral
   matias.a.cabral@intel.com
 Matt Ezell
   ezellma@ornl.gov
+Matt Koop
+  mkoop@amazon.com
 Matthias Jurenz
   matthias.jurenz@tu-dresden.de
 Maximilien Levesque
@@ -368,6 +390,8 @@ Ninad Prabhukhanolkar
   ninadchess96@gmail.com
 Noah Evans
   noah.evans@gmail.com
+Nuria Losada
+  nlosada@icl.utk.edu
 Nysal Jan K A
   jnysal@in.ibm.com
 Omri Mor
@@ -414,6 +438,8 @@ Rainer Keller
 Ralph Castain
   rhc@open-mpi.org
   rhc@pmix.org
+Raul Akhmetshin
+  rakhmetshin@nvidia.com
 Reese Faucette
   rfaucett@cisco.com
 René Widera
@@ -428,6 +454,8 @@ Rob Latham
   robl@mcs.anl.gov
 Robert Wespetal
   wesper@amazon.com
+Roie Danino
+  rdanino@nvidia.com
 Rolf vandeVaart
   rvandevaart@nvidia.com
 Ron Brightwell
@@ -449,11 +477,15 @@ Scott Miller
   scott.miller1@ibm.com
 Selvin Xavier
   selvin.xavier@broadcom.com
+Sergey Kosukhin
+  sergey.kosukhin@mpimet.mpg.de
 Sergey Oblomov
   sergeyo@mellanox.com
   sergeyo@nvidia.com
 Sharon Melamed
   sharonm@voltaire.com
+Shimmy Balsam
+  sbalsam@nvidia.com
 Shiqing Fan
   shiqing@hlrs.de
 Simon Byrne
@@ -511,6 +543,7 @@ Todd Kordenbrock
 Tomislav Janjusic
   tomislavj@mellanox.com
   tomislavj@mngx-apl-01.mtl.labs.mlnx
+  tomislavj@nvidia.com
 Torsten Hoefler
   htor@osl.iu.edu
 Tsubasa Yanagibashi
@@ -529,6 +562,8 @@ Wei Zhang
   wzam@amazonc.com
 Weikuan Yu
   yuw@lanl.gov
+Wenduo Wang
+  wenduwan@amazon.com
 Wesley Bland
   wbland@icl.utk.edu
 William Bailey
@@ -553,6 +588,7 @@ Yohann Burette
   yohann.burette@intel.com
 Yossi Itigin
   yosefe@mellanox.com
+  yosefe@nvidia.com
 Yu Feng
   rainwoodman@gmail.com
 Zhi Ming Wang
@@ -574,5 +610,7 @@ perrynzhou
   perrynzhou@gmail.com
 raafatfeki
   fekiraafat@gmail.com
+snordmann
+  snordmann@nvidia.com
 tomhers
   tom.herschberg@gmail.com

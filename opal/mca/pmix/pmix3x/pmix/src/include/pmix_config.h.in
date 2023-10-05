@@ -479,45 +479,18 @@
 /* Alignment of type wchar_t */
 #undef PMIX_ALIGNMENT_WCHAR
 
-/* Assembly align directive expects logarithmic value */
-#undef PMIX_ASM_ALIGN_LOG
-
 /* What ARM assembly version to use */
 #undef PMIX_ASM_ARM_VERSION
-
-/* Assembly directive for exporting symbols */
-#undef PMIX_ASM_GLOBAL
-
-/* Assembly prefix for gsym labels */
-#undef PMIX_ASM_GSYM
-
-/* Assembly suffix for labels */
-#undef PMIX_ASM_LABEL_SUFFIX
-
-/* Assembly prefix for lsym labels */
-#undef PMIX_ASM_LSYM
-
-/* Do we need to give a .size directive */
-#undef PMIX_ASM_SIZE
 
 /* Whether we can do 64bit assembly operations or not. Should not be used
    outside of the assembly header files */
 #undef PMIX_ASM_SUPPORT_64BIT
-
-/* Assembly directive for setting text section */
-#undef PMIX_ASM_TEXT
-
-/* How to set function type in .type directive */
-#undef PMIX_ASM_TYPE
 
 /* Architecture type of assembly to use for atomic operations and CMA */
 #undef PMIX_ASSEMBLY_ARCH
 
 /* Whether to use builtin atomics */
 #undef PMIX_ASSEMBLY_BUILTIN
-
-/* Format of assembly file */
-#undef PMIX_ASSEMBLY_FORMAT
 
 /* Whether we have support for RDTSCP instruction */
 #undef PMIX_ASSEMBLY_SUPPORTS_RDTSCP
@@ -786,9 +759,6 @@
 
 /* Whether we have lt_dladvise or not */
 #undef PMIX_PDL_PLIBLTDL_HAVE_LT_DLADVISE
-
-/* Whether r notation is used for ppc registers */
-#undef PMIX_POWERPC_R_REGISTERS
 
 /* Whether or not we found the optional write_nonrecursive_np flag */
 #undef PMIX_PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP

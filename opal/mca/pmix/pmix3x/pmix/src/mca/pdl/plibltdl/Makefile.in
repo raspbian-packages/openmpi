@@ -139,7 +139,6 @@ am__aclocal_m4_deps = $(top_srcdir)/config/c_get_alignment.m4 \
 	$(top_srcdir)/config/pmix_setup_libevent.m4 \
 	$(top_srcdir)/config/pmix_setup_zlib.m4 \
 	$(top_srcdir)/config/pmix_summary.m4 \
-	$(top_srcdir)/config/pmix_try_assemble.m4 \
 	$(top_srcdir)/config/autogen_found_items.m4 \
 	$(top_srcdir)/src/mca/pdl/configure.m4 \
 	$(top_srcdir)/src/mca/pinstalldirs/configure.m4 \
@@ -425,16 +424,9 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PC_PRIVATE_LIBS = @PC_PRIVATE_LIBS@
 PC_REQUIRES = @PC_REQUIRES@
 PERL = @PERL@
-PMIX_ASM_GSYM = @PMIX_ASM_GSYM@
-PMIX_ASM_LSYM = @PMIX_ASM_LSYM@
 PMIX_ASM_SUPPORT_64BIT = @PMIX_ASM_SUPPORT_64BIT@
-PMIX_ASM_TEXT = @PMIX_ASM_TEXT@
-PMIX_ASM_TYPE = @PMIX_ASM_TYPE@
 PMIX_ASSEMBLY_ARCH = @PMIX_ASSEMBLY_ARCH@
 PMIX_ASSEMBLY_BUILTIN = @PMIX_ASSEMBLY_BUILTIN@
-PMIX_ASSEMBLY_FORMAT = @PMIX_ASSEMBLY_FORMAT@
-PMIX_AS_GLOBAL = @PMIX_AS_GLOBAL@
-PMIX_AS_LABEL_SUFFIX = @PMIX_AS_LABEL_SUFFIX@
 PMIX_BUILT_TEST_PREFIX = @PMIX_BUILT_TEST_PREFIX@
 PMIX_CC_ABSOLUTE = @PMIX_CC_ABSOLUTE@
 PMIX_COMPONENT_LIBRARY_PATHS = @PMIX_COMPONENT_LIBRARY_PATHS@

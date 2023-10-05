@@ -17247,6 +17247,12 @@ lt_prog_compiler_static_FC=
       # Common symbols not allowed in MH_DYLIB files
       lt_prog_compiler_pic_FC='-fno-common'
       case $cc_basename in
+      icc* | ifort*)
+        #Intel Fortran compiler
+        lt_prog_compiler_wl_FC='-Wl,'
+        lt_prog_compiler_pic_FC='-fno-common -PIC'
+        lt_prog_compiler_static_FC=''
+        ;;
       nagfor*)
         # NAG Fortran compiler
         lt_prog_compiler_wl_FC='-Wl,-Wl,,'

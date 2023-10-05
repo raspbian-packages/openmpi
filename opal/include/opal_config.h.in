@@ -1824,6 +1824,9 @@
 /* Whether fortran symbols have a trailing underscore or not */
 #undef OMPI_FORTRAN_SINGLE_UNDERSCORE
 
+/* The number or Fortran INTEGER in MPI Status */
+#undef OMPI_FORTRAN_STATUS_SIZE
+
 /* Whether we are building support for the "use mpif08" bindings or not */
 #undef OMPI_FORTRAN_USEMPIF08_BINDINGS
 
@@ -2237,26 +2240,8 @@
 /* OMPI architecture string */
 #undef OPAL_ARCH
 
-/* Assembly align directive expects logarithmic value */
-#undef OPAL_ASM_ALIGN_LOG
-
 /* What ARM assembly version to use */
 #undef OPAL_ASM_ARM_VERSION
-
-/* Assembly directive for exporting symbols */
-#undef OPAL_ASM_GLOBAL
-
-/* Assembly prefix for gsym labels */
-#undef OPAL_ASM_GSYM
-
-/* Assembly suffix for labels */
-#undef OPAL_ASM_LABEL_SUFFIX
-
-/* Assembly prefix for lsym labels */
-#undef OPAL_ASM_LSYM
-
-/* Do we need to give a .size directive */
-#undef OPAL_ASM_SIZE
 
 /* Whether we can do 64bit assembly operations or not. Should not be used
    outside of the assembly header files */
@@ -2265,20 +2250,11 @@
 /* Whether 64-bit is supported by the __sync builtin atomics */
 #undef OPAL_ASM_SYNC_HAVE_64BIT
 
-/* Assembly directive for setting text section */
-#undef OPAL_ASM_TEXT
-
-/* How to set function type in .type directive */
-#undef OPAL_ASM_TYPE
-
 /* Architecture type of assembly to use for atomic operations and CMA */
 #undef OPAL_ASSEMBLY_ARCH
 
 /* Whether to use builtin atomics */
 #undef OPAL_ASSEMBLY_BUILTIN
-
-/* Format of assembly file */
-#undef OPAL_ASSEMBLY_FORMAT
 
 /* Whether we have support for RDTSCP instruction */
 #undef OPAL_ASSEMBLY_SUPPORTS_RDTSCP
@@ -2707,9 +2683,6 @@
    Set to 0 if MD can bind all of memory. */
 #undef OPAL_PORTALS4_MAX_VA_SIZE
 
-/* Whether r notation is used for ppc registers */
-#undef OPAL_POWERPC_R_REGISTERS
-
 /* Release date of Open Portable Access Layer */
 #undef OPAL_RELEASE_DATE
 
@@ -2930,6 +2903,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Check if float128 and float32(64,128)_complex dt are available in ucc. */
+#undef UCC_HAVE_COMPLEX_AND_FLOAT128_DT
 
 /* Enable extensions on HP-UX. */
 #ifndef _HPUX_SOURCE
