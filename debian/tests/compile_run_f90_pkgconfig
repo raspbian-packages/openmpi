@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+### Compile and run a simple MPI application, via pkg-config
+
+cd debian/tests
+
+gfortran -o hello hello.f90  `pkg-config mpi --libs --cflags` 
+
+mpirun -n 1 ./hello
