@@ -1,20 +1,27 @@
-Index: openmpi-4.0.2/ompi/tools/wrappers/mpifort-wrapper-data.txt.in
-===================================================================
---- openmpi-4.0.2.orig/ompi/tools/wrappers/mpifort-wrapper-data.txt.in
-+++ openmpi-4.0.2/ompi/tools/wrappers/mpifort-wrapper-data.txt.in
-@@ -12,6 +12,7 @@ language=Fortran
+Description: Search for mod files in $FMODDIR directory
+ Also look in a fortran-ABI-specific directory for libs
+Author: Alastair McKinstry <mckinstry@debian.org>
+Last-Updated: 2023-12-21
+Forwarded: no
+
+
+--- a/ompi/tools/wrappers/mpifort-wrapper-data.txt.in
++++ b/ompi/tools/wrappers/mpifort-wrapper-data.txt.in
+@@ -10,6 +10,7 @@
+ version=@OMPI_VERSION@
+ language=Fortran
  compiler_env=FC
++compiler_version=@COMPILER_VERSION@
  compiler_flags_env=FCFLAGS
  compiler=@FC@
-+compiler_version=@COMPILER_VERSION@
  preprocessor_flags=
- compiler_flags=@OMPI_WRAPPER_EXTRA_FCFLAGS@
- linker_flags=@OMPI_WRAPPER_EXTRA_FC_LDFLAGS@
-@@ -24,5 +25,5 @@ libs_static=@OMPI_FORTRAN_USEMPIF08_LIB@
+@@ -24,5 +25,7 @@
  dyn_lib_file=lib@OMPI_LIBMPI_NAME@.@OPAL_DYN_LIB_SUFFIX@
  static_lib_file=lib@OMPI_LIBMPI_NAME@.a
  required_file=@OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
 -includedir=${includedir}
 -libdir=${libdir}
++# The same includedir is used in mpif77 and mpif90; so link the mod files in there
++# but set fmoddir and use it where possible
 +includedir=${libdir}/../../fortran/@COMPILER_VERSION@/openmpi
 +libdir=${libdir}/fortran/@FC@

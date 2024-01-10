@@ -1,3 +1,10 @@
+Description: Fix for building on IA64
+Author: John Paul Adrian Glaubitz
+Last-Updated: 2020-06-09
+Forwarded: yes
+Bug-Origin: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=963729
+
+
 --- a/opal/include/opal/sys/timer.h
 +++ b/opal/include/opal/sys/timer.h
 @@ -78,8 +78,6 @@

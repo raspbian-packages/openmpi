@@ -1,10 +1,41 @@
-openmpi (4.1.6-1+rpi1) trixie-staging; urgency=medium
+openmpi (4.1.6-5+rpi1) trixie-staging; urgency=medium
 
   [changes brought forward from 2.1.1-6+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Wed, 05 Jul 2017 00:52:53 +0000]
   * Modify arm "detection" for Raspbian.
   * Partially fix clean target
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 05 Oct 2023 23:44:39 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 10 Jan 2024 02:35:20 +0000
+
+openmpi (4.1.6-5) unstable; urgency=medium
+
+  * Ensure pkg-config is present for autopkgtests
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 01 Jan 2024 17:14:56 +0000
+
+openmpi (4.1.6-4) unstable; urgency=medium
+
+  * Revert FMODDIR to libdir via dh-fortran-mod >= 0.31.
+    Closes: #1058876
+  * Add fortran-suppport.mk 
+  * Add fortran:Depends, fortran:Recommends to libopenmpi-dev
+  * Depend on dh-fortran-mod (>= 0.31)
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Mon, 01 Jan 2024 17:14:39 +0000
+
+openmpi (4.1.6-3) unstable; urgency=medium
+
+  * Pass FMODDIR into pkg-config. Closes: #1058876
+  * Update mpi wrappers data for fmoddir
+  * Now ship pkg-config  ompi-f77.pc, opal.pc links in d/libopenmpi-dev
+  * Expand debian/tests to cover mpi wrapper, pkg-config compiles
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Thu, 21 Dec 2023 14:06:07 +0000
+
+openmpi (4.1.6-2) unstable; urgency=medium
+
+  * Fix change of FMODDIR to /usr/include*. Closes: #1058526
+
+ -- Alastair McKinstry <mckinstry@debian.org>  Wed, 13 Dec 2023 08:57:13 +0000
 
 openmpi (4.1.6-1) unstable; urgency=medium
 

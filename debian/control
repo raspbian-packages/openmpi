@@ -4,13 +4,12 @@ Priority: optional
 Maintainer: Alastair McKinstry <mckinstry@debian.org>
 Uploaders: Manuel Prinz <manuel@debian.org>
 Build-Depends: dpkg-dev (>= 1.16.1~), 
- dh-sequence-fortran-mod,
+ dh-fortran-mod (>= 0.31),
  debhelper-compat (= 13), 
  libevent-dev,
  libpmix-dev,
  libucx-dev [amd64 arm64 ppc64el],
  zlib1g-dev,
- gfortran,
  libhwloc-dev,
  pkg-config,
  libibverbs-dev (>= 1.1.7) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386],
@@ -66,7 +65,7 @@ Package: libopenmpi-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: ${shlibs:Depends}, ${misc:Depends}, 
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${fortran:Depends},
  libopenmpi3 (= ${binary:Version}), 
  openmpi-common (>= ${source:Version}), 
  libibverbs-dev (>= 1.1.7) [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], libhwloc-dev,
@@ -76,7 +75,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  libjs-jquery-ui,
  zlib1g-dev,
  openmpi-bin (>= 3.0.0-1)
-Recommends: libcoarrays-openmpi-dev
+Recommends: libcoarrays-openmpi-dev, ${fortran:Recommends}
 Conflicts: libopenmpi-dev
 Breaks:
  openmpi-doc (<< 4.1.2~rc1-4),

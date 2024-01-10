@@ -4,7 +4,8 @@ set -e
 
 ### Compile and run a simple MPI application, via pkg-config
 
+cd debian/tests
 
-cc -o hello  `pkg-config mpi --libs --cflags` hello.c
+f77  -o hello hello.f  `pkg-config mpi --libs --cflags` 
 
 mpirun -n 1 ./hello

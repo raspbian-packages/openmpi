@@ -1,19 +1,19 @@
-Description: Enable non-gfortran compilation
+Description: Enable non-gfortran compilation by separating Fortran libs
+  Note pkg-config files shipped in arch-dep libopenmpi-dev 
+  Don't put FMODDIR in wrapper-data (openmpi-common is arch-indep)
 Author: Alastair McKinstry <mckinstry@debian.org>
-Last-Updated: 2020-01-13
+Last-Updated: 2023-12-31
 Forwarded: no
 
-Index: openmpi-4.0.2/ompi/tools/wrappers/ompi-fort.pc.in
-===================================================================
---- openmpi-4.0.2.orig/ompi/tools/wrappers/ompi-fort.pc.in
-+++ openmpi-4.0.2/ompi/tools/wrappers/ompi-fort.pc.in
-@@ -11,11 +11,15 @@ exec_prefix=@exec_prefix@
+--- a/ompi/tools/wrappers/ompi-fort.pc.in
++++ b/ompi/tools/wrappers/ompi-fort.pc.in
+@@ -11,11 +11,15 @@
  includedir=@includedir@
  libdir=@libdir@
  pkgincludedir=@opalincludedir@
 +# override $fortran with --define-variable when building on non-gfortran compile
 +fortran=gfortran
-+fortrandir=${libdir}/../../fortran/${fortran}
++flibdir=${libdir}/../../fortran/${fortran}
 +
  #
  # Note that -lopen-pal and all the EXTRA_LIBS are only necessary when
@@ -21,6 +21,23 @@ Index: openmpi-4.0.2/ompi/tools/wrappers/ompi-fort.pc.in
  # dependencies), so only list these in Libs.private.
  #
 -Libs: -L${libdir} @OMPI_PKG_CONFIG_LDFLAGS@ @OMPI_FORTRAN_USEMPIF08_LIB@ @OMPI_FORTRAN_USEMPI_LIB@ -l@OMPI_LIBMPI_NAME@_mpifh -l@OMPI_LIBMPI_NAME@
-+Libs: -L${libdir}  @OMPI_PKG_CONFIG_LDFLAGS@ @OMPI_FORTRAN_USEMPIF08_LIB@ @OMPI_FORTRAN_USEMPI_LIB@ -l@OMPI_LIBMPI_NAME@_mpifh -l@OMPI_LIBMPI_NAME@
++Libs: -L${flibdir} -L${libdir}  @OMPI_PKG_CONFIG_LDFLAGS@ @OMPI_FORTRAN_USEMPIF08_LIB@ @OMPI_FORTRAN_USEMPI_LIB@ -l@OMPI_LIBMPI_NAME@_mpifh -l@OMPI_LIBMPI_NAME@
  Libs.private: -lopen-rte -lopen-pal @OMPI_WRAPPER_EXTRA_LIBS@
- Cflags: -I${includedir} @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_FCFLAGS@
+-Cflags: -I${includedir} @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_FCFLAGS@
++Cflags: -I${includedir} -I@FMODDIR@/openmpi  @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_FCFLAGS@
+--- a/ompi/tools/wrappers/ompi-c.pc.in
++++ b/ompi/tools/wrappers/ompi-c.pc.in
+@@ -19,4 +19,4 @@
+ Libs: -L${libdir} @OMPI_PKG_CONFIG_LDFLAGS@ -l@OMPI_LIBMPI_NAME@
+ Libs.private: -lopen-rte -lopen-pal @OMPI_WRAPPER_EXTRA_LIBS@
+ #
+-Cflags: -I${includedir} @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@
++Cflags: -I${includedir} -I@FMODDIR@/openmpi  @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@
+--- a/ompi/tools/wrappers/ompi.pc.in
++++ b/ompi/tools/wrappers/ompi.pc.in
+@@ -19,4 +19,4 @@
+ Libs: -L${libdir} @OMPI_PKG_CONFIG_LDFLAGS@ -l@OMPI_LIBMPI_NAME@
+ Libs.private: @OMPI_WRAPPER_EXTRA_LIBS@
+ #
+-Cflags: -I${includedir} @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@
++Cflags: -I${includedir} -I@FMODDIR@/openmpi  @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@

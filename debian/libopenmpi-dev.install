@@ -1,6 +1,6 @@
 ## Library headers
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/*
-usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/*		/usr/lib/${DEB_HOST_MULTIARCH}/fortran/${env:GFORTRAN_VERSION}/openmpi
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/*                ${env:FMODDIR}/openmpi
 ## .so symlinks
 usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/lib*.so
 ## pkg-config .pc files

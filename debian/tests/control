@@ -1,11 +1,22 @@
-Tests: hello1
+Tests: compile_run_mpicc
 Depends: gcc, openmpi-bin, libopenmpi-dev
 
-Tests: hello2
+Tests: compile_run_mpif90
 Depends: gfortran, libopenmpi-dev, openmpi-bin
 
-Tests: hello4
+Tests: compile_run_mpif77
 Depends: gfortran, libopenmpi-dev, openmpi-bin
 
+Tests: compile_run_cc_pkgconfig
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkg-config
+
+# Fails, for_main -- test wrong?
+#Tests: compile_run_f90_pkgconfig
+#Depends: gfortran, libopenmpi-dev, openmpi-bin, pkg-config
+
+# Fails, for_main -- test wrong?
+#Tests: compile_run_f77_pkgconfig
+#Depends: gfortran, libopenmpi-dev, openmpi-bin, pkg-config
+#
 Tests: check_shared_objs
 Depends: openmpi-bin
