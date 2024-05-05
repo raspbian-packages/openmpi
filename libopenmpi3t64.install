@@ -1,0 +1,14 @@
+# Shared libraries
+usr/lib/*/openmpi/lib/libmpi_mpifh*.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi_usempif08*.so.*		/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi_usempi_ignore_tkr*.so.*		/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmca_common_sm.so.*            	/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi_cxx.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi.so.*				/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libompitrace.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libopen-pal.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libopen-rte.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+## Plugins
+usr/lib/*/openmpi/lib/openmpi3/*.so
+# usr/lib/*/openmpi/lib/libopen-orted-mpir.so
+usr/lib/*/openmpi/lib/ompi_monitoring_prof.so
