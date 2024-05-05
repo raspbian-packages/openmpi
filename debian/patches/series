@@ -1,0 +1,12 @@
+pkg-config.patch
+mpifort.patch
+manpage_macros
+build_hurd
+libdir.patch
+hppa.patch
+opal_fifo.patch
+verbose-ompi-rules.patch
+fix-underlinking.patch
+#version-script.patch
+no-warning-unused.patch
+ia64.patch
