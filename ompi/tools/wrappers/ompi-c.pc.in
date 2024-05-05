@@ -19,4 +19,4 @@ pkgincludedir=@opalincludedir@
 Libs: -L${libdir} @OMPI_PKG_CONFIG_LDFLAGS@ -l@OMPI_LIBMPI_NAME@
 Libs.private: -lopen-rte -lopen-pal @OMPI_WRAPPER_EXTRA_LIBS@
 #
-Cflags: -I${includedir} @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@
+Cflags: -I${includedir} -I@FMODDIR@/openmpi  @OMPI_WRAPPER_EXTRA_CPPFLAGS@ @OMPI_WRAPPER_EXTRA_CFLAGS@
