@@ -1,0 +1,26 @@
+
+Please be aware that as of release 4.1.0-5, Debian now sets the following:
+
+	OMPI_MCA_btl_base_warn_component_unused=0
+	btl = ^uct,openib
+	pml = ^ucx
+	osc = ^ucx
+
+This is set in /etc/openmpi/openmpi-mca-params.conf and turns off warnings that OpenFabric is configured
+but not used on the system. Many or most users of Debian will not have OpenFabric present on their systems
+and turning this off prevents spurious warnings that were breaking higher-level libraries and
+applications.  
+
+However the Libfabric EFA provider currently does not support applications calling fork() 
+when memory registrations are handled by the EFA provider. This is to prevent applications 
+from encountering potential data corruption or crashes when operating in this mode.
+Most applications, including the majority of MPI and NCCL applications, will still function
+with this constraint. Some applications do require fork() support, however, 
+these applications do not require memory registrations to be handled by the EFA provider.
+
+If you wish to use OpenIB and know the application to be safe, comment out the exclude line.
+
+Similarly, UCX is disabled by default as it gives spurious errors on missing RDMA fabric.
+Please enable this if you have the appropriate hardware.
+
+-- Alastair McKinstry <mckinstry@debian.org>, 2021-01-14
