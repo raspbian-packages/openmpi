@@ -37,6 +37,10 @@ static ssize_t mca_fbtl_posix_pwritev_datasieving (ompio_file_t *fh, struct floc
 static ssize_t mca_fbtl_posix_pwritev_generic (ompio_file_t *fh, struct flock *lock, int *lock_counter );
 static ssize_t mca_fbtl_posix_pwritev_single (ompio_file_t *fh, struct flock *lock, int *lock_counter );
 
+#ifndef IOV_MAX
+#define IOV_MAX 1024
+#endif
+
 ssize_t  mca_fbtl_posix_pwritev(ompio_file_t *fh )
 {
     ssize_t bytes_written=0;

@@ -28,6 +28,10 @@
 
 #include "opal_config.h"
 
+#ifndef PATH_MAX /* Hurd */
+#define PATH_MAX 65535
+#endif
+
 #define OMPI_IDENT_STRING OPAL_IDENT_STRING
 
 /***********************************************************************
