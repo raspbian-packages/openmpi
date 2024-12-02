@@ -1,0 +1,7 @@
+Description: Fix problems in manpages
+ In some man page headers, a macro (-*-) is used which makes lintian
+  choke and probably should not be there anyway.
+Author: Alastair McKinstry <mckinstry@debian.org>
+Forwarded: no
+Last-Update: 2018-04-08
+
