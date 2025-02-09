@@ -182,7 +182,8 @@ void prte_data_server(int status, pmix_proc_t *sender,
     prte_data_object_t *data;
     pmix_data_buffer_t *answer, *reply;
     int rc, k;
-    uint32_t ninfo, i;
+    size_t ninfo;
+    uint32_t i;
     char **keys = NULL, *str;
     bool wait = false;
     int room_number;
