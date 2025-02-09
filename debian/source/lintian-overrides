@@ -1,0 +1,3 @@
+# Failing to recognise dh-sequence-fortran-mod
+openmpi source: missing-build-dependency-for-dh_-command
+

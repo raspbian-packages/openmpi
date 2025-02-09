@@ -1,0 +1,21 @@
+Upstream-Bug: https://github.com/openpmix/prrte/commit/0bfee1d11c760f5e6f9ac2f20ef98c0adebce732
+Author: Ralph Castain
+Description: Upstream patch for type error
+Last-Updated: 2024-11-28
+Forwarded: not-needed
+
+
+Index: openmpi-5.0.6/3rd-party/prrte/src/runtime/prte_data_server.c
+===================================================================
+--- openmpi-5.0.6.orig/3rd-party/prrte/src/runtime/prte_data_server.c
++++ openmpi-5.0.6/3rd-party/prrte/src/runtime/prte_data_server.c
+@@ -182,7 +182,8 @@ void prte_data_server(int status, pmix_p
+     prte_data_object_t *data;
+     pmix_data_buffer_t *answer, *reply;
+     int rc, k;
+-    uint32_t ninfo, i;
++    size_t ninfo;
++    uint32_t i;
+     char **keys = NULL, *str;
+     bool wait = false;
+     int room_number;
