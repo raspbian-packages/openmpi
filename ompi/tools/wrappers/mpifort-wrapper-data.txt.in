@@ -14,7 +14,7 @@ compiler_flags_env=FCFLAGS
 compiler=@FC@
 preprocessor_flags=
 compiler_flags_prefix=@OMPI_WRAPPER_FCFLAGS_PREFIX@
-compiler_flags=@OMPI_WRAPPER_FCFLAGS@
+compiler_flags=-I${libdir}/../../fortran/gfortran-mod-15/openmpi -I${includedir}
 linker_flags=@OMPI_WRAPPER_FC_LDFLAGS@
 linker_flags_static=@OMPI_WRAPPER_FC_LDFLAGS_STATIC@
 libs=@OMPI_WRAPPER_FC_LIBS@
@@ -22,5 +22,8 @@ libs_static=@OMPI_WRAPPER_FC_LIBS_STATIC@
 dyn_lib_file=lib@OMPI_LIBMPI_NAME@.@OPAL_DYN_LIB_SUFFIX@
 static_lib_file=lib@OMPI_LIBMPI_NAME@.a
 required_file=@OMPI_WRAPPER_FORTRAN_REQUIRED_FILE@
+# The same includedir is used in mpif77 and mpif90; so link the mod files in there
+# but set fmoddir and use it where possible
+fmoddir=${libdir}/../../fortran/gfortran-mod-15
 includedir=${includedir}
 libdir=${libdir}
