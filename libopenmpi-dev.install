@@ -1,0 +1,6 @@
+## Library headers
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/*
+## .so symlinks
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/lib*.so
+## pkg-config .pc files
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/*.pc

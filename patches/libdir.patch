@@ -1,0 +1,24 @@
+Author: Alastair McKinstry <mckinstry@debian.org>
+Description: Change install libdir to openmpi40
+ This is needed to ensure that libopenmpi3, libopenmpi40 do not collide.
+Last-Updated: 2024-11-19
+Forwarded: not-needed
+
+
+--- a/configure.ac
++++ b/configure.ac
+@@ -1453,11 +1453,13 @@
+ # easier to deal with the problem of opal and ompi built from
+ # their own tarballs, with their own PACKAGE variables.
+ opaldatadir='${datadir}/openmpi'
+-opallibdir='${libdir}/openmpi'
++opallibdir='${libdir}/openmpi40'
+ opalincludedir='${includedir}/openmpi'
++pkglibdir='${libdir}/openmpi40'
+ AC_SUBST(opaldatadir)
+ AC_SUBST(opallibdir)
+ AC_SUBST(opalincludedir)
++AC_SUBST(pkglibdir)
+ 
+ OPAL_SET_MCA_PREFIX([OMPI_MCA_])
+ OPAL_SET_MCA_CMD_LINE_ID([mca])

@@ -1,0 +1,12 @@
+# Compatibility links to /usr/bin
+# SONAME symlinks
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so.40.40.1			usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so.40.40.1			usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi.so.40.40.7                       usr/lib/${DEB_HOST_MULTIARCH}/libmpi.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so.40.40.3		usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so.40.40.1   	usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so.40.40.3		usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so.40
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so.40.40.1   	usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so.40
+# usr/lib/${DEB_HOST_MULTIARCH}/libompitrace.so.40.40.1
+usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so.80.0.5                usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so.80
+usr/lib/${DEB_HOST_MULTIARCH}/libprrte.so.3.0.8 			usr/lib/${DEB_HOST_MULTIARCH}/libprrte.so.3
