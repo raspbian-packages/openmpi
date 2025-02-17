@@ -1,0 +1,43 @@
+Description: Enable non-gfortran compilation by separating Fortran libs
+  Note pkg-config files shipped in arch-dep libopenmpi-dev 
+  Don't put FMODDIR in wrapper-data (openmpi-common is arch-indep)
+Author: Alastair McKinstry <mckinstry@debian.org>
+Last-Updated: 2024-11-15
+Forwarded: not-needed
+
+Index: openmpi-5.0.5/ompi/tools/wrappers/ompi-fort.pc.in
+===================================================================
+--- openmpi-5.0.5.orig/ompi/tools/wrappers/ompi-fort.pc.in
++++ openmpi-5.0.5/ompi/tools/wrappers/ompi-fort.pc.in
+@@ -12,8 +12,12 @@ includedir=@includedir@
+ libdir=@libdir@
+ pkgincludedir=@opalincludedir@
+ 
+-Libs: @OMPI_PC_FC_LIBS@
+-Libs.private: @OMPI_PC_FC_LIBS_PRIVATE@
+-Cflags: @OMPI_PC_FC_CFLAGS@
++# override $fortran with --define-variable when building on non-gfortran compile
++fortran=gfortran
++flibdir=${libdir}/../../fortran/${fortran}
++Libs:  @OMPI_PC_FC_LIBS@
++Libs.private:  @OMPI_PC_FC_LIBS_PRIVATE@
++
++Cflags: -I${libdir}/../../fortran/gfortran-mod-15/openmpi @OMPI_PC_FC_CFLAGS@
+ Requires: @OMPI_PC_MODULES@
+ Requires.private: @OMPI_PC_MODULES_PRIVATE@
+Index: openmpi-5.0.5/ompi/tools/wrappers/ompi.pc.in
+===================================================================
+--- openmpi-5.0.5.orig/ompi/tools/wrappers/ompi.pc.in
++++ openmpi-5.0.5/ompi/tools/wrappers/ompi.pc.in
+@@ -12,8 +12,8 @@ includedir=@includedir@
+ libdir=@libdir@
+ pkgincludedir=@opalincludedir@
+ 
+-Libs: @OMPI_PC_LIBS@
+-Libs.private: @OMPI_PC_LIBS_PRIVATE@
+-Cflags: @OMPI_PC_CFLAGS@
++Libs: @OMPI_PC_FC_LIBS@
++Libs.private: @OMPI_PC_FC_LIBS_PRIVATE@
++Cflags: -I${libdir}/../../fortran/gfortran-mod-15/openmpi @OMPI_PC_CFLAGS@
+ Requires: @OMPI_PC_MODULES@
+ Requires.private: @OMPI_PC_MODULES_PRIVATE@

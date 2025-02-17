@@ -1,0 +1,29 @@
+Tests: compile-run-mpicc
+Depends: gcc, openmpi-bin, libopenmpi-dev
+
+Tests: compile-run-mpif90
+Depends: gfortran, libopenmpi-dev, openmpi-bin
+
+Tests: compile-run-mpif77
+Depends: gfortran, libopenmpi-dev, openmpi-bin
+
+Tests: compile-run-cc-pkgconf-ompi-c
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkgconf
+
+Tests: compile-run-cc-pkgconf-ompi
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkgconf
+
+Tests: compile-run-f90-pkgconf 
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkgconf
+
+Tests: compile-run-f90-pkgconf-ompi-fort
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkgconf
+
+Tests: compile-run-f77-pkgconf
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkgconf
+
+Tests: compile-run-f77-pkgconf-ompi-f77
+Depends: gfortran, libopenmpi-dev, openmpi-bin, pkgconf
+
+Tests: check-shared-objs
+Depends: openmpi-bin

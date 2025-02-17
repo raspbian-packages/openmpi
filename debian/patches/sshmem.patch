@@ -1,0 +1,18 @@
+Description: Fix FTBFS with -Wint-conversion
+Author: Alastair McKinstry <mckinstry@debian.org>
+Last-Updated: 2025-02-17
+Forwarded: no
+
+Index: openmpi-5.0.7/oshmem/mca/sshmem/base/sshmem_base_open.c
+===================================================================
+--- openmpi-5.0.7.orig/oshmem/mca/sshmem/base/sshmem_base_open.c
++++ openmpi-5.0.7/oshmem/mca/sshmem/base/sshmem_base_open.c
+@@ -31,7 +31,7 @@
+  * globals
+  */
+ 
+-void *mca_sshmem_base_start_address = UINTPTR_MAX;
++void *mca_sshmem_base_start_address = (uintptr_t *) UINTPTR_MAX;
+ 
+ char * mca_sshmem_base_backing_file_dir = NULL;
+ 
