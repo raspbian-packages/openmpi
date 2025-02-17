@@ -12,8 +12,8 @@ includedir=@includedir@
 libdir=@libdir@
 pkgincludedir=@opalincludedir@
 
-Libs: @OMPI_PC_LIBS@
-Libs.private: @OMPI_PC_LIBS_PRIVATE@
-Cflags: @OMPI_PC_CFLAGS@
+Libs: @OMPI_PC_FC_LIBS@
+Libs.private: @OMPI_PC_FC_LIBS_PRIVATE@
+Cflags: -I${libdir}/../../fortran/gfortran-mod-15/openmpi @OMPI_PC_CFLAGS@
 Requires: @OMPI_PC_MODULES@
 Requires.private: @OMPI_PC_MODULES_PRIVATE@
