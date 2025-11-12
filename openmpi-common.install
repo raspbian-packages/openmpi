@@ -1,0 +1,6 @@
+## Aggregate MCA (AMCA) Parameter Sets
+usr/share/openmpi/amca-param-sets/*
+## Help files and other stuff
+usr/share/openmpi/*
+usr/share/prte/*
+#usr/share/pmix/*

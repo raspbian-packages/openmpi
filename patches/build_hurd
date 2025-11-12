@@ -1,0 +1,68 @@
+Description: Fix build problems on hurd-i386
+ This patch allows Open MPI to build on Debian GNU/HURD.
+ .
+ Also, the memory:linux MCA component is disabled, since its use of POSIX API
+ in malloc hooks called very early at startup causes troubles.
+ .
+ Also changes by Samuel Thibault <sthibault@debian.org>
+ See bugs.debian.org/846965
+Author: Pino Toscano <pino@debian.org>
+Forwarded: partially
+Last-Update: 2018-10-24
+
+--- a/ompi/include/ompi_config.h
++++ b/ompi/include/ompi_config.h
+@@ -28,6 +28,10 @@
+ 
+ #include "opal_config.h"
+ 
++#ifndef PATH_MAX /* Hurd */
++#define PATH_MAX 65535
++#endif
++
+ #define OMPI_IDENT_STRING OPAL_IDENT_STRING
+ 
+ /***********************************************************************
+--- a/opal/mca/base/mca_base_var.c
++++ b/opal/mca/base/mca_base_var.c
+@@ -61,6 +61,14 @@
+ #include "opal/util/printf.h"
+ #include "opal/util/show_help.h"
+ 
++#ifndef MAXPATHLEN /* Hurd */
++#define MAXPATHLEN 65535
++#endif
++
++#ifndef PATH_MAX  /* Hurd */
++#define PATH_MAX 65535
++#endif
++
+ /*
+  * local variables
+  */
+--- a/ompi/mca/fbtl/posix/fbtl_posix_preadv.c
++++ b/ompi/mca/fbtl/posix/fbtl_posix_preadv.c
+@@ -35,6 +35,10 @@
+ static ssize_t mca_fbtl_posix_preadv_single (ompio_file_t *fh, struct flock *lock, int *lock_counter);
+ 
+ 
++#ifndef IOV_MAX
++#define IOV_MAX 1024
++#endif
++
+ ssize_t mca_fbtl_posix_preadv (ompio_file_t *fh )
+ {
+     ssize_t bytes_read=0;
+--- a/ompi/mca/fbtl/posix/fbtl_posix_pwritev.c
++++ b/ompi/mca/fbtl/posix/fbtl_posix_pwritev.c
+@@ -34,6 +34,10 @@
+ static ssize_t mca_fbtl_posix_pwritev_generic (ompio_file_t *fh, struct flock *lock, int *lock_counter );
+ static ssize_t mca_fbtl_posix_pwritev_single (ompio_file_t *fh, struct flock *lock, int *lock_counter );
+ 
++#ifndef IOV_MAX
++#define IOV_MAX 1024
++#endif
++
+ ssize_t  mca_fbtl_posix_pwritev(ompio_file_t *fh )
+ {
+     ssize_t bytes_written=0;
