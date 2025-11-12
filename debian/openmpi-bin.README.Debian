@@ -1,0 +1,52 @@
+Open MPI for Debian
+-------------------
+
+InfiniBand support
+------------------
+
+InfiniBand and UCX support is build into the package and enabled by default.
+On Debian, OpenMPI sets the following:
+
+	OMPI_MCA_btl_base_warn_component_unused=0
+	btl = ^uct,openib
+	pml = ^ucx
+	osc = ^ucx
+
+This is set in /etc/openmpi/openmpi-mca-params.conf and turns off warnings that OpenFabric is configured
+but not used on the system. Many or most users of Debian will not have OpenFabric present on their systems
+and turning this off prevents spurious warnings that were breaking higher-level libraries and
+applications.  
+
+However the Libfabric EFA provider currently does not support applications calling fork() 
+when memory registrations are handled by the EFA provider. This is to prevent applications 
+from encountering potential data corruption or crashes when operating in this mode.
+Most applications, including the majority of MPI and NCCL applications, will still function
+with this constraint. Some applications do require fork() support, however, 
+these applications do not require memory registrations to be handled by the EFA provider.
+
+If you wish to use OpenIB and know the application to be safe, comment out the exclude line.
+
+Please see https://github.com/ofiwg/libfabric/issues/6332 for details.
+
+Similarly UCX is disabled due to spurious warnings about missing devices on systems without RDMA.
+Please enable as required.
+
+MPI Alternatives
+----------------
+
+The current Open MPI version of Debian uses the Debian Alternatives system.
+Open MPI is considered the default MPI implementation in Debian. MPICH2 is
+also available. You can check which MPI is the default on your system with
+
+  update-alternatives --list mpirun
+
+and list all installed implementations with
+
+  update-alternatives --display mpirun
+
+If you have several implementations installed and Open MPI is not the default
+on your system, you can enable it explicitly with
+
+  update-alternatives --set mpirun /usr/bin/mpirun.openmpi
+
+ -- Alastair McKinstry <mckinstry@debian.org>, Sat,  9 Jan 2021 13:34:35 +0000
