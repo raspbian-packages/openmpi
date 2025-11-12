@@ -61,6 +61,14 @@
 #include "opal/util/printf.h"
 #include "opal/util/show_help.h"
 
+#ifndef MAXPATHLEN /* Hurd */
+#define MAXPATHLEN 65535
+#endif
+
+#ifndef PATH_MAX  /* Hurd */
+#define PATH_MAX 65535
+#endif
+
 /*
  * local variables
  */
