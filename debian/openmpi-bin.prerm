@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
+    update-alternatives --remove mpirun /usr/bin/mpirun.openmpi
+    update-alternatives --remove mpi /usr/bin/mpicc.openmpi
+fi
+
+dpkg-maintscript-helper rm_conffile /etc/openmpi/pmix-mca-params.conf 5.0.1-1 openmpi-bin -- "$@"
+dpkg-maintscript-helper rm_conffile /etc/openmpi/openmpi-default-hostfile 5.0.1-1 openmpi-bin -- "$@"
+
+#DEBHELPER#

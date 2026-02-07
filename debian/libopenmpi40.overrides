@@ -1,0 +1,2 @@
+libopenmpi40: package-name-doesnt-match-sonames libopenmpi40
+libopenmpi40: package-name-doesnt-match-sonames libmpi-mpifh-gfortran40 libmpi-mpifh40 libmpi-usempi-ignore-tkr-gfortran40 libmpi-usempi-ignore-tkr40 libmpi-usempif08-40 libmpi-usempif08-gfortran40 libmpi40 libopen-pal80 libprrte3

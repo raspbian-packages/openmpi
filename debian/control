@@ -1,0 +1,153 @@
+Source: openmpi
+Standards-Version: 4.7.3
+Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
+Uploaders:
+ Alastair McKinstry <mckinstry@debian.org>,
+ Manuel Prinz <manuel@debian.org>,
+Section: net
+Build-Depends:
+ dpkg-dev (>= 1.22.5),
+ architecture-is-64-bit,
+ dh-sequence-fortran,
+ debhelper-compat (= 13),
+ libevent-dev,
+ libucx-dev [amd64 arm64 ppc64el riscv64 loong64],
+ zlib1g-dev,
+ gfortran-for-host,
+ libhwloc-dev,
+ libpmix-dev,
+ pkgconf,
+ libibverbs-dev,
+ libfabric-dev [!hurd-any],
+ libnuma-dev [!hurd-any],
+ libpsm2-dev [amd64],
+ python3-sphinx-rtd-theme:native,
+ sphinx,
+ python3-recommonmark:native,
+ default-jdk [!hurd-any !alpha !ppc64 !sparc64] <!nojava>,
+ chrpath,
+ flex,
+Build-Conflicts:
+ libmpich-dev,
+ libopenmpi-dev,
+Vcs-Browser: https://salsa.debian.org/hpc-team/openmpi
+Vcs-Git: https://salsa.debian.org/hpc-team/openmpi.git -b debian/latest
+Homepage: https://www.open-mpi.org/
+Rules-Requires-Root: no
+
+Package: openmpi-bin
+Architecture: any
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ openmpi-common (>= ${source:Version}),
+ openssh-client | ssh-client,
+Suggests:
+ gfortran | fortran-compiler,
+Description: high performance message passing library -- binaries
+ Open MPI is a project combining technologies and resources from several other
+ projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
+ MPI library available. A completely new MPI-3.1 compliant implementation, Open
+ MPI offers advantages for system and software vendors, application developers
+ and computer science researchers.
+ .
+ Features:
+  * Full MPI-3.1 standards conformance
+  * Thread safety and concurrency
+  * Dynamic process spawning
+  * High performance on all platforms
+  * Reliable and fast job management
+  * Network and process fault tolerance
+  * Support network heterogeneity
+  * Single library supports all networks
+  * Run-time instrumentation
+  * Many job schedulers supported
+  * Internationalized error messages
+  * Component-based design, documented APIs
+ .
+ This package contains the Open MPI utility programs.
+
+Package: libopenmpi-dev
+Architecture: any
+Section: libdevel
+Depends:
+ ${misc:Depends},
+ ${fortran:Depends},
+ libopenmpi40 (= ${binary:Version}),
+ openmpi-common (>= ${source:Version}),
+ libibverbs-dev,
+ libhwloc-dev,
+ libevent-dev,
+ libjs-jquery,
+ libjs-jquery-ui,
+ zlib1g-dev,
+ openmpi-bin,
+Recommends:
+ libcoarrays-openmpi-dev,
+Suggests:
+ openmpi-doc,
+Description: high performance message passing library -- header files
+ Open MPI is a project combining technologies and resources from several other
+ projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
+ MPI library available. A completely new MPI-3 compliant implementation, Open
+ MPI offers advantages for system and software vendors, application developers
+ and computer science researchers.
+ .
+ This package contains the header files and compiler wrappers which are needed
+ to compile and link programs against libopenmpi.
+
+Package: libopenmpi40
+Architecture: any
+Multi-Arch: same
+Section: libs
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ libhwloc-plugins,
+Description: high performance message passing library -- shared library
+ Open MPI is a project combining technologies and resources from several other
+ projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
+ MPI library available. A completely new MPI-3.1 compliant implementation, Open
+ MPI offers advantages for system and software vendors, application developers
+ and computer science researchers.
+ .
+ This package contains the Open MPI shared libraries.
+
+Package: openmpi-common
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+Description: high performance message passing library -- common files
+ Open MPI is a project combining technologies and resources from several other
+ projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
+ MPI library available. A completely new MPI-3.1 compliant implementation, Open
+ MPI offers advantages for system and software vendors, application developers
+ and computer science researchers.
+ .
+ This package contains platform independent files for Open MPI.
+
+Package: openmpi-doc
+Architecture: all
+Multi-Arch: foreign
+Section: doc
+Depends:
+ ${misc:Depends},
+ ${sphinxdoc:Depends},
+ node-mathjax-full,
+ fonts-font-awesome,
+Conflicts:
+ mpi-doc,
+ lam-mpidoc,
+ lam4-dev,
+Built-Using:
+ ${sphinxdoc:Built-Using},
+Description: high performance message passing library -- man pages
+ Open MPI is a project combining technologies and resources from several other
+ projects (FT-MPI, LA-MPI, LAM/MPI, and PACX-MPI) in order to build the best
+ MPI library available. A completely new MPI-3.1 compliant implementation, Open
+ MPI offers advantages for system and software vendors, application developers
+ and computer science researchers.
+ .
+ This package contains man pages describing the Message Passing Interface
+ standard.
