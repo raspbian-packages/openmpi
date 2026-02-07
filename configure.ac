@@ -1454,11 +1454,13 @@ esac
 # easier to deal with the problem of opal and ompi built from
 # their own tarballs, with their own PACKAGE variables.
 opaldatadir='${datadir}/openmpi'
-opallibdir='${libdir}/openmpi'
+opallibdir='${libdir}/openmpi40'
 opalincludedir='${includedir}/openmpi'
+pkglibdir='${libdir}/openmpi40'
 AC_SUBST(opaldatadir)
 AC_SUBST(opallibdir)
 AC_SUBST(opalincludedir)
+AC_SUBST(pkglibdir)
 
 OPAL_SET_MCA_PREFIX([OMPI_MCA_])
 OPAL_SET_MCA_CMD_LINE_ID([mca])
