@@ -39,6 +39,10 @@ static ssize_t mca_fbtl_posix_preadv_generic (ompio_file_t *fh, struct flock *lo
 static ssize_t mca_fbtl_posix_preadv_single (ompio_file_t *fh, struct flock *lock, int *lock_counter);
 
 
+#ifndef IOV_MAX
+#define IOV_MAX 1024
+#endif
+
 ssize_t mca_fbtl_posix_preadv (ompio_file_t *fh )
 {
     ssize_t bytes_read=0;
