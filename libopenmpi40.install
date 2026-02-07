@@ -1,0 +1,14 @@
+# Shared libraries
+usr/lib/*/openmpi/lib/libprrte.so.3.*					 /usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi_mpifh*.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi_usempif08*.so.*		/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi_usempi_ignore_tkr*.so.*		/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libmpi.so.*				/usr/lib/${DEB_HOST_MULTIARCH}
+# usr/lib/*/openmpi/lib/libompitrace.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libopen-pal.so.*			/usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/*/openmpi/lib/libprrte.so.*
+## Plugins
+usr/lib/*/openmpi/lib/openmpi40/*.so
+# PMIX
+#usr/lib/*/openmpi/lib/libpmix.so.*                               /usr/lib/${DEB_HOST_MULTIARCH}
+#usr/lib/*/openmpi/lib/pmix/*					

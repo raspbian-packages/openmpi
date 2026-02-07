@@ -1,0 +1,2 @@
+version=4
+http://www.open-mpi.org/software/ompi/ .*/.*/openmpi-([\d+\.]+)@ARCHIVE_EXT@
