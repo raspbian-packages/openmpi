@@ -18,6 +18,11 @@
 #include <sys/param.h>
 #endif
 
+/* Non-linux systems like hurd might not define PATH_MAX in param.h */
+#ifndef PATH_MAX
+#define PATH_MAX        4096
+#endif
+
 #ifdef MPL_HAVE_TIME_H
 #include <time.h>
 #endif
