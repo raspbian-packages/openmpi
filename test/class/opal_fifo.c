@@ -65,7 +65,7 @@ static void *thread_test (opal_object_t *arg) {
     printf ("Atomics thread finished. Time: %d s %d us %d nsec/poppush\n", (int) total.tv_sec,
             (int)total.tv_usec, (int)(timing / 1e-9));
 
-    return NULL;
+    pthread_exit(NULL);
 }
 
 static void *thread_test_exhaust (opal_object_t *arg) {
