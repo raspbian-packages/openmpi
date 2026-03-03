@@ -1,0 +1,5 @@
+usr/share/man/man7/*
+usr/share/doc/openmpi/html		usr/share/doc/openmpi-doc
+usr/share/man/man1/mpisync.1
+usr/share/man/man1/ompi-wrapper-compiler.1
+usr/share/man/man1/oshmem-wrapper-compiler.1
