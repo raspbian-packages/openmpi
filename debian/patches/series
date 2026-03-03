@@ -1,0 +1,10 @@
+privacy-mathjax.patch
+pkg-config.patch
+mpifort.patch
+build_hurd
+libdir.patch
+hppa.patch
+opal_fifo.patch
+verbose-ompi-rules.patch
+#version-script.patch
+no-warning-unused.patch
