@@ -1,0 +1,42 @@
+#!/bin/bash
+# SPDX-License-Identifier: BSD-3-Clause-Open-MPI
+
+set -euxo pipefail
+
+# The ReadTheDocs build process does not run autogen/configure/make.
+# Hence, we have to copy the PRRTE RST files (from the 3rd-party/prrte
+# tree) to our docs/ tree manually.
+
+# Ensure that we're in the RTD CI environment
+
+if [[ "${READTHEDOCS:-no}" == "no" ]]; then
+    echo "This script is only intended to be run in the ReadTheDocs CI environment"
+    exit 1
+fi
+
+SCHIZO_SRC_DIR=3rd-party/prrte/src/mca/schizo/ompi
+SCHIZO_TARGET_DIR=docs/schizo-ompi-rst-content
+
+PRRTE_RST_SRC_DIR=3rd-party/prrte/src/docs/prrte-rst-content
+PRRTE_RST_TARGET_DIR=docs/prrte-rst-content
+
+# Copy the OMPI schizo file from PRRTE
+#
+# See lengthy comment in docs/Makefile.am about copying in RST files
+# from PRRTE for a longer explanation of what is happening here.
+
+cp -rp $SCHIZO_SRC_DIR $SCHIZO_TARGET_DIR
+cp -rp $PRRTE_RST_SRC_DIR $PRRTE_RST_TARGET_DIR
+
+cd docs
+python3 ./generate-mpi-man3-bindings.py --srcdir . --builddir .
+python3 ./generate-code-of-conduct-rst.py --input ../.github/CODE_OF_CONDUCT.md --output code-of-conduct.rst
+
+# Generate the LLM-friendly artifacts into the build-tree staging directory
+# (must run after the man3 bindings, whose generated RST it include-expands).
+# A "build-finished" hook in conf.py copies the staging tree into the HTML
+# output during the sphinx-build that Read the Docs runs.  The URL base for
+# the generated links is taken from READTHEDOCS_CANONICAL_URL, so they use the
+# correct version slug (e.g. .../en/main/).
+python3 ./generate-llm-docs.py --srcdir . --builddir .
+

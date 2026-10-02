@@ -1,0 +1,173 @@
+/*
+ * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+ *                         University Research and Technology
+ *                         Corporation.  All rights reserved.
+ * Copyright (c) 2004-2016 The University of Tennessee and The University
+ *                         of Tennessee Research Foundation.  All rights
+ *                         reserved.
+ * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
+ *                         University of Stuttgart.  All rights reserved.
+ * Copyright (c) 2004-2005 The Regents of the University of California.
+ *                         All rights reserved.
+ * Copyright (c) 2008-2018 University of Houston. All rights reserved.
+ * Copyright (c) 2015-2018 Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2016-2017 IBM Corporation. All rights reserved.
+ * Copyright (c) 2026      Jeffrey M. Squyres.  All rights reserved.
+ *  Copyright (c) 2026      Stony Brook University.  All rights reserved.
+ *  $COPYRIGHT$
+ *
+ *  Additional copyrights may follow
+ *
+ *  $HEADER$
+ *  SPDX-License-Identifier: BSD-3-Clause-Open-MPI
+ */
+
+#include "ompi_config.h"
+
+#include "ompi/communicator/communicator.h"
+#include "ompi/info/info.h"
+#include "ompi/file/file.h"
+#include "ompi/mca/pml/pml.h"
+#include "opal/datatype/opal_convertor.h"
+#include "ompi/datatype/ompi_datatype.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+#include <unistd.h>
+#include "io_ompio.h"
+
+static int datatype_duplicate (ompi_datatype_t *oldtype, ompi_datatype_t **newtype );
+static int datatype_duplicate  (ompi_datatype_t *oldtype, ompi_datatype_t **newtype )
+{
+    ompi_datatype_t *type;
+    if( ompi_datatype_is_predefined(oldtype) ) {
+        OBJ_RETAIN(oldtype);
+        *newtype = oldtype;
+        return OMPI_SUCCESS;
+    }
+
+    if ( OMPI_SUCCESS != ompi_datatype_duplicate (oldtype, &type)){
+        ompi_datatype_destroy (&type);
+        return MPI_ERR_INTERN;
+    }
+
+    ompi_datatype_set_args( type, 0, 0, NULL, 0, OMPI_DISP_ARRAY_NULL, 1, &oldtype, MPI_COMBINER_DUP );
+
+    *newtype = type;
+    return OMPI_SUCCESS;
+}
+
+int mca_io_ompio_file_set_view (ompi_file_t *fp,
+                                OMPI_MPI_OFFSET_TYPE disp,
+                                ompi_datatype_t *etype,
+                                ompi_datatype_t *filetype,
+                                const char *datarep,
+                                opal_info_t *info)
+{
+    int ret=OMPI_SUCCESS;
+    mca_common_ompio_data_t *data;
+    mca_common_ompio_info_phase_t previous_phase;
+    ompio_file_t *fh;
+    opal_info_t *previous_info;
+    opal_info_t *staged_info;
+    int previous_bytes_per_agg;
+
+    if ( (strcmp(datarep, "native") && strcmp(datarep, "NATIVE") &&
+          strcmp(datarep, "external32") && strcmp(datarep, "EXTERNAL32"))) {
+        return MPI_ERR_UNSUPPORTED_DATAREP;
+    }
+
+    data = (mca_common_ompio_data_t *) fp->f_io_selected_data;
+
+    /* we need to call the internal file set view twice: once for the individual
+       file pointer, once for the shared file pointer (if it is existent)
+    */
+    fh = &data->ompio_fh;
+
+    if ( MPI_DISPLACEMENT_CURRENT == disp &&
+         !(fh->f_amode & MPI_MODE_SEQUENTIAL ) ) {
+        // MPI_DISPLACEMENT_CURRENT is only valid if amode is MPI_MODE_SEQUENTIAL
+        return MPI_ERR_DISP;
+    }
+        
+    
+    OPAL_THREAD_LOCK(&fp->f_lock);
+    previous_info = fp->super.s_info;
+    previous_bytes_per_agg = fh->f_bytes_per_agg;
+
+    /*
+     * set_view setup consumes accepted hints while it builds the new file
+     * view.  Apply the user's info to a staged copy first: the setup code
+     * sees the requested values, but get_info will not expose them unless
+     * the whole view change succeeds.
+     */
+    staged_info = OBJ_NEW(opal_info_t);
+    if (NULL == staged_info) {
+        OPAL_THREAD_UNLOCK(&fp->f_lock);
+        return OMPI_ERR_OUT_OF_RESOURCE;
+    }
+
+    if (NULL != previous_info) {
+        ret = opal_info_dup_public(previous_info, &staged_info);
+        if (OPAL_SUCCESS != ret) {
+            OBJ_RELEASE(staged_info);
+            OPAL_THREAD_UNLOCK(&fp->f_lock);
+            return ret;
+        }
+    }
+
+    fp->super.s_info = staged_info;
+    fh->f_info = staged_info;
+
+    previous_phase = fh->f_info_phase;
+    fh->f_info_phase = MCA_COMMON_OMPIO_INFO_PHASE_SET_VIEW;
+
+    ret = mca_common_ompio_info_apply(fh, info);
+    fh->f_info_phase = previous_phase;
+
+    if (OMPI_SUCCESS == ret) {
+        ret = mca_common_ompio_set_view(fh, disp, etype, filetype, datarep, info);
+    }
+
+    if (OMPI_SUCCESS == ret) {
+        if (NULL != previous_info) {
+            OBJ_RELEASE(previous_info);
+        }
+    } else {
+        /*
+         * Restore both the public info object and the internal field updated
+         * by cb_buffer_size.  Without the field rollback, a failed set_view
+         * could leave behavior changed even though get_info was restored.
+         */
+        fp->super.s_info = previous_info;
+        fh->f_info = previous_info;
+        fh->f_bytes_per_agg = previous_bytes_per_agg;
+        OBJ_RELEASE(staged_info);
+    }
+
+    OPAL_THREAD_UNLOCK(&fp->f_lock);
+    return ret;
+}
+
+int mca_io_ompio_file_get_view (struct ompi_file_t *fp,
+                                OMPI_MPI_OFFSET_TYPE *disp,
+                                struct ompi_datatype_t **etype,
+                                struct ompi_datatype_t **filetype,
+                                char *datarep)
+{
+    mca_common_ompio_data_t *data;
+    ompio_file_t *fh;
+
+    data = (mca_common_ompio_data_t *) fp->f_io_selected_data;
+    fh = &data->ompio_fh;
+
+    OPAL_THREAD_LOCK(&fp->f_lock);
+    *disp = fh->f_fview.f_disp;
+    datatype_duplicate (fh->f_etype, etype);
+    datatype_duplicate (fh->f_orig_filetype, filetype);
+    strcpy (datarep, fh->f_datarep);
+    OPAL_THREAD_UNLOCK(&fp->f_lock);
+
+    return OMPI_SUCCESS;
+}

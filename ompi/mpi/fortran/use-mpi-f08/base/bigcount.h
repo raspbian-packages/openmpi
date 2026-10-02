@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2024      Triad National Security, LLC. All rights
+ *                         reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ * SPDX-License-Identifier: BSD-3-Clause-Open-MPI
+ */
+
+/*
+ * Bigcount array conversion macros for Fortran templates.
+ */
+
+#define OMPI_FORTRAN_BIGCOUNT_ARRAY_SET(array, tmp_array, n) \
+    do { \
+        if (sizeof(*(array)) == sizeof(*(tmp_array))) { \
+            (tmp_array) = (void *)(array); \
+        } else { \
+            (tmp_array) = malloc(sizeof(*tmp_array) * n); \
+            for (int bigcount_array_i = 0; bigcount_array_i < n; ++bigcount_array_i) { \
+                (tmp_array)[bigcount_array_i] = (array)[bigcount_array_i]; \
+            } \
+        } \
+    } while (0)
+
+#define OMPI_FORTRAN_BIGCOUNT_ARRAY_COPYOUT(array, tmp_array, n) \
+    do { \
+        if ((array) != (tmp_array) && NULL != (tmp_array)) { \
+            for (int bigcount_array_i = 0; bigcount_array_i < n; ++bigcount_array_i) { \
+                (array)[bigcount_array_i] = (tmp_array)[bigcount_array_i]; \
+            } \
+        } \
+    } while (0)
+
+
+#define OMPI_FORTRAN_BIGCOUNT_ARRAY_CLEANUP(array, tmp_array) \
+    do { \
+        if ((void *)(array) != (void *)(tmp_array) && NULL != (tmp_array)) { \
+            free(tmp_array); \
+            tmp_array = NULL; \
+        } \
+    } while (0)
+
+#define OMPI_FORTRAN_BIGCOUNT_ARRAY_CLEANUP_NONBLOCKING(array, tmp_array, c_request, c_ierr, idx) \
+    do { \
+        if (MPI_SUCCESS == (c_ierr)) { \
+            if ((void *)(array) != (void *)(tmp_array) && (tmp_array) != NULL) { \
+                ompi_coll_base_append_array_to_release((c_request), (tmp_array)); \
+                (idx)++;                                                         \
+            } \
+        } else { \
+            OMPI_FORTRAN_BIGCOUNT_ARRAY_CLEANUP((array), (tmp_array)); \
+        } \
+    } while (0)

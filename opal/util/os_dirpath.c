@@ -1,0 +1,523 @@
+/*
+ * Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+ *                         University Research and Technology
+ *                         Corporation.  All rights reserved.
+ * Copyright (c) 2004-2005 The University of Tennessee and The University
+ *                         of Tennessee Research Foundation.  All rights
+ *                         reserved.
+ * Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
+ *                         University of Stuttgart.  All rights reserved.
+ * Copyright (c) 2004-2005 The Regents of the University of California.
+ *                         All rights reserved.
+ * Copyright (c) 2015-2017 Research Organization for Information Science
+ *                         and Technology (RIST). All rights reserved.
+ * Copyright (c) 2016-2017 Intel, Inc. All rights reserved.
+ * Copyright (c) 2026      Jeffrey M. Squyres.  All rights reserved.
+ * $COPYRIGHT$
+ *
+ * Additional copyrights may follow
+ *
+ * $HEADER$
+ * SPDX-License-Identifier: BSD-3-Clause-Open-MPI
+ */
+
+#include "opal_config.h"
+
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#ifdef HAVE_UNISTD_H
+#    include <unistd.h>
+#endif /* HAVE_UNISTD_H */
+#include <stdlib.h>
+#if HAVE_SYS_STAT_H
+#    include <sys/stat.h>
+#endif /* HAVE_SYS_STAT_H */
+#ifdef HAVE_SYS_TYPES_H
+#    include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
+#ifdef HAVE_DIRENT_H
+#    include <dirent.h>
+#endif /* HAVE_DIRENT_H */
+
+#include "opal/constants.h"
+#include "opal/util/argv.h"
+#include "opal/util/os_dirpath.h"
+#include "opal/util/os_path.h"
+#include "opal/util/output.h"
+#include "opal/util/show_help.h"
+
+static const char path_sep[] = OPAL_PATH_SEP;
+
+/* Open flag for a directory descriptor that is only used as the dirfd
+   of *at() calls: it needs search permission on the directory, not
+   read permission.  POSIX.1-2008 spells this O_SEARCH; Linux spells
+   the same idea O_PATH.  Where neither exists, fall back to O_RDONLY
+   and accept the stricter requirement. */
+#if defined(O_SEARCH)
+#    define DIRPATH_O_TRAVERSE O_SEARCH
+#elif defined(O_PATH)
+#    define DIRPATH_O_TRAVERSE O_PATH
+#else
+#    define DIRPATH_O_TRAVERSE O_RDONLY
+#endif
+
+/**
+ * The named directory already exists (or should): open it and make
+ * sure it carries (at least) the requested mode bits, adjusting them
+ * if needed.  All checks and the chmod operate on the descriptor, so
+ * the object that was inspected is the object that is modified --
+ * a path-based stat()/chmod() pair is the classic TOCTOU race, where
+ * the path can be swapped (e.g., for a symlink to another file)
+ * between the two calls.
+ *
+ * O_NOFOLLOW: refuse a symlink at the final component.  The
+ * ownership check below inspects the object the descriptor refers
+ * to, so following a link would validate the link's *target* -- and
+ * a planted symlink pointing at a directory the victim owns (e.g.,
+ * their home directory) would pass that check and be adopted (and,
+ * eventually, recursively destroyed).
+ *
+ * Opening the directory requires read permission on it, so an
+ * existing directory we own but cannot read is refused rather than
+ * repaired: there is no portable way to obtain a descriptor to it
+ * that fchmod() accepts, and falling back to a path-based chmod()
+ * would reintroduce the race described above.
+ *
+ * Returns OPAL_ERR_NOT_FOUND -- without displaying an error -- if
+ * the path does not exist; the caller is expected to (re)try
+ * creating it and report the resulting error.
+ */
+static int dirpath_ensure_mode(const char *path, const mode_t mode)
+{
+    struct stat buf;
+    int fd, ret;
+
+    fd = open(path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
+    if (0 > fd) {
+        ret = errno;
+        if (ENOENT == ret) {
+            return OPAL_ERR_NOT_FOUND;
+        }
+        /* ENOTDIR (a plain file), ELOOP (a symlink), EACCES (a
+           directory we cannot read), ... */
+        opal_show_help("help-opal-util.txt", "mkdir-failed", true, path, strerror(ret));
+        return (EACCES == ret || EPERM == ret) ? OPAL_ERR_PERM : OPAL_ERROR;
+    }
+    if (0 != fstat(fd, &buf)) {
+        close(fd);
+        return OPAL_ERROR;
+    }
+    /* Never adopt (or chmod) a directory owned by another user: the
+       only production paths that come through here are session
+       directories with predictable names under a world-writable
+       root, so an existing directory with the right name but the
+       wrong owner is at best stale and at worst planted */
+    if (buf.st_uid != geteuid()) {
+        close(fd);
+        opal_show_help("help-opal-util.txt", "dir-owner", true, path, (unsigned long) buf.st_uid,
+                       (unsigned long) geteuid());
+        return OPAL_ERR_PERM;
+    }
+    if (mode == (mode & buf.st_mode)) { /* already has correct mode */
+        close(fd);
+        return OPAL_SUCCESS;
+    }
+    ret = fchmod(fd, (buf.st_mode | mode));
+    close(fd);
+    if (0 == ret) {
+        return OPAL_SUCCESS;
+    }
+    opal_show_help("help-opal-util.txt", "dir-mode", true, path, mode, strerror(errno));
+    return OPAL_ERR_PERM; /* can't set correct mode */
+}
+
+int opal_os_dirpath_create(const char *path, const mode_t mode)
+{
+    char **parts, *tmp;
+    int i, len;
+    int ret;
+
+    if (NULL == path) { /* protect ourselves from errors */
+        return (OPAL_ERR_BAD_PARAM);
+    }
+
+    /* quick -- try to make directory */
+    if (0 == mkdir(path, mode)) {
+        return (OPAL_SUCCESS);
+    }
+    if (EEXIST == errno) {
+        ret = dirpath_ensure_mode(path, mode);
+        if (OPAL_ERR_NOT_FOUND != ret) {
+            return ret;
+        }
+        /* The path vanished; fall through and build the tree */
+    }
+
+    /* didn't work, so now have to build our way down the tree */
+    /* Split the requested path up into its individual parts */
+
+    parts = opal_argv_split(path, path_sep[0]);
+
+    /* Ensure to allocate enough space for tmp: the strlen of the
+       incoming path + 1 (for \0) */
+
+    tmp = (char *) malloc(strlen(path) + 1);
+    tmp[0] = '\0';
+
+    /* Iterate through all the subdirectory names in the path,
+       building up a directory name.  Check to see if that dirname
+       exists.  If it doesn't, create it. */
+
+    len = opal_argv_count(parts);
+    for (i = 0; i < len; ++i) {
+        if (i == 0) {
+            /* If in POSIX-land, ensure that we never end a directory
+               name with path_sep */
+
+            if ('/' == path[0]) {
+                strcat(tmp, path_sep);
+            }
+            strcat(tmp, parts[i]);
+        }
+
+        /* If it's not the first part, ensure that there's a
+           preceding path_sep and then append this part */
+
+        else {
+            if (path_sep[0] != tmp[strlen(tmp) - 1]) {
+                strcat(tmp, path_sep);
+            }
+            strcat(tmp, parts[i]);
+        }
+
+        /* Now that we have the name, try to create it */
+        mkdir(tmp, mode);
+        ret = errno; // save the errno for an error msg, if needed
+        if (i == (len - 1)) {
+            /* Ensure the final component has the requested mode (and
+               is ours); intermediate components need only exist */
+            int err = dirpath_ensure_mode(tmp, mode);
+            if (OPAL_ERR_NOT_FOUND == err) {
+                opal_show_help("help-opal-util.txt", "mkdir-failed", true, tmp, strerror(ret));
+                err = OPAL_ERROR;
+            }
+            if (OPAL_SUCCESS != err) {
+                opal_argv_free(parts);
+                free(tmp);
+                return err;
+            }
+        } else {
+            /* Intermediate components need only exist: probe with
+               stat(), which (unlike open()) requires only search
+               permission on the ancestors, not read permission on
+               the component itself (an 0711 traverse-only
+               intermediate directory is legitimate) */
+            struct stat buf;
+            if (0 != stat(tmp, &buf)) {
+                opal_show_help("help-opal-util.txt", "mkdir-failed", true, tmp, strerror(ret));
+                opal_argv_free(parts);
+                free(tmp);
+                return OPAL_ERROR;
+            }
+        }
+    }
+
+    /* All done */
+
+    opal_argv_free(parts);
+    free(tmp);
+    return OPAL_SUCCESS;
+}
+
+/**
+ * Removing a directory that destroy has just emptied failed with
+ * err: is that expected?  ENOENT means someone else removed it
+ * first.  ENOTEMPTY (POSIX also permits EEXIST) means the callback
+ * preserved something inside it -- which can only happen if there
+ * is a callback.  Anything else means the removal really failed.
+ */
+static bool dirpath_rmdir_error_is_benign(int err, opal_os_dirpath_destroy_callback_fn_t cbfunc)
+{
+    return ENOENT == err || (NULL != cbfunc && (ENOTEMPTY == err || EEXIST == err));
+}
+
+/**
+ * This function attempts to remove a directory along with all the
+ * files in it.  If the recursive variable is non-zero, then it will
+ * try to recursively remove all directories.  If provided, the
+ * callback function is executed prior to the directory or file being
+ * removed.  If the callback returns non-zero, then no removal is
+ * done.
+ */
+/**
+ * Recursively empty the directory that fd refers to.  Takes
+ * ownership of fd (it is closed via closedir() before returning).
+ *
+ * All inspection and removal is descriptor-relative
+ * (fstatat/openat/unlinkat against the open directory), so no entry
+ * can be swapped between the check and the use: the entry that was
+ * classified is the entry that is removed.  AT_SYMLINK_NOFOLLOW and
+ * O_NOFOLLOW ensure symlinks are treated as entries to unlink, never
+ * followed -- following one would send the recursion outside the
+ * tree being destroyed.
+ *
+ * path is the (display) path of the directory, used only for the
+ * user callback and for building child display paths.
+ */
+static int dirpath_destroy_at(int fd, const char *path, bool recursive,
+                              opal_os_dirpath_destroy_callback_fn_t cbfunc)
+{
+    int rc, exit_status = OPAL_SUCCESS;
+    DIR *dp;
+    struct dirent *ep;
+    struct stat buf;
+
+    /* fdopendir() takes ownership of fd; closedir() closes it */
+    dp = fdopendir(fd);
+    if (NULL == dp) {
+        close(fd);
+        return OPAL_ERROR;
+    }
+
+    while (NULL != (ep = readdir(dp))) {
+        /* skip:
+         *  - . and ..
+         */
+        if ((0 == strcmp(ep->d_name, ".")) || (0 == strcmp(ep->d_name, ".."))) {
+            continue;
+        }
+
+        if (0 != fstatat(dirfd(dp), ep->d_name, &buf, AT_SYMLINK_NOFOLLOW)) {
+            /* Handle a race condition. The entry might have been deleted by an
+             * other process running on the same node. That typically occurs
+             * when one task is removing the job_session_dir and an other task
+             * is still removing its proc_session_dir.  Any other failure
+             * (e.g., a directory we can read but not search) leaves the
+             * entry in place, so it must not be reported as success.
+             */
+            if (ENOENT != errno) {
+                exit_status = OPAL_ERROR;
+            }
+            continue;
+        }
+
+        /*
+         * If not recursively descending, then if we find a directory then fail
+         * since we were not told to remove it.
+         */
+        if (S_ISDIR(buf.st_mode) && !recursive) {
+            /* Set the error indicating that we found a directory,
+             * but continue removing files
+             */
+            exit_status = OPAL_ERROR;
+            continue;
+        }
+
+        /* Will the caller allow us to remove this file/directory? */
+        if (NULL != cbfunc && !cbfunc(path, ep->d_name)) {
+            /*
+             * Caller does not wish to remove this file/directory,
+             * continue with the rest of the entries
+             */
+            continue;
+        }
+
+        /* Directories are recursively destroyed */
+        if (S_ISDIR(buf.st_mode)) {
+            char *filenm;
+            struct stat childbuf;
+            int childfd = openat(dirfd(dp), ep->d_name,
+                                 O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
+            if (0 > childfd) {
+                if (ENOENT != errno) {
+                    /* The entry was swapped for something that is no
+                     * longer an ordinary directory; leave it alone */
+                    exit_status = OPAL_ERROR;
+                }
+                continue;
+            }
+            /* O_NOFOLLOW refuses a symlink swapped in after the
+             * fstatat(), but not a different directory: only recurse
+             * into the directory that was actually classified */
+            if (0 != fstat(childfd, &childbuf) || childbuf.st_dev != buf.st_dev
+                || childbuf.st_ino != buf.st_ino) {
+                close(childfd);
+                exit_status = OPAL_ERROR;
+                continue;
+            }
+            filenm = opal_os_path(false, path, ep->d_name, NULL);
+            if (NULL == filenm) {
+                /* Do not fall back to the bare entry name: the
+                 * callback would resolve it relative to the CWD */
+                close(childfd);
+                exit_status = OPAL_ERR_OUT_OF_RESOURCE;
+                break;
+            }
+            rc = dirpath_destroy_at(childfd, filenm, recursive, cbfunc);
+            free(filenm);
+            if (OPAL_SUCCESS != rc) {
+                exit_status = rc;
+                break;
+            }
+            /* Remove the now-empty subdirectory */
+            if (0 != unlinkat(dirfd(dp), ep->d_name, AT_REMOVEDIR)
+                && !dirpath_rmdir_error_is_benign(errno, cbfunc)) {
+                exit_status = OPAL_ERROR;
+            }
+        } else {
+            /* Files (and symlinks) are removed right here; unlinkat
+             * removes a link itself, never its target */
+            if (0 != unlinkat(dirfd(dp), ep->d_name, 0)) {
+                exit_status = OPAL_ERROR;
+            }
+        }
+    }
+
+    /* Done with this directory */
+    closedir(dp);
+
+    return exit_status;
+}
+
+int opal_os_dirpath_destroy(const char *path, bool recursive,
+                            opal_os_dirpath_destroy_callback_fn_t cbfunc)
+{
+    int parentfd, fd, exit_status;
+    struct stat basebuf, buf;
+    const char *parent, *base;
+    char *copy, *sep;
+    size_t len;
+
+    if (NULL == path) { /* protect against error */
+        return OPAL_ERROR;
+    }
+
+    /* Split path into its parent directory and final component
+       (ignoring trailing separators) */
+    copy = strdup(path);
+    if (NULL == copy) {
+        return OPAL_ERR_OUT_OF_RESOURCE;
+    }
+    len = strlen(copy);
+    while (len > 1 && path_sep[0] == copy[len - 1]) {
+        copy[--len] = '\0';
+    }
+    sep = strrchr(copy, path_sep[0]);
+    if (NULL == sep) {
+        parent = ".";
+        base = copy;
+    } else if (sep == copy) {
+        parent = path_sep;
+        base = copy + 1;
+    } else {
+        *sep = '\0';
+        parent = copy;
+        base = sep + 1;
+    }
+    if ('\0' == base[0] || 0 == strcmp(base, ".") || 0 == strcmp(base, "..")) {
+        free(copy);
+        return OPAL_ERR_BAD_PARAM;
+    }
+
+    /* Hold the parent open, and do everything to the directory itself
+       relative to that descriptor: opening it, and (below) confirming
+       it is still there and removing it.  Checking and removing it by
+       path instead would be another check-then-use race.  The parent
+       is only traversed, so it need not be readable. */
+    parentfd = open(parent, DIRPATH_O_TRAVERSE | O_DIRECTORY);
+    if (0 > parentfd) {
+        free(copy);
+        return (ENOENT == errno) ? OPAL_ERR_NOT_FOUND : OPAL_ERROR;
+    }
+
+    /* O_NOFOLLOW: never destroy through a symlinked base path */
+    fd = openat(parentfd, base, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
+    if (0 > fd || 0 != fstat(fd, &basebuf)) {
+        exit_status = (0 > fd && ENOENT == errno) ? OPAL_ERR_NOT_FOUND : OPAL_ERROR;
+        if (0 <= fd) {
+            close(fd);
+        }
+        close(parentfd);
+        free(copy);
+        return exit_status;
+    }
+
+    exit_status = dirpath_destroy_at(fd, path, recursive, cbfunc);
+
+    /*
+     * Remove the directory itself -- but only if the parent still has
+     * the directory we just emptied under that name; if it was renamed
+     * away and replaced during the traversal, the replacement is not
+     * ours to remove.  unlinkat(AT_REMOVEDIR) refuses a non-empty
+     * directory.  (There is no way to remove a directory by
+     * descriptor, so a window between the fstatat() and the unlinkat()
+     * remains, but it is confined to the held parent directory, and
+     * through it only an empty directory can be removed.)
+     */
+    if (0 != fstatat(parentfd, base, &buf, AT_SYMLINK_NOFOLLOW)) {
+        if (ENOENT != errno && OPAL_SUCCESS == exit_status) {
+            exit_status = OPAL_ERROR;
+        }
+    } else if (buf.st_dev != basebuf.st_dev || buf.st_ino != basebuf.st_ino) {
+        if (OPAL_SUCCESS == exit_status) {
+            exit_status = OPAL_ERROR;
+        }
+    } else if (0 != unlinkat(parentfd, base, AT_REMOVEDIR)
+               && !dirpath_rmdir_error_is_benign(errno, cbfunc)
+               && OPAL_SUCCESS == exit_status) {
+        exit_status = OPAL_ERROR;
+    }
+
+    close(parentfd);
+    free(copy);
+    return exit_status;
+}
+
+bool opal_os_dirpath_is_empty(const char *path)
+{
+    DIR *dp;
+    struct dirent *ep;
+
+    if (NULL != path) { /* protect against error */
+        dp = opendir(path);
+        if (NULL != dp) {
+            while ((ep = readdir(dp))) {
+                if ((0 != strcmp(ep->d_name, ".")) && (0 != strcmp(ep->d_name, ".."))) {
+                    closedir(dp);
+                    return false;
+                }
+            }
+            closedir(dp);
+            return true;
+        }
+        return false;
+    }
+
+    return true;
+}
+
+int opal_os_dirpath_access(const char *path, const mode_t in_mode)
+{
+    struct stat buf;
+    mode_t loc_mode = S_IRWXU; /* looking for full rights */
+
+    /*
+     * If there was no mode specified, use the default mode
+     */
+    if (0 != in_mode) {
+        loc_mode = in_mode;
+    }
+
+    if (0 == stat(path, &buf)) {                    /* exists - check access */
+        if ((buf.st_mode & loc_mode) == loc_mode) { /* okay, I can work here */
+            return (OPAL_SUCCESS);
+        } else {
+            /* Don't have access rights to the existing path */
+            return (OPAL_ERROR);
+        }
+    } else {
+        /* We could not find the path */
+        return (OPAL_ERR_NOT_FOUND);
+    }
+}

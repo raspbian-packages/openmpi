@@ -1,0 +1,147 @@
+.. _mpi_comm_split_type:
+
+
+MPI_Comm_split_type
+===================
+
+.. include_body
+
+:ref:`MPI_Comm_split_type` |mdash| Creates new communicators based on colors and
+keys.
+
+.. The following file was automatically generated
+.. include:: ./bindings/mpi_comm_split_type.rst
+
+INPUT PARAMETERS
+----------------
+* ``comm``: Communicator (handle).
+* ``split_type``: Type of processes to be grouped together (integer).
+* ``key``: Control of rank assignment (integer).
+* ``info``: Info argument (handle).
+
+OUTPUT PARAMETERS
+-----------------
+* ``newcomm``: New communicator (handle).
+* ``ierror``: Fortran only: Error status (integer).
+
+DESCRIPTION
+-----------
+
+This function partitions the group associated with *comm* into disjoint
+subgroups, based on the type specified by *split_type*. Each subgroup
+contains all processes of the same type. Within each subgroup, the
+processes are ranked in the order defined by the value of the argument
+*key*, with ties broken according to their rank in the old group. A new
+communicator is created for each subgroup and returned in newcomm. This
+is a collective call; all processes must provide the same *split_type*,
+but each process is permitted to provide different values for key. An
+exception to this rule is that a process may supply the type value
+MPI_UNDEFINED, in which case newcomm returns MPI_COMM_NULL.
+
+
+SPLIT TYPES
+-----------
+
+MPI_COMM_TYPE_SHARED
+   This type splits the communicator into subcommunicators, each of
+   which can create a shared memory region.
+
+MPI_COMM_TYPE_HW_GUIDED
+   This type splits the communicator into subcommunicators according
+   to the resource type specified by the ``mpi_hw_resource_type``
+   info key.
+
+MPI_COMM_TYPE_RESOURCE_GUIDED
+   This type splits the communicator into subcommunicators according
+   to the resource type specified by the ``mpi_hw_resource_type``
+   or ``mpi_pset_name`` info key.
+
+For ``MPI_COMM_TYPE_HW_GUIDED`` and ``MPI_COMM_TYPE_RESOURCE_GUIDED``,
+``mpi_hw_resource_type`` accepts the hwloc URI values returned by
+:ref:`MPI_Get_hw_resource_info`: ``hwloc://NUMANode``,
+``hwloc://Package``, ``hwloc://L3Cache``, ``hwloc://L2Cache``,
+``hwloc://L1Cache``, ``hwloc://Core``, and ``hwloc://PU``. Open MPI also
+accepts ``hwloc://Machine`` (host). The existing
+Open MPI-specific values ``numanode``, ``socket``, ``l3cache``, ``l2cache``,
+``l1cache``, ``core``, and ``hwthread`` are also accepted.
+
+For a ``hwloc://`` URI value, Open MPI queries each process's current CPU binding.
+A process whose binding is unavailable or spans multiple instances of the
+requested resource receives ``MPI_COMM_NULL``. Other processes are grouped by
+the specific resource instance containing their binding.
+
+OMPI_COMM_TYPE_NODE
+   Synonym for MPI_COMM_TYPE_SHARED.
+
+OMPI_COMM_TYPE_HWTHREAD
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same hardware thread.
+
+OMPI_COMM_TYPE_CORE
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same core/processing unit.
+
+OMPI_COMM_TYPE_L1CACHE
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same L1 cache.
+
+OMPI_COMM_TYPE_L2CACHE
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same L2 cache.
+
+OMPI_COMM_TYPE_L3CACHE
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same L3 cache.
+
+OMPI_COMM_TYPE_SOCKET
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same socket.
+
+OMPI_COMM_TYPE_NUMA
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same NUMA-node.
+
+OMPI_COMM_TYPE_BOARD
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same board.
+
+OMPI_COMM_TYPE_HOST
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same host.
+
+OMPI_COMM_TYPE_CU
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same computational unit.
+
+OMPI_COMM_TYPE_CLUSTER
+   This type splits the communicator into subcommunicators, each of
+   which belongs to the same cluster.
+
+OMPI_COMM_TYPE_NVLINK
+   This type splits the communicator into subcommunicators based on
+   the NVLink domain associated with each process. It may also be
+   requested via ``MPI_COMM_TYPE_HW_GUIDED`` with
+   ``mpi_hw_resource_type`` set to ``nvlink``.
+
+
+NOTES
+-----
+
+The communicator keys denoted with an *OMPI\_* prefix instead of an
+*MPI\_* prefix are specific to Open MPI, and are not part of the MPI
+standard. Their use should be protected by the *OPEN_MPI* C preprocessor
+macro.
+
+
+ERRORS
+------
+
+.. include:: ./ERRORS.rst
+
+.. seealso::
+   * :ref:`MPI_Comm_create`
+   * :ref:`MPI_Intercomm_create`
+   * :ref:`MPI_Comm_dup`
+   * :ref:`MPI_Comm_free`
+   * :ref:`MPI_Comm_split`
+   * :ref:`MPI_Get_hw_resource_info`

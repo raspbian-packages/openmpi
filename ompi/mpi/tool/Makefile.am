@@ -1,0 +1,214 @@
+#
+# Copyright (c) 2004-2006 The University of Tennessee and The University
+#                         of Tennessee Research Foundation.  All rights
+#                         reserved.
+# Copyright (c) 2004-2006 High Performance Computing Center Stuttgart,
+#                         University of Stuttgart.  All rights reserved.
+# Copyright (c) 2012-2018 Los Alamos National Security, LLC. All rights
+#                         reserved.
+# Copyright (c) 2018-2025 Triad National Security, LLC. All rights
+#                         reserved.
+# Copyright (c) 2021      Amazon.com, Inc. or its affiliates.  All Rights
+#                         reserved.
+# $COPYRIGHT$
+#
+# Additional copyrights may follow
+#
+# $HEADER$
+# SPDX-License-Identifier: BSD-3-Clause-Open-MPI
+#
+
+# The purpose of the profiling layer is to allow intercept libraries
+# which override the MPI_ namespace symbols.  We potentially compile
+# every MPI function twice.  We always build the profiling layer,
+# because the symbols that are always implemented as functions are the
+# PMPI_ namespace symbols.  We sometimes also build the non-profiling
+# layer, if weak aliases can't be used to alias the MPI_ namespace
+# into the PMPI_ namespace.
+
+include $(top_srcdir)/Makefile.ompi-rules
+
+SUFFIXES= _ompi_generated.c _abi_generated.c .c.in
+
+noinst_LTLIBRARIES = libmpi_mpit.la libmpi_mpit_profile.la
+
+headers = mpit-internal.h
+
+# mpit_common.c is not public functions, which does not have profiling
+# implications, so they are always built.
+libmpi_mpit_la_SOURCES = \
+	mpit_common.c
+libmpi_mpit_la_LIBADD = libmpi_mpit_profile.la
+
+# Conditionally install the header files
+if WANT_INSTALL_HEADERS
+ompidir = $(ompiincludedir)/$(subdir)
+ompi_HEADERS = $(headers)
+endif
+
+#
+# List of all C files that have profile versions
+#
+
+#
+# the following must be processed by binding framework
+# to generated both ompi and standard abi variants
+#
+prototype_sources = \
+	category_changed.c.in \
+	category_get_categories.c.in \
+	category_get_cvars.c.in \
+	category_get_events.c.in \
+	category_get_index.c.in \
+	category_get_info.c.in \
+	category_get_num.c.in \
+	category_get_num_events.c.in \
+	category_get_pvars.c.in \
+	cvar_get_index.c.in \
+	cvar_get_info.c.in \
+	cvar_get_num.c.in \
+	cvar_handle_alloc.c.in \
+	cvar_handle_free.c.in \
+	cvar_read.c.in \
+	cvar_write.c.in \
+	enum_get_info.c.in \
+	enum_get_item.c.in \
+	event_callback_get_info.c.in \
+	event_callback_set_info.c.in \
+	event_copy.c.in \
+	event_get_index.c.in \
+	event_get_info.c.in \
+	event_get_num.c.in \
+	event_get_source.c.in \
+	event_get_timestamp.c.in \
+	event_handle_alloc.c.in \
+	event_handle_free.c.in \
+	event_handle_get_info.c.in \
+	event_handle_set_info.c.in \
+	event_read.c.in \
+	event_register_callback.c.in \
+	event_set_dropped_handler.c.in \
+	finalize.c.in \
+	init_thread.c.in \
+	pvar_get_index.c.in \
+	pvar_get_info.c.in \
+	pvar_get_num.c.in \
+	pvar_handle_alloc.c.in \
+	pvar_handle_free.c.in \
+	pvar_read.c.in \
+	pvar_readreset.c.in \
+	pvar_reset.c.in \
+	pvar_session_create.c.in \
+	pvar_session_free.c.in \
+	pvar_start.c.in \
+	pvar_stop.c.in \
+	pvar_write.c.in \
+	source_get_info.c.in \
+	source_get_num.c.in \
+	source_get_timestamp.c.in
+
+#
+# List of all C files that have profile versions (*_generated.c files were
+# generated from prototype_sources above).
+#
+#
+#
+
+# This list is spelled out explicitly (rather than derived from
+# prototype_sources with a substitution reference) because BSD make
+# does not support GNU make's pattern substitution.
+interface_profile_sources = \
+	category_changed_ompi_generated.c \
+	category_get_categories_ompi_generated.c \
+	category_get_cvars_ompi_generated.c \
+	category_get_events_ompi_generated.c \
+	category_get_index_ompi_generated.c \
+	category_get_info_ompi_generated.c \
+	category_get_num_events_ompi_generated.c \
+	category_get_num_ompi_generated.c \
+	category_get_pvars_ompi_generated.c \
+	cvar_get_index_ompi_generated.c \
+	cvar_get_info_ompi_generated.c \
+	cvar_get_num_ompi_generated.c \
+	cvar_handle_alloc_ompi_generated.c \
+	cvar_handle_free_ompi_generated.c \
+	cvar_read_ompi_generated.c \
+	cvar_write_ompi_generated.c \
+	enum_get_info_ompi_generated.c \
+	enum_get_item_ompi_generated.c \
+	event_callback_get_info_ompi_generated.c \
+	event_callback_set_info_ompi_generated.c \
+	event_copy_ompi_generated.c \
+	event_get_index_ompi_generated.c \
+	event_get_info_ompi_generated.c \
+	event_get_num_ompi_generated.c \
+	event_get_source_ompi_generated.c \
+	event_get_timestamp_ompi_generated.c \
+	event_handle_alloc_ompi_generated.c \
+	event_handle_free_ompi_generated.c \
+	event_handle_get_info_ompi_generated.c \
+	event_handle_set_info_ompi_generated.c \
+	event_read_ompi_generated.c \
+	event_register_callback_ompi_generated.c \
+	event_set_dropped_handler_ompi_generated.c \
+	finalize_ompi_generated.c \
+	init_thread_ompi_generated.c \
+	pvar_get_index_ompi_generated.c \
+	pvar_get_info_ompi_generated.c \
+	pvar_get_num_ompi_generated.c \
+	pvar_handle_alloc_ompi_generated.c \
+	pvar_handle_free_ompi_generated.c \
+	pvar_read_ompi_generated.c \
+	pvar_readreset_ompi_generated.c \
+	pvar_reset_ompi_generated.c \
+	pvar_session_create_ompi_generated.c \
+	pvar_session_free_ompi_generated.c \
+	pvar_start_ompi_generated.c \
+	pvar_stop_ompi_generated.c \
+	pvar_write_ompi_generated.c \
+	source_get_info_ompi_generated.c \
+	source_get_num_ompi_generated.c \
+	source_get_timestamp_ompi_generated.c
+
+if OMPI_GENERATE_BINDINGS
+# See OMPI_BINDINGS_GENERATOR in Makefile.ompi-rules.
+$(interface_profile_sources): $(OMPI_BINDINGS_GENERATOR)
+
+.c.in_ompi_generated.c:
+	$(OMPI_V_GEN) $(PYTHON) $(top_srcdir)/ompi/mpi/bindings/bindings.py \
+	    --builddir $(abs_top_builddir) \
+	    --srcdir $(abs_top_srcdir) \
+	    --output $@ \
+	    c \
+	    source \
+	    ompi \
+	    --mpit \
+	    $<
+
+.c.in_abi_generated.c:
+	$(OMPI_V_GEN) $(PYTHON) $(top_srcdir)/ompi/mpi/bindings/bindings.py \
+	    --builddir $(abs_top_builddir) \
+	    --srcdir $(abs_top_srcdir) \
+	    --output $@ \
+	    c \
+	    source \
+	    standard \
+	    --mpit \
+	    $<
+endif
+
+libmpi_mpit_profile_la_SOURCES = $(interface_profile_sources)
+libmpi_mpit_profile_la_CPPFLAGS = -DOMPI_BUILD_MPI_PROFILING=1
+
+
+EXTRA_DIST = $(prototype_sources)
+
+MAINTAINERCLEANFILES = *_generated.c 
+if OPAL_DEVEL_BUILD
+CLEANFILES += *_generated.c 
+endif
+
+if OMPI_STANDARD_ABI
+include Makefile_abi.include
+endif
+

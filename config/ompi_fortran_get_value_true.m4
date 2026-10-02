@@ -1,0 +1,200 @@
+dnl -*- shell-script -*-
+dnl
+dnl Copyright (c) 2004-2005 The Trustees of Indiana University.
+dnl                         All rights reserved.
+dnl Copyright (c) 2004-2005 The Trustees of the University of Tennessee.
+dnl                         All rights reserved.
+dnl Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
+dnl                         University of Stuttgart.  All rights reserved.
+dnl Copyright (c) 2004-2005 The Regents of the University of California.
+dnl                         All rights reserved.
+dnl Copyright (c) 2011-2012 Cisco Systems, Inc.  All rights reserved.
+dnl Copyright (c) 2015      Research Organization for Information Science
+dnl                         and Technology (RIST). All rights reserved.
+dnl Copyright (c) 2025      Triad National Security, LLC. All rights
+dnl                         reserved.
+dnl Copyright (c) 2026      Jeffrey M. Squyres.  All rights reserved.
+dnl $COPYRIGHT$
+dnl
+dnl Additional copyrights may follow
+dnl
+dnl $HEADER$
+dnl SPDX-License-Identifier: BSD-3-Clause-Open-MPI
+dnl
+
+
+# OMPI_FORTRAN_GET_VALUE_TRUE()
+# -------------------------------------------------------
+# Determine the value of .TRUE. of this Fortran compiler.
+AC_DEFUN([OMPI_FORTRAN_GET_VALUE_TRUE],[
+    # Invalidate the cache if the result came from a run where Fortran was
+    # disabled.  The .TRUE. and .FALSE. values are computed together in a
+    # single AC_CACHE_CHECK keyed on the .TRUE. cache variable, so only the
+    # .TRUE. value can serve as the sentinel here: a valid .FALSE. is 0 on
+    # every Fortran compiler, and testing the .FALSE. cache against 0 would
+    # discard a perfectly good cached value -- leaving OMPI_FORTRAN_VALUE_FALSE
+    # empty on a cached reconfigure.  Invalidate both together so the two
+    # cache variables stay coherent.
+    if test "$ompi_cv_fortran_true_value" = "0" ; then
+        unset ompi_cv_fortran_true_value
+        unset ompi_cv_fortran_false_value
+    fi
+
+    # A config.cache produced by an older Open MPI may contain a cached
+    # .TRUE. value but no .FALSE. value (the .FALSE. computation was added
+    # later).  In that case the whole cache block above would be skipped
+    # and OMPI_FORTRAN_VALUE_FALSE would end up empty, so recompute both.
+    if test -n "$ompi_cv_fortran_true_value" && \
+       test -z "$ompi_cv_fortran_false_value" ; then
+        unset ompi_cv_fortran_true_value
+    fi
+
+    AS_VAR_PUSHDEF([fortran_true_var],
+                   [ompi_cv_fortran_true_value])
+    AS_VAR_PUSHDEF([fortran_false_var],
+                   [ompi_cv_fortran_false_value])
+
+    AC_CACHE_CHECK([Fortran value for .TRUE. logical type],
+        fortran_true_var,
+        [if test "$1" = "none" || \
+            test $OMPI_TRY_FORTRAN_BINDINGS -eq $OMPI_FORTRAN_NO_BINDINGS || \
+            test $ompi_fortran_happy -eq 0 ; then
+             tvalue=77
+             fvalue=77
+         else
+             #
+             # C module
+             # We really need the confdefs.h Header file for
+             # the ompi_fortran_logical_t definition
+             #
+             if test \! -f confdefs.h ; then
+                 AC_MSG_WARN([*** Problem running configure test!])
+                 AC_MSG_WARN([*** Cannot find confdefs.h file for config test])
+                 AC_MSG_WARN([*** See config.log for details.])
+                 AC_MSG_ERROR([*** Cannot continue.])
+             fi
+
+             cat > conftest.c <<EOF
+#include <stdio.h>
+#include <stdlib.h>
+#include "confdefs.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void ompi_print_f(ompi_fortran_logical_t * logical)
+{
+    FILE *f=fopen("conftestval", "w");
+    if (!f) exit(1);
+
+    if( SIZEOF_INT >= sizeof(ompi_fortran_logical_t) ) {
+        fprintf(f, "%d\n", (int)*logical);
+    } else if (SIZEOF_LONG >= sizeof(ompi_fortran_logical_t) ) {
+        fprintf(f, "%ld\n", (long) *logical);
+    } else if (SIZEOF_LONG_LONG >= sizeof(ompi_fortran_logical_t) ) {
+        fprintf(f, "%lld\n", (long long) *logical);
+    } else {
+        exit(1);
+    }
+}
+
+void ompi_print(ompi_fortran_logical_t *logical)
+{ ompi_print_f(logical); }
+
+void ompi_print_(ompi_fortran_logical_t *logical)
+{ ompi_print_f(logical); }
+
+void ompi_print__(ompi_fortran_logical_t *logical)
+{ ompi_print_f(logical); }
+
+void OMPI_PRINT(ompi_fortran_logical_t *logical)
+{ ompi_print_f(logical); }
+
+#ifdef __cplusplus
+}
+#endif
+EOF
+             cat > conftestf.f <<EOF
+      program main
+      logical value
+      value=.TRUE.
+      CALL ompi_print(value)
+      end
+EOF
+             cat > conftestf2.f <<EOF
+      program main
+      logical value
+      value=.FALSE.
+      CALL ompi_print(value)
+      end
+EOF
+
+
+             #
+             # Try the compilation and run.
+             #
+             OPAL_LOG_COMMAND([$CC $CFLAGS -I. -c conftest.c],
+                 [OPAL_LOG_COMMAND([$FC $FCFLAGS -o conftest conftest.o conftestf.f $LDFLAGS $LIBS],
+                      [happy=1], [happy=0])],
+                 [happy=0])
+
+             AS_IF([test $happy -eq 0 && test $ompi_fortran_happy -eq 1],
+                          [AC_MSG_ERROR([Could not compile Fortran .TRUE. test.  Aborting.])
+                          ])
+
+             AS_IF([test "$cross_compiling" = "yes"],
+                 [AC_MSG_ERROR([Can not determine value of .TRUE. when cross-compiling])],
+                 [OPAL_LOG_COMMAND([./conftest],
+                     [tvalue=`sed 's/  *//' conftestval`],
+                     [AC_MSG_ERROR([Could not determine value of Fotran .TRUE..  Aborting.])])])
+
+             cat > conftestf.f <<EOF
+      program main
+      logical value
+      value=.FALSE.
+      CALL ompi_print(value)
+      end
+EOF
+
+             #
+             # Try the compilation and run.
+             #
+             OPAL_LOG_COMMAND([$CC $CFLAGS -I. -c conftest.c],
+                 [OPAL_LOG_COMMAND([$FC $FCFLAGS -o conftest conftest.o conftestf.f $LDFLAGS $LIBS],
+                      [happy=1], [happy=0])],
+                 [happy=0])
+
+             AS_IF([test $happy -eq 0 && test $ompi_fortran_happy -eq 1],
+                          [AC_MSG_ERROR([Could not compile Fortran .FALSE. test.  Aborting.])
+                          ])
+
+             AS_IF([test "$cross_compiling" = "yes"],
+                 [AC_MSG_ERROR([Can not determine value of .FALSE. when cross-compiling])],
+                 [OPAL_LOG_COMMAND([./conftest],
+                     [fvalue=`sed 's/  *//' conftestval`],
+                     [AC_MSG_ERROR([Could not determine value of Fotran .FALSE..  Aborting.])])])
+         fi
+         AS_VAR_SET(fortran_true_var, [$tvalue])
+         unset tvalue
+         AS_VAR_SET(fortran_false_var, [$fvalue])
+         unset fvalue
+
+        ])
+
+    AS_VAR_COPY([ompi_fortran_true_value], [fortran_true_var])
+    AC_DEFINE_UNQUOTED([OMPI_FORTRAN_VALUE_TRUE],
+        [$ompi_fortran_true_value],
+        [Fortran value for LOGICAL .TRUE. value])
+    AS_VAR_POPDEF([fortran_true_var])
+
+   AS_VAR_COPY([ompi_fortran_false_value], [fortran_false_var])
+    AC_DEFINE_UNQUOTED([OMPI_FORTRAN_VALUE_FALSE],
+        [$ompi_fortran_false_value],
+        [Fortran value for LOGICAL .FALSE. value])
+    AS_VAR_POPDEF([fortran_false_var])
+
+
+    unset happy ompi_print_logical_fn
+    rm -rf conftest*
+])dnl

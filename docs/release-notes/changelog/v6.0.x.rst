@@ -1,0 +1,216 @@
+Open MPI v6.0.x series
+======================
+
+This file contains all the NEWS updates for the Open MPI v6.0.x
+series, in reverse chronological order.
+
+Open MPI version v6.0.0
+--------------------------
+:Date: ...fill me in...
+
+- Updated the embedded hwloc to v2.15.0.
+
+- OpenSHMEM static symmetric storage is now limited to writable loadable
+  segments of the main executable.  Unrelated mappings, including private
+  anonymous mappings, are excluded.
+
+- OpenSHMEM now validates peer memheap layouts before remote-key state is
+  used.  Incompatible peer layouts abort initialization with a diagnostic.
+
+- Fixed ``btl/tcp`` failing to connect, or hanging, on nodes that have an
+  interface whose IP address is not unique across the job -- a container
+  bridge such as ``docker0``, which is commonly ``172.17.0.1`` on every
+  node, is the usual cause.  Such an address was preferred when pairing
+  local and remote interfaces, because being identical it appeared to be
+  the best possible match, and it is in fact unusable: a connection to it
+  never leaves the node, and a connection from it is answered to the
+  peer's own copy of the address.  Both the address and the local
+  interface that holds it are now excluded when the peer is on another
+  node.
+
+- Open MPI no longer forces a specific Libevent back-end; Libevent now
+  picks the best mechanism available on the platform (for example,
+  ``kqueue`` on macOS and ``epoll`` on Linux).  Open MPI previously
+  forced ``select`` on macOS and ``poll`` on most other platforms, to
+  work around 2008-era problems using the scalable mechanisms with
+  pseudo-terminals.  Those problems no longer apply: the pseudo-terminals
+  in question belong to PRRTE's I/O forwarding, which does not consult
+  this setting.  The ``opal_event_include`` MCA parameter still allows a
+  specific mechanism to be selected.  Its default is now empty, which
+  means that Libevent chooses (``all`` is also still accepted with the
+  same meaning).
+
+- Fixed every MPI process crashing in ``MPI_Init()`` on macOS when Open
+  MPI was built against a macOS SDK newer than the OS it runs on -- for
+  example, the Command Line Tools installing the macOS 27 SDK on a macOS
+  26 machine.  ``pipe2()`` is declared by the newer SDK but is absent
+  from the older OS, and the bundled Libevent's ``configure`` concluded
+  it was usable, so Libevent called a symbol that resolves to NULL at
+  run time.  The bundled Libevent is now always built to use its
+  portable ``pipe()`` fallback on macOS.  See
+  https://github.com/open-mpi/ompi/issues/14462 for the full analysis.
+
+- Fixed wrong answers from one-sided (RMA) accumulate operations on a
+  window with one MPI process per node, when the network does not
+  guarantee that its atomics and CPU atomics are atomic with respect to
+  each other.  A process performed atomics on its own window memory
+  directly while other processes reached the same memory with network
+  atomics, which is the mixing that guarantee exists to prevent.
+
+- Fixed wrong answers from one-sided (RMA) operations on a window
+  allocated with ``MPI_Win_allocate`` when the target is a process on the
+  same node but the operation is carried out by the underlying transport
+  rather than with CPU atomics.  In that case ``osc/rdma`` described the
+  target's memory with an address taken from the calling process's own
+  mapping of the shared segment, while pairing it with the memory
+  registration of a different process, so the transport could read or
+  write the wrong location.  ``MPI_Win_shared_query`` on such a window
+  continues to report an address that is valid in the calling process.
+
+- One-sided (RMA) windows on networks without hardware atomics --
+  ``btl/tcp``, for example -- are dramatically faster when more than one
+  MPI process shares a node.  The ``osc/rdma`` component now applies its
+  shared state optimization whenever the underlying transport guarantees
+  that CPU atomics and transport atomics are atomic with respect to each
+  other, which includes the emulated atomics used on such networks.
+  Previously the optimization was disabled for these transports, so
+  every window-state atomic issued by a process was routed to another
+  process on the same node and executed as a network round trip.
+
+- Added support for the MPI-4.0 embiggened APIs (i.e., functions with
+  ``MPI_Count`` parameters).
+
+- Implemented the MPI_T events interface (MPI-5.0 section 15.3.8): event
+  sources and types, event handles (including events bound to a specific MPI
+  object), callbacks honoring the callback-safety levels, and dropped-event
+  handlers, plus a set of built-in event producers (MPI
+  initialization/finalization for both the world and session models,
+  communicator and RMA window lifecycle, communicator naming, error-handler
+  invocations, and OS-level memory release). List the registered sources and
+  event types with ``ompi_info --event``.
+
+- Fix build system and some internal code to support compiler
+  link-time optimization (LTO).
+
+- Fixed ``configure`` to emit correct results when using an Autoconf
+  cache file (e.g., ``configure -C``).  Previously, several C compiler
+  and atomics results were emitted incorrectly (or omitted entirely)
+  when they were read back from a cache file, which broke the
+  subsequent build.
+
+- Open MPI now requires a C11-compliant compiler to build.
+
+- Open MPI now requires Python >= |python_min_version| to build.
+
+  - Open MPI has always required Perl 5 to build (and still does); our
+    Perl scripts are slowly being converted to Python.
+
+  .. note:: Open MPI only requires Python >= |python_min_version| and
+            Perl 5 to build itself.  It does *not* require Python or
+            Perl to build or run Open MPI or OSHMEM applications.
+
+- Removed the ROMIO package.  All MPI-IO functionality is now
+  delivered through the Open MPI internal "OMPIO" implementation
+  (which has been the default for quite a while, anyway).
+
+- Improved OMPIO ``MPI_File_get_info()`` reporting so it returns
+  supported file hints that OMPIO is actually using, including
+  component-owned hints for selected OMPIO subcomponents.
+
+- Added support for MPI-4.1 functions to access and update ``MPI_Status``
+  fields.
+
+- MPI-4.1 has deprecated the use of the Fortran ``mpif.h`` include
+  file.  Open MPI will now issue a warning when the file is included
+  and the Fortran compiler supports the ``#warning`` directive.
+
+- Added support for the MPI-4.1 memory allocation kind info object and
+  values introduced in the MPI Memory Allocation Kinds side-document.
+
+- Added support for Intel Ponte Vecchio GPUs.
+
+- Extended the functionality of the accelerator framework to support
+  intra-node device-to-device transfers for AMD and NVIDIA GPUs
+  (independent of UCX or Libfabric).
+
+- Added support for MPI sessions when using UCX.
+
+- Added support for MPI-4.1 ``MPI_REQUEST_GET_STATUS_[ALL|ANY_SOME]`` functions.
+
+- Added support for building C MPI applications against the MPI-5.0
+  standard ABI via ``mpicc_abi`` and ``libmpi_abi``.
+
+- Improvements to collective operations:
+  
+  - Added new ``xhc`` collective component to optimize shared memory collective
+    operations using XPMEM.
+
+  - Added new ``acoll`` collective component optimizing single-node
+    collective operations on AMD Zen-based processors.
+
+  - Added new algorithms to optimize Alltoall and Alltoallv in the
+    ``han`` component when XPMEM is available.
+
+  - Introduced new algorithms and parameterizations for Reduce, Allgather,
+    and Allreduce in the base collective component, and adjusted the ``tuned``
+    component to better utilize these collectives.
+
+  - Added new JSON file format to tune the ``tuned`` collective component.
+
+  - Extended the ``accelerator`` collective component to support
+    more collective operations on device buffers.
+
+- ``MPI_T_category_get_events`` and ``MPI_T_category_get_num_events``
+  now validate their ``cat_index`` argument and return
+  ``MPI_T_ERR_INVALID_INDEX`` for an out-of-range index, consistent
+  with the other ``MPI_T_category_get_*`` query functions.
+
+- Partitioned communication fixes:
+
+  - ``MPI_Parrived`` now returns ``flag = true`` for a null request
+    (``MPI_REQUEST_NULL``) and for an inactive request, as required by
+    MPI-5.0 section 4.2.2.  It previously raised ``MPI_ERR_REQUEST`` for
+    a null request and returned ``flag = false`` for a partitioned
+    receive request that had never been started.
+
+  - ``MPI_Psend_init`` and ``MPI_Precv_init`` now accept
+    ``MPI_PROC_NULL`` as the peer rank, per MPI-5.0 section 3.10.  Such
+    a request completes as soon as it is started, ``MPI_Pready`` on it
+    has no effect, and ``MPI_Parrived`` reports every partition as
+    arrived.  Previously, ``MPI_PROC_NULL`` was passed down as if it
+    were a real peer rank, reading outside the communicator's process
+    array.
+
+  - Freeing a partitioned communication request that was never started
+    no longer leaves its internal setup receive posted.  Such a stale
+    receive could consume the setup message of the next partitioned
+    operation using the same communicator, peer, and tag, which then
+    never completed.
+
+- Renamed the ``--enable-weak-symbols`` configure option to
+  ``--enable-weak-aliases``, which more accurately reflects the linker
+  feature (weak symbol *aliases*) that Open MPI actually tests for and
+  uses.  ``--enable-weak-symbols`` is retained as a deprecated synonym.
+
+- The documentation now publishes machine-readable, LLM-friendly
+  artifacts for the public MPI APIs alongside the human-facing HTML and
+  man pages: a JSONL API catalog, aggregate and per-interface Markdown
+  corpora, per-symbol Markdown pages, curated examples, an interface
+  guide, an ``ompi_info`` runtime-introspection guide (how to query an
+  installed Open MPI for its version, configuration, components, and
+  run-time MCA parameters), and a manifest, all indexed from
+  ``llms.txt``. See the "LLM-friendly documentation artifacts" page in
+  the developer documentation.
+
+- Implemented ``MPI_Get_hw_resource_info()`` using hwloc. The returned
+  info object now reports whether the calling process is restricted to
+  individual NUMA nodes, packages, caches, cores, and processing units.
+  The reported ``hwloc://`` resource keys can also be used with
+  ``MPI_Comm_split_type()`` for hardware- and resource-guided communicator
+  creation. Thanks to Musawer Ahmad Saqif for the contribution.
+
+- Added support for the MPI-5.0 standard ABI (Application Binary Interface)
+  as defined in Chapter 20 of the MPI-5.0 specification. This includes the
+  creation of a new ``libmpi_abi.so`` library and the ``mpicc_abi`` wrapper
+  compiler for building C applications against the MPI-5 ABI. Note that
+  Fortran ABI support is not yet included.
