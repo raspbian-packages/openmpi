@@ -1,0 +1,1782 @@
+Description: <short summary of the patch>
+ TODO: Put a short summary on the line above and replace this paragraph
+ with a longer explanation of this change. Complete the meta-information
+ with other relevant fields (see below for details). To make it easier, the
+ information below has been extracted from the changelog. Adjust it or drop
+ it.
+ .
+ pmix (5.0.2-1) UNRELEASED; urgency=medium
+ .
+   * New upstream release
+Author: Alastair McKinstry <mckinstry@debian.org>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout https://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: (upstream|backport|vendor|other), (<patch-url>|commit:<commit-id>)
+Bug: <upstream-bugtracker-url>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: (no|not-needed|<patch-forwarded-url>)
+Applied-Upstream: <version>, (<commit-url>|commit:<commid-id>)
+Reviewed-By: <name and email of someone who approved/reviewed the patch>
+Last-Update: 2024-03-25
+
+--- /dev/null
++++ b/config/oac/LICENSE
+@@ -0,0 +1,34 @@
++Redistribution and use in source and binary forms, with or without
++modification, are permitted provided that the following conditions are
++met:
++
++- Redistributions of source code must retain the above copyright
++  notice, this list of conditions and the following disclaimer.
++
++- Redistributions in binary form must reproduce the above copyright
++  notice, this list of conditions and the following disclaimer listed
++  in this license in the documentation and/or other materials
++  provided with the distribution.
++
++- Neither the name of the copyright holders nor the names of its
++  contributors may be used to endorse or promote products derived from
++  this software without specific prior written permission.
++
++The copyright holders provide no reassurances that the source code
++provided does not infringe any patent, copyright, or any other
++intellectual property rights of third parties.  The copyright holders
++disclaim any liability to any recipient for claims brought against
++recipient by any third party for infringement of that parties
++intellectual property rights.
++
++THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
++A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
++LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+--- /dev/null
++++ b/config/oac/README.md
+@@ -0,0 +1,4 @@
++# Autoconf shared across Open MPI / OpenPMIx / PRRTE projects
++
++This is a repository of useful Autoconf Macros that are shared across
++the Open MPI, OpenPMIx, and PRRTE projects.
+--- /dev/null
++++ b/config/oac/oac_assert.m4
+@@ -0,0 +1,43 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++
++
++dnl OAC_ASSERT_LITERAL: Assert if first argument is not an Autoconf literal
++dnl
++dnl 1 -> Variable which must be a literal
++dnl 2 -> Argument reference string (usually an integer argument number)
++dnl
++dnl Assert that the first argument is a literal (in the Autoconf sense
++dnl of the word) Second argument is the argument number (ie, a bare
++dnl number) to make the error message easier to parse.
++AC_DEFUN([OAC_ASSERT_LITERAL],
++[AS_LITERAL_IF([$1], [], [m4_fatal([argument $2 ($1) must be a literal])])])dnl
++
++
++dnl OAC_ASSERT_BEFORE: Assert the first argument is evaluated before
++dnl                    the second argument
++dnl
++dnl 1 -> Macro which must be evaluated before second argument
++dnl 2 -> Macro currently calling assert (for debugging print)
++dnl
++dnl Common usage would be similar to the commonly used check that
++dnl OAC macros which require init to be called:
++dnl OAC_ASSERT_BEFORE([OAC_INIT], [$0])
++AC_DEFUN([OAC_ASSERT_BEFORE],
++[AC_PROVIDE_IFELSE([$1], [], [m4_fatal([$1 must be evaluated before $2])])])dnl
++
++
++dnl OAC_ASSERT_PREFIX_DEFINED: Assert that the OAC program prefix is defined
++dnl
++dnl 1 -> Calling macro name
++dnl
++dnl Generally only internally useful, but assert that the program prefix has
++dnl been defined, so that the calling macro can rely on oac_program_prefix
++dnl having a rational value.
++AC_DEFUN([OAC_ASSERT_PREFIX_DEFINED],
++[m4_ifdef([_oac_program_prefix], [],
++          [m4_fatal([OAC prefix not defined.  Evaluate OAC_PUSH_PREFIX before evaluating $1])])])dnl
+--- /dev/null
++++ b/config/oac/oac_check_os_flavors.m4
+@@ -0,0 +1,70 @@
++dnl -*- shell-script -*-
++dnl
++dnl Copyright (c) 2010-2020 Cisco Systems, Inc.  All rights reserved
++dnl Copyright (c) 2014-2019 Intel, Inc.  All rights reserved.
++dnl Copyright (c) 2014      Research Organization for Information Science
++dnl                         and Technology (RIST). All rights reserved.
++dnl
++dnl Copyright (c) 2022-2023 Nanook Consulting.  All rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++dnl
++
++# OAC_CHECK_OS_FLAVOR_SPECIFIC()
++# ----------------------------------------------------
++# Helper macro from OAC-CHECK-OS-FLAVORS(), below.
++# $1 = macro to look for
++# $2 = suffix of env variable to set with results
++AC_DEFUN([OAC_CHECK_OS_FLAVOR_SPECIFIC],
++[
++    AC_MSG_CHECKING([$1])
++    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
++     [[#ifndef $1
++      #this is not $1, error
++      #endif
++     ]])],
++                      [oac_found_$2=yes],
++                      [oac_found_$2=no])
++    AC_MSG_RESULT([$oac_found_$2])
++])dnl
++
++# OAC_CHECK_OS_FLAVORS()
++# ----------------------------------------------------
++# Try to figure out the various OS flavors out there.
++#
++AC_DEFUN([OAC_CHECK_OS_FLAVORS],
++[
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__NetBSD__], [netbsd])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__FreeBSD__], [freebsd])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__OpenBSD__], [openbsd])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__DragonFly__], [dragonfly])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__386BSD__], [386bsd])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__bsdi__], [bsdi])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__APPLE__], [apple])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__linux__], [linux])
++    OAC_CHECK_OS_FLAVOR_SPECIFIC([__sun__], [sun])
++    AS_IF([test "$oac_found_sun" = "no"],
++          OAC_CHECK_OS_FLAVOR_SPECIFIC([__sun], [sun]))
++
++    AS_IF([test "$oac_found_sun" = "yes"],
++          [oac_have_solaris=1
++           CFLAGS="$CFLAGS -D_REENTRANT"
++           CPPFLAGS="$CPPFLAGS -D_REENTRANT"],
++          [oac_have_solaris=0])
++    AC_DEFINE_UNQUOTED([OAC_HAVE_SOLARIS],
++                       [$oac_have_solaris],
++                       [Whether or not we have solaris])
++    AM_CONDITIONAL(OAC_HAVE_SOLARIS, test "$oac_have_solaris" = "1")
++
++    AS_IF([test "$oac_found_apple" = "yes"],
++          [oac_have_apple=1],
++          [oac_have_apple=0])
++    AC_DEFINE_UNQUOTED([OAC_HAVE_APPLE],
++                       [$oac_have_apple],
++                       [Whether or not we have apple])
++    AM_CONDITIONAL(OAC_HAVE_APPLE, test "$oac_have_apple" = "1")
++
++])dnl
+--- /dev/null
++++ b/config/oac/oac_check_package.m4
+@@ -0,0 +1,677 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl Copyright (c) 2022      Nanook Consulting.  All rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++
++
++dnl OAC_CHECK_PACKAGE: Search for the availability of a package
++dnl
++dnl 1 -> package name
++dnl 2 -> prefix value
++dnl 3 -> headers (space separated list)
++dnl 4 -> libraries (space separated list)
++dnl 5 -> function name
++dnl 6 -> action if found
++dnl 7 -> action if not found
++dnl
++dnl OAC_CHECK_PACKAGE has an argument length problem.  Technically, M4
++dnl macros may only have 9 arguments, as argument values must be in the
++dnl form of $X, where X is a single digit.  This means we do some argument
++dnl compression (life would be easier if the libraries and headers were
++dnl split into primary and support) and use the M4 environment for passing
++dnl some infrequently used arguments.
++dnl
++dnl OAC_CHECK_PACKAGE tries to find the correct CPPFLAGS, LDFLAGS, and libraries
++dnl to use a particular package.  It then verifies that the header is available
++dnl via AC_CHECK_HEADERS and that the function specified is available via
++dnl AC_CHECK_FUNC using the specified flags.  To find the flags and libraries,
++dnl OAC_CHECK_PACKAGE follows a 4 step search path:
++dnl
++dnl   1. If <package name>.pc is available to package config, the package config
++dnl      data is used.
++dnl   2. If a OMPI-style wrapper compiler is found, the information from the
++dnl      wrapper compiler is used (NOTE: THIS IS OFF BY DEFAULT)
++dnl   3. If with_<package> and/or with_<package>_libdir are specified, the
++dnl      filesystem is examined to look for the specified header and library
++dnl      in the specified path.
++dnl   4. We try to find the specified header and function with no change
++dnl      in CPPFLAGS or LDFLAGS and adding the specified libraries to LIBS.
++dnl
++dnl It is the responsibility of the caller to register arguments of the form
++dnl with-<package name>, with-<package name>-libdir, and with-package name>-incdir.
++dnl All three are optional, nothing will break if the caller doesn't specify them
++dnl (and indeed, if the package being searched for isn't libnl3, it's likely the
++dnl with-<package name>-incdir is a complete waste of energy).
++dnl
++dnl By default, OAC_CHECK_PACKAGE will use <package name> for the module name to specify
++dnl to pkg-config, meaning there is a <package name>.pc in the filesystem.  If a
++dnl different module name should be used, add a macro to the M4 environment named
++dnl <package name>_pkgconfig_module with the value of the pkgconfig module name
++dnl to use.  For example, if the libevent module name is libevent_core, you could
++dnl specify:
++dnl
++dnl    m4_define([libevent_pkgconfig_module], [libevent_core])
++dnl
++dnl Similarly, by default, OAC_CHECK_PACKAGE will use <package name>cc for the name
++dnl of the wrapper compiler to investigate.  This can be modified with the
++dnl <package name>_wrapper_compiler macro in the m4 environment.
++dnl
++dnl Using pkg-config is on by default and using the wrapper compilers is off by
++dnl default.  The use of either can be controlled by setting the SHELL environment
++dnl variables <package name>_USE_PKG_CONFIG and <package name>_USE_WRAPPER_COMPILER
++dnl to 0 (to explicitly disable) or 1 (to explicitly enable).
++dnl
++dnl On return, <action if found> will be evaluated if it appears that the package is
++dnl available.  <action if not found> will be evaluated if it appears that the package
++dnl is not available.  If it appears the package is available, the following SHELL
++dnl environment variables will be set:
++dnl
++dnl   <prefix>_CPPFLAGS - CPPFLAGS to add when compiling sources depending on the package
++dnl   <prefix>_LDFLAGS - LDFLAGS to add when linking against the package
++dnl   <prefix>_STATIC_LDFLAGS - LDFLAGS to add when linking against the package when
++dnl                          building a statically linked executable.
++dnl   <prefix>_LIBS - Libraries to link to access the package
++dnl   <prefix>_STATIC_LIBS - Libraries to link to access the package when building a
++dnl                          statically linked executable.
++dnl   <prefix>_PC_MODULES - Module name of the pkgconfig module used to generate
++dnl                          the build information.  Will be unset by OAC_CHECK_PACKAGE
++dnl                          if pkg-config was not used to configure the package.  Note
++dnl                          that there is no need for a STATIC_PC_MODULES option,
++dnl                          as that functionality is built into pkgconfig modules
++dnl                          directly.
++dnl   <prefix>_SUMMARY - A summary of the check package output, suitable for inclusion
++dnl                          in a configure summary table.  Will start with yes/no.
++dnl   <prefix>_DETECT_METHOD - The method used to find the right flags.  Will be one of
++dnl                          'pkg-config', 'wrapper compiler', or empty string
++dnl
++dnl Note that STATIC_LIBS and STATIC_LDFLAGS should not be added to
++dnl LIBS and LDFLAGS unnecessarily.  Even if the library being built
++dnl is being built as a static library, that does not mean adding
++dnl STATIC_LIBS to LIBS is the right call.  Only when the executable
++dnl is only linked against static libraries should STATIC_LIBS be
++dnl added to LIBS.
++AC_DEFUN([OAC_CHECK_PACKAGE],[
++# ****************************** START CHECK PACKAGE FOR $1 ******************************
++    AC_REQUIRE([_OAC_CHECK_PACKAGE_STATIC_CHECK])
++    OAC_ASSERT_LITERAL([$1])dnl
++    OAC_ASSERT_LITERAL([$2])dnl
++    OAC_VAR_SCOPE_PUSH([check_package_$2_save_CPPFLAGS check_package_$2_save_LDFLAGS check_package_$2_save_LIBS check_package_happy check_package_have_flags check_package_prefix check_package_libdir check_package_incdir check_package_pcfilename])
++
++    check_package_$2_save_CPPFLAGS="${CPPFLAGS}"
++    check_package_$2_save_LDFLAGS="${LDFLAGS}"
++    check_package_$2_save_LIBS="${LIBS}"
++
++    $2_CPPFLAGS=
++    $2_LDFLAGS=
++    $2_STATIC_LDFLAGS=
++    $2_LIBS=
++    $2_STATIC_LIBS=
++    AS_UNSET([$2_PC_MODULES])
++
++    check_package_happy=1
++    check_package_have_flags=0
++    check_package_type=
++
++    # build a sane environment
++    AS_IF([test "$with_$1" = "no"],
++          [AC_MSG_NOTICE([Package $1 disabled by user])
++           check_package_happy=0],
++          [test "${with_$1}" = "yes"],
++          [check_package_prefix=],
++          [check_package_prefix="${with_$1}"])
++    check_package_libdir=
++    AS_IF([test "${with_$1_libdir}" = "no" -o "${with_$1_libdir}" = "yes"],
++          [AC_MSG_ERROR(["yes" or "no" are not valid arguments for --with-$1-libdir])],
++          [test -n "${with_$1_libdir}"],
++          [check_package_libdir="${with_$1_libdir}"])
++    check_package_incdir=
++    AS_IF([test "${with_$1_incdir}" = "no" -o "${with_$1_incdir}" = "yes"],
++          [AC_MSG_ERROR(["yes" or "no" are not valid arguments for --with-$1-incdir])],
++          [test -n "${with_$1_incdir}"],
++          [check_package_incdir="${with_$1_incdir}"])
++
++    AS_IF([test ${check_package_happy} -eq 1 -a ${check_package_have_flags} -eq 0],
++          [_OAC_CHECK_PACKAGE_PKGCONFIG([$1], [$2],
++                [check_package_type="pkg-config"
++                 check_package_have_flags=1])])
++
++    AS_IF([test ${check_package_happy} -eq 1 -a ${check_package_have_flags} -eq 0],
++          [_OAC_CHECK_PACKAGE_WRAPPER_COMPILER([$1], [$2],
++                [check_package_type="wrapper compiler"
++                 check_package_have_flags=1])])
++
++    AS_IF([test ${check_package_happy} -eq 1 -a ${check_package_have_flags} -eq 0],
++          [_OAC_CHECK_PACKAGE_GENERIC([$1], [$2], [$3], [$4],
++                [check_package_type=""
++                 check_package_have_flags=1])])
++
++    AS_IF([test ${check_package_have_flags} -eq 0], [check_package_happy=0])
++
++    AS_IF([test ${check_package_happy} -eq 1 -a "${oac_cv_check_package_static_linker_flag}" = "yes"],
++          [AC_MSG_NOTICE([Copying STATIC_LIBS and STATIC_LDFLAGS to LIBS and LDFLAGS because static linking])
++           OAC_APPEND([$2_LDFLAGS], [${$2_STATIC_LDFLAGS}])
++           OAC_APPEND([$2_LIBS], [${$2_STATIC_LIBS}])])
++
++    AS_IF([test ${check_package_happy} -eq 1],
++          [_OAC_CHECK_PACKAGE_VERIFY([$1], [$2], [$3], [$5],
++                                 [check_package_happy=1], [check_package_happy=0])])
++
++    $2_DETECT_METHOD="${check_package_type}"
++    AS_IF([test -n "${check_package_type}"],
++          [check_package_type="${check_package_type}: "])
++
++    AS_IF([test ${check_package_happy} -eq 1],
++          [AS_IF([test -z "${check_package_prefix}"],
++                 [$2_SUMMARY="yes (${check_package_type}default search paths)"],
++                 [$2_SUMMARY="yes (${check_package_type}${check_package_prefix})"])
++           $6],
++          [AS_IF([test "${with_$1}" = "no"],
++                 [$2_SUMMARY="no (explicitly disabled)"],
++                 [$2_SUMMARY="no (not found)"])
++           AS_UNSET([$2_CPPFLAGS])
++           AS_UNSET([$2_LDFLAGS])
++           AS_UNSET([$2_STATIC_LDFLAGS])
++           AS_UNSET([$2_LIBS])
++           AS_UNSET([$2_STATIC_LIBS])
++           $7])
++
++    CPPFLAGS="${check_package_$2_save_CPPFLAGS}"
++    LDFLAGS="${check_package_$2_save_LDFLAGS}"
++    LIBS="${check_package_$2_save_LIBS}"
++
++    OAC_VAR_SCOPE_POP
++# ****************************** END CHECK PACKAGE FOR $1 ******************************
++])
++
++
++dnl Retrieve arguments from pkg-config file
++dnl
++dnl 1 -> package name
++dnl 2 -> prefix
++dnl 3 -> pcfile name (may be full path)
++dnl 4 -> action if found
++dnl 5 -> action if not found
++dnl
++dnl Read pkgconfig module $3 and set build variables based on return
++dnl value.  Results are cached based on the value in $1, even if the
++dnl pkgconfig module name ($3) changes and that this macro is expanded
++dnl inside OAC_CHECK_PACKAGE, which can pollute the results cache.
++dnl
++dnl On return, <action if found> will be evaluated if it appears that
++dnl the pkg-config data is available.  <action if not found> will be
++dnl evaluated if it appears that the package is not available.  If it
++dnl appears the package is available, the following SHELL environment
++dnl variables will be set:
++dnl
++dnl   <prefix>_CPPFLAGS - CPPFLAGS to add when compiling sources depending on the package
++dnl   <prefix>_LDFLAGS - LDFLAGS to add when linking against the package
++dnl   <prefix>_STATIC_LDFLAGS - LDFLAGS to add when linking against the package when
++dnl                          building a statically linked executable.
++dnl   <prefix>_LIBS - Libraries to link to access the package
++dnl   <prefix>_STATIC_LIBS - Libraries to link to access the package when building a
++dnl                          statically linked executable.
++dnl   <prefix>_PC_MODULES - Module name of the pkgconfig module used to generate
++dnl                          the build information.  Will be unset by OAC_CHECK_PACKAGE
++dnl                          if pkg-config was not used to configure the package.  Note
++dnl                          that there is no need for a STATIC_PC_MODULES option,
++dnl                          as that functionality is built into pkgconfig modules
++dnl                          directly.
++AC_DEFUN([OAC_CHECK_PACKAGE_PARSE_PKGCONFIG], [
++    AC_REQUIRE([_OAC_CHECK_PACKAGE_PKGCONFIG_INIT])
++    OAC_VAR_SCOPE_PUSH([check_package_pkgconfig_internal_result])
++
++    AC_CACHE_CHECK([if $1 pkg-config module exists],
++         [oac_cv_check_package_$1_pkg_config_exists],
++         [_OAC_CHECK_PACKAGE_PKGCONFIG_RUN([$3], [--exists], [check_package_pkgconfig_internal_result],
++                    [$2_PC_MODULES=$3
++                     oac_cv_check_package_$1_pkg_config_exists=yes],
++                    [oac_cv_check_package_$1_pkg_config_exists=no])])
++
++    # if pkg-config --exists works, but getting one of the standard flags fails, we consider
++    # that a hard failure.  It should not happen, outside of a weird system configuration
++    # issue where we're probably not going to like the results anyway.
++    AS_IF([test "${oac_cv_check_package_$1_pkg_config_exists}" = "yes"],
++          [AC_CACHE_CHECK([for $1 pkg-config cflags],
++                [oac_cv_check_package_$1_pkg_config_cppflags],
++                [_OAC_CHECK_PACKAGE_PKGCONFIG_RUN([$3], [--cflags],
++                      [oac_cv_check_package_$1_pkg_config_cppflags], [],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 cppflags from pkg-config])])])
++           $2_CPPFLAGS="${oac_cv_check_package_$1_pkg_config_cppflags}"
++
++           AC_CACHE_CHECK([for $1 pkg-config ldflags],
++                [oac_cv_check_package_$1_pkg_config_ldflags],
++                [_OAC_CHECK_PACKAGE_PKGCONFIG_RUN([$3], [--libs-only-L --libs-only-other],
++                      [oac_cv_check_package_$1_pkg_config_ldflags], [],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 ldflags from pkg-config])])])
++           $2_LDFLAGS="${oac_cv_check_package_$1_pkg_config_ldflags}"
++
++           AC_CACHE_CHECK([for $1 pkg-config static ldflags],
++                [oac_cv_check_package_$1_pkg_config_static_ldflags],
++                [_OAC_CHECK_PACKAGE_PKGCONFIG_RUN([$3], [--static --libs-only-L --libs-only-other],
++                      [oac_cv_check_package_$1_pkg_config_static_ldflags], [],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 static ldflags from pkg-config])])])
++           $2_STATIC_LDFLAGS="${oac_cv_check_package_$1_pkg_config_static_ldflags}"
++
++           AC_CACHE_CHECK([for $1 pkg-config libs],
++                [oac_cv_check_package_$1_pkg_config_libs],
++                [_OAC_CHECK_PACKAGE_PKGCONFIG_RUN([$3], [--libs-only-l],
++                      [oac_cv_check_package_$1_pkg_config_libs], [],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 libs from pkg-config])])])
++           $2_LIBS="${oac_cv_check_package_$1_pkg_config_libs}"
++
++           AC_CACHE_CHECK([for $1 pkg-config static libs],
++                [oac_cv_check_package_$1_pkg_config_static_libs],
++                [_OAC_CHECK_PACKAGE_PKGCONFIG_RUN([$3], [--static --libs-only-l],
++                      [oac_cv_check_package_$1_pkg_config_static_libs], [],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 libs from pkg-config])])])
++           $2_STATIC_LIBS="${oac_cv_check_package_$1_pkg_config_static_libs}"
++
++           $4])
++
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl Invalidate generic cached results (should rarely be needed)
++dnl
++dnl 1 -> package name
++dnl 2 -> prefix value
++dnl 3 -> headers (space separated list)
++dnl 4 -> function name
++dnl
++dnl Rarely, packages change linking or in some other way make it
++dnl difficult to determine all the correct arguments for
++dnl OAC_CHECK_PACKAGE in one try.  The TM interface is a good example
++dnl of this, which has changed the name of the library (or its
++dnl dependencies) throughout the years.  Because OAC_CHECK_PACKAGE
++dnl makes heavy use of caching (yay!), it is generally not useful to
++dnl call OAC_CHECK_PACKAGE multiple times with the same package name,
++dnl but different arguments.  This macro may be expanded between calls
++dnl to invalidate the caching for the generic (no pkg-config or
++dnl wrapper config found) case.
++AC_DEFUN([OAC_CHECK_PACKAGE_INVALIDATE_GENERIC_CACHE], [
++    OAC_VAR_SCOPE_PUSH([check_package_verify_search_header])
++    dnl today, all we cache in the generic case is the header and func libs
++    check_package_verify_search_header=`echo "$3" | cut -f1 -d' '`
++    AS_UNSET([ac_cv_header_]AS_TR_SH([${check_package_verify_search_header}]))
++    AS_UNSET([ac_cv_func_$4])
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl OAC_CHECK_PACKAGE_VERIFY_COMMANDS - macros to expand during
++dnl   verification we have a working package
++dnl
++dnl 1 -> macro name (must be double quoted)
++dnl
++dnl If extra verification is required (such as the libnl1 vs. libnl3 disaster),
++dnl callers (like the libnl verification code) can register a hook for
++dnl every time OAC_CHECK_PACKAGE verifies that a package actually links.  This
++dnl check will only be run after it is verified that the header can be found
++dnl and that the function specified is found when linking.
++dnl
++dnl The macro specified must take 6 arguments:
++dnl     1 -> package name
++dnl     2 -> prefix
++dnl     3 -> headers (space separated list)
++dnl     4 -> function name
++dnl     5 -> action if found
++dnl     6 -> action if not found
++dnl
++dnl The CPPFLAGS / LDFLAGS / LIBS can be retrieved via ${$2_CPPFLAGS},
++dnl ${$2_LDFLAGS}, and ${$2_LIBS}, respectively.
++dnl
++dnl Note that, because M4 really likes to expand macro names, the argument
++dnl to OAC_CHECK_PACKAGE_VERIFY_COMMANDS must be overquoted.  That is,
++dnl if the macro name to be called is LIBNL_PACKAGE_VERIFY, the call to
++dnl register should be:
++dnl
++dnl    OAC_CHECK_PACKAGE_VERIFY_COMMANDS([[LIBNL_PACKAGE_VERIFY]])
++dnl
++dnl If you see the macro being invoked without arguments, that almost certainly
++dnl means you forgot to double quote.
++AC_DEFUN([OAC_CHECK_PACKAGE_VERIFY_COMMANDS],
++[m4_append([OAC_CHECK_PACKAGE_VERIFY_COMMAND_LIST], m4_dquote([$1]), [,])])
++
++
++dnl ************************************* INTERNAL HELPER *************************************
++
++AC_DEFUN([_OAC_CHECK_PACKAGE_STATIC_CHECK],
++[OAC_LINKER_STATIC_CHECK([oac_cv_check_package_static_linker_flag=yes],
++                         [oac_cv_check_package_static_linker_flag=no])])
++
++dnl ************************************* PKG-CONFIG *************************************
++
++
++dnl no arguments; here for an AC_REQUIRE to set $PKG_CONFIG
++AC_DEFUN([_OAC_CHECK_PACKAGE_PKGCONFIG_INIT],
++[AC_CHECK_PROG([PKG_CONFIG], [pkg-config], [pkg-config])])
++
++
++dnl 1 -> package
++dnl 2 -> prefix
++dnl 3 -> action if found flags
++AC_DEFUN([_OAC_CHECK_PACKAGE_PKGCONFIG], [
++    m4_ifdef([$1_pkgconfig_module],
++             [m4_define([pcname], [$1_pkgconfig_module])],
++             [m4_define([pcname], [$1])])
++    AS_IF([test "${$1_USE_PKG_CONFIG}" != "0"],
++          [# search for the package using pkg-config.  If the user provided a
++           # --with-$1 or --with-$1-libdir argument, be explicit about where
++           # we look for the pkg-config file, so we don't find the wrong one.
++           # If they specified --with-$1 only, we look in
++           # prefix/lib64/pkgconfig and if we don't find a file there, assume
++           # prefix/lib is the right answer.
++          AC_CACHE_CHECK([for $1 pkg-config name],
++               [oac_cv_check_package_$1_pcfilename],
++               [oac_cv_check_package_$1_pcfilename="pcname"
++                AS_IF([test -n "${check_package_libdir}"],
++                      [oac_cv_check_package_$1_pcfilename="${check_package_libdir}/pkgconfig/pcname.pc"],
++                      [test -z "${check_package_prefix}"],
++                      [oac_cv_check_package_$1_pcfilename="pcname"],
++                      [test -r "${check_package_prefix}/lib/pkgconfig/pcname.pc" -a -r "${check_package_prefix}/lib64/pkgconfig/pcname.pc"],
++                      [AS_IF([test ! -L "${check_package_prefix}/lib" &&
++                              test ! -L "${check_package_prefix}/lib64"],
++                             [AC_MSG_ERROR([Found pcname in both ${check_package_prefix}/lib/pkgconfig and
++${check_package_prefix}/lib64/pkgconfig.  This is confusing.  Please add --with-$1-libdir=PATH
++to configure to help disambiguate.])],
++                             [check_package_cv_$1_pcfilename="${check_package_prefix}/lib/pkgconfig/pcname.pc"])],
++                      [test -r "${check_package_prefix}/lib64/pkgconfig/pcname.pc"],
++                      [oac_cv_check_package_$1_pcfilename="${check_package_prefix}/lib64/pkgconfig/pcname.pc"],
++                      [oac_cv_check_package_$1_pcfilename="${check_package_prefix}/lib/pkgconfig/pcname.pc"])])
++         OAC_CHECK_PACKAGE_PARSE_PKGCONFIG([$1], [$2], [${oac_cv_check_package_$1_pcfilename}], [$3])])
++])
++
++
++dnl 1 -> pc module/filename
++dnl 2 -> argument string
++dnl 3 -> result assignment string
++dnl 4 -> action if found
++dnl 5 -> action if not found
++AC_DEFUN([_OAC_CHECK_PACKAGE_PKGCONFIG_RUN], [
++    OAC_VAR_SCOPE_PUSH([check_package_pkgconfig_run_results check_package_pkgconfig_run_happy])
++    check_package_pkgconfig_run_happy=no
++    AS_IF([test -n "${PKG_CONFIG}"],
++          [OAC_LOG_COMMAND([check_package_pkgconfig_run_results=`${PKG_CONFIG} $2 $1 2>&1`],
++               [AS_VAR_COPY([$3], [check_package_pkgconfig_run_results])
++                check_package_pkgconfig_run_happy=yes])
++           OAC_LOG_MSG([pkg-config output: ${check_package_pkgconfig_run_results}], [1])])
++    AS_IF([test "${check_package_pkgconfig_run_happy}" = "yes"], [$4], [$5])
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl ************************************* WRAPPER COMPILERS *************************************
++
++
++dnl 1 -> package name
++dnl 2 -> prefix
++dnl 3 -> action if found flags
++dnl
++dnl wrapper compiler is off by default; must be explicitly enabled
++AC_DEFUN([_OAC_CHECK_PACKAGE_WRAPPER_COMPILER], [
++    m4_ifdef([$1_wrapper_compiler],
++             [m4_define([wrapper_compiler_name], [$1_wrapper_compiler])],
++             [m4_define([wrapper_compiler_name], [$1cc])])
++    AS_IF([test "${$1_USE_WRAPPER_COMPILER}" = "1"],
++          [# search for the package using wrapper compilers.  If the user
++           # provided a --with-$1 argument, be explicit about where we look
++           # for the compiler, so we don't find the wrong one.
++           AC_CACHE_CHECK([for $1 wrapper compiler],
++                [oac_cv_check_package_$1_wrapper_compiler],
++                [AS_IF([test -z "${check_package_prefix}"],
++                       [oac_cv_check_package_$1_wrapper_compiler="wrapper_compiler_name"],
++                       [oac_cv_check_package_$1_wrapper_compiler="${check_package_prefix}/bin/wrapper_compiler_name"])])
++           _OAC_CHECK_PACKAGE_WRAPPER_INTERNAL([$1], [$2], [${oac_cv_check_package_$1_wrapper_compiler}], [$3])])
++])
++
++
++dnl 1 -> package name
++dnl 2 -> prefix
++dnl 2 -> wrapper compiler
++dnl 3 -> action if found flag
++AC_DEFUN([_OAC_CHECK_PACKAGE_WRAPPER_INTERNAL], [
++    OAC_VAR_SCOPE_PUSH([check_package_wrapper_internal_result check_package_wrapper_internal_tmp])
++
++    AC_CACHE_CHECK([if $1 wrapper compiler works],
++         [oac_cv_check_package_$1_wrapper_compiler_works],
++         [_OAC_CHECK_PACKAGE_WRAPPER_RUN([$3], [--showme:version], [check_package_wrapper_internal_result],
++               [oac_cv_check_package_$1_wrapper_compiler_works=yes],
++               [oac_cv_check_package_$1_wrapper_compiler_works=no])])
++
++    # if wrapper --showme:version  works, but getting one of the standard flags fails, we consider
++    # that a hard failure.  It should not happen, outside of a weird system configuration
++    # issue where we're probably not going to like the results anyway.
++    AS_IF([test ${oac_cv_check_package_$1_wrapper_compiler_works} = "yes"],
++          [AC_CACHE_CHECK([for $1 wrapper compiler cppflags],
++                [oac_cv_check_package_$1_wrapper_compiler_cppflags],
++                [_OAC_CHECK_PACKAGE_WRAPPER_RUN([$3], [--showme:incdirs],
++                      [check_package_wrapper_internal_result],
++                      [for check_package_wrapper_internal_tmp in ${check_package_wrapper_internal_result} ; do
++                           OAC_APPEND([oac_cv_check_package_$1_wrapper_compiler_cppflags], ["-I${check_package_wrapper_internal_tmp}"])
++                       done],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 cppflags from wrapper compiler])])])
++           $2_CPPFLAGS="${oac_cv_check_package_$1_wrapper_compiler_cppflags}"
++
++           AC_CACHE_CHECK([for $1 wrapper compiler ldflags],
++                [oac_cv_check_package_$1_wrapper_compiler_ldflags],
++                [_OAC_CHECK_PACKAGE_WRAPPER_RUN([$3], [--showme:libdirs],
++                      [check_package_wrapper_internal_result],
++                       [for check_package_wrapper_internal_tmp in ${check_package_wrapper_internal_result} ; do
++                            OAC_APPEND([oac_cv_check_package_$1_wrapper_compiler_ldflags], ["-L${check_package_wrapper_internal_tmp}"])
++                        done],
++                       [AC_MSG_RESULT([error])
++                        AC_MSG_ERROR([An error occurred retrieving $1 ldflags from wrapper compiler])])])
++           $2_LDFLAGS="${oac_cv_check_package_$1_wrapper_compiler_ldflags}"
++
++           AC_CACHE_CHECK([for $1 wrapper compiler static ldflags],
++                [oac_cv_check_package_$1_wrapper_compiler_static_ldflags],
++                [_OAC_CHECK_PACKAGE_WRAPPER_RUN([$3], [--showme:libdirs_static],
++                      [check_package_wrapper_internal_result],
++                       [for check_package_wrapper_internal_tmp in ${check_package_wrapper_internal_result} ; do
++                            OAC_APPEND([oac_cv_check_package_$1_wrapper_compiler_static_ldflags], ["-L${check_package_wrapper_internal_tmp}"])
++                        done],
++                       [AC_MSG_RESULT([error])
++                        AC_MSG_ERROR([An error occurred retrieving $1 static ldflags from wrapper compiler])])])
++           $2_STATIC_LDFLAGS="${oac_cv_check_package_$1_wrapper_compiler_static_ldflags}"
++
++           AC_CACHE_CHECK([for $1 wrapper compiler libs],
++                [oac_cv_check_package_$1_wrapper_compiler_libs],
++                [_OAC_CHECK_PACKAGE_WRAPPER_RUN([$3], [--showme:libs],
++                      [check_package_wrapper_internal_result],
++                      [for check_package_wrapper_internal_tmp in ${check_package_wrapper_internal_result} ; do
++                           OAC_APPEND([oac_cv_check_package_$1_wrapper_compiler_libs], ["-l${check_package_wrapper_internal_tmp}"])
++                       done],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 libs from wrapper compiler])])])
++           $2_LIBS="$oac_cv_check_package_$1_wrapper_compiler_libs"
++
++           AC_CACHE_CHECK([for $1 wrapper compiler static libs],
++                [oac_cv_check_package_$1_wrapper_compiler_static_libs],
++                [_OAC_CHECK_PACKAGE_WRAPPER_RUN([$3], [--showme:libs_static],
++                      [check_package_wrapper_internal_result],
++                      [for check_package_wrapper_internal_tmp in ${check_package_wrapper_internal_result} ; do
++                           OAC_APPEND([oac_cv_check_package_$1_wrapper_compiler_static_libs], ["-l${check_package_wrapper_internal_tmp}"])
++                       done],
++                      [AC_MSG_RESULT([error])
++                       AC_MSG_ERROR([An error occurred retrieving $1 static libs from wrapper compiler])])])
++           $2_STATIC_LIBS="${oac_cv_check_package_$1_wrapper_compiler_static_libs}"
++
++           $4])
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl 1 -> wrapper compiler
++dnl 2 -> argument string
++dnl 3 -> result assignment string
++dnl 4 -> action if found
++dnl 5 -> action if failed
++AC_DEFUN([_OAC_CHECK_PACKAGE_WRAPPER_RUN], [
++    OAC_VAR_SCOPE_PUSH([check_package_wrapper_run_results])
++    OAC_LOG_COMMAND([check_package_wrapper_run_results=`$1 $2 2>&1`],
++             [AS_VAR_COPY([$3], [check_package_wrapper_run_results])
++              $4],
++             [$5])
++         OAC_LOG_MSG([wrapper output: ${check_package_wrapper_run_results}], [1])
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl ************************************* GENERIC GUESSING *************************************
++
++
++dnl 1 -> package name
++dnl 2 -> prefix
++dnl 3 -> headers (space separated list)
++dnl 4 -> libraries (space separated list)
++dnl 5 -> action if found flags
++AC_DEFUN([_OAC_CHECK_PACKAGE_GENERIC], [
++    OAC_VAR_SCOPE_PUSH([check_package_generic_happy check_package_generic_lib])
++    check_package_generic_happy=0
++
++    AS_IF([test -n "${check_package_prefix}"],
++          [_OAC_CHECK_PACKAGE_GENERIC_PREFIX([$1], [$2], [$3], [$4], [check_package_generic_happy=1])],
++          [AC_MSG_NOTICE([Searching for $1 in default search paths])
++           $1_CPPFLAGS=
++           $1_LDFLAGS=
++           check_package_generic_happy=1])
++
++    AS_IF([test ${check_package_generic_happy} -eq 1],
++          [for check_package_generic_lib in $4 ; do
++               check_package_generic_lib=`echo ${check_package_generic_lib} | sed -e 's/^-l//'`
++               OAC_APPEND([$2_LIBS], ["-l${check_package_generic_lib}"])
++               OAC_APPEND([$2_STATIC_LIBS], ["-l${check_package_generic_lib}"])
++           done
++
++           AC_MSG_CHECKING([for $1 cppflags])
++           AC_MSG_RESULT([$$2_CPPFLAGS])
++           AC_MSG_CHECKING([for $1 ldflags])
++           AC_MSG_RESULT([$$2_LDFLAGS])
++           AC_MSG_CHECKING([for $1 libs])
++           AC_MSG_RESULT([$$2_LIBS])
++           AC_MSG_CHECKING([for $1 static libs])
++           AC_MSG_RESULT([$$2_STATIC_LIBS])
++
++           $5])
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl 1 -> package name
++dnl 2 -> prefix
++dnl 3 -> headers (space separated list)
++dnl 4 -> libraries (space separated list)
++dnl 5 -> action if found flags
++AC_DEFUN([_OAC_CHECK_PACKAGE_GENERIC_PREFIX], [
++    OAC_VAR_SCOPE_PUSH([check_package_generic_search_header check_package_generic_search_lib check_package_generic_incdir])
++
++    check_package_generic_search_header=`echo "$3" | cut -f1 -d' '`
++    check_package_generic_search_lib=`echo "$4" | cut -f1 -d' ' | sed -e 's/^-l//'`
++
++    check_package_generic_prefix_happy=0
++    AS_IF([test -n "${check_package_incdir}"],
++          [check_package_generic_incdir="${check_package_incdir}"],
++          [check_package_generic_incdir="${check_package_prefix}/include"])
++    AC_MSG_CHECKING([for $1 header at ${check_package_generic_incdir}])
++    AS_IF([test -r ${check_package_generic_incdir}/${check_package_generic_search_header}],
++          [check_package_generic_prefix_happy=1
++           $2_CPPFLAGS="-I${check_package_generic_incdir}"
++           AC_MSG_RESULT([found])],
++          [AC_MSG_RESULT([not found])])
++
++    AS_IF([test ${check_package_generic_prefix_happy} -eq 1],
++          [check_package_generic_prefix_happy=0
++           AS_IF([test -n "${check_package_libdir}"],
++                 [AC_MSG_CHECKING([for $1 library (${check_package_generic_search_lib}) in ${check_package_libdir}])
++                  ls ${check_package_libdir}/lib${check_package_generic_search_lib}.*  1>&/dev/null 2>&1
++                  AS_IF([test $? -eq 0],
++                        [check_package_generic_prefix_happy=1
++                         $2_LDFLAGS="-L${check_package_libdir}"
++                         AC_MSG_RESULT([found])],
++                        [AC_MSG_RESULT([not found])])],
++                 [check_package_generic_prefix_lib=0
++                  check_package_generic_prefix_lib64=0
++
++                  ls ${check_package_prefix}/lib/lib${check_package_generic_search_lib}.*  1>&/dev/null 2>&1
++                  AS_IF([test $? -eq 0], [check_package_generic_prefix_lib=1])
++                  ls ${check_package_prefix}/lib64/lib${check_package_generic_search_lib}.*  1>&/dev/null 2>&1
++                  AS_IF([test $? -eq 0], [check_package_generic_prefix_lib64=1])
++
++                  AC_MSG_CHECKING([for $1 library (${check_package_generic_search_lib}) in ${check_package_prefix}])
++                  AS_IF([test ${check_package_generic_prefix_lib} -eq 1 -a ${check_package_generic_prefix_lib64} -eq 1],
++                        [AS_IF([test ! -L "${check_package_prefix}/lib" &&
++                                test ! -L "${check_package_prefix}/lib64"],
++                               [AC_MSG_ERROR([Found library $check_package_generic_search_lib in both ${check_package_prefix}/lib and
++${check_package_prefix}/lib64.  This has confused configure.  Please add --with-$1-libdir=PATH to configure to help
++disambiguate.])],
++                               [check_package_generic_prefix_happy=1
++                                $2_LDFLAGS=-L${check_package_prefix}/lib
++                                AC_MSG_RESULT([found -- lib])])],
++                        [test ${check_package_generic_prefix_lib} -eq 1],
++                        [check_package_generic_prefix_happy=1
++                         $2_LDFLAGS=-L${check_package_prefix}/lib
++                         AC_MSG_RESULT([found -- lib])],
++                        [test $check_package_generic_prefix_lib64 -eq 1],
++                        [check_package_generic_prefix_happy=1
++                         $2_LDFLAGS=-L${check_package_prefix}/lib64
++                         AC_MSG_RESULT([found -- lib64])],
++                        [AC_MSG_RESULT([not found])])])])
++
++    AS_IF([test ${check_package_generic_prefix_happy} -eq 1], [$5])
++    OAC_VAR_SCOPE_POP
++])
++
++
++dnl ************************************* OPERATIONAL CHECK *************************************
++
++
++dnl 1 -> package name
++dnl 2 -> prefix
++dnl 3 -> headers (space separated list)
++dnl 4 -> function name
++dnl 5 -> action if found
++dnl 6 -> action if not found
++AC_DEFUN([_OAC_CHECK_PACKAGE_VERIFY],[
++    OAC_VAR_SCOPE_PUSH([check_package_verify_search_header check_package_verify_happy])
++
++    check_package_verify_search_header=`echo "$3" | cut -f1 -d' '`
++
++    OAC_APPEND([CPPFLAGS], [${$2_CPPFLAGS}])
++    OAC_APPEND([LDFLAGS], [${$2_LDFLAGS}])
++    OAC_APPEND([LIBS], [${$2_LIBS}])
++
++    check_package_verify_happy=1
++
++    AS_IF([test ${check_package_verify_happy} -eq 1],
++          [AC_CHECK_HEADER([${check_package_verify_search_header}],
++                           [check_package_verify_happy=1], [check_package_verify_happy=0])])
++
++    dnl Note that we use AC_CHEC_FUNC here instead of AC_CHECK_LIB, because we're pretty sure we've
++    dnl found the library already (and have added it to LIBS).  Now we're just trying to verify
++    dnl that the library we found contains the bits we need.
++    AS_IF([test ${check_package_verify_happy} -eq 1],
++          [AC_CHECK_FUNC([$4],  [check_package_verify_happy=1], [check_package_verify_happy=0])])
++
++    m4_ifdef([OAC_CHECK_PACKAGE_VERIFY_COMMAND_LIST],
++        [m4_foreach([list_item], [OAC_CHECK_PACKAGE_VERIFY_COMMAND_LIST],
++               [AS_IF([test ${check_package_verify_happy} -eq 1],
++                      [m4_apply(m4_unquote([list_item]), [[$1], [$2], [$3], [$4],
++                                                          [check_package_verify_happy=1],
++                                                          [check_package_verify_happy=0]])])])])
++
++    AS_IF([test ${check_package_verify_happy} -eq 1],
++          [$5], [$6])
++    OAC_VAR_SCOPE_POP
++])
+--- /dev/null
++++ b/config/oac/oac_check_vendor.m4
+@@ -0,0 +1,191 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
++dnl                         University Research and Technology
++dnl                         Corporation.  All rights reserved.
++dnl Copyright (c) 2004-2005 The University of Tennessee and The University
++dnl                         of Tennessee Research Foundation.  All rights
++dnl                         reserved.
++dnl Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
++dnl                         University of Stuttgart.  All rights reserved.
++dnl Copyright (c) 2004-2005 The Regents of the University of California.
++dnl                         All rights reserved.
++dnl Copyright (c) 2012      Oracle and/or its affiliates.  All rights reserved.
++dnl Copyright (c) 2014      Intel, Inc. All rights reserved
++dnl Copyright (c) 2017-2021 IBM Corporation.  All rights reserved.
++dnl Copyright (c) 2022      Nanook Consulting.  All rights reserved.
++dnl Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++dnl
++
++
++dnl OAC_C_COMPILER_VENDOR: Determine compiler vendor
++dnl
++dnl <no arguments>
++dnl
++dnl Sets oac_cv_c_compiler_vendor shell variable to a string name of
++dnl the in use C compiler.
++AC_DEFUN([OAC_C_COMPILER_VENDOR], [
++    AC_REQUIRE([AC_PROG_CC])
++    AC_CACHE_CHECK([for the C compiler vendor],
++        [oac_cv_c_compiler_vendor],
++        [_OAC_CHECK_COMPILER_VENDOR()])
++])
++
++
++dnl workaround to avoid syntax error with Autoconf < 2.68:
++m4_ifndef([AC_LANG_DEFINES_PROVIDED],
++          [m4_define([AC_LANG_DEFINES_PROVIDED])])
++
++
++dnl 1 -> symbol
++dnl 2 -> [action-if-defined],
++dnl 3 -> [action-if-not-defined])
++dnl
++dnl Run compiler to determine if preprocessor symbol "symbol" is
++dnl defined by the compiler.
++AC_DEFUN([_OAC_COMPILER_VENDOR_IF_IFELSE], [
++    AC_COMPILE_IFELSE([AC_LANG_DEFINES_PROVIDED
++#if !( $1 )
++#error "condition $1 not met"
++choke me
++#endif], [$2], [$3])])
++
++
++dnl <no arguments>
++dnl
++dnl Sets oac_cv_c_compiler_vendor to the detected compiler vendor.
++dnl
++dnl thanks to http://predef.sourceforge.net/precomp.html for the list
++dnl of defines to check.
++AC_DEFUN([_OAC_CHECK_COMPILER_VENDOR], [
++    AC_LANG_PUSH(C)
++    oac_cv_c_compiler_vendor="unknown"
++    dnl Check GCC last, despite it being most common, because everyone
++    dnl pretends to be GCC.
++
++    # Intel
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__INTEL_COMPILER) || defined(__ICC)],
++               [oac_cv_c_compiler_vendor="intel"])])
++
++    # Portland Group
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__PGI)],
++               [oac_cv_c_compiler_vendor="portland group"])])
++
++    # Fujitsu
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__FUJITSU)],
++               [oac_cv_c_compiler_vendor="fujitsu"])])
++
++    # Clang
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__clang__)],
++               [oac_cv_c_compiler_vendor="clang"])])
++
++    # IBM XL C/C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__) || defined(__ibmxl__)],
++               [oac_cv_c_compiler_vendor="ibm"],
++               [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(_AIX) && !defined(__GNUC__)],
++                    [oac_cv_c_compiler_vendor="ibm"])])])
++
++    # Compaq C/C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__DECC) || defined(VAXC) || defined(__VAXC)],
++               [oac_cv_c_compiler_vendor="compaq"],
++               [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__osf__) && defined(__LANGUAGE_C__)],
++                    [oac_cv_c_compiler_vendor="compaq"],
++                    [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__DECCXX)],
++                         [oac_cv_c_compiler_vendor="compaq"])])])])
++
++    # Cray C/C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(_CRAYC)],
++               [oac_cv_c_compiler_vendor="cray"])])
++
++    # Diab C/C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__DCC__)],
++               [oac_cv_c_compiler_vendor="diab"])])
++
++    # HP ANSI C / aC++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__HP_cc) || defined(__HP_aCC)],
++               [oac_cv_c_compiler_vendor="hp"])])
++
++    # KAI C++ (rest in peace)
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__KCC)],
++               [oac_cv_c_compiler_vendor="kai"])])
++
++    # LCC
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__LCC__)],
++               [oac_cv_c_compiler_vendor="lcc"])])
++
++    # Metrowerks Codewarrior
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__MWERKS__)],
++               [oac_cv_c_compiler_vendor="metrowerks"])])
++
++    # MIPSpro (SGI)
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(sgi) || defined(__sgi)],
++               [oac_cv_c_compiler_vendor="sgi"])])
++
++    # Microsoft
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(_MSC_VER) || defined(__MSC_VER)],
++               [oac_cv_c_compiler_vendor="microsoft"])])
++
++    # Norcroft C
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__CC_NORCROFT)],
++               [oac_cv_c_compiler_vendor="norcroft"])])
++
++    # SAS/C
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(SASC) || defined(__SASC) || defined(__SASC__)],
++               [oac_cv_c_compiler_vendor="sas"])])
++
++    # Sun Workshop C/C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__SUNPRO_C) || defined(__SUNPRO_CC)],
++               [oac_cv_c_compiler_vendor="sun"])])
++
++    # TenDRA C/C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__TenDRA__)],
++               [oac_cv_c_compiler_vendor="tendra"])])
++
++    # Tiny C
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__TINYC__)],
++               [oac_cv_c_compiler_vendor="tiny"])])
++
++    # USL C
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__USLC__)],
++               [oac_cv_c_compiler_vendor="usl"])])
++
++    # Watcom C++
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__WATCOMC__)],
++               [oac_cv_c_compiler_vendor="watcom"])])
++
++    # GNU
++    AS_IF([test "$oac_cv_c_compiler_vendor" = "unknown"],
++          [_OAC_COMPILER_VENDOR_IF_IFELSE([defined(__GNUC__)],
++               [oac_cv_c_compiler_vendor="gnu"
++                # gccfss (gcc for SPARC Systems) is a compiler that is
++                # no longer supported by Oracle.
++                AS_IF([($CC --version | grep gccfss) >/dev/null 2>&1],
++                      [oac_cv_c_compiler_vendor="gccfss"])])])
++     AC_LANG_POP(C)])
++])
+--- /dev/null
++++ b/config/oac/oac_init.m4
+@@ -0,0 +1,30 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++
++dnl OAC is meant to be a "behind the scenes" kind of thing -- we don't
++dnl any any AC_DEFINEd or AC_SUBSTed symbols that begin with "OAC_".
++m4_pattern_forbid([OAC_])
++
++dnl OAC_PUSH_PREFIX: Set a new prefix for AC_DEFINE/AC_SUBST names
++dnl
++dnl 1 -> new prefix
++dnl
++dnl Override (prehaps temporarily) the prefix name specified to
++dnl OAC_INIT.
++AC_DEFUN([OAC_PUSH_PREFIX],
++[m4_pushdef([_oac_program_prefix], [$1])])
++
++
++dnl OAC_POP_PREFIX: Undo last OAC_PUSH_PREFIX
++dnl
++dnl <no arguments>
++dnl
++dnl Undo the last call to OAC_PUSH_PREFIX.
++AC_DEFUN([OAC_POP_PREFIX],
++[m4_popdef([_oac_program_prefix])])
+--- /dev/null
++++ b/config/oac/oac_linker.m4
+@@ -0,0 +1,32 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++
++
++dnl OAC_LINKER_STATIC_CHECK: Check if a linker or compiler flag will force
++dnl                          static linking
++dnl
++dnl 1 -> action if static linking
++dnl 2 -> action if not static linking
++AC_DEFUN([OAC_LINKER_STATIC_CHECK], [
++OAC_VAR_SCOPE_PUSH([oac_linker_arg])
++AC_CACHE_CHECK([if static link flag supplied],
++    [oac_cv_linker_found_static_linker_flag],
++    [oac_cv_linker_found_static_linker_flag="no"
++     for oac_linker_arg in ${CFLAGS} ${LDFLAGS} ; do
++         AS_IF([test "${oac_linker_arg}" = "-static" -o \
++                 "${oac_linker_arg}" = "--static" -o \
++                 "${oac_linker_arg}" = "-Bstatic" -o \
++                 "${oac_linker_arg}" = "-Wl,-static" -o \
++                 "${oac_linker_arg}" = "-Wl,--static" -o \
++                 "${oac_linker_arg}" = "-Wl,-Bstatic"],
++               [oac_cv_linker_found_static_linker_flag="yes"])
++     done])
++AS_IF([test "${oac_cv_linker_found_static_linker_flag}" = "yes"], [$1], [$2])
++OAC_VAR_SCOPE_POP
++])
+--- /dev/null
++++ b/config/oac/oac_list.m4
+@@ -0,0 +1,235 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
++dnl                         University Research and Technology
++dnl                         Corporation.  All rights reserved.
++dnl Copyright (c) 2004-2018 The University of Tennessee and The University
++dnl                         of Tennessee Research Foundation.  All rights
++dnl                         reserved.
++dnl Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
++dnl                         University of Stuttgart.  All rights reserved.
++dnl Copyright (c) 2004-2005 The Regents of the University of California.
++dnl                         All rights reserved.
++dnl Copyright (c) 2007      Sun Microsystems, Inc.  All rights reserved.
++dnl Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
++dnl Copyright (c) 2009-2023 Cisco Systems, Inc.  All rights reserved.
++dnl Copyright (c) 2014      Intel, Inc. All rights reserved.
++dnl Copyright (c) 2015-2017 Research Organization for Information Science
++dnl                         and Technology (RIST). All rights reserved.
++dnl Copyright (c) 2021-2022 Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++
++
++dnl OAC_UNIQ: Uniqify the string-seperated words in the input variable
++dnl
++dnl 1 -> variable name to be uniq-ized
++AC_DEFUN([OAC_UNIQ],[
++OAC_VAR_SCOPE_PUSH([oac_uniq_name oac_uniq_done oac_uniq_i oac_uniq_found oac_uniq_count oac_uniq_newval oac_uniq_val])
++
++oac_uniq_name=$1
++
++# Go through each item in the variable and only keep the unique ones
++oac_uniq_count=0
++for oac_uniq_val in ${$1}; do
++    oac_uniq_done=0
++    oac_uniq_i=1
++    oac_uniq_found=0
++
++    # Loop over every token we've seen so far
++    oac_uniq_done="`expr ${oac_uniq_i} \> ${oac_uniq_count}`"
++    while test ${oac_uniq_found} -eq 0 && test ${oac_uniq_done} -eq 0; do
++        # Have we seen this token already?  Prefix the comparison with
++        # "x" so that "-Lfoo" values won't be cause an error.
++        oac_uniq_eval="expr x${oac_uniq_val} = x\${oac_uniq_array_$oac_uniq_i}"
++        oac_uniq_found=`eval ${oac_uniq_eval}`
++
++        # Check the ending condition
++        oac_uniq_done="`expr ${oac_uniq_i} \>= ${oac_uniq_count}`"
++
++        # Increment the counter
++        oac_uniq_i="`expr ${oac_uniq_i} + 1`"
++    done
++
++    # If we didn't find the token, add it to the "array"
++    if test ${oac_uniq_found} -eq 0; then
++        oac_uniq_eval="oac_uniq_array_${oac_uniq}_i=${oac_uniq_val}"
++        eval ${oac_uniq_eval}
++        oac_uniq_count="`expr ${oac_uniq_count} + 1`"
++    else
++        oac_uniq_i="`expr ${oac_uniq_i} - 1`"
++    fi
++done
++
++# Take all the items in the "array" and assemble them back into a
++# single variable
++oac_uniq_i=1
++oac_uniq_done="`expr ${oac_uniq_i} \> ${oac_uniq_count}`"
++oac_uniq_newval=
++while test ${oac_uniq_done} -eq 0; do
++    oac_uniq_eval="oac_uniq_newval=\"${oac_uniq_newval} \${oac_uniq_array_$oac_uniq_i}\""
++    eval ${oac_uniq_eval}
++
++    oac_uniq_eval="unset oac_uniq_array_${oac_uniq_i}"
++    eval ${oac_uniq_eval}
++
++    oac_uniq_done="`expr ${oac_uniq_i} \>= ${oac_uniq_count}`"
++    oac_uniq_i="`expr ${oac_uniq_i} + 1`"
++done
++
++# Done; do the assignment
++
++oac_uniq_newval="`echo ${oac_uniq_newval}`"
++oac_uniq_eval="${oac_uniq_name}=\"${oac_uniq_newval}\""
++eval ${oac_uniq_eval}
++
++OAC_VAR_SCOPE_POP
++])dnl
++
++
++dnl OAC_APPEND: Append argument to list
++dnl
++dnl 1 -> variable name to append to
++dnl 2 -> string to append
++dnl
++dnl Append the given argument ($2) to the variable name passed as $1.
++dnl The list is assumed to be space separated, and $1 must be a string
++dnl literal (ie, no indirection is supported).
++AC_DEFUN([OAC_APPEND],
++[OAC_ASSERT_LITERAL([$1])
++AS_IF([test -z "${$1}"], [$1="$2"], [$1="${$1} $2"])
++])dnl
++
++
++dnl OAC_APPEND_UNIQ: Append argument to list if not already there
++dnl
++dnl 1 -> variable name to append to
++dnl 2 -> string to append
++dnl
++dnl uniquely append arguments to a space separated list.  $1 is a
++dnl string literal variable name into which the arguments are
++dnl inserted.  $2 is a space separated list of arguments to add, each
++dnl of which is individually unique-checked before insertion.
++dnl
++dnl This could probably be made more efficient :(.
++AC_DEFUN([OAC_APPEND_UNIQ],
++[OAC_ASSERT_LITERAL([$1])
++OAC_VAR_SCOPE_PUSH([oac_list_arg oac_list_found oac_list_val])
++for oac_list_arg in $2; do
++    oac_list_found=0;
++    for oac_list_val in ${$1}; do
++        AS_IF([test "x${oac_list_val}" = "x${oac_list_arg}"],
++              [oac_list_found=1
++               break])
++    done
++    AS_IF([test "${oac_list_found}" = "0"],
++          [OAC_APPEND([$1], [${oac_list_arg}])])
++done
++OAC_VAR_SCOPE_POP
++])dnl
++
++
++dnl OAC_FLAGS_APPEND_UNIQ: Uniquely append argument to list
++dnl
++dnl 1 -> variable name to append to
++dnl 2 -> string to append
++dnl
++dnl Append new_argument to variable if:
++dnl
++dnl - the argument does not begin with -I, -L, or -l, or
++dnl - the argument begins with -I, -L, or -l, and it's not already in variable
++dnl
++dnl This macro assumes a space separated list.
++AC_DEFUN([OAC_FLAGS_APPEND_UNIQ],
++[OAC_ASSERT_LITERAL([$1])
++OAC_VAR_SCOPE_PUSH([oac_list_prefix oac_list_append oac_list_arg oac_list_val])
++for oac_list_arg in $2; do
++    oac_list_append=1
++    AS_CASE([${oac_list_arg}],
++            [-I*|-L*|-l*],
++            [for oac_list_val in ${$1}; do
++                 AS_IF([test "x${oal_list_val}" = "x${oac_list_arg}"],
++                       [oac_list_append=0])
++             done])
++    AS_IF([test ${oac_list_append} -eq 1],
++          [OAC_APPEND([$1], [$oac_list_arg])])
++done
++OAC_VAR_SCOPE_POP
++])dnl
++
++
++dnl OAC_FLAGS_PREPEND_UNIQ: Uniquely prepend argument to list
++dnl
++dnl 1 -> variable name to prepend to
++dnl 2 -> string to append
++dnl
++dnl Prepend new_argument to variable if:
++dnl
++dnl - the argument does not begin with -I, -L, or -l, or
++dnl - the argument begins with -I, -L, or -l, and it's not already in variable
++dnl
++dnl This macro assumes a space separated list.
++AC_DEFUN([OAC_FLAGS_PREPEND_UNIQ],
++[OAC_ASSERT_LITERAL([$1])
++OAC_VAR_SCOPE_PUSH([oac_list_prefix oac_list_prepend oac_list_arg oac_list_val])
++for oac_list_arg in $2; do
++    oac_list_prepend=1
++    AS_CASE([${oac_list_arg}],
++            [-I*|-L*|-l*],
++            [for oac_list_val in ${$1}; do
++                 AS_IF([test "x${oal_list_val}" = "x${oac_list_arg}"],
++                       [oac_list_prepend=0])
++             done])
++    AS_IF([test ${oac_list_prepend} -eq 1],
++           [AS_IF([test -z "${$1}"], [$1="$2"], [$1="$2 ${$1}"])])
++done
++OAC_VAR_SCOPE_POP
++])dnl
++
++
++dnl OAC_FLAGS_APPEND_MOVE: Uniquely add libraries to list
++dnl
++dnl 1 -> variable name to append to
++dnl 2 -> string to append
++dnl
++dnl add new_arguments to the end of variable.
++dnl
++dnl If an argument in new_arguments does not begin with -I, -L, or -l OR
++dnl the argument begins with -I, -L, or -l and it is not already in
++dnl variable, it is appended to variable.
++dnl
++dnl If an argument in new_argument begins with a -l and is already in
++dnl variable, the existing occurrences of the argument are removed from
++dnl variable and the argument is appended to variable.  This behavior
++dnl is most useful in LIBS, where ordering matters and being rightmost
++dnl is usually the right behavior.
++dnl
++dnl This macro assumes a space separated list.
++AC_DEFUN([OAC_FLAGS_APPEND_MOVE],
++[OAC_ASSERT_LITERAL([$1])
++OAC_VAR_SCOPE_PUSH([oac_list_arg oac_list_append oac_list_val oac_list_tmp_variable])
++for oac_list_arg in $2; do
++    AS_CASE([${oac_list_arg}],
++            [-I*|-L*],
++            [oac_list_append=1
++             for oac_list_val in ${$1} ; do
++                 AS_IF([test "x${oac_list_val}" = "x${oac_list_arg}"],
++                       [oac_list_append=0])
++             done
++             AS_IF([test ${oac_list_append} -eq 1],
++                   [OAC_APPEND([$1], [${oac_list_arg}])])],
++            [-l*],
++            [oac_list_tmp_variable=
++             for oac_list_val in ${$1}; do
++                 AS_IF([test "x${oac_list_val}" != "x${oac_list_arg}"],
++                       [OAC_APPEND([oac_list_tmp_variable], [${oac_list_val}])])
++             done
++             OAC_APPEND([oac_list_tmp_variable], [${oac_list_arg}])
++             $1="${oac_list_tmp_variable}"],
++            [OAC_APPEND([$1], [${oac_list_arg}])])
++done
++OAC_VAR_SCOPE_POP
++])dnl
+--- /dev/null
++++ b/config/oac/oac_log.m4
+@@ -0,0 +1,62 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
++dnl                         University Research and Technology
++dnl                         Corporation.  All rights reserved.
++dnl Copyright (c) 2004-2018 The University of Tennessee and The University
++dnl                         of Tennessee Research Foundation.  All rights
++dnl                         reserved.
++dnl Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
++dnl                         University of Stuttgart.  All rights reserved.
++dnl Copyright (c) 2004-2005 The Regents of the University of California.
++dnl                         All rights reserved.
++dnl Copyright (c) 2007      Sun Microsystems, Inc.  All rights reserved.
++dnl Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
++dnl Copyright (c) 2009-2020 Cisco Systems, Inc.  All rights reserved.
++dnl Copyright (c) 2014      Intel, Inc. All rights reserved.
++dnl Copyright (c) 2015-2017 Research Organization for Information Science
++dnl                         and Technology (RIST). All rights reserved.
++dnl Copyright (c) 2021-2022 Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++
++
++dnl OAC_LOG_MSG: Log message in config.log, including prefix
++dnl              giving line number
++dnl
++dnl 1 -> the message to log
++AC_DEFUN([OAC_LOG_MSG],
++[AS_ECHO(["configure:__oline__: $1"]) >&AS_MESSAGE_LOG_FD])dnl
++
++
++dnl OAC_LOG_MSG_NOPREFIX: Log message in config.log, with no prefix
++dnl
++dnl 1 -> the message to log
++AC_DEFUN([OAC_LOG_MSG_NOPREFIX],
++[AS_ECHO([$1]) >&AS_MESSAGE_LOG_FD])dnl
++
++
++dnl OAC_LOG_FILE: Dump the specified file into config.log
++dnl
++dnl 1 -> filename of file to dump into config.log
++AC_DEFUN([OAC_LOG_FILE],
++[AS_IF([test -n "$1" && test -f "$1"], [cat $1 >&AS_MESSAGE_LOG_FD])])dnl
++
++
++dnl OAC_LOG_COMMAND: Run command, logging output, and checking status
++dnl
++dnl 1 -> command to execute
++dnl 2 -> action if successful
++dnl 3 -> action if if fail
++AC_DEFUN([OAC_LOG_COMMAND],[
++OAC_LOG_MSG([$1])
++$1 1>&AS_MESSAGE_LOG_FD 2>&1
++oac_log_command_status=$?
++OAC_LOG_MSG([\$? = $oac_log_command_status])
++AS_IF([test $oac_log_command_status -eq 0],
++      [$2], [$3])
++AS_UNSET([oac_log_command_status])])
+--- /dev/null
++++ b/config/oac/oac_setup_sphinx.m4
+@@ -0,0 +1,129 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2020-2022 Cisco Systems, Inc.  All rights reserved.
++dnl
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++dnl
++
++dnl Setup Sphinx for building HTML docs and man pages
++dnl
++dnl 1 -> sanity file to check if pre-built docs are already available
++dnl      You probably want to pass something like
++dnl      "$srcdir/docs/_build/man/foo.1"
++dnl
++dnl 2 -> (OPTIONAL) URL to display in AC_MSG_WARN when docs will not be installed
++dnl      If $2 is empty, nothing will be displayed.
++dnl      Note: if $2 contains a #, be sure to double quote it
++dnl      (e.g., [[https://example.com/foo.html#some-anchor]])
++dnl
++dnl This macro requires that OAC_PUSH_PREFIX was previously called.
++dnl The pushed prefix may be used if this macro chooses to set {OAC
++dnl prefix}_MAKEDIST_DISABLE.  If set, it is a message indicating why
++dnl "make dist" should be disabled, suitable for emitting via
++dnl AC_MSG_WARN.
++AC_DEFUN([OAC_SETUP_SPHINX],[
++    OAC_ASSERT_PREFIX_DEFINED([$0])
++    OAC_VAR_SCOPE_PUSH([oac_summary_msg oac_sphinx_result oac_install_docs oac_sphinx_target_version oac_sphinx_found_version])
++
++    # This option is probably only helpful to developers: have
++    # configure fail if Sphinx is not found (i.e., if you don't have
++    # the ability to use Sphinx to build the HTML docs and man pages).
++    AC_ARG_ENABLE([sphinx],
++        [AS_HELP_STRING([--enable-sphinx],
++            [Force configure to fail if Sphinx is not found (Sphinx is used to build the HTML docs and man pages).  This option is likely only useful for developers; end users who are building from distribution tarballs do ***not*** need to have Sphinx installed])])
++
++    # Quick check to see if we have already-built docs (e.g., if we're
++    # in a tarball vs. a fresh git clone).
++    AC_MSG_CHECKING([if pre-built docs are available])
++    AS_IF([test -f "$1"],
++          [oac_install_docs=1
++           AC_MSG_RESULT([yes])],
++          [oac_install_docs=0
++           AC_MSG_RESULT([no])])
++
++    # To generate HTML docs + man pages, we need Sphinx.  If we have
++    # Sphinx, then we're able to both build and install the docs
++    # (potentially overriding oac_install_docs from what it was set
++    # above).
++    AC_PATH_PROG([SPHINX_BUILD], [sphinx-build], [])
++
++    # If the user requested to disable sphinx, then pretend we didn't
++    # find it.
++    AS_IF([test "$enable_sphinx" = "no"],
++          [SPHINX_BUILD=])
++
++    # If we found Sphinx, check to ensure that it's a recent enough
++    # version.
++    AS_IF([test -n "$SPHINX_BUILD"],
++          [[oac_sphinx_target_version=`sed -n -e 's/sphinx[><=]*\([0-9\.]\)/\1/p' $srcdir/docs/requirements.txt`]
++           # Some older versions of Sphinx (e.g., Sphinx v1.1.3 in
++           # RHEL 7):
++           #
++           # - Don't support "--version".
++           # - But do emit the version number as part of the general
++           #   CLI help when they don't recognize the --version CLI
++           #   option.
++           #
++           # In that case, we only want the first line, and we want to
++           # strip off the leading "v" from the version number.
++           #
++           # In the case where --version *is* recognized, all the
++           # additional processing is harmless and we still end up
++           # with the Sphinx version number.
++           oac_sphinx_found_version=`$SPHINX_BUILD --version 2>&1 | head -n 1 | cut -d\  -f2 | sed -e 's/^v//'`
++           AC_MSG_CHECKING([if Sphinx version is high enough ($oac_sphinx_found_version >= $oac_sphinx_target_version)])
++           AS_VERSION_COMPARE([$oac_sphinx_found_version],
++                              [$oac_sphinx_target_version],
++                              [oac_sphinx_result=lesser],
++                              [oac_sphinx_result=equal],
++                              [oac_sphinx_result=greater])
++           AS_IF([test "$oac_sphinx_result" = "lesser"],
++                 [SPHINX_BUILD=
++                  AC_MSG_RESULT([no])],
++                 [ # If we're building, we're also installing, regardless of
++                   # whether we found pre-build docs or not (above).
++                  oac_install_docs=1
++                  AC_MSG_RESULT([yes])])
++          ])
++
++    AS_IF([test -z "$SPHINX_BUILD"],
++          _oac_program_prefix[_MAKEDIST_DISABLE="$]_oac_program_prefix[_MAKEDIST_DISABLE Sphinx/Documentation"
++           AC_MSG_NOTICE([Could not find a suitable sphinx-build on your system.])
++           AC_MSG_NOTICE([You will not be able to build a distribution tarball.])
++          ])
++
++    AS_IF([test $oac_install_docs -eq 0],
++          [AC_MSG_WARN([*** You will not have documentation installed.])
++           AS_IF([test -n "$2"],
++                 [AC_MSG_WARN([*** See the following URL for more information:])
++                  AC_MSG_WARN([*** $2])])
++          ])
++
++    # If --enable-sphinx was specified and we did not find Sphinx,
++    # abort.  This is likely only useful to prevent "oops!" moments
++    # from developers.
++    AS_IF([test -z "$SPHINX_BUILD" && test "$enable_sphinx" = "yes"],
++          [AC_MSG_WARN([Sphinx was not found, but --enable-sphinx was specified])
++           AC_MSG_ERROR([Cannot continue])])
++
++    # Construct a summary message.  Due SUMMARY_ADD's implementation,
++    # do *not* include a comma.
++    AS_IF([test -n "$SPHINX_BUILD"],
++          [ # If we found Sphinx, we always both build and install.
++           oac_summary_msg="building and installing"],
++          [AS_IF([test $oac_install_docs -eq 1],
++                 [oac_summary_msg="installing packaged docs"],
++                 [oac_summary_msg="no documentation available"])])
++
++    OAC_SUMMARY_ADD([Miscellaneous], [HTML docs and man pages],
++                    [$oac_summary_msg])
++
++    AM_CONDITIONAL(_oac_program_prefix[_BUILD_DOCS], [test -n "$SPHINX_BUILD"])
++    AM_CONDITIONAL(_oac_program_prefix[_INSTALL_DOCS], [test $oac_install_docs -eq 1])
++
++    OAC_VAR_SCOPE_POP
++])
+--- /dev/null
++++ b/config/oac/oac_summary.m4
+@@ -0,0 +1,105 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2016      Los Alamos National Security, LLC. All rights
++dnl                         reserved.
++dnl Copyright (c) 2016-2018 Cisco Systems, Inc.  All rights reserved
++dnl Copyright (c) 2016      Research Organization for Information Science
++dnl                         and Technology (RIST). All rights reserved.
++dnl Copyright (c) 2022      Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl Copyright (c) 2022      IBM Corporation.  All rights reserved.
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++dnl
++
++# OAC_SUMMARY_ADD(section, topic, result)
++#
++# queue a summary line in the given section of the form:
++#   topic: result
++#
++# section:topic lines are only added once; first to add wins.
++# The key for uniqification is a shell-variable-ified representation
++# of section followed by an underscore followed by a
++# shell-variable-ified representation of line.
++#
++# There are no restrictions on the contents of section and topic; they
++# can be variable references (although the use case for this is
++# dubious) and they can contain most ASCII characters (escape
++# characters excluded).  Note that some care must be taken with the
++# unique check and this liberal rule, as the unique check is after the
++# string has been run through AS_TR_SH.  Basically, any character that
++# is not legal in a shell variable name will be turned into an
++# underscore.  So the strings "Section_foo" and "Section-foo" would be
++# the same as far as the unique check is concerned.
++#
++# The input strings are evaluated during OAC_SUMMARY_ADD, not during
++# OAC_SUMMARY_PRINT.  This seems to meet the principle of least
++# astonishment.  A common pattern is to call
++# OAC_SUMMARY_ADD([Resource Type], [Component Name], [$results])
++# and then unset $results to avoid namespace pollution.  This will
++# work properly with the current behavior, but would result in odd
++# errors if we delayed evaluation.
++# -----------------------------------------------------------
++AC_DEFUN([OAC_SUMMARY_ADD],[
++    OAC_VAR_SCOPE_PUSH([oac_summary_line oac_summary_newline oac_summary_key])
++
++    # The end quote on the next line is intentional!
++    oac_summary_newline="
++"
++    oac_summary_line="$2: $3"
++    oac_summary_key="AS_TR_SH([$1])_AS_TR_SH([$2])"
++
++    # Use the section name variable as an indicator for whether or not
++    # the section has already been created.
++    AS_IF([AS_VAR_TEST_SET([oac_summary_section_]AS_TR_SH([$1])[_name])],
++          [],
++          [AS_VAR_SET([oac_summary_section_]AS_TR_SH([$1])[_name], ["$1"])
++           OAC_APPEND([oac_summary_sections], [AS_TR_SH([$1])])])
++
++    # Use the summary key as indicator if the section:topic has already
++    # been added to the results for the given section.
++    AS_IF([AS_VAR_TEST_SET([${oac_summary_key}])],
++          [],
++          [AS_VAR_SET([${oac_summary_key}], [1])
++           dnl this is a bit overcomplicated, but we are basically implementing
++           dnl a poor mans AS_VAR_APPEND with the ability to specify a separator,
++           dnl because we have a newline separator in the string.
++           AS_IF([AS_VAR_TEST_SET([oac_summary_section_]AS_TR_SH([$1])[_value])],
++                 [AS_VAR_APPEND([oac_summary_section_]AS_TR_SH([$1])[_value],
++                                ["${oac_summary_newline}${oac_summary_line}"])],
++                 [AS_VAR_SET([oac_summary_section_]AS_TR_SH([$1])[_value],
++                             ["${oac_summary_line}"])])])
++
++    OAC_VAR_SCOPE_POP
++])
++
++dnl $1 can be the following:
++dnl
++dnl "stderr" : emit the summary to stderr
++dnl "stdout" : emit the summary to stdout
++dnl blank : emit the summary to configure's default (i.e., AS_MESSAGE_FD)
++dnl
++dnl Other values will cause an m4_fatal error.
++AC_DEFUN([OAC_SUMMARY_PRINT],[
++    OAC_VAR_SCOPE_PUSH([oac_summary_section oac_summary_section_name])
++    m4_define([oac_summary_print_fd],
++              [m4_if([$1], [stderr], [2],
++                     [$1], [stdout], [1],
++                     [$1], [], [AS_MESSAGE_FD],
++                     [m4_fatal([You must pass stdin, stderr, or nothing to $0])])
++              ])
++
++    for oac_summary_section in ${oac_summary_sections} ; do
++        AS_VAR_COPY([oac_summary_section_name], [oac_summary_section_${oac_summary_section}_name])
++        AS_VAR_COPY([oac_summary_section_value], [oac_summary_section_${oac_summary_section}_value])
++        echo "${oac_summary_section_name}" >&oac_summary_print_fd
++        echo "-----------------------" >&oac_summary_print_fd
++        echo "${oac_summary_section_value}" | sort -f >&oac_summary_print_fd
++        echo " " >&oac_summary_print_fd
++    done
++
++    m4_undefine([oac_summary_print_fd])
++    OAC_VAR_SCOPE_POP
++])
+--- /dev/null
++++ b/config/oac/oac_var_scope.m4
+@@ -0,0 +1,105 @@
++dnl -*- autoconf -*-
++dnl
++dnl Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
++dnl                         University Research and Technology
++dnl                         Corporation.  All rights reserved.
++dnl Copyright (c) 2004-2018 The University of Tennessee and The University
++dnl                         of Tennessee Research Foundation.  All rights
++dnl                         reserved.
++dnl Copyright (c) 2004-2005 High Performance Computing Center Stuttgart,
++dnl                         University of Stuttgart.  All rights reserved.
++dnl Copyright (c) 2004-2005 The Regents of the University of California.
++dnl                         All rights reserved.
++dnl Copyright (c) 2007      Sun Microsystems, Inc.  All rights reserved.
++dnl Copyright (c) 2009      Oak Ridge National Labs.  All rights reserved.
++dnl Copyright (c) 2009-2020 Cisco Systems, Inc.  All rights reserved.
++dnl Copyright (c) 2014      Intel, Inc. All rights reserved.
++dnl Copyright (c) 2015-2017 Research Organization for Information Science
++dnl                         and Technology (RIST). All rights reserved.
++dnl Copyright (c) 2021-2022 Amazon.com, Inc. or its affiliates.  All Rights reserved.
++dnl
++dnl $COPYRIGHT$
++dnl
++dnl Additional copyrights may follow
++dnl
++dnl $HEADER$
++
++
++dnl OAC_VAR_SCOPE_INIT
++dnl
++dnl Initialization macro (that is AC_REQUIREd by OAC_VAR_SCOPE_PUSH /
++dnl OAC_VAR_SCOPE_POP) for the var scope subsystem.  Defines the two
++dnl shell functions that implement the configure-time part of the var
++dnl scope evaluation system.
++AC_DEFUN([OAC_VAR_SCOPE_INIT],
++[oac_var_scope_push()
++{
++    oac_var_scope_push_lineno=$[]1
++    shift
++    # First, check to see if any of these variables are already set.
++    # This is a simple sanity check to ensure we're not already
++    # overwriting pre-existing variables (that have a non-empty
++    # value).  It's not a perfect check, but at least it's something.
++    for oac_var_scope_tmp_var in $[]@; do
++        AS_VAR_SET_IF([$oac_var_scope_tmp_var],
++            [AS_VAR_COPY([oac_var_scope_tmp_var_val], [$oac_var_scope_tmp_var])
++             m4_pattern_allow([OAC_])
++             AC_MSG_ERROR([Found configure shell variable clash at line $oac_var_scope_push_lineno!
++[OAC_VAR_SCOPE_PUSH] called on "$oac_var_scope_tmp_var",
++but it is already defined with value "$oac_var_scope_tmp_var_val"
++This usually indicates an error in configure.
++Cannot continue.])
++             m4_pattern_forbid([OAC_])])
++    done
++    AS_UNSET([oac_var_scope_push_lineno])
++    AS_UNSET([oac_var_scope_tmp_var])
++    AS_UNSET([oac_var_scope_tmp_var_val])
++}
++
++oac_var_scope_pop()
++{
++    # Iterate over all the variables and unset them all
++    for oac_var_scope_tmp_var in $[]@; do
++        AS_UNSET([$oac_var_scope_tmp_var])
++    done
++    AS_UNSET([oac_var_scope_tmp_var])
++}])
++
++
++dnl OAC_VAR_SCOPE_PUSH: Create a new variable scope
++dnl
++dnl 1 -> space seperated list of variable names to push into the new scope
++dnl
++dnl Scope-check that the vars in the space-separated vars list are not already
++dnl in use.  Generate a configure-time error if a conflict is found.  Note that
++dnl the in use check is defined as "defined", so even if a var in vars list is
++dnl set outside of OAC_VAR_SCOPE_PUSH, the check will still trip.
++AC_DEFUN([OAC_VAR_SCOPE_PUSH],[
++AC_REQUIRE([OAC_VAR_SCOPE_INIT])dnl
++m4_pushdef([oac_var_scope_stack], [$1])dnl
++m4_foreach_w([oac_var_scope_var], [$1],
++             [m4_set_add([oac_var_scope_active_set], oac_var_scope_var,
++                         [], [m4_fatal([$0 found the variable ]oac_var_scope_var[
++active in a previous scope.])])])dnl
++oac_var_scope_push ${LINENO} $1
++])dnl
++
++
++dnl OAC_VAR_SCOPE_POP: pop off the current variable scope
++dnl
++dnl Unset the last set of variables set in OAC_VAR_SCOPE_POP.  Every call to
++dnl OAC_VAR_SCOPE_PUSH should have a matched call to this macro.
++AC_DEFUN([OAC_VAR_SCOPE_POP],[
++AC_REQUIRE([OAC_VAR_SCOPE_INIT])dnl
++m4_ifdef([oac_var_scope_stack], [],
++         [m4_pattern_allow([OAC_])
++          m4_fatal([$0 was called without a defined
++variable stack.  This usually means that $0 was called more
++times than OAC_VAR_SCOPE_PUSH.])
++          m4_pattern_forbid([OAC_])])dnl
++m4_foreach_w([oac_var_scope_var], oac_var_scope_stack,
++             [m4_set_remove([oac_var_scope_active_set], oac_var_scope_var)])dnl
++oac_var_scope_pop oac_var_scope_stack
++m4_popdef([oac_var_scope_stack])dnl
++])dnl
++

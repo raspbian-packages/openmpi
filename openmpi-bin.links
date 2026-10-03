@@ -1,0 +1,9 @@
+usr/share/man/man1/mpirun.openmpi.1.gz	usr/share/man/man1/mpiexec.openmpi.1.gz
+## Man pages (link provided by upstream, needs recreation because of renaming):
+usr/share/man/man1/mpic++.openmpi.1.gz     usr/share/man/man1/mpiCC.openmpi.1.gz
+# Missing links
+usr/share/man/man1/opal_wrapper.1.gz	usr/share/man/man1/opalCC.1.gz
+usr/share/man/man1/opal_wrapper.1.gz	usr/share/man/man1/opalc++.1.gz
+usr/share/man/man1/opal_wrapper.1.gz	usr/share/man/man1/orteCC.1.gz
+usr/share/man/man1/opal_wrapper.1.gz	usr/share/man/man1/ortec++.1.gz
+usr/share/man/man1/opal_wrapper.1.gz	usr/share/man/man1/ortecc.1.gz
