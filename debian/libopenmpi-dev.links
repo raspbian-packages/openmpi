@@ -1,0 +1,54 @@
+## SONAME symlinks
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi.so.40				usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi.so
+#usr/lib/${DEB_HOST_MULTIARCH}/libmca_common_monitoring.so.50        usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_monitoring.so
+#usr/lib/${DEB_HOST_MULTIARCH}/libmca_common_sm.so.40		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmca_common_sm.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so.40			usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_mpifh.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so.40		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_usempif08.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so.40	usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_usempi_ignore_tkr.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so.40			usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so.40		usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so.40	usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh-gfortran.so.40			usr/lib/${DEB_HOST_MULTIARCH}/fortran/gfortran/libmpi_mpifh.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08-gfortran.so.40		usr/lib/${DEB_HOST_MULTIARCH}/fortran/gfortran/libmpi_usempif08.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr-gfortran.so.40	usr/lib/${DEB_HOST_MULTIARCH}/fortran/gfortran/libmpi_usempi_ignore_tkr.so
+# usr/lib/${DEB_HOST_MULTIARCH}/libompitrace.so.40			usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libompitrace.so
+usr/lib/${DEB_HOST_MULTIARCH}/libopen_mpi.so.40.50.0			usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libopen_mpi.so
+usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so.40.50.0			usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libopen-pal.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_abi_openmpi.so.1.0.0			usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/libmpi_abi.so
+
+## Convenience link for header files, see bug #493875
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/include/		usr/include/${DEB_HOST_MULTIARCH}/openmpi
+# pkg-config
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/ompi-fort.pc	usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/ompi-fort.pc
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/ompi-f77.pc	usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/ompi-f77.pc
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/ompi.pc		usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/ompi.pc
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/ompi-c.pc		usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/ompi-c.pc
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/opal.pc		usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/opal.pc
+usr/lib/${DEB_HOST_MULTIARCH}/openmpi/lib/pkgconfig/ompi-cxx.pc	usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/ompi-cxx.pc
+# Historical links; use $LIBDIR/openmpi/lib instead
+# libmpi.so is handled by the mpi-${DEB_HOST_MULTIARCH} alternative
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so.40			usr/lib/${DEB_HOST_MULTIARCH}/libmpi_mpifh.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so.40		usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempif08.so
+usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so.40	usr/lib/${DEB_HOST_MULTIARCH}/libmpi_usempi_ignore_tkr.so
+# usr/lib/${DEB_HOST_MULTIARCH}/libompitrace.so.40			usr/lib/${DEB_HOST_MULTIARCH}/libompitrace.so
+usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so.40.50.0			usr/lib/${DEB_HOST_MULTIARCH}/libopen-pal.so
+usr/lib/${DEB_HOST_MULTIARCH}/libopen_mpi.so.40.50.0			usr/lib/${DEB_HOST_MULTIARCH}/libopen_mpi.so
+# For completeness of prefix dir
+etc/openmpi			usr/lib/${DEB_HOST_MULTIARCH}/openmpi/etc/openmpi	
+usr/bin/mpicc.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpicc.openmpi
+usr/bin/mpic++.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpic++.openmpi
+usr/bin/mpicxx.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpicxx.openmpi
+usr/bin/mpiCC.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpiCC.openmpi
+usr/bin/mpiexec.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpiexec.openmpi
+usr/bin/mpif90.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpif90.openmpi
+usr/bin/mpif77.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpif77.openmpi
+usr/bin/mpifort.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpifort.openmpi
+usr/bin/mpicc.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpicc
+usr/bin/mpic++.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpic++
+usr/bin/mpicxx.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpicxx
+usr/bin/mpiCC.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpiCC
+usr/bin/mpiexec.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpiexec
+usr/bin/mpif90.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpif90
+usr/bin/mpif77.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpif77
+usr/bin/mpifort.openmpi		usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/mpifort
+usr/bin/opal_wrapper usr/lib/${DEB_HOST_MULTIARCH}/openmpi/bin/opal_wrapper

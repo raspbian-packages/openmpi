@@ -1,0 +1,55 @@
+--- a/docs/man/mpisync.1
++++ b/docs/man/mpisync.1
+@@ -29,7 +29,7 @@
+ .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+ ..
+ .sp
+-mpisync — Open MPI timing tools
++mpisync \— Open MPI timing tools
+ .SH SYNTAX
+ .sp
+ \fBmpisync [options]\fP
+--- a/docs/man/MPIX_Comm_ack_failed.3
++++ b/docs/man/MPIX_Comm_ack_failed.3
+@@ -29,7 +29,7 @@
+ .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+ ..
+ .sp
+-\fI\%MPIX_Comm_get_failed\fP \- acknowledge failed processes in a communicator.
++MPIX_Comm_get_failed \- acknowledge failed processes in a communicator.
+ .sp
+ This is part of the User Level Fault Mitigation \fI\%ULFM extension\fP\&.
+ .SH SYNTAX
+--- a/docs/man/ompi_info.1
++++ b/docs/man/ompi_info.1
+@@ -29,7 +29,7 @@
+ .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+ ..
+ .sp
+-ompi_info — Display information about the Open MPI installation
++ompi_info \— Display information about the Open MPI installation
+ .SH SYNOPSIS
+ .sp
+ \fBompi_info [options]\fP
+--- a/docs/man/opal_wrapper.1
++++ b/docs/man/opal_wrapper.1
+@@ -29,7 +29,7 @@
+ .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+ ..
+ .sp
+-opal_wrapper — Back\-end Open MPI wrapper command
++opal_wrapper \— Back\-end Open MPI wrapper command
+ .SH DESCRIPTION
+ .sp
+ \fBopal_wrapper\fP is not meant to be called directly by end users. It
+--- a/docs/man/oshmem-wrapper-compiler.1
++++ b/docs/man/oshmem-wrapper-compiler.1
+@@ -29,7 +29,7 @@
+ .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+ ..
+ .sp
+-oshcc, oshcxx, oshc++, oshfort, shmemcc, shmemcxx, shmemc++, shmemfort — OpenSHMEM wrapper compilers
++oshcc, oshcxx, oshc++, oshfort, shmemcc, shmemcxx, shmemc++, shmemfort \— OpenSHMEM wrapper compilers
+ .SH SYNTAX
+ .sp
+ \fBoshcc [\-\-showme | \-\-showme:compile | \-\-showme:link] ...\fP
